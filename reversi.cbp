@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="reversi" />
+		<Option makefile="makefile" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/reversi" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D__DEBUG__" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/reversi" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-D__NDEBUG__" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++11" />
+			<Add directory="F:/Program/cpptcl-1.1.3" />
+			<Add directory="F:/Program/boost_1_59_0" />
+			<Add directory="F:/Program/Tcl/include" />
+		</Compiler>
+		<Linker>
+			<Add option="-ltcl86" />
+			<Add directory="F:/Program/Tcl/lib" />
+		</Linker>
+		<Unit filename="cpptcl.cc" />
+		<Unit filename="main.cc" />
+		<Unit filename="reversi.cc" />
+		<Unit filename="reversi.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
