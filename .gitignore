@@ -6,3 +6,6 @@
 
 *.depend
 *.layout
+
+out*
+*temp*
