@@ -207,14 +207,54 @@ protected:
 	static void dright(brd_type& mask){mask <<= 9;}
 
 	const board& do_print(ostream& out = cout)const{
+//		brd_type mask = 1;
+//		for(pos_type i = 0;i != size;++i){
+//			for(pos_type j = 0;j != size;++j){
+//				out << chr_print[get(mask)];
+//				mask <<= 1;
+//			}
+//			out << '\n';
+//		}
+		string s =
+			"¨X¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨[\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨^¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨a\n"
+		;
 		brd_type mask = 1;
+		string::size_type pos;
+		while((pos = s.find(".")) != s.npos){
+			s.replace(pos,1,"  ");
+		}
 		for(pos_type i = 0;i != size;++i){
 			for(pos_type j = 0;j != size;++j){
-				out << chr_print[get(mask)];
+				s[i * 4 + j * 70 + 37] = chr_print[get(mask)];
 				mask <<= 1;
 			}
-			out << '\n';
 		}
+		while((pos = s.find(".")) != s.npos){
+			s.replace(pos,1," ");
+		}
+		while((pos = s.find("#")) != s.npos){
+			s.replace(pos,2,"¡ñ");
+		}
+		while((pos = s.find("O")) != s.npos){
+			s.replace(pos,2,"¡ð");
+		}
+		out << s;
 		return *this;
 	}
 
