@@ -1,4 +1,5 @@
 *.o
+*.out
 *.a
 *.lib
 *.dll
@@ -9,3 +10,9 @@
 
 out*
 *temp*
+
+smain.cc
+*gtest
+
+*.dot
+*.png
