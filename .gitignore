@@ -7,12 +7,12 @@
 
 *.depend
 *.layout
+*.log
 
 out*
 *temp*
 
 smain.cc
-*gtest
 
 *.dot
 *.png
