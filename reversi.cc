@@ -171,32 +171,32 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 		return this->score<color>(conf) + acc;
 	}
 
-	vector<board> vec;
+	board vec[35];
+	board* ptr = vec;
 	calc_type temp;
 	
-	vec.reserve(30);
-	vec.push_back(*this);
+	*ptr = *this;
 	for(register brd_type i = 1;i != last;i <<= 1){
-		if(vec.back().flip<color>(i)){
-			vec.push_back(*this);
+		if(ptr->flip<color>(i)){
+			*++ptr = *this;
 		}
 	}
-	if(!vec.back().flip<color>(last)){
-		vec.pop_back();
+	if(ptr->flip<color>(last)){
+		++ptr;
 	}
 	
-	if(vec.empty()){
-		vec.push_back(*this);
+	if(ptr == vec){
+		//*ptr = *this;
 		for(register brd_type i = 1;i != last;i <<= 1){
-			if(vec.back().flip<!color>(i)){
-				vec.push_back(*this);
+			if(ptr->flip<!color>(i)){
+				*++ptr = *this;
 			}
 		}
-		if(!vec.back().flip<!color>(last)){
-			vec.pop_back();
+		if(ptr->flip<!color>(last)){
+			++ptr;
 		}
 
-		if(vec.empty()){
+		if(ptr == vec){
 			calc_type num_diff = count<color>() - count<!color>();
 			num_diff <<= 4;
 			if(num_diff){
@@ -211,9 +211,9 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 				return 0;
 			}
 		}else{
-			acc = (acc >> 1) - vec.size();
-			for(const auto& brd:vec){
-				temp = brd.search<color>(height - 1,alpha,beta,acc,conf);
+			acc = (acc >> 1) - (ptr - vec);
+			for(auto p = vec;p != ptr;++p){
+				temp = p->search<color>(height - 1,alpha,beta,acc,conf);
 				if(temp <= alpha)
 					return alpha;
 				if(temp < beta)
@@ -222,9 +222,9 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 			return beta;
 		}
 	}else{
-		acc = vec.size() + (acc >> 1);
-		for(const auto& brd:vec){
-			temp = - brd.search<!color>(height - 1,-beta,-alpha,-acc,conf);
+		acc = (ptr - vec) + (acc >> 1);
+		for(auto p = vec;p != ptr;++p){
+			temp = - p->search<!color>(height - 1,-beta,-alpha,-acc,conf);
 			if(temp >= beta)
 				return beta;
 			if(temp > alpha)

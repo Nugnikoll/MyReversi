@@ -176,11 +176,7 @@ public:
 
 		short total = this->sum();
 		if(total <= 33){
-			if(total >= 17 || total <= 21){
-				height = 6; stage = 0;
-			}else{
-				height = 7; stage = 0;
-			}
+			height = 7; stage = 0;
 		}else if(total <= size2 - 15){
 			height = 7; stage = 1;
 		}else{
