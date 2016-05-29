@@ -6,7 +6,7 @@ clean_all: clean
 	rm gmon.out
 
 clean:
-	rm gtest test.dot rtest.dot test.png
+	rm prof.log test.dot rtest.dot test.png
 
 test.exe: ../test.exe
 	cp ../test.exe ./test.exe
@@ -14,11 +14,11 @@ test.exe: ../test.exe
 gmon.out: test.exe in.txt
 	cat in.txt | ./test.exe
 
-gtest: test.exe gmon.out
-	gprof test.exe gmon.out > gtest
+prof.log: test.exe gmon.out
+	gprof test.exe gmon.out > prof.log
 
-test.dot: gtest
-	gprof2dot gtest > test.dot
+test.dot: prof.log
+	gprof2dot prof.log > test.dot
 
 rtest.dot: test.dot
 	py replace.py test.dot rtest.dot
