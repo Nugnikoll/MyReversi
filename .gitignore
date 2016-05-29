@@ -16,3 +16,6 @@ smain.cc
 
 *.dot
 *.png
+
+!optimize/*.exe
+!optimize/*/*.exe
