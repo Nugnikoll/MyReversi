@@ -1,3 +1,6 @@
+#ifndef REVERSI_H
+#define REVERSI_H
+
 #include <iostream>
 #include <limits>
 #include <tuple>
@@ -12,7 +15,7 @@ using namespace std;
 	extern ofstream out;
 #endif
 
-extern unsigned seed;
+extern unsigned int seed;
 
 typedef const bool& cbool;
 typedef const short& cshort;
@@ -71,6 +74,7 @@ public:
 		return *this;
 	}
 
+	static void config_num();
 	static void config();
 	static conf_score stage_config(cpos_type stage){
 		conf_score conf;
@@ -163,15 +167,28 @@ public:
 	tuple<pos_type,pos_type> play(cbool color){
 		short height;
 		pos_type stage;
+
+		static bool flag = true;
+		if(flag){
+			config_num();
+			flag = false;
+		}
+
 		short total = this->sum();
 		if(total <= 33){
-			height = 7; stage = 0;
+			if(total >= 17 || total <= 21){
+				height = 6; stage = 0;
+			}else{
+				height = 7; stage = 0;
+			}
 		}else if(total <= size2 - 15){
 			height = 7; stage = 1;
 		}else{
 			height = 20; stage = 2;
 		}
+
 		vector<choice> choices = get_choices(color,height,stage);
+
 		if(choices.empty()){
 			return tuple<pos_type,pos_type>(-1,-1);
 		}else{
@@ -195,7 +212,7 @@ protected:
 	static const brd_type drbound = 0x007f7f7f7f7f7f7f;
 
 	static calc_type table_count[enum_num];
-	static calc_type table_eval[stage_num][layer_num][enum_num];
+	static calc_type table_eval[stage_num][size][enum_num];
 
 	static void up(brd_type& mask){mask >>= 8;}
 	static void down(brd_type& mask){mask <<= 8;}
@@ -463,6 +480,8 @@ protected:
 		result += table_count[(unsigned char&)blue]; blue >>= size;
 		result += table_count[(unsigned char&)blue];
 
+		//cout << result << endl;
+
 		return result;
 	}
 	template<bool color> inline
@@ -504,3 +523,5 @@ protected:
 	template<bool color>
 	vector<choice> get_choices(cshort height,cconf_score conf)const;
 };
+
+#endif // REVERSI_H

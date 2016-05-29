@@ -1,14 +1,14 @@
 #include <vector>
 #include <algorithm>
 
-#include "reversi.h"
+#include "reversi.h" //--
 
 const brd_type board::last = 0x8000000000000000;
 
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
 calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,2,-3,0},{4,4,4,4}};
 calc_type board::table_count[board::enum_num];
-calc_type board::table_eval[board::stage_num][board::layer_num][board::enum_num];
+calc_type board::table_eval[board::stage_num][board::size][board::enum_num];
 
 board& board::mirror(cbool is_horizontal){
 	brd_type mask = 1,filter;
@@ -98,9 +98,26 @@ board& board::rotater(pos_type n90){
 	return *this;
 }
 
+void board::config_num(){
+	calc_type value;
+	pos_type mask;
+
+	for(pos_type k = 0;k != enum_num;++k){
+		value = 0;
+		for(pos_type l = 0;l != size;++l){
+			mask = 1 << l;
+			if(mask & k){
+				++value;
+			}
+		}
+		table_count[k] = value;
+	}
+}
+
 void board::config(){
 	calc_type value;
 	pos_type mask;
+
 	for(pos_type i = 0;i != stage_num;++i){
 		for(pos_type j = 0;j != size;++j){
 			for(pos_type k = 0;k != enum_num;++k){
@@ -122,16 +139,6 @@ void board::config(){
 				table_eval[i][j][k] = value;
 			}
 		}
-	}
-	for(pos_type k = 0;k != enum_num;++k){
-		value = 0;
-		for(pos_type l = 0;l != size;++l){
-			mask = 1 << l;
-			if(mask & k){
-				++value;
-			}
-		}
-		table_count[k] = value;
 	}
 }
 
@@ -273,11 +280,18 @@ vector<board::choice> board::get_choices(cshort height,board::cconf_score conf)c
     return choices;
 }
 
-#include <random>
-#include <chrono>
-default_random_engine engine(
-	chrono::system_clock::now().time_since_epoch().count()
-);
+#define USE_RANDOM
+
+#ifdef USE_RANDOM
+	#include <random>
+	#include <chrono>
+	default_random_engine engine(
+		chrono::system_clock::now().time_since_epoch().count()
+	);
+#else
+	#include <cstdlib>
+	#include <ctime>
+#endif //USE_RANDOM
 
 board::choice board::select_choice(vector<board::choice> choices)const{
 
@@ -285,15 +299,28 @@ board::choice board::select_choice(vector<board::choice> choices)const{
 		throw runtime_error("There's no choice!");
 	}
 
-	normal_distribution<float> scatter(0,0.8);
+	#ifdef USE_RANDOM
+		normal_distribution<float> scatter(0,0.8);
+	#else
+		//cout << "time : " << time(NULL) << endl;
+		srand(time(NULL));
+		float f;
+	#endif //USE_RANDOM
 
 	for(choice& c:choices){
-		std::get<0>(c) += scatter(engine);
+		#ifdef USE_RANDOM
+			std::get<0>(c) += scatter(engine);
+		#else
+			f = (float(rand()) / RAND_MAX - 0.5);
+			f *= f * f * 6;
+			std::get<0>(c) += f;
+		#endif //USE_RANDOM
 	}
 
 	return *max_element(
 		choices.begin(),choices.end(),
 		[](const choice& c1,const choice& c2) -> bool{
+			//cout << std::get<0>(c1) << " " << std::get<0>(c2) << endl;
 			return std::get<0>(c1) < std::get<0>(c2);
 		}
 	);
