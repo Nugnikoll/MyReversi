@@ -160,8 +160,8 @@ int search(cbool color,cint height,cint stage){
 	return brd.search(color,height,_inf,inf,0,stage);
 }
 int search_detail(cbool color,cint height,cint alpha,
-		cint beta,cint acc,cint stage){
-	return brd.search(color,height,alpha,beta,acc,stage);
+		cint beta,cint stage){
+	return brd.search(color,height,alpha,beta,0,stage);
 }
 object get_choices(cbool color,cint height,cint stage){
 	vector<board::choice> choices = brd.get_choices(color,height,stage);

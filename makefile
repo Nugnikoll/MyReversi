@@ -1,4 +1,4 @@
-gccdir = D:\\Program\\mingw\\x86_64-4.8.2-posix-seh-rt_v3-rev4\\mingw64\\bin\\
+#gccdir = D:\\Program\\mingw\\x86_64-4.8.2-posix-seh-rt_v3-rev4\\mingw64\\bin\\
 cc = $(gccdir)gcc
 cxx = $(gccdir)g++
 
