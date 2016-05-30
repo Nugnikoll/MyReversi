@@ -9,6 +9,7 @@ const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
 calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,2,-3,0},{4,4,4,4}};
 calc_type board::table_count[board::enum_num];
 calc_type board::table_eval[board::stage_num][board::size][board::enum_num];
+calc_type board::table_temp[2][board::max_height][board::size2];
 
 board& board::mirror(cbool is_horizontal){
 	brd_type mask = 1,filter;
@@ -118,6 +119,12 @@ void board::config(){
 	calc_type value;
 	pos_type mask;
 
+	calc_type* ptr_begin = **table_temp;
+	calc_type* ptr_end = ptr_begin + (2 * max_height * size2);
+	for(calc_type* ptr = ptr_begin;ptr != ptr_end;++ptr){
+		*ptr = _inf;
+	}
+
 	for(pos_type i = 0;i != stage_num;++i){
 		for(pos_type j = 0;j != size;++j){
 			for(pos_type k = 0;k != enum_num;++k){
@@ -171,29 +178,35 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 		return this->score<color>(conf) + acc;
 	}
 
-	board vec[35];
-	board* ptr = vec;
+	struct brd_val{
+		board brd;
+		pos_type pos;
+		calc_type val;
+	};
+
+	calc_type (&table_ref)[size2] = table_temp[color][height];
+	brd_val vec[35];
+	brd_val* ptr = vec;
 	calc_type temp;
 	
-	*ptr = *this;
-	for(register brd_type i = 1;i != last;i <<= 1){
-		if(ptr->flip<color>(i)){
-			*++ptr = *this;
+	ptr->brd = *this;
+	for(register pos_type i = 0;i != size2;++i){
+		if(ptr->brd.flip<color>(brd_type(1) << i)){
+			ptr->pos = i;
+			ptr->val = table_ref[i];
+			(++ptr)->brd = *this;
 		}
-	}
-	if(ptr->flip<color>(last)){
-		++ptr;
 	}
 	
 	if(ptr == vec){
-		//*ptr = *this;
-		for(register brd_type i = 1;i != last;i <<= 1){
-			if(ptr->flip<!color>(i)){
-				*++ptr = *this;
+		calc_type (&table_ref)[size2] = table_temp[!color][height];
+		//ptr->brd = *this;
+		for(register pos_type i = 0;i != size2;++i){
+			if(ptr->brd.flip<!color>(brd_type(1) << i)){
+				ptr->pos = i;
+				ptr->val = table_ref[i];
+				(++ptr)->brd = *this;
 			}
-		}
-		if(ptr->flip<!color>(last)){
-			++ptr;
 		}
 
 		if(ptr == vec){
@@ -211,9 +224,16 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 				return 0;
 			}
 		}else{
+			sort(vec,ptr,
+				[](const brd_val& b1,const brd_val& b2) -> bool {
+					return b1.val < b2.val;
+				}
+			);
+
 			acc = (acc >> 1) - (ptr - vec);
 			for(auto p = vec;p != ptr;++p){
-				temp = p->search<color>(height - 1,alpha,beta,acc,conf);
+				temp = p->brd.search<color>(height - 1,alpha,beta,acc,conf);
+				table_ref[p->pos] = temp;
 				if(temp <= alpha)
 					return alpha;
 				if(temp < beta)
@@ -222,9 +242,16 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 			return beta;
 		}
 	}else{
+		sort(vec,ptr,
+			[](const brd_val& b1,const brd_val& b2) -> bool {
+				return b1.val > b2.val;
+			}
+		);
+
 		acc = (ptr - vec) + (acc >> 1);
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->search<!color>(height - 1,-beta,-alpha,-acc,conf);
+			temp = - p->brd.search<!color>(height - 1,-beta,-alpha,-acc,conf);
+			table_ref[p->pos] = temp;
 			if(temp >= beta)
 				return beta;
 			if(temp > alpha)
