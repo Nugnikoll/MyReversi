@@ -57,6 +57,7 @@ public:
 	static const pos_type layer_num = 3;
 	static const pos_type stage_num = 3;
 	static const pos_type enum_num = 256;
+	static const calc_type max_height = 20;
 
 	static calc_type table_param[stage_num][pos_num];
 
@@ -209,6 +210,7 @@ protected:
 
 	static calc_type table_count[enum_num];
 	static calc_type table_eval[stage_num][size][enum_num];
+	static calc_type table_temp[2][20][size2];
 
 	static void up(brd_type& mask){mask >>= 8;}
 	static void down(brd_type& mask){mask <<= 8;}
