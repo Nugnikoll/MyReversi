@@ -23,7 +23,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -44,6 +44,8 @@
 		</Linker>
 		<Unit filename="cpptcl.cc" />
 		<Unit filename="main.cc" />
+		<Unit filename="pattern.cc" />
+		<Unit filename="pattern.h" />
 		<Unit filename="reversi.cc" />
 		<Unit filename="reversi.h" />
 		<Extensions>

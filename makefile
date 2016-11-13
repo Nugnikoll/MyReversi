@@ -6,15 +6,13 @@ cxx = $(gccdir)g++
 
 all: test.exe
 
-gprof: test.exe
-	copy test.exe .\optimize\test.exe
-
 clean:
 	del smain.cc
 	del test.exe
 
-smain.cc: merge.py jmain.cc reversi.h reversi.cc
+smain.cc: merge.py jmain.cc reversi.h reversi.cc pattern.h pattern.cc data\\data.h data\\data.cc
 	py -3 merge.py jmain.cc smain.cc
+	type data\data.cc >> smain.cc
 
 test.exe: smain.cc
-	$(cxx) -pg -O2 -std=c++11 -x c++ smain.cc -o test
+	$(cxx) -O2 -std=c++11 -x c++ smain.cc -o test
