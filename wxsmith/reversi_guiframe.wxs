@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxFrame" name="reversi_guiFrame">
+		<title>Reversi</title>
+		<icon>E:\LLK\ComputerSci\Cplusplus\reversi\icon\Reversi.bmp</icon>
+		<id_arg>0</id_arg>
+		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
+			<object class="sizeritem">
+				<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
+					<bg>wxSYS_COLOUR_BACKGROUND</bg>
+					<object class="wxBoxSizer" variable="BoxSizer2" member="no">
+						<object class="sizeritem">
+							<object class="wxBoxSizer" variable="BoxSizer3" member="no">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<object class="wxPanel" name="id_panel_board" variable="panel_board" member="yes">
+										<size>424,424</size>
+										<bg>#2B9B00</bg>
+										<style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
+										<handler function="on_panel_board_paint" entry="EVT_PAINT" />
+										<handler function="on_panel_board_leftdown" entry="EVT_LEFT_DOWN" />
+									</object>
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>5</border>
+									<option>1</option>
+								</object>
+							</object>
+							<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+							<border>5</border>
+						</object>
+						<object class="sizeritem">
+							<object class="wxBoxSizer" variable="BoxSizer4" member="no">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<object class="wxStaticText" name="id_text_label" variable="text_label" member="yes">
+										<label>Reversi</label>
+										<size>154,51</size>
+										<fg>#C8C8C8</fg>
+										<font>
+											<size>26</size>
+											<style>normal</style>
+											<weight>bold</weight>
+											<underlined>0</underlined>
+											<family>swiss</family>
+											<face>Segoe Script</face>
+										</font>
+									</object>
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>5</border>
+								</object>
+								<object class="sizeritem">
+									<object class="wxNotebook" name="ID_NOTEBOOK1" variable="Notebook1" member="yes">
+										<size>448,323</size>
+										<font>
+											<size>12</size>
+											<style>normal</style>
+											<weight>bold</weight>
+											<underlined>0</underlined>
+											<family>swiss</family>
+											<face>Consolas</face>
+										</font>
+										<object class="notebookpage">
+											<object class="wxTextCtrl" name="id_text_terminal" variable="text_terminal" member="yes">
+												<pos>-81,23</pos>
+												<size>283,296</size>
+												<fg>#C8C8C8</fg>
+												<bg>#202020</bg>
+												<font>
+													<size>14</size>
+													<style>normal</style>
+													<weight>bold</weight>
+													<underlined>0</underlined>
+													<family>swiss</family>
+													<face>Consolas</face>
+												</font>
+												<style>wxTE_MULTILINE|wxTE_READONLY</style>
+											</object>
+										</object>
+									</object>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<option>1</option>
+								</object>
+								<object class="sizeritem">
+									<object class="wxTextCtrl" name="id_text_input" variable="text_input" member="yes">
+										<size>266,30</size>
+										<fg>#C8C8C8</fg>
+										<bg>#202020</bg>
+										<font>
+											<size>14</size>
+											<style>normal</style>
+											<weight>bold</weight>
+											<underlined>0</underlined>
+											<family>swiss</family>
+											<face>Consolas</face>
+										</font>
+										<style>wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB</style>
+										<handler function="on_text_input_textenter" entry="EVT_TEXT_ENTER" />
+									</object>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+								</object>
+							</object>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<option>1</option>
+						</object>
+					</object>
+				</object>
+				<flag>wxALL|wxEXPAND</flag>
+				<border>5</border>
+				<option>1</option>
+			</object>
+		</object>
+		<object class="wxMenuBar" variable="MenuBar1" member="no">
+			<object class="wxMenu" variable="Menu1" member="no">
+				<label>&amp;File</label>
+				<object class="wxMenu" name="id_new_game" variable="MenuItem3" member="yes">
+					<label>New Game</label>
+					<object class="wxMenuItem" name="id_player_black" variable="MenuItem4" member="yes">
+						<label>Player &amp;Black</label>
+						<accel>Ctrl-B</accel>
+					</object>
+					<object class="wxMenuItem" name="id_player_white" variable="MenuItem5" member="yes">
+						<label>Player &amp;White</label>
+						<accel>Ctrl-W</accel>
+					</object>
+				</object>
+				<object class="wxMenuItem" name="id_load" variable="MenuItem7" member="yes">
+					<label>&amp;Load</label>
+					<accel>Ctrl-O</accel>
+				</object>
+				<object class="wxMenuItem" name="id_save" variable="MenuItem8" member="yes">
+					<label>&amp;Save</label>
+					<accel>Ctrl-S</accel>
+				</object>
+				<object class="wxMenuItem" name="id_quit" variable="MenuItem1" member="no">
+					<label>&amp;Quit</label>
+					<accel>Alt-F4</accel>
+					<help>Quit the application</help>
+					<handler function="OnQuit" entry="EVT_MENU" />
+				</object>
+			</object>
+			<object class="wxMenu" variable="Menu4" member="yes">
+				<label>&amp;Edit</label>
+				<object class="wxMenuItem" name="id_undo" variable="MenuItem10" member="yes">
+					<label>&amp;Undo</label>
+					<accel>Ctrl-Z</accel>
+				</object>
+				<object class="wxMenuItem" name="id_redo" variable="MenuItem11" member="yes">
+					<label>&amp;Redo</label>
+					<accel>Ctrl-Y</accel>
+				</object>
+				<object class="wxMenu" name="ID_MENUITEM7" variable="MenuItem18" member="yes">
+					<label>R&amp;otate</label>
+					<object class="wxMenuItem" name="id_clockwise" variable="MenuItem19" member="yes">
+						<label>&amp;Clockwise</label>
+					</object>
+					<object class="wxMenuItem" name="id_counterclockwise" variable="MenuItem20" member="yes">
+						<label>C&amp;ounterclockwise</label>
+					</object>
+				</object>
+				<object class="wxMenu" name="ID_MENUITEM10" variable="MenuItem21" member="yes">
+					<label>&amp;Mirror</label>
+					<object class="wxMenuItem" name="id_horizontal" variable="MenuItem22" member="yes">
+						<label>&amp;Horizontal</label>
+					</object>
+					<object class="wxMenuItem" name="id_vertical" variable="MenuItem23" member="yes">
+						<label>&amp;Vertical</label>
+					</object>
+				</object>
+				<object class="wxMenu" name="id_clear_all" variable="MenuItem25" member="yes">
+					<label>&amp;Clear</label>
+					<object class="wxMenuItem" name="id_clear_log" variable="MenuItem24" member="yes">
+						<label>&amp;Log</label>
+					</object>
+					<object class="wxMenuItem" name="id_clear_term" variable="MenuItem26" member="yes">
+						<label>&amp;Terminal</label>
+					</object>
+				</object>
+			</object>
+			<object class="wxMenu" variable="Menu3" member="yes">
+				<label>&amp;Settings</label>
+				<object class="wxMenu" name="id_algorithm" variable="MenuItem12" member="yes">
+					<label>&amp;Algorithm</label>
+					<object class="wxMenuItem" name="ID_MENUITEM1" variable="MenuItem9" member="yes">
+						<label>&amp;Alpha-Beta Pruning</label>
+						<enabled>0</enabled>
+						<checked>1</checked>
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="ID_MENUITEM2" variable="MenuItem13" member="yes">
+						<label>&amp;Principal Variation Search</label>
+						<enabled>0</enabled>
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="ID_MENUITEM3" variable="MenuItem14" member="yes">
+						<label>&amp;Transition Table</label>
+						<enabled>0</enabled>
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="ID_MENUITEM4" variable="MenuItem15" member="yes">
+						<label>&amp;Killer Heuristic</label>
+						<enabled>0</enabled>
+						<checked>1</checked>
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="ID_MENUITEM5" variable="MenuItem16" member="yes">
+						<label>&amp;Memory-Enhanced Test Driver</label>
+						<enabled>0</enabled>
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="ID_MENUITEM6" variable="MenuItem17" member="yes">
+						<label>&amp;Iterative Deepening Search</label>
+						<enabled>0</enabled>
+						<checkable>1</checkable>
+					</object>
+				</object>
+				<object class="wxMenuItem" name="id_level" variable="MenuItem6" member="yes">
+					<label>&amp;Level</label>
+				</object>
+			</object>
+			<object class="wxMenu" variable="Menu2" member="no">
+				<label>&amp;Help</label>
+				<object class="wxMenuItem" name="id_about" variable="MenuItem2" member="no">
+					<label>&amp;About</label>
+					<accel>F1</accel>
+					<help>Show info about this application</help>
+					<handler function="OnAbout" entry="EVT_MENU" />
+				</object>
+			</object>
+		</object>
+		<object class="wxStatusBar" name="ID_STATUSBAR1" variable="StatusBar1" member="yes">
+			<fields>1</fields>
+			<widths>-1</widths>
+			<styles>wxSB_NORMAL</styles>
+		</object>
+	</object>
+</wxsmith>

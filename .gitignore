@@ -1,4 +1,5 @@
 *.o
+*.out
 *.a
 *.lib
 *.dll
@@ -6,6 +7,15 @@
 
 *.depend
 *.layout
+*.log
 
 out*
 *temp*
+
+smain.cc
+
+*.dot
+*.png
+
+!optimize/*.exe
+!optimize/*/*.exe

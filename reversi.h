@@ -1,22 +1,34 @@
+#ifndef REVERSI_H
+#define REVERSI_H
+
 #include <iostream>
 #include <limits>
+#include <cassert>
+#include <utility>
 #include <tuple>
 #include <vector>
+#include <unordered_map>
 
 using namespace std;
 
 //#define DEBUG_SEARCH
+#define USE_FLOAT
+#define USE_RANDOM
 
 #ifdef DEBUG_SEARCH
 	#include <fstream>
 	extern ofstream out;
 #endif
 
-extern unsigned seed;
+#ifdef USE_RANDOM
+	#include <random>
+	extern default_random_engine engine;
+#endif
 
 typedef const bool& cbool;
 typedef const short& cshort;
 typedef const int& cint;
+typedef const float& cfloat;
 
 typedef unsigned long long brd_type;
 typedef const brd_type& cbrd_type;
@@ -24,25 +36,84 @@ typedef unsigned char line_type;
 typedef const line_type& cline_type;
 typedef short pos_type;
 typedef const pos_type& cpos_type;
-typedef short calc_type;
+#ifdef USE_FLOAT
+	typedef float calc_type;
+#else
+	typedef short calc_type;
+#endif
 typedef const calc_type& ccalc_type;
 enum chessman{blank,white,black,null};
-typedef const chessman& cchessman;
+//typedef const chessman& cchessman;
+typedef chessman cchessman;
 
 const calc_type inf = numeric_limits<short>::max();
 const calc_type _inf = - inf;
 
+enum method{
+	mthd_default = 0x1,
+
+	mthd_ab = 0x1, // alpha beta pruning
+	mthd_pvs = 0x2, // principal variation search
+	mthd_trans = 0x4, // transition table
+	mthd_kill = 0x8, // killer heuristic
+	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
+	mthd_ids = 0x20, // iterative deepening search
+	mthd_train = 0x40,
+	mthd_ptn = 0x80
+};
+//typedef const method& cmethod;
+typedef method cmethod;
+
+enum sts_type{
+	sts_null = 0x0,
+	sts_black = 0x1,
+	sts_white = 0x2,
+	sts_turn = 0x4,
+	sts_again = 0x8,
+	sts_end = 0x10,
+
+	sts_bwin = sts_black | sts_end,
+	sts_wwin = sts_white | sts_end,
+	sts_tie = sts_end,
+	sts_bturn = sts_black | sts_turn,
+	sts_wturn = sts_white | sts_turn,
+	sts_bagain = sts_black | sts_again,
+	sts_wagain = sts_white | sts_again
+};
+
+struct coordinate{
+	coordinate():x(-1),y(-1){}
+	coordinate(cpos_type _x,cpos_type _y):x(_x),y(_y){}
+	pos_type x;
+	pos_type y;
+	void print()const{
+		cout << '(' << x << ',' << y << ')';
+	}
+};
+typedef const coordinate& ccoordinate;
+
+class board;
+namespace std{
+	template <>
+	struct hash<board>;
+}
+struct choice;
+
 class board{
-protected:
+	friend struct hash<board>;
+public:
 	struct conf_score{
 		calc_type *a,*b,*c;
 	};
 	typedef const conf_score& cconf_score;
-public:
 
 	board(){};
 	board(cbrd_type _brd_black,cbrd_type _brd_white)
 		:brd_black(_brd_black),brd_white(_brd_white){}
+
+	friend bool operator==(const board& b1,const board& b2){
+		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
+	}
 
 	static const brd_type last;
 	static const pos_type chessman_num = 4;
@@ -54,10 +125,13 @@ public:
 	static const pos_type layer_num = 3;
 	static const pos_type stage_num = 3;
 	static const pos_type enum_num = 256;
+	static const short max_height = 20;
+
+	static calc_type (*fun)(const board& brd,cbool color);
+
+	typedef pair<calc_type,calc_type> interval;
 
 	static calc_type table_param[stage_num][pos_num];
-
-	typedef tuple<float,board,pos_type,pos_type> choice;
 
 	friend ostream& operator<<(ostream& out,const board& brd){
 		brd.do_print(out);
@@ -94,6 +168,9 @@ public:
 		brd_black = _brd_black;
 		brd_white = _brd_white;
 		return *this;
+	}
+	board& initial(){
+		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
 	brd_type bget(cbool color)const{
 		if(color){
@@ -142,6 +219,27 @@ public:
 			return count<false>();
 		}
 	}
+	static short count(cbrd_type brd){
+		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
+		result = (result & 0x3333333333333333)
+			+ ((result >> 2) & 0x3333333333333333);
+		result = (result + (result >> 4)) & 0x0F0F0F0F0F0F0F0F;
+		return (result * 0x0101010101010101) >> 56;
+	}
+	brd_type get_move(cbool color) {
+		if(color){
+			return get_move<true>();
+		}else{
+			return get_move<false>();
+		}
+	}
+	short count_move(cbool color){
+		if(color){
+			return count_move<true>();
+		}else{
+			return count_move<false>();
+		}
+	}
 	calc_type sum()const{
 		return count<true>() + count<false>();
 	} 
@@ -153,31 +251,52 @@ public:
 			return score<false>(conf);
 		}
 	}
-	calc_type search(cbool color,cshort height,cpos_type stage)const{
-		return search(color,height,_inf,inf,0,stage);
-	}
-	calc_type search(cbool color,cshort height,calc_type alpha,
-		ccalc_type beta,calc_type acc,cpos_type stage)const;
-	vector<choice> get_choices(cbool color,cshort height,cpos_type stage)const;
-	choice select_choice(vector<choice> choices)const;
-	tuple<pos_type,pos_type> play(cbool color){
-		short height;
-		pos_type stage;
-		short total = this->sum();
-		if(total <= 33){
-			height = 7; stage = 0;
-		}else if(total <= size2 - 15){
-			height = 7; stage = 1;
+	calc_type search(
+		cmethod mthd,cbool color,cshort height,ccalc_type alpha = _inf,
+		ccalc_type beta = inf,ccalc_type acc = 0,cpos_type stage = 0,ccalc_type gamma = 0)const;
+	vector<choice> get_choice(cmethod method,cbool color,cshort height,cpos_type stage = 0)const;
+	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
+	coordinate play(cmethod mthd,cbool color,short height = -1,short stage = -1);
+	sts_type get_status(cbool color){
+		bool flag_black = (count_move(true) == 0);
+		bool flag_white = (count_move(false) == 0);
+		int num_diff = count(true) - count(false);
+		if(color){
+			if(flag_black){
+				if(flag_white){
+					if(num_diff){
+						if(num_diff > 0){
+							return sts_bwin;
+						}else{
+							return sts_wwin;
+						}
+					}else{
+						return sts_tie;
+					}
+				}else{
+					return sts_wagain;
+				}
+			}else{
+				return sts_bturn;
+			}
 		}else{
-			height = 20; stage = 2;
-		}
-		vector<choice> choices = get_choices(color,height,stage);
-		if(choices.empty()){
-			return tuple<pos_type,pos_type>(-1,-1);
-		}else{
-			choice best = select_choice(choices);
-			flip(color,std::get<2>(best),std::get<3>(best));
-			return tuple<pos_type,pos_type>(std::get<2>(best),std::get<3>(best));
+			if(flag_white){
+				if(flag_black){
+					if(num_diff){
+						if(num_diff > 0){
+							return sts_bwin;
+						}else{
+							return sts_wwin;
+						}
+					}else{
+						return sts_tie;
+					}
+				}else{
+					return sts_bagain;
+				}
+			}else{
+				return sts_wturn;
+			}
 		}
 	}
 
@@ -194,27 +313,58 @@ protected:
 	static const brd_type dlbound = 0x00fefefefefefefe;
 	static const brd_type drbound = 0x007f7f7f7f7f7f7f;
 
-	static calc_type table_count[enum_num];
-	static calc_type table_eval[stage_num][layer_num][enum_num];
-
-	static void up(brd_type& mask){mask >>= 8;}
-	static void down(brd_type& mask){mask <<= 8;}
-	static void left(brd_type& mask){mask >>= 1;}
-	static void right(brd_type& mask){mask <<= 1;}
-	static void uleft(brd_type& mask){mask >>= 9;}
-	static void uright(brd_type& mask){mask >>= 7;}
-	static void dleft(brd_type& mask){mask <<= 7;}
-	static void dright(brd_type& mask){mask <<= 9;}
+	static calc_type table_eval[stage_num][size][enum_num];
+	static calc_type table_temp[2][board::max_height + 1][size2];
 
 	const board& do_print(ostream& out = cout)const{
+//		brd_type mask = 1;
+//		for(pos_type i = 0;i != size;++i){
+//			for(pos_type j = 0;j != size;++j){
+//				out << chr_print[get(mask)];
+//				mask <<= 1;
+//			}
+//			out << '\n';
+//		}
+		string s =
+			"¨X¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨[\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
+			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
+			"¨^¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨a\n"
+		;
 		brd_type mask = 1;
+		string::size_type pos;
+		while((pos = s.find(".")) != s.npos){
+			s.replace(pos,1,"  ");
+		}
 		for(pos_type i = 0;i != size;++i){
 			for(pos_type j = 0;j != size;++j){
-				out << chr_print[get(mask)];
+				s[i * 4 + j * 70 + 37] = chr_print[get(mask)];
 				mask <<= 1;
 			}
-			out << '\n';
 		}
+		while((pos = s.find(".")) != s.npos){
+			s.replace(pos,1," ");
+		}
+		while((pos = s.find("#")) != s.npos){
+			s.replace(pos,2,"¡ñ");
+		}
+		while((pos = s.find("O")) != s.npos){
+			s.replace(pos,2,"¡ð");
+		}
+		out << s;
 		return *this;
 	}
 
@@ -283,6 +433,16 @@ protected:
 
 	template<bool color>
 	bool flip(cbrd_type mask){
+
+		#define up(mask) mask >>= 8
+		#define down(mask) mask <<= 8
+		#define left(mask) mask >>= 1
+		#define right(mask) mask <<= 1
+		#define uleft(mask) mask >>= 9
+		#define uright(mask) mask >>= 7
+		#define dleft(mask) mask <<= 7
+		#define dright(mask) mask <<= 9
+
 		if((brd_black | brd_white) & mask){
 			return false;
 		}
@@ -407,23 +567,99 @@ protected:
 		}
 		return everflip;
 	}
-
 	template<bool color>
-	calc_type count()const{
+	short count()const{
+		return count(bget<color>());
+	}
+	template<bool color>
+	brd_type get_move()const{
+		const brd_type& brd_blue = bget<color>();
+		const brd_type& brd_green = bget<!color>();
+		brd_type moves;
+		brd_type brd_green_inner;
+		brd_type brd_flip;
+		brd_type brd_green_adj;
 
-		brd_type blue = bget<color>();
-		calc_type result;
+		brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
 
-		result = table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue]; blue >>= size;
-		result += table_count[(unsigned char&)blue];
+		brd_flip = (brd_blue >> 1) & brd_green_inner;
+		brd_flip |= (brd_flip >> 1) & brd_green_inner;
 
-		return result;
+		brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
+		brd_flip |= (brd_flip >> 2) & brd_green_adj;
+		brd_flip |= (brd_flip >> 2) & brd_green_adj;
+
+		moves = brd_flip >> 1;
+
+		brd_flip = (brd_blue << 1) & brd_green_inner;
+		brd_flip |= (brd_flip << 1) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner << 1);
+		brd_flip |= (brd_flip << 2) & brd_green_adj;
+		brd_flip |= (brd_flip << 2) & brd_green_adj;
+
+		moves |= brd_flip << 1;
+
+		brd_flip = (brd_blue >> 8) & brd_green;
+		brd_flip |= (brd_flip >> 8) & brd_green;
+
+		brd_green_adj = brd_green & (brd_green >> 8);
+		brd_flip |= (brd_flip >> 16) & brd_green_adj;
+		brd_flip |= (brd_flip >> 16) & brd_green_adj;
+
+		moves |= brd_flip >> 8;
+
+		brd_flip = (brd_blue << 8) & brd_green;
+		brd_flip |= (brd_flip << 8) & brd_green;
+
+		brd_green_adj = brd_green & (brd_green << 8);
+		brd_flip |= (brd_flip << 16) & brd_green_adj;
+		brd_flip |= (brd_flip << 16) & brd_green_adj;
+
+		moves |= brd_flip << 8;
+
+		brd_flip = (brd_blue >> 7) & brd_green_inner;
+		brd_flip |= (brd_flip >> 7) & brd_green_inner;
+		
+		brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
+		brd_flip |= (brd_flip >> 14) & brd_green_adj;
+		brd_flip |= (brd_flip >> 14) & brd_green_adj;
+		
+		moves |= brd_flip >> 7;
+
+		brd_flip = (brd_blue << 7) & brd_green_inner;
+		brd_flip |= (brd_flip << 7) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner << 7);
+		brd_flip |= (brd_flip << 14) & brd_green_adj;
+		brd_flip |= (brd_flip << 14) & brd_green_adj;
+
+		moves |= brd_flip << 7;
+
+		brd_flip = (brd_blue >> 9) & brd_green_inner;
+		brd_flip |= (brd_flip >> 9) & brd_green_inner;
+		
+		brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
+		brd_flip |= (brd_flip >> 18) & brd_green_adj;
+		brd_flip |= (brd_flip >> 18) & brd_green_adj;
+		
+		moves |= brd_flip >> 9;
+		
+		brd_flip = (brd_blue << 9) & brd_green_inner;
+		brd_flip |= (brd_flip << 9) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner << 9);
+		brd_flip |= (brd_flip << 18) & brd_green_adj;
+		brd_flip |= (brd_flip << 18) & brd_green_adj;
+
+		moves |= brd_flip << 9;
+
+		moves &= ~(brd_blue | brd_green);
+		return moves;
+	}
+	template<bool color>
+	short count_move()const{
+		return count(get_move<color>());
 	}
 	template<bool color> inline
 	calc_type score(cconf_score conf)const{
@@ -453,14 +689,94 @@ protected:
 		return result;
 	}
 
-	static const calc_type mark_max = 10000;
+	#ifdef USE_FLOAT
+		static const calc_type mark_max;
+	#else
+		static const calc_type mark_max = 10000;
+	#endif
 
-	template<bool color>
-	calc_type search(cshort height,cconf_score conf)const{
-		return search<color>(height,_inf,inf,0,conf);
-	}
+	template<bool color,method mthd>
+	calc_type search(
+		cshort height,ccalc_type alpha,ccalc_type beta,
+		ccalc_type acc,cconf_score conf,ccalc_type gamma = 0)const{
+		if(mthd & mthd_ptn){
+			return search_ptn<color>(height,alpha,beta);
+		}if(mthd & mthd_train){
+			return search_train<color>(height,alpha,beta,acc,conf);
+		}else if(mthd & mthd_mtdf){
+			return search_mtd<color>(height,alpha,beta,acc,conf,gamma);
+		}else if(mthd & mthd_trans){
+			return search_trans<color>(height,alpha,beta,acc,conf);
+		}else if(mthd & mthd_pvs){
+			return search_pvs<color>(height,alpha,beta,acc,conf);
+		}else if(mthd & mthd_ab){
+			return search<color>(height,alpha,beta,acc,conf);
+		}else{
+			assert(false);
+			return 0;
+		}
+	};
 	template<bool color>
 	calc_type search(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
 	template<bool color>
-	vector<choice> get_choices(cshort height,cconf_score conf)const;
+	calc_type search_train(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
+	template<bool color>
+	calc_type search_pvs(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
+	template<bool color>
+	calc_type search_trans(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
+	template<bool color>
+	calc_type search_mtd(
+		cshort height,calc_type alpha,calc_type beta,
+		ccalc_type acc,cconf_score conf,calc_type gamma
+	)const;
+	template<bool color>
+	float search_ptn(cshort height,float alpha,float beta)const;
+	
+	template<bool color,method mthd>
+	vector<choice> get_choice(cshort height,cconf_score conf,ccalc_type gamma = 0)const;
+
+	template<bool color>
+	float score_ptn()const;
+
+	template<bool color>
+	void adjust_ptn(float diff)const;
 };
+
+template <>
+struct hash<board> : public unary_function<board, size_t>{
+	size_t operator()(const board& brd) const{
+		return (
+			size_t(brd.brd_black)
+			+ size_t(brd.brd_black >> 32) * 1867970917
+			+ size_t(brd.brd_white) * 1009562269
+			+ size_t(brd.brd_white >> 32) * 739351663
+		);
+	}
+};
+
+struct brd_val{
+	board brd;
+	pos_type pos;
+	calc_type val;
+	friend inline bool operator<(const brd_val& b1,const brd_val& b2){
+		return b1.val < b2.val;
+	}
+	friend inline bool operator>(const brd_val& b1,const brd_val& b2){
+		return b1.val > b2.val;
+	}
+};
+
+struct choice{
+	float val;
+	board brd;
+	pos_type x;
+	pos_type y;
+	float rnd_val;
+	void print()const{
+		cout << '(' << val << ',' << x << ',' << y << ')';
+	}
+};
+
+void print(const vector<choice>& choices);
+
+#endif // REVERSI_H
