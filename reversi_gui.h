@@ -309,11 +309,11 @@ public:
 		coordinate pos;
 		while(true){
 			pos = play(mthd,color);
+			status = brd.get_status(color);
 			if(pos.x < 0){
 				color = !color;
 				break;
 			}
-			status = brd.get_status(color);
 			if(status & sts_again){
 				color = !color;
 			}else{
