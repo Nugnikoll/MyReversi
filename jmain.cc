@@ -8,11 +8,13 @@
 #include <string>
 
 #include "jsoncpp/json.h"
-//#include "jsoncpp.cpp"
 
 #include "reversi.h" //++
 //#include "reversi.cc" //++
- 
+#include "pattern.h" //++
+//#include "pattern.cc" //++
+#include "data/data.h" //++
+
 using namespace std;
  
 int main(){
@@ -55,14 +57,14 @@ int main(){
  	if (x >= 0)
  		brd.flip(!mycolor,x,y); // 模拟对方落子
 
- 	auto temp = brd.play(mycolor);
-	x = std::get<0>(temp);
-	y = std::get<1>(temp);
+	ptr_pattern = new pattern;
+	ptr_pattern->decompress((float*)(data_table + 3 * 8));
+ 	auto coord = brd.play(mthd_ptn,mycolor);
 
 	// 决策结束，输出结果（你只需修改以上部分）
 
-	result["response"]["x"] = x;
-	result["response"]["y"] = y;
+	result["response"]["x"] = coord.x;
+	result["response"]["y"] = coord.y;
 	cout << writer.write(result) << endl;
 
 	return 0;

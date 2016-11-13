@@ -4,6 +4,7 @@
 #include <string>
 
 #include "reversi.h"
+#include "pattern.h"
 #include "cpptcl.h"
 
 using namespace std;
@@ -26,6 +27,8 @@ struct message_type{
 		start = false;
 	};
 }message;
+
+group grp;
 
 void quit(){
 	#ifdef DEBUG_SEARCH
@@ -156,28 +159,27 @@ int count(cbool color){
 int score(cbool color,cint stage){
 	return brd.score(color,stage);
 }
-int search(cbool color,cint height,cint stage){
-	return brd.search(color,height,_inf,inf,0,stage);
+int search(
+	cint mthd,cbool color,cint height,
+	cint alpha = _inf,cint beta = _inf,cint acc = 0,
+	cint stage = 0,cint gamma = 0){
+	return brd.search(method(mthd),color,height,alpha,beta,stage,gamma);
 }
-int search_detail(cbool color,cint height,cint alpha,
-		cint beta,cint stage){
-	return brd.search(color,height,alpha,beta,0,stage);
-}
-object get_choices(cbool color,cint height,cint stage){
-	vector<board::choice> choices = brd.get_choices(color,height,stage);
+object get_choice(cint mthd,cbool color,cint height,cint stage = 0){
+	vector<choice> choices = brd.get_choice(method(mthd),color,height,stage);
 	object result;
-	for(board::choice c:choices){
+	for(choice& c:choices){
 		object obj;
-		obj.append(*ptr_inter,object((int)(std::get<0>(c))));
-		obj.append(*ptr_inter,object((int)(std::get<2>(c))));
-		obj.append(*ptr_inter,object((int)(std::get<3>(c))));
+		obj.append(*ptr_inter,object(int(c.val)));
+		obj.append(*ptr_inter,object(int(c.x)));
+		obj.append(*ptr_inter,object(int(c.y)));
 		result.append(*ptr_inter,obj);
 	}
 	return result;
 }
 object select_choice(object obj_choices){
-	vector<board::choice> choices;
-	board::choice temp;
+	vector<choice> choices;
+	choice temp;
 	//object obj;
 	object result;
 	//cout << obj_choices.get<string>(*ptr_inter) << " | ";
@@ -186,26 +188,26 @@ object select_choice(object obj_choices){
 	//cout << num << endl;
 	for(int i = 0;i != num / 3;++i){
 		//obj = obj_choices.at(*ptr_inter,i).get<object>(*ptr_inter);
-		std::get<0>(temp) = obj_choices.at(*ptr_inter,i * 3 + 0).get<int>(*ptr_inter);
-		std::get<2>(temp) = obj_choices.at(*ptr_inter,i * 3 + 1).get<int>(*ptr_inter);
-		std::get<3>(temp) = obj_choices.at(*ptr_inter,i * 3 + 2).get<int>(*ptr_inter);
+		temp.val = obj_choices.at(*ptr_inter,i * 3 + 0).get<int>(*ptr_inter);
+		temp.x = obj_choices.at(*ptr_inter,i * 3 + 1).get<int>(*ptr_inter);
+		temp.y = obj_choices.at(*ptr_inter,i * 3 + 2).get<int>(*ptr_inter);
 		choices.push_back(temp);
 	}
 	temp = brd.select_choice(choices);
-	result.append(*ptr_inter,object((int)(std::get<0>(temp))));
-	result.append(*ptr_inter,object((int)(std::get<2>(temp))));
-	result.append(*ptr_inter,object((int)(std::get<3>(temp))));
+	result.append(*ptr_inter,object(int(temp.val)));
+	result.append(*ptr_inter,object(int(temp.x)));
+	result.append(*ptr_inter,object(int(temp.y)));
 	return result;
 }
-object play(cbool color){
+object play(cint mthd,cbool color,cint height = -1,cint stage = -1){
 	if(flag_auto_save){
 		push();
 	}
-	auto pos = brd.play(color);
+	auto pos = brd.play(method(mthd),color,height,stage);
 	object result;
-	result.append(*ptr_inter,object((int)(std::get<0>(pos))));
-	result.append(*ptr_inter,object((int)(std::get<1>(pos))));
-	if(get<0>(pos) >= 0){
+	result.append(*ptr_inter,object(int(pos.x)));
+	result.append(*ptr_inter,object(int(pos.y)));
+	if(pos.x >= 0){
 		if(flag_auto_show){
 			show();
 		}
@@ -215,6 +217,25 @@ object play(cbool color){
 		}
 	}
 	return result;
+}
+
+void generate(cint num){
+	grp.assign(num);
+}
+
+void train(cint num){
+	for(int i = 0;i != num;++i){
+		grp.train();
+	}
+}
+
+void load(const string& filename,cbool is_compress = true,cint num_start = 0,
+	cint num = 100){
+	grp.load(filename,is_compress,num_start,num);
+}
+
+void save(const string& filename){
+	grp.save(filename);
 }
 
 int main(){
@@ -233,6 +254,10 @@ int main(){
 	inter.def("exit",quit);
 	inter.def("start",start);
 	inter.def("auto_show",auto_show);
+	inter.def("assign",generate);
+	inter.def("train",train);
+	inter.def("load",load);
+	inter.def("save",save);
 
 	string str,s;
 	string::size_type pos;
@@ -273,8 +298,7 @@ int main(){
 				inter.def("rotater",rotater);
 				inter.def("rotatel",rotatel);
 				inter.def("search",search);
-				inter.def("search_detail",search_detail);
-				inter.def("get_choices",get_choices);
+				inter.def("get_choice",get_choice);
 				inter.def("do_select_choice",select_choice);
 				inter.def("push",push);
 				inter.def("save",push);
