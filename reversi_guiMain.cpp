@@ -259,6 +259,8 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	Connect(id_counterclockwise,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_counterclockwise);
 	Connect(id_horizontal,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_horizontal);
 	Connect(id_vertical,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_vertical);
+
+	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
 }
 
 reversi_guiFrame::~reversi_guiFrame()
@@ -353,4 +355,20 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 void reversi_guiFrame::on_text_input_textenter(wxCommandEvent& event)
 {
 	mygame.process(text_input->GetValue().ToStdString());
+}
+
+void reversi_guiFrame::on_context_menu(wxContextMenuEvent& event){
+	//wxMenu* menu = new wxMenu();
+
+	//menu->Append(id_undo, _("&Undo"));  
+//	menu->Append(wxID_REDO, _("&Redo"));  
+//	menu->AppendSeparator();  
+//	menu->Append(wxID_CUT, _("Cu&t"));  
+//	menu->Append(wxID_COPY, _("&Copy"));  
+//	menu->Append(wxID_PASTE, _("&Paste"));  
+//	menu->Append(wxID_CLEAR, _("&Delete"));  
+//	menu->AppendSeparator();  
+//	menu->Append(wxID_SELECTALL, _("Select &All"));  
+//  
+	//PopupMenu(menu);
 }
