@@ -179,7 +179,7 @@ public:
 		if(result){
 			log->AppendText(
 				(color? _("black") : _("white"))
-				+ _(" place a chessman at (")
+				+ _(" place a stone at (")
 				+ wxString::FromDouble(x)
 				+ _(",")
 				+ wxString::FromDouble(y)
@@ -196,7 +196,7 @@ public:
 			}
 			log->AppendText(
 				(color? _("black") : _("white"))
-				+ _(" cannot place a chessman here\n")
+				+ _(" cannot place a stone here\n")
 			);
 		}
 		return result;
@@ -249,7 +249,7 @@ public:
 		if(pos.x >= 0){
 			log->AppendText(
 				(color? _("black") : _("white"))
-				+ _(" place a chessman at (")
+				+ _(" place a stone at (")
 				+ wxString::FromDouble(pos.x)
 				+ _(",")
 				+ wxString::FromDouble(pos.y)
@@ -279,7 +279,7 @@ public:
 		if(pos.x >= 0){
 			log->AppendText(
 				(color? _("black") : _("white"))
-				+ _(" place a chessman at (")
+				+ _(" place a stone at (")
 				+ wxString::FromDouble(pos.x)
 				+ _(",")
 				+ wxString::FromDouble(pos.y)
@@ -325,9 +325,9 @@ public:
 			is_lock = true;
 			log->AppendText(
 				wxString::FromDouble(brd.count(true))
-				+ _(" black chessmen and ")
+				+ _(" black stones and ")
 				+ wxString::FromDouble(brd.count(false))
-				+ _(" white chessmen remain\n")
+				+ _(" white stones remain\n")
 			);
 			if(status == sts_bwin){
 				log->AppendText(_("black wins\n"));
