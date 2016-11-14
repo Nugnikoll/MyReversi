@@ -8,6 +8,7 @@
 #include <wx/dcgraph.h>
 #include <wx/graphics.h>
 #include <wx/msgdlg.h>
+#include <wx/menu.h>
 
 #include "game.h"
 
