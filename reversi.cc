@@ -852,25 +852,25 @@ coordinate board::play(cmethod mthd,cbool color,short height,short stage){
 		auto comp = [](const choice& c1,const choice& c2){
 				return c1.val < c2.val;
 			};
-		if(mthd & mthd_ptn){
-			if(color){
-				this->adjust_ptn<true>(
-					(
-						max_element(choices.begin(),choices.end(),comp)->val
-						//+ this->search_ptn<true>(1,_inf,inf)
-					)// / 2
-					- this->score_ptn<true>()
-				);
-			}else{
-				this->adjust_ptn<false>(
-					(
-						max_element(choices.begin(),choices.end(),comp)->val
-						//+ this->search_ptn<false>(1,_inf,inf)
-					)// / 2
-					- this->score_ptn<false>()
-				);
-			}
-		}
+//		if(mthd & mthd_ptn){
+//			if(color){
+//				this->adjust_ptn<true>(
+//					(
+//						max_element(choices.begin(),choices.end(),comp)->val
+//						+ this->search_ptn<true>(1,_inf,inf)
+//					)// / 2
+//					- this->score_ptn<true>()
+//				);
+//			}else{
+//				this->adjust_ptn<false>(
+//					(
+//						max_element(choices.begin(),choices.end(),comp)->val
+//						+ this->search_ptn<false>(1,_inf,inf)
+//					)// / 2
+//					- this->score_ptn<false>()
+//				);
+//			}
+//		}
 		float variation;
 		if(mthd == mthd_ptn){
 			variation = 0;

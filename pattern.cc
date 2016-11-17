@@ -172,7 +172,7 @@ float board::score_ptn()const{
 
 	#undef extract
 
-	return result + blue_move;
+	return result;
 }
 
 float fdecay = 1 - 0.01;
@@ -371,15 +371,55 @@ void pattern::decompress(float* const& ptr){
 
 bool compete(pattern* const& p1,pattern* const& p2){
 	board brd;
+	board vec[64];
+	board* ptr = vec;
 	coordinate pos1,pos2;
+
 	brd.assign(0x0000000810000000,0x0000001008000000);
 	do{
+		*ptr++ = brd;
 		ptr_pattern = p1;
 		pos1 = brd.play(mthd_ptn,true,0);
+		if(pos1.x < 0){
+			--ptr;
+		}
+
+		//*ptr++ = board(brd.bget(false),brd.bget(true));
+		*ptr++ = brd;
 		ptr_pattern = p2;
 		pos2 = brd.play(mthd_ptn,false,0);
+		if(pos2.x < 0){
+			--ptr;
+		}
 	}while(pos1.x >= 0 || pos2.x >= 0);
-	return brd.count(true) > brd.count(false);
+
+	calc_type result = brd.count(true) - brd.count(false);
+
+	if(result > 0){
+		ptr_pattern = p1;
+		for(board* p = vec;p != ptr;++p){
+			p->adjust_ptn<true>(1);
+			p->adjust_ptn<false>(-1);
+		}
+		ptr_pattern = p2;
+		for(board* p = vec;p != ptr;++p){
+			p->adjust_ptn<true>(1);
+			p->adjust_ptn<false>(-1);
+		}
+		return true;
+	}else if(result < 0){
+		ptr_pattern = p1;
+		for(board* p = vec;p != ptr;++p){
+			p->adjust_ptn<true>(-1);
+			p->adjust_ptn<false>(1);
+		}
+		ptr_pattern = p2;
+		for(board* p = vec;p != ptr;++p){
+			p->adjust_ptn<true>(-1);
+			p->adjust_ptn<false>(1);
+		}
+	}
+	return false;
 };
 
 // param cross(const param& p1,const param& p2){
