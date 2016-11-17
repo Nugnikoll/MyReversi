@@ -172,6 +172,9 @@ public:
 	board& initial(){
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
+//	void tcl_initial(){
+//		this->initial();
+//	}
 	brd_type bget(cbool color)const{
 		if(color){
 			return this->bget<true>();
@@ -179,6 +182,10 @@ public:
 			return this->bget<false>();
 		}
 	}
+//	int tcl_bget(cbool color,cbool is_high){
+//		brd_type brd_blue = this->bget(color);
+//		return int(is_high ? brd_blue >> 32 : brd_blue);
+//	}
 	chessman get(cpos_type x, cpos_type y)const{
 		if(x < 0 || y < 0 || x >= size || y >= size){
 			cout << "Error: out of range\n";
@@ -738,6 +745,7 @@ protected:
 	template<bool color>
 	float score_ptn()const;
 
+public:
 	template<bool color>
 	void adjust_ptn(float diff)const;
 };

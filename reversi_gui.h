@@ -242,36 +242,6 @@ public:
 		return result;
 	}
 	virtual coordinate play(cmethod mthd,cbool color,cint height = -1){
-//		if(flag_auto_save){
-//			push();
-//		}
-		auto pos = brd.play(mthd,color,height);
-		if(pos.x >= 0){
-			log->AppendText(
-				(color? _("black") : _("white"))
-				+ _(" place a stone at (")
-				+ wxString::FromDouble(pos.x)
-				+ _(",")
-				+ wxString::FromDouble(pos.y)
-				+ _(")\n")
-			);
-			this->color = !color;
-			this->pos = pos;
-			if(flag_auto_show){
-				show();
-			}
-		}else{
-			log->AppendText(
-				(color? _("black") : _("white"))
-				+ _(" is unable to move.\n")
-			);
-//			if(flag_auto_save){
-//				do_pop();
-//			}
-		}
-		return pos;
-	}
-	virtual coordinate do_play(cmethod mthd,cbool color,cint height = -1){
 		if(flag_auto_save){
 			push();
 		}
@@ -289,6 +259,7 @@ public:
 			this->pos = pos;
 			if(flag_auto_show){
 				show();
+				wxMilliSleep(300);
 			}
 		}else{
 			log->AppendText(
@@ -308,6 +279,10 @@ public:
 		}
 		sts_type status = sts_again;
 		coordinate pos;
+
+		bool flag_auto = flag_auto_save;
+		flag_auto_save = false;
+
 		while(true){
 			pos = play(mthd,color);
 			status = brd.get_status(color);
@@ -321,6 +296,9 @@ public:
 				break;
 			}
 		}
+
+		flag_auto_save = flag_auto;
+
 		if(status & sts_end){
 			is_lock = true;
 			log->AppendText(

@@ -111,7 +111,7 @@ void flip(cbool color,cint x,cint y){
 }
 
 object play(cint mthd,cbool color,cint height){
-	auto pos = mygame.do_play(method(mthd),color,height);
+	auto pos = mygame.play(method(mthd),color,height);
 	object result;
 	result.append(*mygame.ptr_inter,object(int(pos.x)));
 	result.append(*mygame.ptr_inter,object(int(pos.y)));
@@ -241,6 +241,8 @@ void game_gui::process(const string& str){
 		inter.def("grp_train",::grp_train);
 
 		inter.class_<board>("board");
+//			.def("initial",board::tcl_initial)
+//			.def("bget",board::tcl_bget);
 
 		inter.eval(
 			"set blank 0;"
