@@ -244,6 +244,22 @@ void game_gui::process(const string& str){
 //			.def("initial",board::tcl_initial)
 //			.def("bget",board::tcl_bget);
 
+		inter.class_<pattern>("pattern")
+			.def("initial",pattern::initial)
+			.def("get",pattern::get)
+			;
+
+		inter.class_<group>("group")
+			.def("assign",group::assign)
+			.def("initial",group::initial)
+			.def("load",group::load)
+			.def("save",group::save)
+			.def("get",group::get,factory("pattern"))
+			.def("train",group::train)
+			.def("print_record",group::print_record);
+
+		inter.def("set_ptn",set_ptn);
+
 		inter.eval(
 			"set blank 0;"
 			"set white 1;"

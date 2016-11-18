@@ -9,6 +9,10 @@ using namespace std;
 
 pattern* ptr_pattern = NULL;
 
+void set_ptn(pattern* ptr){
+	ptr_pattern = ptr;
+}
+
 void pattern::initial(){
 	static const int limit = 1 << 16;
 	#define initial_set(num,v1,v2,v3,v4,v5,v6,v7,v8) \
@@ -443,16 +447,10 @@ bool compete(pattern* const& p1,pattern* const& p2){
 	// return result;
 // }
 
-void group::assign(const size_t& size){
-	while(vec.size() < size){
+void group::assign(const int& size){
+	while(vec.size() < (unsigned int)(size)){
 		vec.emplace_back();
 		record.emplace_back(0);
-	}
-}
-
-void group::initial(){
-	for(auto& ptn:vec){
-		ptn.initial();
 	}
 }
 
