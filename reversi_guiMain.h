@@ -17,6 +17,7 @@
 #include <wx/menu.h>
 #include <wx/textctrl.h>
 #include <wx/panel.h>
+#include <wx/filedlg.h>
 #include <wx/frame.h>
 #include <wx/statusbr.h>
 //*)
@@ -43,6 +44,7 @@ class reversi_guiFrame: public wxFrame
 		void on_white(wxCommandEvent& event);
 		void on_undo(wxCommandEvent& event);
 		void on_redo(wxCommandEvent& event);
+		void on_load(wxCommandEvent& event);
 		void on_clear_log(wxCommandEvent& event);
 		void on_clear_term(wxCommandEvent& event);
 		void on_clear_all(wxCommandEvent& event);
@@ -96,6 +98,7 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* MenuItem7;
         wxNotebook* Notebook1;
         wxMenuItem* MenuItem5;
+        wxFileDialog* dialog_load;
         wxMenu* Menu3;
         wxMenu* MenuItem3;
         wxMenuItem* MenuItem4;

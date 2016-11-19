@@ -9,6 +9,7 @@
 #include <wx/graphics.h>
 #include <wx/msgdlg.h>
 #include <wx/menu.h>
+#include <wx/textfile.h>
 
 #include "game.h"
 
@@ -338,6 +339,8 @@ public:
 	}
 
 	void process(const string& str);
+
+	void load(const string& filename);
 
 protected:
 	vector<pack> record;

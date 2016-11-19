@@ -235,5 +235,9 @@
 			<widths>-1</widths>
 			<styles>wxSB_NORMAL</styles>
 		</object>
+		<object class="wxFileDialog" variable="dialog_load" member="yes">
+			<message>Select file</message>
+			<wildcard>*.tcl</wildcard>
+		</object>
 	</object>
 </wxsmith>

@@ -223,6 +223,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetFieldsCount(1,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
+    dialog_load = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("*.tcl"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     BoxSizer1->Fit(this);
     BoxSizer1->SetSizeHints(this);
 
@@ -252,6 +253,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	Connect(id_player_white,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_white);
 	Connect(id_undo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_undo);
 	Connect(id_redo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_redo);
+	Connect(id_load,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_load);
 	Connect(id_clear_log,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_log);
 	Connect(id_clear_term,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_term);
 	Connect(id_clear_all,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_all);
@@ -305,6 +307,17 @@ void reversi_guiFrame::on_undo(wxCommandEvent& event){
 
 void reversi_guiFrame::on_redo(wxCommandEvent& event){
 	mygame.process("redo");
+}
+
+void reversi_guiFrame::on_load(wxCommandEvent& event){
+	if(dialog_load->ShowModal() == wxID_OK){
+		string path = dialog_load->GetPath().ToStdString();
+		string::size_type pos = 0;
+		while((pos = path.find("\\",pos + 2)) != path.npos){
+			path.replace(pos,1,"\\\\");
+		}
+		mygame.process(string("load ") + path);
+	}
 }
 
 void reversi_guiFrame::on_clockwise(wxCommandEvent& event){
