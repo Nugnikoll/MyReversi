@@ -302,7 +302,7 @@ void game_gui::process(const string& str){
 
 void game_gui::load(const string& path){
 	if(wxFileExists(path)){
-		log->AppendText(_("open the file \"") + path + "\"");
+		log->AppendText(_("open the file \"") + path + "\"\n");
 		wxTextFile fileopen(path);
 		fileopen.Open(wxConvLocal);
 		wxString str;
@@ -312,6 +312,6 @@ void game_gui::load(const string& path){
 		process(str.ToStdString());
 		fileopen.Close();
 	}else{
-		term->AppendText(_("cannot find the file \"") + path + "\"");
+		term->AppendText(_("cannot find the file \"") + path + "\"\n");
 	}
 }
