@@ -14,78 +14,86 @@ void set_ptn(pattern* ptr){
 }
 
 void pattern::initial(){
-	static const int limit = 1 << 16;
-	#define initial_set(num,v1,v2,v3,v4,v5,v6,v7,v8) \
-		for(int i = 0;i != limit;++i){ \
-			if(i & 0x8000){ \
-				table[num][i] += v1; \
-			} \
-			if(i & 0x4000){ \
-				table[num][i] += v2; \
-			} \
-			if(i & 0x2000){ \
-				table[num][i] += v3; \
-			} \
-			if(i & 0x1000){ \
-				table[num][i] += v4; \
-			} \
-			if(i & 0x0800){ \
-				table[num][i] += v5; \
-			} \
-			if(i & 0x0400){ \
-				table[num][i] += v6; \
-			} \
-			if(i & 0x0200){ \
-				table[num][i] += v7; \
-			} \
-			if(i & 0x0100){ \
-				table[num][i] += v8; \
-			} \
-			if(i & 0x0080){ \
-				table[num][i] -= v1; \
-			} \
-			if(i & 0x0040){ \
-				table[num][i] -= v2; \
-			} \
-			if(i & 0x0020){ \
-				table[num][i] -= v3; \
-			} \
-			if(i & 0x0010){ \
-				table[num][i] -= v4; \
-			} \
-			if(i & 0x0008){ \
-				table[num][i] -= v5; \
-			} \
-			if(i & 0x0004){ \
-				table[num][i] -= v6; \
-			} \
-			if(i & 0x0002){ \
-				table[num][i] -= v7; \
-			} \
-			if(i & 0x0001){ \
-				table[num][i] -= v8; \
-			} \
-		}
+//	static const int limit = 1 << 16;
 
-	initial_set(0,6,1,1,1,1,1,1,6);
-	initial_set(1,1,-2,-0.5,-0.5,-0.5,-0.5,-2,1);
-	initial_set(2,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
-	initial_set(3,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
-
-	for(int i = 0;i != limit;++i){
-		if((i & 0xc000) == 0x4000){
-			table[0][i] -= 6;
-		}
-		if((i & 0xc000) == 0xc000){
-			table[0][i] += 6;
-		}
-		if((i & 0x0003) == 0x0002){
-			table[0][i] -= 6;
-		}
-		if((i & 0x0003) == 0x0003){
-			table[0][i] += 6;
+	for(auto& i:table){
+		for(auto& j:i){
+			j.win = 100;
+			j.lose = 100;
 		}
 	}
+
+//	#define initial_set(num,v1,v2,v3,v4,v5,v6,v7,v8) \
+//		for(int i = 0;i != limit;++i){ \
+//			if(i & 0x8000){ \
+//				table[num][i].val += v1; \
+//			} \
+//			if(i & 0x4000){ \
+//				table[num][i].val += v2; \
+//			} \
+//			if(i & 0x2000){ \
+//				table[num][i].val += v3; \
+//			} \
+//			if(i & 0x1000){ \
+//				table[num][i].val += v4; \
+//			} \
+//			if(i & 0x0800){ \
+//				table[num][i].val += v5; \
+//			} \
+//			if(i & 0x0400){ \
+//				table[num][i].val += v6; \
+//			} \
+//			if(i & 0x0200){ \
+//				table[num][i].val += v7; \
+//			} \
+//			if(i & 0x0100){ \
+//				table[num][i].val += v8; \
+//			} \
+//			if(i & 0x0080){ \
+//				table[num][i].val -= v1; \
+//			} \
+//			if(i & 0x0040){ \
+//				table[num][i].val -= v2; \
+//			} \
+//			if(i & 0x0020){ \
+//				table[num][i].val -= v3; \
+//			} \
+//			if(i & 0x0010){ \
+//				table[num][i].val -= v4; \
+//			} \
+//			if(i & 0x0008){ \
+//				table[num][i].val -= v5; \
+//			} \
+//			if(i & 0x0004){ \
+//				table[num][i].val -= v6; \
+//			} \
+//			if(i & 0x0002){ \
+//				table[num][i].val -= v7; \
+//			} \
+//			if(i & 0x0001){ \
+//				table[num][i].val -= v8; \
+//			} \
+//		}
+//
+//	initial_set(0,6,1,1,1,1,1,1,6);
+//	initial_set(1,1,-2,-0.5,-0.5,-0.5,-0.5,-2,1);
+//	initial_set(2,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
+//	initial_set(3,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
+//
+//	for(int i = 0;i != limit;++i){
+//		if((i & 0xc000) == 0x4000){
+//			table[0][i].val -= 6;
+//		}
+//		if((i & 0xc000) == 0xc000){
+//			table[0][i].val += 6;
+//		}
+//		if((i & 0x0003) == 0x0002){
+//			table[0][i].val -= 6;
+//		}
+//		if((i & 0x0003) == 0x0003){
+//			table[0][i].val += 6;
+//		}
+//	}
 }
 
 template float board::score_ptn<true>()const;
@@ -120,7 +128,7 @@ float board::score_ptn()const{
 	#define extract(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
 		index |= (brd_green & mask) shift2; \
-		result += ptr_pattern->table[num][index];
+		result += ptr_pattern->table[num][index].val;
 
 	//horizontal pattern
 	extract(0xff,<<8,,0);
@@ -137,7 +145,7 @@ float board::score_ptn()const{
 	#define extract(mask,factor,num) \
 		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
 		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		result += ptr_pattern->table[num][index];
+		result += ptr_pattern->table[num][index].val;
 
 	//vertical pattern
 	extract(0x0101010101010101,0x8040201008040201,0);
@@ -179,23 +187,32 @@ float board::score_ptn()const{
 	return result;
 }
 
-float fdecay = 1 - 0.01;
+//float fdecay = 1 - 0.01;
 
-template void board::adjust_ptn<true>(float diff)const;
-template void board::adjust_ptn<false>(float diff)const;
-template<bool color>
-void board::adjust_ptn(float diff)const{
+template void board::adjust_ptn<true,true>()const;
+template void board::adjust_ptn<true,false>()const;
+template void board::adjust_ptn<false,true>()const;
+template void board::adjust_ptn<false,false>()const;
+template<bool color,bool is_win>
+void board::adjust_ptn()const{
 
 	unsigned short index;
 	const brd_type& brd_blue = this->bget<color>();
 	const brd_type& brd_green = this->bget<!color>();
 
-	diff *= (0.01 / 36);
+	//diff *= (0.01 / 36);
+
+	element* ele;
 
 	#define diffuse(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
 		index |= (brd_green & mask) shift2; \
-		(ptr_pattern->table[num][index] += diff) *= fdecay;
+		ele = &ptr_pattern->table[num][index]; \
+		if(is_win){ \
+			++ele->win; \
+		}else{ \
+			++ele->lose; \
+		}
 
 	//horizontal pattern
 	diffuse(0xff,<<8,,0);
@@ -212,7 +229,12 @@ void board::adjust_ptn(float diff)const{
 	#define diffuse(mask,factor,num) \
 		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
 		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		(ptr_pattern->table[num][index] += diff) *= fdecay;
+		ele = &ptr_pattern->table[num][index]; \
+		if(is_win){ \
+			++ele->win; \
+		}else{ \
+			++ele->lose; \
+		}
 
 	//vertical pattern
 	diffuse(0x0101010101010101,0x8040201008040201,0);
@@ -251,7 +273,6 @@ void board::adjust_ptn(float diff)const{
 
 	#undef diffuse
 }
-
 
 template float board::search_ptn<true>(cshort height,float alpha,float beta)const;
 template float board::search_ptn<false>(cshort height,float alpha,float beta)const;
@@ -347,7 +368,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 	#endif
 }
 
-void pattern::compress(float* const& ptr){
+void pattern::compress(element* const& ptr){
 	size_t j = 0;
 	for(size_t num = 0;num != this->size;++num){
 		for(size_t i = 0;i != this->length;++i){
@@ -360,7 +381,7 @@ void pattern::compress(float* const& ptr){
 	}
 }
 
-void pattern::decompress(float* const& ptr){
+void pattern::decompress(element* const& ptr){
 	size_t j = 0;
 	for(size_t num = 0;num != this->size;++num){
 		for(size_t i = 0;i != this->length;++i){
@@ -402,25 +423,25 @@ bool compete(pattern* const& p1,pattern* const& p2){
 	if(result > 0){
 		ptr_pattern = p1;
 		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true>(1);
-			p->adjust_ptn<false>(-1);
+			p->adjust_ptn<true,true>();
+			p->adjust_ptn<false,false>();
 		}
 		ptr_pattern = p2;
 		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true>(1);
-			p->adjust_ptn<false>(-1);
+			p->adjust_ptn<true,true>();
+			p->adjust_ptn<false,false>();
 		}
 		return true;
 	}else if(result < 0){
 		ptr_pattern = p1;
 		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true>(-1);
-			p->adjust_ptn<false>(1);
+			p->adjust_ptn<true,false>();
+			p->adjust_ptn<false,true>();
 		}
 		ptr_pattern = p2;
 		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true>(-1);
-			p->adjust_ptn<false>(1);
+			p->adjust_ptn<true,false>();
+			p->adjust_ptn<false,true>();
 		}
 	}
 	return false;
@@ -494,13 +515,13 @@ void group::load(const string& filename,cbool is_compress,cint num_begin,cint nu
 	this->vec.reserve(group_size);
 	if(is_compress){
 		size_t ptr_size = ptn_size * 6561;
-		float* ptr = new float[ptr_size];
+		element* ptr = new element[ptr_size];
 		for(size_t i = 0;i != group_size && i < size_t(num);++i){
 			this->vec.emplace_back();
 			this->record.emplace_back(0);
 			//_READ(this->vec.back());
 			//fin.read((char *)(&this->vec.back()),sizeof(float) * ptn_size * pattern::length);
-			fin.read((char *)(ptr),ptr_size * sizeof(float));
+			fin.read((char *)(ptr),ptr_size * sizeof(element));
 			this->vec.back().decompress(ptr);
 		}
 		delete ptr;
@@ -509,7 +530,7 @@ void group::load(const string& filename,cbool is_compress,cint num_begin,cint nu
 			this->vec.emplace_back();
 			this->record.emplace_back(0);
 			//_READ(this->vec.back());
-			fin.read((char *)(&this->vec.back()),sizeof(float) * ptn_size * pattern::length);
+			fin.read((char *)(&this->vec.back()),sizeof(element) * ptn_size * pattern::length);
 		}
 	}
 	fin.close();
@@ -530,10 +551,10 @@ void group::save(const string& filename,const bool& is_compress){
 
 	if(is_compress){
 		size_t ptr_size = ptn_size * 6561;
-		float* ptr = new float[ptr_size];
+		element* ptr = new element[ptr_size];
 		for(auto& ptn:this->vec){
 			ptn.compress(ptr);
-			fout.write((char *)(ptr),ptr_size * sizeof(float));
+			fout.write((char *)(ptr),ptr_size * sizeof(element));
 		}
 		delete ptr;
 	}else{
