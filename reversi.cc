@@ -849,9 +849,9 @@ coordinate board::play(cmethod mthd,cbool color,short height,short stage){
 	if(choices.empty()){
 		return coordinate(-1,-1);
 	}else{
-		auto comp = [](const choice& c1,const choice& c2){
-				return c1.val < c2.val;
-			};
+//		auto comp = [](const choice& c1,const choice& c2){
+//				return c1.val < c2.val;
+//			};
 //		if(mthd & mthd_ptn){
 //			if(color){
 //				this->adjust_ptn<true>(
@@ -873,7 +873,7 @@ coordinate board::play(cmethod mthd,cbool color,short height,short stage){
 //		}
 		float variation;
 		if(mthd == mthd_ptn){
-			variation = 0;
+			variation = 0.01;
 		}else{
 			variation = 0.75;
 		}

@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstring>
 #include <fstream>
+#include <sstream>
 
 #include "reversi.h" //--
 
@@ -20,6 +21,11 @@ struct element{
 	}
 	int get_lose()const{
 		return lose;
+	}
+	string to_str()const{
+		ostringstream out;
+		out << '(' << val << ',' << win << ',' << lose << ')';
+		return out.str();
 	}
 };
 
@@ -62,6 +68,11 @@ public:
 	void save(const string& filename,const bool& is_compress = true);
 	pattern* get(const int& pos){
 		return &vec.at(pos);
+	}
+	void refresh(){
+		for(auto& ptn:vec){
+			ptn.refresh();
+		}
 	}
 	void train();
 	void print_record();

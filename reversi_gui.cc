@@ -177,6 +177,10 @@ object select_choice(object obj_choices){
 	return mygame.select_choice(obj_choices);
 }
 
+void load(const string& path){
+	return mygame.load(path);
+};
+
 void grp_assign(cint size){
 	return grp.assign(size);
 }
@@ -234,6 +238,7 @@ void game_gui::process(const string& str){
 		inter.def("select_choice",::select_choice);
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
+		inter.def("load",::load);
 		inter.def("grp_assign",::grp_assign);
 		inter.def("grp_initial",::grp_initial);
 		inter.def("grp_load",::grp_load);
@@ -244,16 +249,23 @@ void game_gui::process(const string& str){
 //			.def("initial",board::tcl_initial)
 //			.def("bget",board::tcl_bget);
 
+		inter.class_<element>("element")
+			.def("get_val",element::get_val)
+			.def("get_win",element::get_win)
+			.def("get_lose",element::get_lose)
+			.def("to_str",element::to_str);			
+
 		inter.class_<pattern>("pattern")
 			.def("initial",pattern::initial)
-			.def("get",pattern::get)
-			;
+			.def("get",pattern::get,factory("element"))
+			.def("refresh",pattern::refresh);
 
 		inter.class_<group>("group")
 			.def("assign",group::assign)
 			.def("initial",group::initial)
 			.def("load",group::load)
 			.def("save",group::save)
+			.def("refresh",group::refresh)
 			.def("get",group::get,factory("pattern"))
 			.def("train",group::train)
 			.def("print_record",group::print_record);
@@ -285,5 +297,21 @@ void game_gui::process(const string& str){
 		inter.eval(str);
 	}catch(const tcl_error& err){
 		term->AppendText(string(err.what()) + "\n");
+	}
+}
+
+void game_gui::load(const string& path){
+	if(wxFileExists(path)){
+		log->AppendText(_("open the file \"") + path + "\"");
+		wxTextFile fileopen(path);
+		fileopen.Open(wxConvLocal);
+		wxString str;
+		for(str = fileopen.GetFirstLine();!fileopen.Eof();str += fileopen.GetNextLine()){
+			str += _("\n");
+		};
+		process(str.ToStdString());
+		fileopen.Close();
+	}else{
+		term->AppendText(_("cannot find the file \"") + path + "\"");
 	}
 }

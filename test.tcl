@@ -1,12 +1,12 @@
-start
-for {set x 0} {$x < 9} {incr x} { puts [play 1];puts [play 0] }
+set grp [group]
+$grp assign 10
+$grp initial
+for {set i 0} {$i < 10} {incr i} {
+	for {set j 0} {$j < 100} {incr j} {$grp train}
+	$grp refresh
+}
 
-start
-assign {8240 940572672 4108 103749688}
+set ptn [$grp get 0]
+set_ptn $ptn
 
-# bug
-# 1886930006 2138996736 -2004567128 -2147483648
-# 1937722448 1065254912 -2004831313 -1065353216
-
-generate
-for {set i 0} {$i < 1000} {incr i} {evolve}
+#puts [[[$grp get 0] get 0 0] to_str]
