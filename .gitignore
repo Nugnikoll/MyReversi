@@ -1,13 +1,17 @@
 *.o
 *.out
 *.a
+*.res
 *.lib
 *.dll
 *.exe
+*.pyc
 
 *.depend
 *.layout
 *.log
+*.stackdump
+*wrap.cxx
 
 out*
 *temp*
@@ -19,3 +23,5 @@ smain.cc
 
 !optimize/*.exe
 !optimize/*/*.exe
+
+python/reversi.py

@@ -9,20 +9,41 @@
 
 using namespace std;
 
+struct element{
+	float val;
+	int win,lose;
+	float get_val()const{
+		return val;
+	}
+	int get_win()const{
+		return win;
+	}
+	int get_lose()const{
+		return lose;
+	}
+};
+
 struct pattern{
 	pattern(){
 		memset(table,0,sizeof(table));
 	}
 	static const size_t size = 11;
 	static const size_t length = 1 << 16;
-	float table[size][length];
+	element table[size][length];
 
 	void initial();
-	float get(const int& num,const int& pos){
-		return table[num][pos];
+	element* get(const int& num,const int& pos){
+		return &table[num][pos];
 	};
-	void compress(float* const& ptr);
-	void decompress(float* const& ptr);
+	void compress(element* const& ptr);
+	void decompress(element* const& ptr);
+	void refresh(){
+	for(auto& i:table){
+		for(auto& j:i){
+			j.val = float(j.win << 1) / float(j.win + j. lose) - 1;
+		}
+	}
+}
 };
 
 class group{
