@@ -289,6 +289,7 @@ void game_gui::process(const string& str){
 			"set mthd_ids 0x20;"
 			"set mthd_train 0x40;"
 			"set mthd_ptn 0x80;"
+			"set mthd_default $mthd_ab;"
 		);
 	}
 

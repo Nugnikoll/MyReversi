@@ -92,12 +92,27 @@ public:
 	}
 
 	static void config();
-	static conf_score stage_config(cpos_type stage){
+	conf_score stage_config(pos_type stage)const{
 		conf_score conf;
-		if(stage < 0 || stage >= stage_num){
+		if(stage >= stage_num){
 			cout << "Error: out of range\n";
 			conf.a = conf.b = conf.c = 0;
 			return conf;
+		}else if(stage < 0){
+			short total = this->sum();
+			if(total <= 7){
+				stage = 0;
+			}else if(total <= 10){
+				stage = 0;
+			}else if(total <= 33){
+				stage = 0;
+			}else if(total <= size2 - 23){
+				stage = 1;
+			}else if(total <= size2 - 16){
+				stage = 1;
+			}else{
+				stage = 2;
+			}
 		}
 		static bool flag = true;
 		if(flag){
@@ -165,14 +180,14 @@ public:
 			return flip<false>(brd_type(1) << ((y << 3) + x));
 		}
 	}
-	calc_type count(cbool color)const{
+	pos_type count(cbool color)const{
 		if(color){
 			return count<true>();
 		}else{
 			return count<false>();
 		}
 	}
-	static short count(cbrd_type brd){
+	static pos_type count(cbrd_type brd){
 		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
 		result = (result & 0x3333333333333333)
 			+ ((result >> 2) & 0x3333333333333333);
@@ -186,16 +201,16 @@ public:
 			return get_move<false>();
 		}
 	}
-	short count_move(cbool color){
+	pos_type count_move(cbool color){
 		if(color){
 			return count_move<true>();
 		}else{
 			return count_move<false>();
 		}
 	}
-	calc_type sum()const{
-		return count<true>() + count<false>();
-	} 
+	pos_type sum()const{
+		return count(brd_black ^ brd_white);
+	}
 	calc_type score(cbool color,cpos_type stage)const{
 		conf_score conf = stage_config(stage);
 		if(color){
@@ -209,7 +224,7 @@ public:
 		ccalc_type beta = inf,ccalc_type acc = 0,cpos_type stage = 0,ccalc_type gamma = 0)const;
 	vector<choice> get_choice(cmethod method,cbool color,cshort height,cpos_type stage = 0)const;
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-	coordinate play(cmethod mthd,cbool color,short height = -1,short stage = -1);
+	coordinate play(cmethod mthd,cbool color,short height = -1,cshort stage = -1);
 	sts_type get_status(cbool color){
 		bool flag_black = (count_move(true) == 0);
 		bool flag_white = (count_move(false) == 0);
@@ -652,9 +667,11 @@ protected:
 	calc_type search(
 		cshort height,ccalc_type alpha,ccalc_type beta,
 		ccalc_type acc,cconf_score conf,ccalc_type gamma = 0)const{
-		if(mthd & mthd_ptn){
+		if(mthd == mthd_rnd){
+			return 0;
+		}else if(mthd & mthd_ptn){
 			return search_ptn<color>(height,alpha,beta);
-		}if(mthd & mthd_train){
+		}else if(mthd & mthd_train){
 			return search_train<color>(height,alpha,beta,acc,conf);
 		}else if(mthd & mthd_mtdf){
 			return search_mtd<color>(height,alpha,beta,acc,conf,gamma);

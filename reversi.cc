@@ -153,6 +153,7 @@ calc_type board::search(cmethod mthd,cbool color,cshort height,ccalc_type alpha,
 	conf_score conf;
 	if(mthd != mthd_ptn && mthd != mthd_train){
 		conf = stage_config(stage);
+		search_mthd(mthd_rnd);
 		search_mthd(mthd_ab);
 		search_mthd(mthd_pvs);
 		search_mthd(mthd_trans);
@@ -178,6 +179,7 @@ vector<choice> board::get_choice(cmethod mthd,cbool color,cshort height,cpos_typ
 	conf_score conf;
 	if(mthd != mthd_ptn && mthd != mthd_train){
 		conf = stage_config(stage);
+		get_choice_mthd(mthd_rnd);
 		get_choice_mthd(mthd_ab);
 		get_choice_mthd(mthd_pvs);
 		get_choice_mthd(mthd_trans);
@@ -811,7 +813,7 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 	);
 }
 
-coordinate board::play(cmethod mthd,cbool color,short height,short stage){
+coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 
 	if(height < 0){
 		short total = this->sum();
@@ -829,22 +831,7 @@ coordinate board::play(cmethod mthd,cbool color,short height,short stage){
 			height = 20;
 		}
 	}
-	if(stage < 0){
-		short total = this->sum();
-		if(total <= 7){
-			stage = 0;
-		}else if(total <= 10){
-			stage = 0;
-		}else if(total <= 33){
-			stage = 0;
-		}else if(total <= size2 - 23){
-			stage = 1;
-		}else if(total <= size2 - 16){
-			stage = 1;
-		}else{
-			stage = 2;
-		}
-	}
+
 	vector<choice> choices = get_choice(mthd,color,height,stage);
 	if(choices.empty()){
 		return coordinate(-1,-1);
