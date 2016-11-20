@@ -298,7 +298,7 @@ void reversi_guiFrame::on_black(wxCommandEvent& event){
 
 void reversi_guiFrame::on_white(wxCommandEvent& event){
 	mygame.process("start");
-	mygame.process("puts [play $mthd_ab $true 7]");
+	mygame.process("puts [play $mthd_default $true 7]");
 }
 
 void reversi_guiFrame::on_undo(wxCommandEvent& event){
@@ -360,7 +360,7 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 	mygame.process(
 		(
 			_("puts [plays ") + wxString::FromDouble(x) + " "
-			+ wxString::FromDouble(y) + _(" $mthd_ab]")
+			+ wxString::FromDouble(y) + _(" $mthd_default]")
 		).ToStdString()
 	);
 }

@@ -26,8 +26,8 @@ const calc_type inf = numeric_limits<short>::max();
 const calc_type _inf = - inf;
 
 enum method{
-	mthd_default = 0x1,
 
+	mthd_rnd = 0x0, // random
 	mthd_ab = 0x1, // alpha beta pruning
 	mthd_pvs = 0x2, // principal variation search
 	mthd_trans = 0x4, // transition table
@@ -35,7 +35,9 @@ enum method{
 	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
 	mthd_ids = 0x20, // iterative deepening search
 	mthd_train = 0x40,
-	mthd_ptn = 0x80
+	mthd_ptn = 0x80,
+
+	mthd_default = mthd_ab
 };
 //typedef const method& cmethod;
 typedef method cmethod;

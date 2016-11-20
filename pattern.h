@@ -33,7 +33,7 @@ struct pattern{
 	pattern(){
 		memset(table,0,sizeof(table));
 	}
-	static const size_t size = 11;
+	static const size_t size = 11 * 4;
 	static const size_t length = 1 << 16;
 	element table[size][length];
 

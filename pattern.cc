@@ -125,10 +125,12 @@ float board::score_ptn()const{
 	const brd_type& brd_green = this->bget<!color>();
 	float result = 0;
 
+	auto table = ptr_pattern->table + ((this->sum() - 1) >> 4) * 11;
+
 	#define extract(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
 		index |= (brd_green & mask) shift2; \
-		result += ptr_pattern->table[num][index].val;
+		result += table[num][index].val;
 
 	//horizontal pattern
 	extract(0xff,<<8,,0);
@@ -145,7 +147,7 @@ float board::score_ptn()const{
 	#define extract(mask,factor,num) \
 		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
 		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		result += ptr_pattern->table[num][index].val;
+		result += table[num][index].val;
 
 	//vertical pattern
 	extract(0x0101010101010101,0x8040201008040201,0);
@@ -203,11 +205,12 @@ void board::adjust_ptn()const{
 	//diff *= (0.01 / 36);
 
 	element* ele;
+	auto table = ptr_pattern->table + ((this->sum() - 1) >> 4) * 11;
 
 	#define diffuse(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
 		index |= (brd_green & mask) shift2; \
-		ele = &ptr_pattern->table[num][index]; \
+		ele = &table[num][index]; \
 		if(is_win){ \
 			++ele->win; \
 		}else{ \
@@ -229,7 +232,7 @@ void board::adjust_ptn()const{
 	#define diffuse(mask,factor,num) \
 		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
 		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		ele = &ptr_pattern->table[num][index]; \
+		ele = &table[num][index]; \
 		if(is_win){ \
 			++ele->win; \
 		}else{ \
@@ -404,7 +407,7 @@ bool compete(pattern* const& p1,pattern* const& p2){
 	do{
 		*ptr++ = brd;
 		ptr_pattern = p1;
-		pos1 = brd.play(mthd_ptn,true,0);
+		pos1 = brd.play(mthd_rnd,true,0);
 		if(pos1.x < 0){
 			--ptr;
 		}
@@ -412,7 +415,7 @@ bool compete(pattern* const& p1,pattern* const& p2){
 		//*ptr++ = board(brd.bget(false),brd.bget(true));
 		*ptr++ = brd;
 		ptr_pattern = p2;
-		pos2 = brd.play(mthd_ptn,false,0);
+		pos2 = brd.play(mthd_rnd,false,0);
 		if(pos2.x < 0){
 			--ptr;
 		}
