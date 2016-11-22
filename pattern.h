@@ -12,44 +12,40 @@ using namespace std;
 
 struct element{
 	float val;
-	int win,lose;
+	int cnt;
 	float get_val()const{
 		return val;
 	}
-	int get_win()const{
-		return win;
-	}
-	int get_lose()const{
-		return lose;
+	int get_cnt()const{
+		return cnt;
 	}
 	string to_str()const{
 		ostringstream out;
-		out << '(' << val << ',' << win << ',' << lose << ')';
+		out << '(' << val << ',' << cnt << ')';
 		return out.str();
 	}
 };
 
 struct pattern{
 	pattern(){
-		memset(table,0,sizeof(table));
+		memset(table1,0,sizeof(table1));
+		memset(table2,0,sizeof(table2));
 	}
-	static const size_t size = 11 * 4;
+	static const size_t stage = 4;
+	static const size_t size1 = 11,size2 = 30 * 30;
 	static const size_t length = 1 << 16;
-	element table[size][length];
+	element table1[stage][size1][length];
+	element table2[stage][size2];
 
 	void initial();
-	element* get(const int& num,const int& pos){
-		return &table[num][pos];
+	element* get1(cint stage,cint num,cint pos){
+		return &table1[stage][num][pos];
+	};
+	element* get2(cint stage,cint num){
+		return &table2[stage][num];
 	};
 	void compress(element* const& ptr);
 	void decompress(element* const& ptr);
-	void refresh(){
-	for(auto& i:table){
-		for(auto& j:i){
-			j.val = float(j.win << 1) / float(j.win + j. lose) - 1;
-		}
-	}
-}
 };
 
 class group{
@@ -68,11 +64,6 @@ public:
 	void save(const string& filename,const bool& is_compress = true);
 	pattern* get(const int& pos){
 		return &vec.at(pos);
-	}
-	void refresh(){
-		for(auto& ptn:vec){
-			ptn.refresh();
-		}
 	}
 	void train();
 	void print_record();

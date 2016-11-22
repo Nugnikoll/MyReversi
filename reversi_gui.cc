@@ -250,22 +250,19 @@ void game_gui::process(const string& str){
 //			.def("bget",board::tcl_bget);
 
 		inter.class_<element>("element")
-			.def("get_val",element::get_val)
-			.def("get_win",element::get_win)
-			.def("get_lose",element::get_lose)
+			.def("get_cnt",element::get_cnt)
 			.def("to_str",element::to_str);			
 
 		inter.class_<pattern>("pattern")
 			.def("initial",pattern::initial)
-			.def("get",pattern::get,factory("element"))
-			.def("refresh",pattern::refresh);
+			.def("get1",pattern::get1,factory("element"))
+			.def("get2",pattern::get2,factory("element"));
 
 		inter.class_<group>("group")
 			.def("assign",group::assign)
 			.def("initial",group::initial)
 			.def("load",group::load)
 			.def("save",group::save)
-			.def("refresh",group::refresh)
 			.def("get",group::get,factory("pattern"))
 			.def("train",group::train)
 			.def("print_record",group::print_record);

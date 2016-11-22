@@ -133,9 +133,6 @@ public:
 	board& initial(){
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
-//	void tcl_initial(){
-//		this->initial();
-//	}
 	brd_type bget(cbool color)const{
 		if(color){
 			return this->bget<true>();
@@ -143,10 +140,6 @@ public:
 			return this->bget<false>();
 		}
 	}
-//	int tcl_bget(cbool color,cbool is_high){
-//		brd_type brd_blue = this->bget(color);
-//		return int(is_high ? brd_blue >> 32 : brd_blue);
-//	}
 	chessman get(cpos_type x, cpos_type y)const{
 		if(x < 0 || y < 0 || x >= size || y >= size){
 			cout << "Error: out of range\n";
@@ -285,54 +278,54 @@ protected:
 	static calc_type table_temp[2][board::max_height + 1][size2];
 
 	const board& do_print(ostream& out = cout)const{
-//		brd_type mask = 1;
-//		for(pos_type i = 0;i != size;++i){
-//			for(pos_type j = 0;j != size;++j){
-//				out << chr_print[get(mask)];
-//				mask <<= 1;
-//			}
-//			out << '\n';
-//		}
+
 		string s =
-			"¨X¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨[\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨^¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨a\n"
+			"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
 		;
-		brd_type mask = 1;
-		string::size_type pos;
-		while((pos = s.find(".")) != s.npos){
-			s.replace(pos,1,"  ");
-		}
-		for(pos_type i = 0;i != size;++i){
-			for(pos_type j = 0;j != size;++j){
-				s[i * 4 + j * 70 + 37] = chr_print[get(mask)];
-				mask <<= 1;
+
+		brd_type pos = 1;
+
+		for(char& chr:s){
+
+			if(chr == ' '){
+				switch(get(pos)){
+				case blank:
+					out << " ";
+					break;
+				case black:
+					out << "●";
+					break;
+				case white:
+					out << "○";
+					break;
+				case null:
+					out << "╳";
+					break;
+				default:
+					out << "╳";
+					break;
+				}
+				pos <<= 1;
+			}else{
+				out << chr;
 			}
 		}
-		while((pos = s.find(".")) != s.npos){
-			s.replace(pos,1," ");
-		}
-		while((pos = s.find("#")) != s.npos){
-			s.replace(pos,2,"¡ñ");
-		}
-		while((pos = s.find("O")) != s.npos){
-			s.replace(pos,2,"¡ð");
-		}
-		out << s;
 		return *this;
 	}
 
@@ -414,10 +407,12 @@ protected:
 		if((brd_black | brd_white) & mask){
 			return false;
 		}
+
 		bool everflip = false;
 		brd_type pos = mask;
 		brd_type& blue = bget<color>();
 		brd_type& green = bget<!color>();
+
 		while(pos & lbound){
 			left(pos);
 			if(green & pos)
@@ -705,14 +700,12 @@ protected:
 	template<bool color,method mthd>
 	vector<choice> get_choice(cshort height,cconf_score conf,ccalc_type gamma = 0)const;
 
+public:
 	template<bool color>
 	float score_ptn()const;
 
-public:
-	template<bool color,bool is_win>
-	void adjust_ptn()const;
-
-	void refresh_ptn()const;
+	template<bool color>
+	void adjust_ptn(ccalc_type diff)const;
 };
 
 template <>
@@ -749,7 +742,5 @@ struct choice{
 		cout << '(' << val << ',' << x << ',' << y << ')';
 	}
 };
-
-void print(const vector<choice>& choices);
 
 #endif // REVERSI_H

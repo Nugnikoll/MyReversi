@@ -1,26 +1,55 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-typedef const bool& cbool;
-typedef const short& cshort;
-typedef const int& cint;
-typedef const float& cfloat;
+#include <limits>
+
+using namespace std;
+
+//#define USE_REF
+#define USE_FLOAT
+#define USE_RANDOM
+
+#ifdef USE_REF
+	typedef const bool& cbool;
+	typedef const short& cshort;
+	typedef const int& cint;
+	typedef const float& cfloat;
+#else
+	typedef bool cbool;
+	typedef short cshort;
+	typedef int cint;
+	typedef float cfloat;
+#endif //USE_REF
 
 typedef unsigned long long brd_type;
-typedef const brd_type& cbrd_type;
 typedef unsigned char line_type;
-typedef const line_type& cline_type;
 typedef short pos_type;
-typedef const pos_type& cpos_type;
+
 #ifdef USE_FLOAT
 	typedef float calc_type;
 #else
 	typedef short calc_type;
 #endif
-typedef const calc_type& ccalc_type;
+
+#ifdef USE_REF
+	typedef const brd_type& cbrd_type;
+	typedef const line_type& cline_type;
+	typedef const pos_type& cpos_type;
+	typedef const calc_type& ccalc_type;
+#else
+	typedef brd_type cbrd_type;
+	typedef line_type cline_type;
+	typedef pos_type cpos_type;
+	typedef calc_type ccalc_type;
+#endif //USE_REF
+
 enum chessman{blank,white,black,null};
-//typedef const chessman& cchessman;
-typedef chessman cchessman;
+
+#ifdef USE_REF
+	typedef const chessman& cchessman;
+#else
+	typedef chessman cchessman;
+#endif //USE_REF
 
 const calc_type inf = numeric_limits<short>::max();
 const calc_type _inf = - inf;
@@ -39,8 +68,12 @@ enum method{
 
 	mthd_default = mthd_ab
 };
-//typedef const method& cmethod;
-typedef method cmethod;
+
+#ifdef USE_REF
+	typedef const method& cmethod;
+#else
+	typedef method cmethod;
+#endif //USE_REF
 
 enum sts_type{
 	sts_null = 0x0,

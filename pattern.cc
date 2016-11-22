@@ -14,86 +14,20 @@ void set_ptn(pattern* ptr){
 }
 
 void pattern::initial(){
-//	static const int limit = 1 << 16;
 
-	for(auto& i:table){
+	for(auto& i:table1){
 		for(auto& j:i){
-			j.win = 100;
-			j.lose = 100;
+			for(auto& k:j){
+				k.cnt = 1000;
+			}
 		}
 	}
 
-//	#define initial_set(num,v1,v2,v3,v4,v5,v6,v7,v8) \
-//		for(int i = 0;i != limit;++i){ \
-//			if(i & 0x8000){ \
-//				table[num][i].val += v1; \
-//			} \
-//			if(i & 0x4000){ \
-//				table[num][i].val += v2; \
-//			} \
-//			if(i & 0x2000){ \
-//				table[num][i].val += v3; \
-//			} \
-//			if(i & 0x1000){ \
-//				table[num][i].val += v4; \
-//			} \
-//			if(i & 0x0800){ \
-//				table[num][i].val += v5; \
-//			} \
-//			if(i & 0x0400){ \
-//				table[num][i].val += v6; \
-//			} \
-//			if(i & 0x0200){ \
-//				table[num][i].val += v7; \
-//			} \
-//			if(i & 0x0100){ \
-//				table[num][i].val += v8; \
-//			} \
-//			if(i & 0x0080){ \
-//				table[num][i].val -= v1; \
-//			} \
-//			if(i & 0x0040){ \
-//				table[num][i].val -= v2; \
-//			} \
-//			if(i & 0x0020){ \
-//				table[num][i].val -= v3; \
-//			} \
-//			if(i & 0x0010){ \
-//				table[num][i].val -= v4; \
-//			} \
-//			if(i & 0x0008){ \
-//				table[num][i].val -= v5; \
-//			} \
-//			if(i & 0x0004){ \
-//				table[num][i].val -= v6; \
-//			} \
-//			if(i & 0x0002){ \
-//				table[num][i].val -= v7; \
-//			} \
-//			if(i & 0x0001){ \
-//				table[num][i].val -= v8; \
-//			} \
-//		}
-//
-//	initial_set(0,6,1,1,1,1,1,1,6);
-//	initial_set(1,1,-2,-0.5,-0.5,-0.5,-0.5,-2,1);
-//	initial_set(2,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
-//	initial_set(3,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
-//
-//	for(int i = 0;i != limit;++i){
-//		if((i & 0xc000) == 0x4000){
-//			table[0][i].val -= 6;
-//		}
-//		if((i & 0xc000) == 0xc000){
-//			table[0][i].val += 6;
-//		}
-//		if((i & 0x0003) == 0x0002){
-//			table[0][i].val -= 6;
-//		}
-//		if((i & 0x0003) == 0x0003){
-//			table[0][i].val += 6;
-//		}
-//	}
+	for(auto& i:table2){
+		for(auto& j:i){
+			j.cnt = 1000;
+		}
+	}
 }
 
 template float board::score_ptn<true>()const;
@@ -125,12 +59,15 @@ float board::score_ptn()const{
 	const brd_type& brd_green = this->bget<!color>();
 	float result = 0;
 
-	auto table = ptr_pattern->table + ((this->sum() - 1) >> 4) * 11;
+	short stage = (this->sum() - 1) >> 4;
+	auto table1 = ptr_pattern->table1[stage];
+
+	result += ptr_pattern->table2[stage][count_move<color>() * 30 + count_move<!color>()].val;
 
 	#define extract(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
 		index |= (brd_green & mask) shift2; \
-		result += table[num][index].val;
+		result += table1[num][index].val;
 
 	//horizontal pattern
 	extract(0xff,<<8,,0);
@@ -147,7 +84,7 @@ float board::score_ptn()const{
 	#define extract(mask,factor,num) \
 		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
 		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		result += table[num][index].val;
+		result += table1[num][index].val;
 
 	//vertical pattern
 	extract(0x0101010101010101,0x8040201008040201,0);
@@ -191,31 +128,29 @@ float board::score_ptn()const{
 
 //float fdecay = 1 - 0.01;
 
-template void board::adjust_ptn<true,true>()const;
-template void board::adjust_ptn<true,false>()const;
-template void board::adjust_ptn<false,true>()const;
-template void board::adjust_ptn<false,false>()const;
-template<bool color,bool is_win>
-void board::adjust_ptn()const{
+template void board::adjust_ptn<true>(ccalc_type diff)const;
+template void board::adjust_ptn<false>(ccalc_type diff)const;
+template<bool color>
+void board::adjust_ptn(ccalc_type diff)const{
 
 	unsigned short index;
 	const brd_type& brd_blue = this->bget<color>();
 	const brd_type& brd_green = this->bget<!color>();
 
-	//diff *= (0.01 / 36);
-
 	element* ele;
-	auto table = ptr_pattern->table + ((this->sum() - 1) >> 4) * 11;
+	short stage = (this->sum() - 1) >> 4;
+	auto table1 = ptr_pattern->table1[stage];
+
+	ele = &ptr_pattern->table2[stage][count_move<color>() * 30 + count_move<!color>()];
+	++ele->cnt;
+	ele->val += diff / ele->cnt;
 
 	#define diffuse(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
 		index |= (brd_green & mask) shift2; \
-		ele = &table[num][index]; \
-		if(is_win){ \
-			++ele->win; \
-		}else{ \
-			++ele->lose; \
-		}
+		ele = &table1[num][index]; \
+		++ele->cnt; \
+		ele->val += diff / ele->cnt;
 
 	//horizontal pattern
 	diffuse(0xff,<<8,,0);
@@ -232,12 +167,9 @@ void board::adjust_ptn()const{
 	#define diffuse(mask,factor,num) \
 		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
 		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		ele = &table[num][index]; \
-		if(is_win){ \
-			++ele->win; \
-		}else{ \
-			++ele->lose; \
-		}
+		ele = &table1[num][index]; \
+		++ele->cnt; \
+		ele->val += diff / ele->cnt;
 
 	//vertical pattern
 	diffuse(0x0101010101010101,0x8040201008040201,0);
@@ -372,27 +304,53 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 }
 
 void pattern::compress(element* const& ptr){
-	size_t j = 0;
-	for(size_t num = 0;num != this->size;++num){
-		for(size_t i = 0;i != this->length;++i){
-			if(i & (i >> 8)){
+	size_t t = 0;
+
+	for(auto& i:table1){
+		for(auto& j:i){
+			for(size_t k = 0;k != this->length;++k){
+				if(k & (k >> 8)){
+					continue;
+				}
+				ptr[t] = j[k];
+				++t;
+			}
+		}
+	}
+
+	for(auto& j:table2){
+		for(size_t k = 0;k != this->length;++k){
+			if(k & (k >> 8)){
 				continue;
 			}
-			ptr[j] = this->table[num][i];
-			++j;
+			ptr[t] = j[k];
+			++t;
 		}
 	}
 }
 
 void pattern::decompress(element* const& ptr){
-	size_t j = 0;
-	for(size_t num = 0;num != this->size;++num){
-		for(size_t i = 0;i != this->length;++i){
-			if(i & (i >> 8)){
+	size_t t = 0;
+
+	for(auto& i:table1){
+		for(auto& j:i){
+			for(size_t k = 0;k != this->length;++k){
+				if(k & (k >> 8)){
+					continue;
+				}
+				j[k] = ptr[t];
+				++t;
+			}
+		}
+	}
+
+	for(auto& j:table2){
+		for(size_t k = 0;k != this->length;++k){
+			if(k & (k >> 8)){
 				continue;
 			}
-			this->table[num][i] = ptr[j];
-			++j;
+			j[k] = ptr[t];
+			++t;
 		}
 	}
 }
@@ -407,7 +365,7 @@ bool compete(pattern* const& p1,pattern* const& p2){
 	do{
 		*ptr++ = brd;
 		ptr_pattern = p1;
-		pos1 = brd.play(mthd_rnd,true,0);
+		pos1 = brd.play(mthd_ptn,true,0);
 		if(pos1.x < 0){
 			--ptr;
 		}
@@ -415,7 +373,7 @@ bool compete(pattern* const& p1,pattern* const& p2){
 		//*ptr++ = board(brd.bget(false),brd.bget(true));
 		*ptr++ = brd;
 		ptr_pattern = p2;
-		pos2 = brd.play(mthd_rnd,false,0);
+		pos2 = brd.play(mthd_ptn,false,0);
 		if(pos2.x < 0){
 			--ptr;
 		}
@@ -423,53 +381,25 @@ bool compete(pattern* const& p1,pattern* const& p2){
 
 	calc_type result = brd.count(true) - brd.count(false);
 
+	ptr_pattern = p1;
+	calc_type diff;
 	if(result > 0){
 		ptr_pattern = p1;
 		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true,true>();
-			p->adjust_ptn<false,false>();
-		}
-		ptr_pattern = p2;
-		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true,true>();
-			p->adjust_ptn<false,false>();
+			diff = (100 - p->score_ptn<true>()) / 38;
+			p->adjust_ptn<true>(diff);
+			p->adjust_ptn<false>(-diff);
 		}
 		return true;
 	}else if(result < 0){
-		ptr_pattern = p1;
 		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true,false>();
-			p->adjust_ptn<false,true>();
-		}
-		ptr_pattern = p2;
-		for(board* p = vec;p != ptr;++p){
-			p->adjust_ptn<true,false>();
-			p->adjust_ptn<false,true>();
+			diff = (-100 - p->score_ptn<true>()) / 38;
+			p->adjust_ptn<true>(diff);
+			p->adjust_ptn<false>(-diff);
 		}
 	}
 	return false;
 };
-
-// param cross(const param& p1,const param& p2){
-	// param result;
-	// result.reserve(param::size_max);
-	// do{
-		// for(auto& ptr_pattern:p1){
-			// if(coin(engine)){
-				// result.push_back(*ptr_pattern);
-			// }
-		// }
-		// for(auto& ptr_pattern:p2){
-			// if(result.size() >= param::size_max){
-				// break;
-			// }
-			// if(coin(engine)){
-				// result.push_back(*ptr_pattern);
-			// }
-		// }
-	// }while(result.size() < param::size_min);
-	// return result;
-// }
 
 void group::assign(const int& size){
 	while(vec.size() < (unsigned int)(size)){
@@ -483,59 +413,41 @@ void group::load(const string& filename,cbool is_compress,cint num_begin,cint nu
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
 
 	ifstream fin(filename,ios::in | ios::binary);
-	size_t group_size,ptn_size,ptn_length;
+	size_t ele_size, ptn_size, group_size;
 
 	if(!fin){
 		fin.close();
 		cout << "Error: Cannot open the file: " << filename << " ." << endl;
 		return;
 	}
-	
-	_READ(group_size);
-	_READ(ptn_size);
-	_READ(ptn_length);
 
-	if(is_compatible){
-		if(ptn_size != pattern::size){
-			cout << "Warning: The pattern.size does not match." << endl;
-			if(ptn_size > pattern::size){
-				ptn_size = pattern::size;
-			}
-		}
-	}else{
-		if(ptn_size != pattern::size){
-			fin.close();
-			cout << "Error: The pattern.size does not match." << endl;
-			return;
-		}
-	}
-	if(ptn_length != pattern::length){
+	_READ(ele_size);
+	_READ(ptn_size);
+	_READ(group_size);
+
+	if(ptn_size != sizeof(pattern)){
 		fin.close();
-		cout << "The pattern.length does not match." << endl;
+		cout << "Error: The size of pattern does not match." << endl;
+		return;
+	}
+	if(ele_size != sizeof(element)){
+		fin.close();
+		cout << "Error: The size of element does not match." << endl;
 		return;
 	}
 	
 	this->vec.reserve(group_size);
-	if(is_compress){
-		size_t ptr_size = ptn_size * 6561;
-		element* ptr = new element[ptr_size];
-		for(size_t i = 0;i != group_size && i < size_t(num);++i){
-			this->vec.emplace_back();
-			this->record.emplace_back(0);
-			//_READ(this->vec.back());
-			//fin.read((char *)(&this->vec.back()),sizeof(float) * ptn_size * pattern::length);
-			fin.read((char *)(ptr),ptr_size * sizeof(element));
-			this->vec.back().decompress(ptr);
-		}
-		delete ptr;
-	}else{
-		for(size_t i = 0;i != group_size && i < size_t(num);++i){
-			this->vec.emplace_back();
-			this->record.emplace_back(0);
-			//_READ(this->vec.back());
-			fin.read((char *)(&this->vec.back()),sizeof(element) * ptn_size * pattern::length);
-		}
+
+	size_t ptr_size = sizeof(pattern) / sizeof(element);
+	element* ptr = new element[ptr_size];
+	for(size_t i = 0;i != group_size && i < size_t(num);++i){
+		this->vec.emplace_back();
+		this->record.emplace_back(0);
+		fin.read((char *)(ptr),sizeof(pattern));
+		this->vec.back().decompress(ptr);
 	}
+	delete ptr;
+
 	fin.close();
 	#undef _READ
 }
@@ -544,27 +456,22 @@ void group::save(const string& filename,const bool& is_compress){
 	#define WRITE(var) fout.write((char *)(&var),sizeof(var))
 	ofstream fout(filename,ios::out | ios::binary);
 
+	size_t ele_size = sizeof(element);
+	size_t ptn_size = sizeof(pattern);
 	size_t group_size = vec.size();
-	size_t ptn_size = pattern::size;
-	size_t ptn_length = pattern::length;
 
-	WRITE(group_size);
+	WRITE(ele_size);
 	WRITE(ptn_size);
-	WRITE(ptn_length);
+	WRITE(group_size);
 
-	if(is_compress){
-		size_t ptr_size = ptn_size * 6561;
-		element* ptr = new element[ptr_size];
-		for(auto& ptn:this->vec){
-			ptn.compress(ptr);
-			fout.write((char *)(ptr),ptr_size * sizeof(element));
-		}
-		delete ptr;
-	}else{
-		for(auto& ptn:this->vec){
-			WRITE(ptn);
-		}
+	size_t ptr_size = sizeof(pattern) / sizeof(element);
+	element* ptr = new element[ptr_size];
+	for(auto& ptn:this->vec){
+		ptn.compress(ptr);
+		fout.write((char *)(ptr),sizeof(pattern));
 	}
+	delete ptr;
+
 	fout.close();
 }
 

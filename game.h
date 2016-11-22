@@ -9,6 +9,8 @@ using namespace std;
 
 class game{
 public:
+	virtual ~game(){}
+
 	board brd;
 	vector<board> record;
 	bool flag_auto_show = true;
