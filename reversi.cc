@@ -4,6 +4,13 @@
 #include "reversi.h" //--
 
 const brd_type board::last = 0x8000000000000000;
+const pos_type board::chessman_num;
+const pos_type board::size;
+const pos_type board::size2;
+const pos_type board::pos_num;
+const pos_type board::layer_num;
+const pos_type board::stage_num;
+const pos_type board::enum_num;
 
 #ifdef USE_FLOAT
 	const calc_type board::mark_max = 10000;
@@ -738,8 +745,9 @@ vector<choice> board::get_choice(
     choice temp;
 	calc_type alpha = _inf;
 
-    if(height < 0)
+    if(height < 0){
         return choices;
+	}
 
 	if(mthd & mthd_mtdf){
 		trans_black.clear();
@@ -868,12 +876,4 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 		flip(color,best.x,best.y);
 		return coordinate(best.x,best.y);
 	}
-}
-
-void print(const vector<choice>& choices){
-	cout << '(';
-	for(const auto& c: choices){
-		c.print();
-		cout << ',';
-	}cout << "\b)";
 }
