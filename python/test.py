@@ -1,16 +1,9 @@
 import reversi as rv
 
 grp = rv.group();
-grp.load("../data/data1.dat");
-grp.train();
+grp.assign(2);
 
-g = rv.game();
-
-g.start();
-
-
-
-import reversi as rv
-
-grp = rv.group();
-%time for i in range(100):grp.train();
+for i in range(10):
+	for j in range(1000):
+		grp.train();
+	rv.set_ptn(grp.vec[0]);
