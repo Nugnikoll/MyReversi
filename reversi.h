@@ -703,9 +703,23 @@ protected:
 public:
 	template<bool color>
 	float score_ptn()const;
+	float score_ptn(cbool color){
+		if(color){
+			return score_ptn<true>();
+		}else{
+			return score_ptn<false>();
+		}
+	}
 
 	template<bool color>
 	void adjust_ptn(ccalc_type diff)const;
+	void adjust_ptn(cbool color,ccalc_type diff)const{
+		if(color){
+			return adjust_ptn<true>(diff);
+		}else{
+			return adjust_ptn<false>(diff);
+		}
+	}
 };
 
 template <>
