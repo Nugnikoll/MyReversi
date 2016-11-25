@@ -3,8 +3,8 @@ pyhead_path = /usr/include/python2.7/
 src_path = ../
 
 src = $(addprefix $(src_path),reversi.cc pattern.cc)
-head = $(addprefix $(src_path),type.h reversi.h pattern.h game.h)
-obj = reversi_wrap.o reversi.o pattern.o
+head = $(addprefix $(src_path),type.h reversi.h pattern.h game.h tree.h)
+obj = reversi_wrap.o reversi.o pattern.o flip.o
 target = _reversi.dll
 
 cc = gcc
@@ -27,6 +27,9 @@ reversi.o: $(src_path)reversi.cc
 	$(cxx) $(compile_option) $< -o $@
 
 pattern.o: $(src_path)pattern.cc
+	$(cxx) $(compile_option) $< -o $@
+
+flip.o: $(src_path)flip.cc
 	$(cxx) $(compile_option) $< -o $@
 
 reversi_wrap.o: reversi_wrap_fix.cxx

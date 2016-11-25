@@ -221,10 +221,18 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 	
 	ptr->brd = *this;
 	for(register pos_type i = 0;i != size2;++i){
-		if(ptr->brd.flip<color>(brd_type(1) << i)){
-			ptr->pos = i;
-			ptr->val = table_ref[i];
-			(++ptr)->brd = *this;
+		if(color){
+			if((ptr->brd.*table_flip1[i])(brd_type(1) << i)){
+				ptr->pos = i;
+				ptr->val = table_ref[i];
+				(++ptr)->brd = *this;
+			}
+		}else{
+			if((ptr->brd.*table_flip2[i])(brd_type(1) << i)){
+				ptr->pos = i;
+				ptr->val = table_ref[i];
+				(++ptr)->brd = *this;
+			}
 		}
 	}
 	
@@ -232,10 +240,18 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 		calc_type (&table_ref)[size2] = table_temp[!color][height];
 		//ptr->brd = *this;
 		for(register pos_type i = 0;i != size2;++i){
-			if(ptr->brd.flip<!color>(brd_type(1) << i)){
-				ptr->pos = i;
-				ptr->val = table_ref[i];
-				(++ptr)->brd = *this;
+			if(color){
+				if((ptr->brd.*table_flip2[i])(brd_type(1) << i)){
+					ptr->pos = i;
+					ptr->val = table_ref[i];
+					(++ptr)->brd = *this;
+				}
+			}else{
+				if((ptr->brd.*table_flip1[i])(brd_type(1) << i)){
+					ptr->pos = i;
+					ptr->val = table_ref[i];
+					(++ptr)->brd = *this;
+				}
 			}
 		}
 
@@ -279,7 +295,7 @@ calc_type board::search(cshort height,calc_type alpha,calc_type beta,calc_type a
 		sort(vec,ptr,greater<brd_val>());
 
 		#ifdef USE_FLOAT
-			acc = (ptr - vec) + (acc / 1);
+			acc = (ptr - vec) + (acc / 2);
 		#else
 			acc = (ptr - vec) + (acc >> 1);
 		#endif
@@ -496,7 +512,7 @@ calc_type board::search_pvs(cshort height,calc_type alpha,calc_type beta,calc_ty
 		sort(vec,ptr,greater<brd_val>());
 
 		#ifdef USE_FLOAT
-			acc = (ptr - vec) + (acc / 1);
+			acc = (ptr - vec) + (acc / 2);
 		#else
 			acc = (ptr - vec) + (acc >> 1);
 		#endif
@@ -687,7 +703,7 @@ calc_type board::search_trans(cshort height,calc_type alpha,calc_type beta,calc_
 		calc_type _alpha = alpha;
 
 		#ifdef USE_FLOAT
-			acc = (ptr - vec) + (acc / 1);
+			acc = (ptr - vec) + (acc / 2);
 		#else
 			acc = (ptr - vec) + (acc >> 1);
 		#endif
@@ -844,28 +860,6 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 	if(choices.empty()){
 		return coordinate(-1,-1);
 	}else{
-//		auto comp = [](const choice& c1,const choice& c2){
-//				return c1.val < c2.val;
-//			};
-//		if(mthd & mthd_ptn){
-//			if(color){
-//				this->adjust_ptn<true>(
-//					(
-//						max_element(choices.begin(),choices.end(),comp)->val
-//						+ this->search_ptn<true>(1,_inf,inf)
-//					)// / 2
-//					- this->score_ptn<true>()
-//				);
-//			}else{
-//				this->adjust_ptn<false>(
-//					(
-//						max_element(choices.begin(),choices.end(),comp)->val
-//						+ this->search_ptn<false>(1,_inf,inf)
-//					)// / 2
-//					- this->score_ptn<false>()
-//				);
-//			}
-//		}
 		float variation;
 		if(mthd == mthd_ptn){
 			variation = 0.01;

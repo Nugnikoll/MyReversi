@@ -385,6 +385,30 @@ protected:
 
 	template<bool color>
 	bool flip(cbrd_type mask);
+	template<bool color>
+	bool flip_u(cbrd_type mask);
+	template<bool color>
+	bool flip_d(cbrd_type mask);
+	template<bool color>
+	bool flip_r(cbrd_type mask);
+	template<bool color>
+	bool flip_l(cbrd_type mask);
+	template<bool color>
+	bool flip_ul(cbrd_type mask);
+	template<bool color>
+	bool flip_ur(cbrd_type mask);
+	template<bool color>
+	bool flip_dl(cbrd_type mask);
+	template<bool color>
+	bool flip_dr(cbrd_type mask);
+	template<bool color>
+	bool flip_o(cbrd_type mask);
+	template<bool color>
+	bool flip_n(cbrd_type mask);
+
+	typedef bool (board::* table_flip_type[board::size2]) (cbrd_type);
+	static const table_flip_type table_flip1;
+	static const table_flip_type table_flip2;
 
 	template<bool color>
 	short count()const{

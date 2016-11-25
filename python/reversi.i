@@ -9,12 +9,14 @@
 #include "../reversi.h"
 #include "../game.h"
 #include "../pattern.h"
+#include "../tree.h"
 %}
 
 %include "../type.h"
 %include "../reversi.h"
 %include "../pattern.h"
 %include "../game.h"
+%include "../tree.h"
 
 %pointer_functions(pattern,ptn)
 
