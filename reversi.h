@@ -73,8 +73,6 @@ public:
 	static const pos_type enum_num = 256;
 	static const short max_height = 20;
 
-	static calc_type (*fun)(const board& brd,cbool color);
-
 	typedef pair<calc_type,calc_type> interval;
 
 	static calc_type table_param[stage_num][pos_num];
@@ -546,8 +544,6 @@ protected:
 			return 0;
 		}else if(mthd & mthd_ptn){
 			return search_ptn<color>(height,alpha,beta);
-		}else if(mthd & mthd_train){
-			return search_train<color>(height,alpha,beta,acc,conf);
 		}else if(mthd & mthd_mtdf){
 			return search_mtd<color>(height,alpha,beta,acc,conf,gamma);
 		}else if(mthd & mthd_trans){
@@ -563,8 +559,6 @@ protected:
 	};
 	template<bool color>
 	calc_type search(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	template<bool color>
-	calc_type search_train(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
 	template<bool color>
 	calc_type search_pvs(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
 	template<bool color>
@@ -636,5 +630,8 @@ struct choice{
 		cout << '(' << val << ',' << x << ',' << y << ')';
 	}
 };
+
+extern unordered_map<board,board::interval> trans_black;
+extern unordered_map<board,board::interval> trans_white;
 
 #endif // REVERSI_H

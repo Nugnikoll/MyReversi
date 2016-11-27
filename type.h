@@ -63,8 +63,7 @@ enum method{
 	mthd_kill = 0x8, // killer heuristic
 	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
 	mthd_ids = 0x20, // iterative deepening search
-	mthd_train = 0x40,
-	mthd_ptn = 0x80,
+	mthd_ptn = 0x40,
 
 	mthd_default = mthd_ab
 };
