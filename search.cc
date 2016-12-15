@@ -1,6 +1,7 @@
-#include "reversi.h"
-
 #include <algorithm>
+
+#include "reversi.h"
+#include "tree.h"
 
 calc_type board::search(cmethod mthd,cbool color,cshort height,ccalc_type alpha,
 	ccalc_type beta,ccalc_type acc,cpos_type stage,ccalc_type gamma)const{
@@ -278,7 +279,6 @@ calc_type board::search_pvs(cshort height,calc_type alpha,calc_type beta,calc_ty
 	#endif
 }
 
-
 template<bool color>
 calc_type board::search_mtd(
 	cshort height,calc_type alpha,calc_type beta,
@@ -473,3 +473,38 @@ calc_type board::search_trans(cshort height,calc_type alpha,calc_type beta,calc_
 	return result;
 	#endif
 }
+
+#if 0
+
+template<bool color>
+calc_type board::search_mem(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf,cpnode ptr_node)const{
+
+	#ifdef DEBUG_SEARCH
+	auto fun = [&]()->calc_type{
+	#endif
+
+	if(ptr_node){
+		return (float(ptr_node->win) - ptr_node->lose / ptr_node->win + ptr_node->lose)
+			//+ this->search<color>(height,alpha,beta,acc,conf);
+			+ ptr_node->val;
+	}else{
+		return this->search<color>(height,alpha,beta,acc,conf);
+	}
+
+	#ifdef DEBUG_SEARCH
+	};
+	out << "<div color=" << color
+		<<" height=" << height
+		<< " alpha=" << alpha
+		<< " beta=" << beta
+		<< " acc=" << acc
+		<< ">\n";
+	do_print(out);
+	calc_type result = fun();
+	out << "result = " << result <<"\n"
+		<< "</div>\n";
+	return result;
+	#endif
+}
+
+#endif
