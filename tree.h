@@ -5,12 +5,19 @@
 
 struct node{
 	int id;
+	//bool color;
+
 	node* sibling;
 	node* child;
+
 	pos_type pos;
+
 	int win;
 	int lose;
 };
+
+typedef node* pnode;
+typedef const pnode& cpnode;
 
 class tree{
 public:
