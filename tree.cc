@@ -68,7 +68,7 @@ void tree::save(const string& path){
 	#define WRITE(var) fout.write((char *)(&var),sizeof(var))
 	ofstream fout(path,ios::out | ios::binary);
 
-	size_t data_size = sizeof(data);
+	int data_size = sizeof(data);
 
 	WRITE(data_size);
 	WRITE(this->count);
@@ -82,14 +82,15 @@ void tree::save(const string& path){
 void tree::save(ostream& out,const node* const& ptr){
 	#define WRITE(var) out.write((char *)(&var),sizeof(var))
 
-	WRITE(ptr->dat);
-	WRITE(ptr->child != NULL);
-	WRITE(ptr->sibling != NULL);
+	if(ptr){
+		bool flag_child = (ptr->child != NULL);
+		bool flag_sibling = (ptr->sibling != NULL);
 
-	if(ptr->child){
+		WRITE(ptr->dat);
+		WRITE(flag_child);
+		WRITE(flag_sibling);
+
 		save(out,ptr->child);
-	}
-	if(ptr->sibling){
 		save(out,ptr->sibling);
 	}
 

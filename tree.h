@@ -34,14 +34,18 @@ public:
 		destroy(root);
 	}
 
+	void print()const{
+		print(root);
+	}
+
 	void save(const string& path);
 	void load(const string& path);
 
-	void add_path(const pos_type* path,cbool is_win){
+	void add_path( pos_type* path,cbool is_win){
 		return add_path(root->child,path,is_win);
 	}
-	void add_path(node* ptr,const pos_type* path,cbool is_win){
-		if(path > 0){
+	void add_path(node*& ptr, pos_type* path,cbool is_win){
+		if(*path > 0){
 			if(ptr){
 				if(ptr->dat.pos == *path){
 					if(ptr->dat.color ^ is_win){
@@ -54,9 +58,8 @@ public:
 				return add_path(ptr->sibling,path,is_win);
 			}else{
 				ptr = new node({{++count,true,*path,0,0},NULL,NULL});
+				return add_path(ptr->child,++path,is_win);
 			}
-		}else{
-			ptr = new node({{++count,true,*path,0,0},NULL,NULL});
 		}
 	}
 
@@ -69,6 +72,19 @@ private:
 			destroy(ptr->sibling);
 			destroy(ptr->child);
 			delete ptr;
+		}
+	}
+
+	static void print(const node* const& ptr){
+		cout<< "(" << ptr->dat.id << "," << ptr->dat.pos << ") "
+			<< (ptr->child != NULL) << " "
+			<< (ptr->sibling != NULL) << endl;
+		
+		if(ptr->child){
+			print(ptr->child);
+		}
+		if(ptr->sibling){
+			print(ptr->sibling);
 		}
 	}
 

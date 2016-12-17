@@ -3,6 +3,7 @@
 %include <std_string.i>
 %include <std_vector.i>
 %include <cpointer.i>
+%include <carrays.i>
 
 %{
 #include "../type.h"
@@ -22,6 +23,8 @@
 
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
+
+%array_class(pos_type, pos_array);
 
 %rename(__eq__) board::operator==;
 %rename(__gt__) brd_val::operator>;
