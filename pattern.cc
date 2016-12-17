@@ -408,16 +408,16 @@ void group::assign(const int& size){
 	}
 }
 
-void group::load(const string& filename,cbool is_compress,cint num_begin,cint num
+void group::load(const string& path,cbool is_compress,cint num_begin,cint num
 	,cbool is_compatible){
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
 
-	ifstream fin(filename,ios::in | ios::binary);
+	ifstream fin(path,ios::in | ios::binary);
 	size_t ele_size, ptn_size, group_size;
 
 	if(!fin){
 		fin.close();
-		cout << "Error: Cannot open the file: " << filename << " ." << endl;
+		cout << "Error: Cannot open the file: " << path << " ." << endl;
 		return;
 	}
 
@@ -452,9 +452,9 @@ void group::load(const string& filename,cbool is_compress,cint num_begin,cint nu
 	#undef _READ
 }
 
-void group::save(const string& filename,const bool& is_compress){
+void group::save(const string& path,const bool& is_compress){
 	#define WRITE(var) fout.write((char *)(&var),sizeof(var))
-	ofstream fout(filename,ios::out | ios::binary);
+	ofstream fout(path,ios::out | ios::binary);
 
 	size_t ele_size = sizeof(element);
 	size_t ptn_size = sizeof(pattern);
@@ -473,6 +473,7 @@ void group::save(const string& filename,const bool& is_compress){
 	delete ptr;
 
 	fout.close();
+	#undef WRITE
 }
 
 void group::train(){
