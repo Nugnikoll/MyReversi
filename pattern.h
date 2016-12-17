@@ -59,9 +59,9 @@ public:
 		}
 	}
 	void load(
-		const string& filename,cbool is_compress = true,cint num_begin = 0,cint num = 100
+		const string& path,cbool is_compress = true,cint num_begin = 0,cint num = 100
 		,cbool is_compatible = true);
-	void save(const string& filename,const bool& is_compress = true);
+	void save(const string& path,const bool& is_compress = true);
 	pattern* get(const int& pos){
 		return &vec.at(pos);
 	}
