@@ -279,6 +279,17 @@ calc_type board::search_pvs(cshort height,calc_type alpha,calc_type beta,calc_ty
 	#endif
 }
 
+template
+calc_type board::search_mtd<true>(
+	cshort height,calc_type alpha,calc_type beta,
+	ccalc_type acc,cconf_score conf,calc_type gamma
+)const;
+template
+calc_type board::search_mtd<false>(
+	cshort height,calc_type alpha,calc_type beta,
+	ccalc_type acc,cconf_score conf,calc_type gamma
+)const;
+
 template<bool color>
 calc_type board::search_mtd(
 	cshort height,calc_type alpha,calc_type beta,

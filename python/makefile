@@ -2,14 +2,14 @@ pylib_path = /lib/python2.7/config/
 pyhead_path = /usr/include/python2.7/
 src_path = ../
 
-src = $(addprefix $(src_path),reversi.cc pattern.cc)
+src = $(addprefix $(src_path),reversi.cc flip.cc search.cc pattern.cc tree.cc)
 head = $(addprefix $(src_path),type.h reversi.h pattern.h game.h tree.h)
-obj = reversi_wrap.o reversi.o pattern.o flip.o
+obj = reversi_wrap.o reversi.o flip.o search.o pattern.o tree.o
 target = _reversi.dll
 
 cc = gcc
 cxx = g++
-compile_option = -Wall -std=c++11 -O2 -c
+compile_option = -Wall -g -std=c++11 -O2 -c
 
 .PHONY: all clean
 
@@ -26,10 +26,16 @@ $(obj): $(head)
 reversi.o: $(src_path)reversi.cc
 	$(cxx) $(compile_option) $< -o $@
 
+flip.o: $(src_path)flip.cc
+	$(cxx) $(compile_option) $< -o $@
+
+search.o: $(src_path)search.cc
+	$(cxx) $(compile_option) $< -o $@
+
 pattern.o: $(src_path)pattern.cc
 	$(cxx) $(compile_option) $< -o $@
 
-flip.o: $(src_path)flip.cc
+tree.o: $(src_path)tree.cc
 	$(cxx) $(compile_option) $< -o $@
 
 reversi_wrap.o: reversi_wrap_fix.cxx
