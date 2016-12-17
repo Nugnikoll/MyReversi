@@ -42,14 +42,14 @@ board& board::rotater(pos_type n90){
 	if(n90 == 0){
 		return *this;
 	}else if(n90 == 1){
-		brd_black = rotate_r(brd_black);
-		brd_white = rotate_r(brd_white);
+		rotate_r(brd_black);
+		rotate_r(brd_white);
 	}else if(n90 == 2){
 		reverse(brd_black);
 		reverse(brd_white);
 	}else if(n90 == 3){
-		brd_black = rotate_l(brd_black);
-		brd_white = rotate_l(brd_white);
+		rotate_l(brd_black);
+		rotate_l(brd_white);
 	}
 	return *this;
 }
