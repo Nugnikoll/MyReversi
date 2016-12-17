@@ -280,28 +280,21 @@ protected:
 		mirror_h(brd);
 		mirror_v(brd);
 	}
-	static brd_type rotate_r(brd_type brd){
-		brd_type result = 0;
-		for(int i = 0;i != board::size;++i){
-			result >>= board::size;
-			result |= ((brd & 0x0101010101010101) * 0x8040201008040201) & 0xff00000000000000;
-			brd >>= 1;
-		}
-		return result;
+	static void rotate_r(brd_type& brd){
+		brd = (brd & 0xf0f0f0f000000000) >> 4  | (brd & 0x0f0f0f0f00000000) >> 32
+			| (brd & 0x00000000f0f0f0f0) << 32 | (brd & 0x000000000f0f0f0f) << 4;
+		brd = (brd & 0xcccc0000cccc0000) >> 2  | (brd & 0x3333000033330000) >> 16
+			| (brd & 0x0000cccc0000cccc) << 16 | (brd & 0x0000333300003333) << 2;
+		brd = (brd & 0xaa00aa00aa00aa00) >> 1  | (brd & 0x5500550055005500) >> 8
+			| (brd & 0x00aa00aa00aa00aa) << 8  | (brd & 0x0055005500550055) << 1;
 	}
-	static brd_type rotate_l(brd_type brd){
-		brd_type result = 0;
-		for(int i = 0;i != board::size;++i){
-			result |= ((brd & 0x0101010101010101) * 0x0102040810204080) & 0xff00000000000000;
-			brd >>= 1;
-			asm volatile(
-				"rol $0x8,%0"
-				:"=r"(result)
-				:"0"(result)
-				:
-			);
-		}
-		return result;
+	static void rotate_l(brd_type& brd){
+		brd = (brd & 0xf0f0f0f000000000) >> 32 | (brd & 0x0f0f0f0f00000000) << 4
+			| (brd & 0x00000000f0f0f0f0) >> 4  | (brd & 0x000000000f0f0f0f) << 32;
+		brd = (brd & 0xcccc0000cccc0000) >> 16 | (brd & 0x3333000033330000) << 2
+			| (brd & 0x0000cccc0000cccc) >> 2  | (brd & 0x0000333300003333) << 16;
+		brd = (brd & 0xaa00aa00aa00aa00) >> 8  | (brd & 0x5500550055005500) << 1
+			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
 	}
 
 	const board& do_print(ostream& out = cout)const{
