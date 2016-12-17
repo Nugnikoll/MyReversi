@@ -24,90 +24,33 @@ unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
 
 board& board::mirror(cbool is_horizontal){
-	brd_type mask = 1,filter;
-	brd_type new_black = 0,new_white = 0;
 	if(is_horizontal){
-		for(int i = 0;i != size;++i){
-			for(int j = 0;j != size;++j){
-				filter = brd_type(1) << ((i << 3) + (size - j - 1));
-				if(filter & brd_black){
-					new_black |= mask;
-				}
-				if(filter & brd_white){
-					new_white |= mask;
-				}
-				mask <<= 1;
-			}
-		}
+		mirror_h(brd_black);
+		mirror_h(brd_white);
 	}else{
-		for(int i = 0;i != size;++i){
-			for(int j = 0;j != size;++j){
-				filter = brd_type(1) << (((size - i - 1) << 3) + j);
-				if(filter & brd_black){
-					new_black |= mask;
-				}
-				if(filter & brd_white){
-					new_white |= mask;
-				}
-				mask <<= 1;
-			}
-		}
+		mirror_v(brd_black);
+		mirror_v(brd_white);
 	}
-	brd_black = new_black;
-	brd_white = new_white;
 	return *this;
 }
 
 board& board::rotater(pos_type n90){
 	n90 = n90 % 4;
-	brd_type mask = 1,filter;
-	brd_type new_black = 0,new_white = 0;
 	if(n90 < 0){
 		n90 += 4;
 	}
 	if(n90 == 0){
 		return *this;
 	}else if(n90 == 1){
-		for(int i = 0;i != size;++i){
-			for(int j = 0;j != size;++j){
-				filter = brd_type(1) << (((size - j - 1) << 3) + i);
-				if(filter & brd_black){
-					new_black |= mask;
-				}
-				if(filter & brd_white){
-					new_white |= mask;
-				}
-				mask <<= 1;
-			}
-		}
+		brd_black = rotate_r(brd_black);
+		brd_white = rotate_r(brd_white);
 	}else if(n90 == 2){
-		filter = brd_type(1) << (size * size - 1);
-		for(int i = 0;i != size * size;++i){
-			if(filter & brd_black){
-				new_black |= mask;
-			}
-			if(filter & brd_white){
-				new_white |= mask;
-			}
-			mask <<= 1;
-			filter >>= 1;
-		}
+		reverse(brd_black);
+		reverse(brd_white);
 	}else if(n90 == 3){
-		for(int i = 0;i != size;++i){
-			for(int j = 0;j != size;++j){
-				filter = brd_type(1) << ((j << 3) + (size - i - 1));
-				if(filter & brd_black){
-					new_black |= mask;
-				}
-				if(filter & brd_white){
-					new_white |= mask;
-				}
-				mask <<= 1;
-			}
-		}
+		brd_black = rotate_l(brd_black);
+		brd_white = rotate_l(brd_white);
 	}
-	brd_black = new_black;
-	brd_white = new_white;
 	return *this;
 }
 

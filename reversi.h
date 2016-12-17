@@ -266,6 +266,44 @@ protected:
 	static calc_type table_eval[stage_num][size][enum_num];
 	static calc_type table_temp[2][board::max_height + 1][size2];
 
+	static void mirror_h(brd_type& brd){
+		brd = (brd & 0xaaaaaaaaaaaaaaaa) >> 1  | (brd & 0x5555555555555555) << 1;
+		brd = (brd & 0xcccccccccccccccc) >> 2  | (brd & 0x3333333333333333) << 2;
+		brd = (brd & 0xf0f0f0f0f0f0f0f0) >> 4  | (brd & 0x0f0f0f0f0f0f0f0f) << 4;
+	}
+	static void mirror_v(brd_type& brd){
+		brd = (brd & 0xff00ff00ff00ff00) >> 8  | (brd & 0x00ff00ff00ff00ff) << 8;
+		brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
+		brd = (brd & 0xffffffff00000000) >> 32 | (brd & 0x00000000ffffffff) << 32;
+	}
+	static void reverse(brd_type& brd){
+		mirror_h(brd);
+		mirror_v(brd);
+	}
+	static brd_type rotate_r(brd_type brd){
+		brd_type result = 0;
+		for(int i = 0;i != board::size;++i){
+			result >>= board::size;
+			result |= ((brd & 0x0101010101010101) * 0x8040201008040201) & 0xff00000000000000;
+			brd >>= 1;
+		}
+		return result;
+	}
+	static brd_type rotate_l(brd_type brd){
+		brd_type result = 0;
+		for(int i = 0;i != board::size;++i){
+			result |= ((brd & 0x0101010101010101) * 0x0102040810204080) & 0xff00000000000000;
+			brd >>= 1;
+			asm volatile(
+				"rol $0x8,%0"
+				:"=r"(result)
+				:"0"(result)
+				:
+			);
+		}
+		return result;
+	}
+
 	const board& do_print(ostream& out = cout)const{
 
 		string s =
