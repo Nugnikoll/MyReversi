@@ -16,7 +16,7 @@ const pos_type board::enum_num;
 	const calc_type board::mark_max = 10000;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
-calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{20,20,29,29}};
+calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{20,20,20,20}};
 calc_type board::table_eval[board::stage_num][board::size][board::enum_num];
 calc_type board::table_temp[2][board::max_height + 1][board::size2];
 

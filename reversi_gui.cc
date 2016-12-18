@@ -49,17 +49,10 @@ void game_gui::do_show(wxDC& dc){
 		}
 	}
 
-	if(pos.x >= 0){
-		if(brd.get(pos.x,pos.y) == black){
-			dc.SetBrush(wxBrush(wxColor(40,40,40)));
-			dc.SetPen(wxPen(*wxYELLOW,4));
-			dc.DrawCircle(wxPoint(cbias + cell * pos.x,cbias + cell * pos.y),radius);
-		}else{
-			dc.SetBrush(wxBrush(wxColor(210,210,210)));
-			dc.SetPen(wxPen(*wxYELLOW,4));
-			dc.DrawCircle(wxPoint(cbias + cell * pos.x,cbias + cell * pos.y),radius);
-		}
-	}
+	//show where is the last move
+	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+	dc.SetPen(wxPen(*wxYELLOW,4));
+	dc.DrawCircle(wxPoint(cbias + cell * pos.x,cbias + cell * pos.y),radius);
 }
 
 void quit(){

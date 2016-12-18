@@ -178,13 +178,6 @@ public:
 			return count<false>();
 		}
 	}
-	static pos_type count(cbrd_type brd){
-		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
-		result = (result & 0x3333333333333333)
-			+ ((result >> 2) & 0x3333333333333333);
-		result = (result + (result >> 4)) & 0x0F0F0F0F0F0F0F0F;
-		return (result * 0x0101010101010101) >> 56;
-	}
 	brd_type get_move(cbool color) {
 		if(color){
 			return get_move<true>();
@@ -295,6 +288,13 @@ protected:
 			| (brd & 0x0000cccc0000cccc) >> 2  | (brd & 0x0000333300003333) << 16;
 		brd = (brd & 0xaa00aa00aa00aa00) >> 8  | (brd & 0x5500550055005500) << 1
 			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
+	}
+	static pos_type count(cbrd_type brd){
+		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
+		result = (result & 0x3333333333333333)
+			+ ((result >> 2) & 0x3333333333333333);
+		result = (result + (result >> 4)) & 0x0F0F0F0F0F0F0F0F;
+		return (result * 0x0101010101010101) >> 56;
 	}
 
 	const board& do_print(ostream& out = cout)const{
