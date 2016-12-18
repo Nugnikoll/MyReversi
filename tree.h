@@ -99,6 +99,8 @@ private:
 	}
 
 	static void save(ostream& out,const node* const& ptr);
+
+	void practice(method mthd,cshort height);
 };
 
 #endif //TREE_H

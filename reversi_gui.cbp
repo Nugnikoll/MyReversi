@@ -42,8 +42,6 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="libwxmsw30u.a" />
-					<Add library="libboost_python3-mgw52-mt-1_59.a" />
-					<Add library="libboost_python-mgw52-mt-1_59.a" />
 					<Add directory="F:/Program/wxWidgets/lib/gcc_dll" />
 				</Linker>
 			</Target>
@@ -85,6 +83,7 @@
 		<Unit filename="reversi_guiMain.cpp" />
 		<Unit filename="reversi_guiMain.h" />
 		<Unit filename="search.cc" />
+		<Unit filename="tree.cc" />
 		<Unit filename="wxsmith/reversi_guiframe.wxs" />
 		<Extensions>
 			<code_completion />

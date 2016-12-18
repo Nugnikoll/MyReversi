@@ -22,7 +22,7 @@ int main(){
 	bool mycolor;
 
 	board brd;
-	brd.assign(0x0000000810000000,0x0000001008000000);
+	brd.initial();
  
  	// input JSON
  	string str;
