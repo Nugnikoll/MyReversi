@@ -51,6 +51,9 @@ void tree::load(const string& path){
 			ptr->child = new node({dat,NULL,NULL});
 			ptr = ptr->child;
 		}
+		if(flag_sibling){
+			storage.push(ptr);
+		}
 		if(storage.empty()){
 			break;
 		}
@@ -109,23 +112,20 @@ tuple<trace*,bool,bool> do_practice(method mthd,cshort height){
 	brd.initial();
 	do{
 		pos1 = brd.play(mthd,true,height);
-		++ptr;
-		ptr->pos = pos1.x + (pos1.y << 3);
-		ptr->color = false;
-		if(pos1.x < 0){
-			--ptr;
+		if(pos1.x >= 0){
+			ptr->pos = pos1.x + (pos1.y << 3);
+			ptr->color = false;
+			++ptr;
 		}
 
 		pos2 = brd.play(mthd,false,height);
-		++ptr;
-		ptr->pos = pos2.x + (pos2.y << 3);
-		ptr->color = true;
-		if(pos2.x < 0){
-			--ptr;
+		if(pos2.x >= 0){
+			ptr->pos = pos2.x + (pos2.y << 3);
+			ptr->color = true;
+			++ptr;
 		}
 	}while(pos1.x >= 0 || pos2.x >= 0);
 
-	++ptr;
 	ptr->pos = -1;
 	calc_type result = brd.count(true) - brd.count(false);
 	
@@ -134,7 +134,15 @@ tuple<trace*,bool,bool> do_practice(method mthd,cshort height){
 
 void tree::practice(method mthd,cshort height){
 	auto record = do_practice(mthd,height);
+
+	// auto ptr = std::get<0>(record);
+	// for(int i = 0;i != 64;++i){
+		// cout << "(" << ptr->pos << "," << ptr->color << ")" << endl;
+		// ++ptr;
+	// }
+
 	if(std::get<1>(record)){
 		this->add_path(std::get<0>(record),std::get<2>(record));
 	}
+	delete std::get<0>(record);
 }
