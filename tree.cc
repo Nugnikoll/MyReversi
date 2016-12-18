@@ -1,7 +1,10 @@
 #include <fstream>
+#include <cassert>
 #include <stack>
+#include <tuple>
 
 #include "tree.h"
+#include "reversi.h"
 
 void tree::load(const string& path){
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
@@ -95,4 +98,43 @@ void tree::save(ostream& out,const node* const& ptr){
 	}
 
 	#undef WRITE
+}
+
+tuple<trace*,bool,bool> do_practice(method mthd,cshort height){
+	board brd;
+	coordinate pos1,pos2;
+	trace* path = new trace[board::size2];
+	trace* ptr = path;
+
+	brd.initial();
+	do{
+		pos1 = brd.play(mthd,true,height);
+		++ptr;
+		ptr->pos = pos1.x + (pos1.y << 3);
+		ptr->color = false;
+		if(pos1.x < 0){
+			--ptr;
+		}
+
+		pos2 = brd.play(mthd,false,height);
+		++ptr;
+		ptr->pos = pos2.x + (pos2.y << 3);
+		ptr->color = true;
+		if(pos2.x < 0){
+			--ptr;
+		}
+	}while(pos1.x >= 0 || pos2.x >= 0);
+
+	++ptr;
+	ptr->pos = -1;
+	calc_type result = brd.count(true) - brd.count(false);
+	
+	return tuple<trace*,bool,bool>(path,result != 0,result > 0);
+}
+
+void tree::practice(method mthd,cshort height){
+	auto record = do_practice(mthd,height);
+	if(std::get<1>(record)){
+		this->add_path(std::get<0>(record),std::get<2>(record));
+	}
 }
