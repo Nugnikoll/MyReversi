@@ -45,8 +45,12 @@ public:
 	void load(const string& path);
 
 	void add_path(trace* path, cbool is_win){
-		for(node* ptr = root->child;path->pos >= 0;++path,ptr = ptr->child){
-			for(;ptr;ptr = ptr->sibling){
+		node* head = root;
+		bool flag;
+		for(node* ptr = head->child;path->pos >= 0;++path){
+			flag = true;
+			while(ptr){
+				flag = false;
 				assert(ptr->dat.tra.color == path->color);
 				if(ptr->dat.tra.pos == path->pos){
 					if(ptr->dat.tra.color ^ is_win){
@@ -60,18 +64,26 @@ public:
 						return;
 					}
 				};
+				head = ptr;
+				ptr = ptr->sibling;
 			}
-			if(path->color ^ is_win){
-				new node({{*path,1,0},NULL,NULL});
-			}else{
-				new node({{*path,0,1},NULL,NULL});
-			}
+
+			(flag ? head->child : head->sibling)
+				= (
+					path->color ^ is_win
+					? new node({{*path,1,0},NULL,NULL})
+					: new node({{*path,0,1},NULL,NULL})
+				);
 			++count;
 			break;
 
-			label:;
+			label:
+			head = ptr;
+			ptr = ptr->child;
 		}
 	}
+
+	void practice(method mthd,cshort height);
 
 private:
 	node* root;
@@ -86,9 +98,10 @@ private:
 	}
 
 	static void print(const node* const& ptr){
-		cout<< "(" << ptr->dat.tra.color << "," << ptr->dat.tra.pos << ") "
-			<< (ptr->child != NULL) << " "
-			<< (ptr->sibling != NULL) << endl;
+		cout<< "(((" << ptr->dat.tra.color << "," << ptr->dat.tra.pos << "),"
+			<< ptr->dat.win << "," << ptr->dat.lose << "),"
+			<< (ptr->child != NULL) << ","
+			<< (ptr->sibling != NULL) << ")" << endl;
 		
 		if(ptr->child){
 			print(ptr->child);
@@ -99,8 +112,6 @@ private:
 	}
 
 	static void save(ostream& out,const node* const& ptr);
-
-	void practice(method mthd,cshort height);
 };
 
 #endif //TREE_H

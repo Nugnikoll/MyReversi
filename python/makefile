@@ -9,7 +9,7 @@ target = _reversi.dll
 
 cc = gcc
 cxx = g++
-compile_option = -Wall -g -std=c++11 -O2 -c
+compile_option = -Wall -std=c++11 -O2 -c
 
 .PHONY: all clean
 
