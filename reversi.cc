@@ -45,8 +45,8 @@ board& board::rotater(pos_type n90){
 		rotate_r(brd_black);
 		rotate_r(brd_white);
 	}else if(n90 == 2){
-		reverse(brd_black);
-		reverse(brd_white);
+		reflect(brd_black);
+		reflect(brd_white);
 	}else if(n90 == 3){
 		rotate_l(brd_black);
 		rotate_l(brd_white);

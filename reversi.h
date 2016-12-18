@@ -269,7 +269,7 @@ protected:
 		brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
 		brd = (brd & 0xffffffff00000000) >> 32 | (brd & 0x00000000ffffffff) << 32;
 	}
-	static void reverse(brd_type& brd){
+	static void reflect(brd_type& brd){
 		mirror_h(brd);
 		mirror_v(brd);
 	}
@@ -288,6 +288,17 @@ protected:
 			| (brd & 0x0000cccc0000cccc) >> 2  | (brd & 0x0000333300003333) << 16;
 		brd = (brd & 0xaa00aa00aa00aa00) >> 8  | (brd & 0x5500550055005500) << 1
 			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
+	}
+	static void transform(brd_type& brd){
+		brd_type brd_high = brd & 0x0103070f1f3f7fff;
+		brd_high = (brd_high & 0xffffffff00000000) << 4 | (brd_high & 0x00000000ffffffff);
+		brd_high = (brd_high & 0xffff0000ffff0000) << 2 | (brd_high & 0x0000ffff0000ffff);
+		brd_high = (brd_high & 0xff00ff00ff00ff00) << 1 | (brd_high & 0x00ff00ff00ff00ff);
+		brd_type brd_low = (brd & 0xfefcf8f0e0c08000) >> 1;
+		brd_low = (brd_low & 0xffffffff00000000) | (brd_low & 0x00000000ffffffff) >> 4;
+		brd_low = (brd_low & 0xffff0000ffff0000) | (brd_low & 0x0000ffff0000ffff) >> 2;
+		brd_low = (brd_low & 0xff00ff00ff00ff00) | (brd_low & 0x00ff00ff00ff00ff) >> 1;
+		brd = brd_high | brd_low;
 	}
 	static pos_type count(cbrd_type brd){
 		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
