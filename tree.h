@@ -6,12 +6,13 @@
 
 #include "type.h"
 
-struct data{
-	int id;
+struct trace{
 	bool color;
-
 	pos_type pos;
+};
 
+struct data{
+	trace tra;
 	int win;
 	int lose;
 };
@@ -28,11 +29,13 @@ typedef const pnode& cpnode;
 class tree{
 public:
 	tree():count(0){
-		root = new node({{0,true,-1,0,0},NULL,NULL});
+		root = new node({{true,-1,0,0},NULL,NULL});
 	}
 	~tree(){
 		destroy(root);
 	}
+
+	static const int threshold = 10;
 
 	void print()const{
 		print(root);
@@ -41,25 +44,32 @@ public:
 	void save(const string& path);
 	void load(const string& path);
 
-	void add_path( pos_type* path,cbool is_win){
-		return add_path(root->child,path,is_win);
-	}
-	void add_path(node*& ptr, pos_type* path,cbool is_win){
-		if(*path > 0){
-			if(ptr){
-				if(ptr->dat.pos == *path){
-					if(ptr->dat.color ^ is_win){
+	void add_path(trace* path, cbool is_win){
+		for(node* ptr = root->child;path->pos >= 0;++path,ptr = ptr->child){
+			for(;ptr;ptr = ptr->sibling){
+				assert(ptr->dat.tra.color == path->color);
+				if(ptr->dat.tra.pos == path->pos){
+					if(ptr->dat.tra.color ^ is_win){
 						++ptr->dat.win;
 					}else{
 						++ptr->dat.lose;
 					}
-					return add_path(ptr->child,++path,is_win);
-				}
-				return add_path(ptr->sibling,path,is_win);
-			}else{
-				ptr = new node({{++count,true,*path,0,0},NULL,NULL});
-				return add_path(ptr->child,++path,is_win);
+					if(ptr->dat.win + ptr->dat.lose >= threshold){
+						goto label;
+					}else{
+						return;
+					}
+				};
 			}
+			if(path->color ^ is_win){
+				new node({{*path,1,0},NULL,NULL});
+			}else{
+				new node({{*path,0,1},NULL,NULL});
+			}
+			++count;
+			break;
+
+			label:;
 		}
 	}
 
@@ -76,7 +86,7 @@ private:
 	}
 
 	static void print(const node* const& ptr){
-		cout<< "(" << ptr->dat.id << "," << ptr->dat.pos << ") "
+		cout<< "(" << ptr->dat.tra.color << "," << ptr->dat.tra.pos << ") "
 			<< (ptr->child != NULL) << " "
 			<< (ptr->sibling != NULL) << endl;
 		
