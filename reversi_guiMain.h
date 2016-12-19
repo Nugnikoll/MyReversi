@@ -52,6 +52,7 @@ class reversi_guiFrame: public wxFrame
 		void on_counterclockwise(wxCommandEvent& event);
 		void on_horizontal(wxCommandEvent& event);
 		void on_vertical(wxCommandEvent& event);
+		void on_reflect(wxCommandEvent& event);
 		void on_context_menu(wxContextMenuEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
@@ -69,12 +70,12 @@ class reversi_guiFrame: public wxFrame
         static const long id_quit;
         static const long id_undo;
         static const long id_redo;
+        static const long id_horizontal;
+        static const long id_vertical;
+        static const long id_reflect;
         static const long id_clockwise;
         static const long id_counterclockwise;
         static const long ID_MENUITEM7;
-        static const long id_horizontal;
-        static const long id_vertical;
-        static const long ID_MENUITEM10;
         static const long id_clear_log;
         static const long id_clear_term;
         static const long id_clear_all;
@@ -121,7 +122,7 @@ class reversi_guiFrame: public wxFrame
         wxTextCtrl* text_terminal;
         wxMenu* MenuItem25;
         wxPanel* panel_board;
-        wxMenu* MenuItem21;
+        wxMenuItem* MenuItem21;
         wxMenuItem* MenuItem16;
         wxMenuItem* MenuItem9;
         wxMenu* MenuItem18;

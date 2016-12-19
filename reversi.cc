@@ -34,7 +34,7 @@ board& board::mirror(cbool is_horizontal){
 	return *this;
 }
 
-board& board::rotater(pos_type n90){
+board& board::rotate_r(pos_type n90){
 	n90 = n90 % 4;
 	if(n90 < 0){
 		n90 += 4;

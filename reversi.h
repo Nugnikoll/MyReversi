@@ -155,9 +155,9 @@ public:
 	}
 
 	board& mirror(cbool is_horizontal);
-	board& rotater(pos_type n90);
-	board& rotatel(pos_type n90){
-		return rotater(4 - n90);
+	board& rotate_r(pos_type n90);
+	board& rotate_l(pos_type n90){
+		return rotate_r(4 - n90);
 	}
 
 	bool flip(cbool color, cpos_type x, cpos_type y){

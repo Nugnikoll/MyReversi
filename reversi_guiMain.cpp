@@ -63,12 +63,12 @@ const long reversi_guiFrame::id_save = wxNewId();
 const long reversi_guiFrame::id_quit = wxNewId();
 const long reversi_guiFrame::id_undo = wxNewId();
 const long reversi_guiFrame::id_redo = wxNewId();
+const long reversi_guiFrame::id_horizontal = wxNewId();
+const long reversi_guiFrame::id_vertical = wxNewId();
+const long reversi_guiFrame::id_reflect = wxNewId();
 const long reversi_guiFrame::id_clockwise = wxNewId();
 const long reversi_guiFrame::id_counterclockwise = wxNewId();
 const long reversi_guiFrame::ID_MENUITEM7 = wxNewId();
-const long reversi_guiFrame::id_horizontal = wxNewId();
-const long reversi_guiFrame::id_vertical = wxNewId();
-const long reversi_guiFrame::ID_MENUITEM10 = wxNewId();
 const long reversi_guiFrame::id_clear_log = wxNewId();
 const long reversi_guiFrame::id_clear_term = wxNewId();
 const long reversi_guiFrame::id_clear_all = wxNewId();
@@ -155,7 +155,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     MenuItem5 = new wxMenuItem(MenuItem3, id_player_white, _("Player &White\tCtrl-W"), wxEmptyString, wxITEM_NORMAL);
     MenuItem3->Append(MenuItem5);
     Menu1->Append(id_new_game, _("New Game"), MenuItem3, wxEmptyString);
-    MenuItem7 = new wxMenuItem(Menu1, id_load, _("&Load\tCtrl-O"), wxEmptyString, wxITEM_NORMAL);
+    MenuItem7 = new wxMenuItem(Menu1, id_load, _("&Load\tCtrl-L"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem7);
     MenuItem8 = new wxMenuItem(Menu1, id_save, _("&Save\tCtrl-S"), wxEmptyString, wxITEM_NORMAL);
     Menu1->Append(MenuItem8);
@@ -168,17 +168,17 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     MenuItem11 = new wxMenuItem(Menu4, id_redo, _("&Redo\tCtrl-Y"), wxEmptyString, wxITEM_NORMAL);
     Menu4->Append(MenuItem11);
     MenuItem18 = new wxMenu();
-    MenuItem19 = new wxMenuItem(MenuItem18, id_clockwise, _("&Clockwise"), wxEmptyString, wxITEM_NORMAL);
+    MenuItem22 = new wxMenuItem(MenuItem18, id_horizontal, _("Mirror &Horizontally\tAlt+H"), wxEmptyString, wxITEM_NORMAL);
+    MenuItem18->Append(MenuItem22);
+    MenuItem23 = new wxMenuItem(MenuItem18, id_vertical, _("Mirror &Vertically\tAlt+V"), wxEmptyString, wxITEM_NORMAL);
+    MenuItem18->Append(MenuItem23);
+    MenuItem21 = new wxMenuItem(MenuItem18, id_reflect, _("&Reflect\tAlt+R"), wxEmptyString, wxITEM_NORMAL);
+    MenuItem18->Append(MenuItem21);
+    MenuItem19 = new wxMenuItem(MenuItem18, id_clockwise, _("Rotate &Clockwise\tAlt+C"), wxEmptyString, wxITEM_NORMAL);
     MenuItem18->Append(MenuItem19);
-    MenuItem20 = new wxMenuItem(MenuItem18, id_counterclockwise, _("C&ounterclockwise"), wxEmptyString, wxITEM_NORMAL);
+    MenuItem20 = new wxMenuItem(MenuItem18, id_counterclockwise, _("Rotate Coun&terclockwise\tAlt+T"), wxEmptyString, wxITEM_NORMAL);
     MenuItem18->Append(MenuItem20);
-    Menu4->Append(ID_MENUITEM7, _("R&otate"), MenuItem18, wxEmptyString);
-    MenuItem21 = new wxMenu();
-    MenuItem22 = new wxMenuItem(MenuItem21, id_horizontal, _("&Horizontal"), wxEmptyString, wxITEM_NORMAL);
-    MenuItem21->Append(MenuItem22);
-    MenuItem23 = new wxMenuItem(MenuItem21, id_vertical, _("&Vertical"), wxEmptyString, wxITEM_NORMAL);
-    MenuItem21->Append(MenuItem23);
-    Menu4->Append(ID_MENUITEM10, _("&Mirror"), MenuItem21, wxEmptyString);
+    Menu4->Append(ID_MENUITEM7, _("&Transform"), MenuItem18, wxEmptyString);
     MenuItem25 = new wxMenu();
     MenuItem24 = new wxMenuItem(MenuItem25, id_clear_log, _("&Log"), wxEmptyString, wxITEM_NORMAL);
     MenuItem25->Append(MenuItem24);
@@ -261,6 +261,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	Connect(id_counterclockwise,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_counterclockwise);
 	Connect(id_horizontal,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_horizontal);
 	Connect(id_vertical,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_vertical);
+	Connect(id_reflect,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_reflect);
 
 	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
 }
@@ -334,6 +335,10 @@ void reversi_guiFrame::on_horizontal(wxCommandEvent& event){
 
 void reversi_guiFrame::on_vertical(wxCommandEvent& event){
 	mygame.process("mirror $false");
+}
+
+void reversi_guiFrame::on_reflect(wxCommandEvent& event){
+	mygame.process("reflect");
 }
 
 void reversi_guiFrame::on_clear_log(wxCommandEvent& event){
