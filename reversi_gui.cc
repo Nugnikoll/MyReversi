@@ -130,7 +130,9 @@ bool redo(){
 void mirror(cbool is_horizontal){
 	return mygame.mirror(is_horizontal);
 }
-
+void reflect(){
+	return mygame.reflect();
+}
 void rotate(cbool is_clockwise){
 	return mygame.rotate(is_clockwise);
 }
@@ -214,6 +216,7 @@ void game_gui::process(const string& str){
 		inter.def("undo",::undo);
 		inter.def("redo",::redo);
 		inter.def("mirror",::mirror);
+		inter.def("reflect",::reflect);
 		inter.def("rotate",::rotate);
 		inter.def("auto_show",::auto_show);
 		inter.def("auto_save",::auto_save);

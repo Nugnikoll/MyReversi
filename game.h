@@ -75,20 +75,20 @@ public:
 			show();
 		}
 	}
-	void rotater(cint n90){
+	void rotate_r(cint n90){
 		if(flag_auto_save){
 			push();
 		}
-		brd.rotater(n90);
+		brd.rotate_r(n90);
 		if(flag_auto_show){
 			show();
 		}
 	}
-	void rotatel(cint n90){
+	void rotate_l(cint n90){
 		if(flag_auto_save){
 			push();
 		}
-		brd.rotatel(n90);
+		brd.rotate_l(n90);
 		if(flag_auto_show){
 			show();
 		}

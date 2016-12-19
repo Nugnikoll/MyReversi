@@ -152,6 +152,18 @@ public:
 			show();
 		}
 	}
+	void reflect(){
+		if(flag_auto_save){
+			push();
+		}
+		brd.rotate_r(2);
+		pos.x = 7 - pos.x;
+		pos.y = 7 - pos.y;
+		log->AppendText(_("mirror vertically\n"));
+		if(flag_auto_show){
+			show();
+		}
+	}
 	void rotate(cbool is_clockwise){
 		if(flag_auto_save){
 			push();
@@ -160,12 +172,12 @@ public:
 		if(is_clockwise){
 			pos.x = 7 - temp.y;
 			pos.y = temp.x;
-			brd.rotater(1);
+			brd.rotate_r(1);
 			log->AppendText(_("rotate clockwise\n"));
 		}else{
 			pos.x = temp.y;
 			pos.y = 7 - temp.x;
-			brd.rotatel(1);
+			brd.rotate_l(1);
 			log->AppendText(_("rotate counterclockwise\n"));
 		}
 		if(flag_auto_show){

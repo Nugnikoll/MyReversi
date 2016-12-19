@@ -128,7 +128,7 @@
 				</object>
 				<object class="wxMenuItem" name="id_load" variable="MenuItem7" member="yes">
 					<label>&amp;Load</label>
-					<accel>Ctrl-O</accel>
+					<accel>Ctrl-L</accel>
 				</object>
 				<object class="wxMenuItem" name="id_save" variable="MenuItem8" member="yes">
 					<label>&amp;Save</label>
@@ -152,21 +152,26 @@
 					<accel>Ctrl-Y</accel>
 				</object>
 				<object class="wxMenu" name="ID_MENUITEM7" variable="MenuItem18" member="yes">
-					<label>R&amp;otate</label>
-					<object class="wxMenuItem" name="id_clockwise" variable="MenuItem19" member="yes">
-						<label>&amp;Clockwise</label>
-					</object>
-					<object class="wxMenuItem" name="id_counterclockwise" variable="MenuItem20" member="yes">
-						<label>C&amp;ounterclockwise</label>
-					</object>
-				</object>
-				<object class="wxMenu" name="ID_MENUITEM10" variable="MenuItem21" member="yes">
-					<label>&amp;Mirror</label>
+					<label>&amp;Transform</label>
 					<object class="wxMenuItem" name="id_horizontal" variable="MenuItem22" member="yes">
-						<label>&amp;Horizontal</label>
+						<label>Mirror &amp;Horizontally</label>
+						<accel>Alt+H</accel>
 					</object>
 					<object class="wxMenuItem" name="id_vertical" variable="MenuItem23" member="yes">
-						<label>&amp;Vertical</label>
+						<label>Mirror &amp;Vertically</label>
+						<accel>Alt+V</accel>
+					</object>
+					<object class="wxMenuItem" name="id_reflect" variable="MenuItem21" member="yes">
+						<label>&amp;Reflect</label>
+						<accel>Alt+R</accel>
+					</object>
+					<object class="wxMenuItem" name="id_clockwise" variable="MenuItem19" member="yes">
+						<label>Rotate &amp;Clockwise</label>
+						<accel>Alt+C</accel>
+					</object>
+					<object class="wxMenuItem" name="id_counterclockwise" variable="MenuItem20" member="yes">
+						<label>Rotate Coun&amp;terclockwise</label>
+						<accel>Alt+T</accel>
 					</object>
 				</object>
 				<object class="wxMenu" name="id_clear_all" variable="MenuItem25" member="yes">
