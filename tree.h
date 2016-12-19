@@ -28,6 +28,8 @@ typedef const pnode& cpnode;
 
 class tree{
 public:
+	node* root;
+
 	tree():count(0){
 		root = new node({{true,-1,0,0},NULL,NULL});
 	}
@@ -86,7 +88,6 @@ public:
 	void practice(method mthd,cshort height);
 
 private:
-	node* root;
 	int count;
 
 	static void destroy(node*& ptr){

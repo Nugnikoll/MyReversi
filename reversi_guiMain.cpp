@@ -85,6 +85,7 @@ const long reversi_guiFrame::ID_STATUSBAR1 = wxNewId();
 //*)
 
 const long reversi_guiFrame::id_text_log = wxNewId();
+const long reversi_guiFrame::id_book_tree = wxNewId();
 
 BEGIN_EVENT_TABLE(reversi_guiFrame,wxFrame)
     //(*EventTable(reversi_guiFrame)
@@ -236,17 +237,23 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 
 	Notebook1->SetPageText(0,_("terminal"));
 	text_log = new wxTextCtrl(Notebook1, id_text_log, wxEmptyString, wxPoint(-81,23), wxSize(283,296), wxTE_MULTILINE|wxTE_READONLY, wxDefaultValidator, _T("id_text_log"));
-    text_log->SetForegroundColour(wxColour(200,200,200));
-    text_log->SetBackgroundColour(wxColour(32,32,32));
-    wxFont text_logFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
-    text_log->SetFont(text_logFont);
-    Notebook1->AddPage(text_log, _("log"), false);
-    
-	mygame.frame = this;
-	mygame.panel = panel_board;
-	mygame.term = text_terminal;
-	mygame.input = text_input;
-	mygame.log = text_log;
+	text_log->SetForegroundColour(wxColour(200,200,200));
+	text_log->SetBackgroundColour(wxColour(32,32,32));
+	wxFont text_logFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+	text_log->SetFont(text_logFont);
+	Notebook1->AddPage(text_log, _("log"), false);
+	book_tree = new wxTreeCtrl(Notebook1, id_book_tree, wxDefaultPosition, wxSize(351,230), wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("id_book_tree"));
+	book_tree->SetForegroundColour(wxColour(200,200,200));
+	book_tree->SetBackgroundColour(wxColour(32,32,32));
+	book_tree->SetFont(text_logFont);
+	Notebook1->AddPage(book_tree, _("book"), false);
+
+	mygame.ptr_frame = this;
+	mygame.ptr_panel = panel_board;
+	mygame.ptr_term = text_terminal;
+	mygame.ptr_input = text_input;
+	mygame.ptr_log = text_log;
+	mygame.ptr_book = book_tree;
 	mygame.is_lock = true;
 
 	Connect(id_player_black,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_black);

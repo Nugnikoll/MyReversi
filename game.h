@@ -4,6 +4,7 @@
 #include <string>
 
 #include "reversi.h"
+#include "tree.h"
 
 using namespace std;
 
@@ -13,6 +14,8 @@ public:
 
 	board brd;
 	vector<board> record;
+	tree book;
+
 	bool flag_auto_show = true;
 	bool flag_auto_save = true;
 	string prompt = ">>";
@@ -147,6 +150,10 @@ public:
 			}
 		}
 		return pos;
+	}
+
+	void load_book(const string& path){
+		book.load(path);
 	}
 protected:
 	virtual bool do_pop(){

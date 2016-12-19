@@ -10,6 +10,7 @@
 #include <wx/msgdlg.h>
 #include <wx/menu.h>
 #include <wx/textfile.h>
+#include <wx/treectrl.h>
 
 #include "game.h"
 
@@ -37,11 +38,12 @@ public:
 	bool color;
 	coordinate pos;
 
-	wxFrame* frame;
-	wxPanel* panel;
-	wxTextCtrl* term;
-	wxTextCtrl* log;
-	wxTextCtrl* input;
+	wxFrame* ptr_frame;
+	wxPanel* ptr_panel;
+	wxTextCtrl* ptr_term;
+	wxTextCtrl* ptr_log;
+	wxTextCtrl* ptr_input;
+	wxTreeCtrl* ptr_book;
 
 	interpreter* ptr_inter;
 
@@ -53,7 +55,7 @@ public:
 		pos.x = pos.y = -1;
 		record.clear();
 		game::start();
-		log->AppendText(_("start a new game\n"));
+		ptr_log->AppendText(_("start a new game\n"));
 		is_lock = false;
 	}
 	object bget(){
@@ -110,7 +112,7 @@ public:
 			if(flag_auto_show){
 				show();
 			}
-			log->AppendText(_("undo\n"));
+			ptr_log->AppendText(_("undo\n"));
 			is_lock = false;
 			return true;
 		}
@@ -131,7 +133,7 @@ public:
 			if(flag_auto_show){
 				show();
 			}
-			log->AppendText(_("redo\n"));
+			ptr_log->AppendText(_("redo\n"));
 			is_lock = false;
 			return true;
 		}
@@ -143,10 +145,10 @@ public:
 		brd.mirror(is_horizontal);
 		if(is_horizontal){
 			pos.x = 7 - pos.x;
-			log->AppendText(_("mirror horizontally\n"));
+			ptr_log->AppendText(_("mirror horizontally\n"));
 		}else{
 			pos.y = 7 - pos.y;
-			log->AppendText(_("mirror vertically\n"));
+			ptr_log->AppendText(_("mirror vertically\n"));
 		}
 		if(flag_auto_show){
 			show();
@@ -159,7 +161,7 @@ public:
 		brd.rotate_r(2);
 		pos.x = 7 - pos.x;
 		pos.y = 7 - pos.y;
-		log->AppendText(_("mirror vertically\n"));
+		ptr_log->AppendText(_("mirror vertically\n"));
 		if(flag_auto_show){
 			show();
 		}
@@ -173,12 +175,12 @@ public:
 			pos.x = 7 - temp.y;
 			pos.y = temp.x;
 			brd.rotate_r(1);
-			log->AppendText(_("rotate clockwise\n"));
+			ptr_log->AppendText(_("rotate clockwise\n"));
 		}else{
 			pos.x = temp.y;
 			pos.y = 7 - temp.x;
 			brd.rotate_l(1);
-			log->AppendText(_("rotate counterclockwise\n"));
+			ptr_log->AppendText(_("rotate counterclockwise\n"));
 		}
 		if(flag_auto_show){
 			show();
@@ -190,7 +192,7 @@ public:
 		}
 		bool result = brd.flip(color,x,y);
 		if(result){
-			log->AppendText(
+			ptr_log->AppendText(
 				(color? _("black") : _("white"))
 				+ _(" place a stone at (")
 				+ wxString::FromDouble(x)
@@ -207,7 +209,7 @@ public:
 			if(flag_auto_save){
 				do_pop();
 			}
-			log->AppendText(
+			ptr_log->AppendText(
 				(color? _("black") : _("white"))
 				+ _(" cannot place a stone here\n")
 			);
@@ -218,7 +220,7 @@ public:
 		vector<choice> choices = brd.get_choice(method(mthd),color,height,stage);
 		object result;
 		wxString str;
-		wxClientDC dc(panel);
+		wxClientDC dc(ptr_panel);
 		dc.SetTextForeground(wxColor(200,20,20));
 		dc.SetFont(wxFont(8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT));
 		for(choice& c:choices){
@@ -260,7 +262,7 @@ public:
 		}
 		auto pos = brd.play(mthd,color,height);
 		if(pos.x >= 0){
-			log->AppendText(
+			ptr_log->AppendText(
 				(color? _("black") : _("white"))
 				+ _(" place a stone at (")
 				+ wxString::FromDouble(pos.x)
@@ -275,7 +277,7 @@ public:
 				wxMilliSleep(300);
 			}
 		}else{
-			log->AppendText(
+			ptr_log->AppendText(
 				(color? _("black") : _("white"))
 				+ _(" is unable to move.\n")
 			);
@@ -314,18 +316,18 @@ public:
 
 		if(status & sts_end){
 			is_lock = true;
-			log->AppendText(
+			ptr_log->AppendText(
 				wxString::FromDouble(brd.count(true))
 				+ _(" black stones and ")
 				+ wxString::FromDouble(brd.count(false))
 				+ _(" white stones remain\n")
 			);
 			if(status == sts_bwin){
-				log->AppendText(_("black wins\n"));
+				ptr_log->AppendText(_("black wins\n"));
 			}else if(status == sts_wwin){
-				log->AppendText(_("white wins\n"));
+				ptr_log->AppendText(_("white wins\n"));
 			}else{
-				log->AppendText(_("a tie\n"));
+				ptr_log->AppendText(_("a tie\n"));
 			}
 		}
 		return pos;
@@ -352,7 +354,28 @@ public:
 
 	void process(const string& str);
 
-	void load(const string& filename);
+	void load(const string& path);
+
+	void load_book(const string& path){
+		book.load(path);
+		ptr_book->DeleteAllItems();
+		wxTreeItemId item_root = ptr_book->AddRoot(_("Root"));
+		load_node(item_root,book.root);
+	}
+
+	void load_node(const wxTreeItemId& item,const node* ptr){
+		wxTreeItemId item_branch;
+		ostringstream out;
+		for(ptr = ptr->child;ptr;ptr = ptr->sibling){
+			out << "x:" << (ptr->dat.tra.pos & 7) << " y:" << (ptr->dat.tra.pos >> 3)
+				<< " " << (ptr->dat.tra.color ? "black" : "white")
+				<< " win:" << ptr->dat.win
+				<< " lose:" << ptr->dat.lose;
+			item_branch = ptr_book->AppendItem(item,out.str());
+			out.str("");
+			load_node(item_branch,ptr);
+		}
+	}
 
 protected:
 	vector<pack> record;

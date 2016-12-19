@@ -21,6 +21,7 @@
 #include <wx/frame.h>
 #include <wx/statusbr.h>
 //*)
+#include <wx/treectrl.h>
 
 class reversi_guiFrame: public wxFrame
 {
@@ -92,6 +93,7 @@ class reversi_guiFrame: public wxFrame
         //*)
 
         static const long id_text_log;
+        static const long id_book_tree;
 
         //(*Declarations(reversi_guiFrame)
         wxMenuItem* MenuItem8;
@@ -131,6 +133,7 @@ class reversi_guiFrame: public wxFrame
         //*)
 
         wxTextCtrl* text_log;
+        wxTreeCtrl* book_tree;
 
         DECLARE_EVENT_TABLE()
 };
