@@ -5,7 +5,7 @@ game_gui mygame;
 group grp;
 
 void game_gui::show(){
-	wxClientDC dc(panel);
+	wxClientDC dc(ptr_panel);
 	mygame.do_show(dc);
 }
 
@@ -56,11 +56,11 @@ void game_gui::do_show(wxDC& dc){
 }
 
 void quit(){
-	mygame.frame->Destroy();
+	mygame.ptr_frame->Destroy();
 }
 
 void term_print(const string& str){
-	mygame.term->AppendText(str + "\n");
+	mygame.ptr_term->AppendText(str + "\n");
 }
 
 void start(){
@@ -176,6 +176,10 @@ void load(const string& path){
 	return mygame.load(path);
 };
 
+void load_book(const string& path){
+	return mygame.load_book(path);
+};
+
 void grp_assign(cint size){
 	return grp.assign(size);
 }
@@ -240,6 +244,7 @@ void game_gui::process(const string& str){
 		inter.def("grp_load",::grp_load);
 		inter.def("grp_save",::grp_save);
 		inter.def("grp_train",::grp_train);
+		inter.def("load_book",::load_book);
 
 		inter.class_<board>("board");
 //			.def("initial",board::tcl_initial)
@@ -285,17 +290,17 @@ void game_gui::process(const string& str){
 		);
 	}
 
-	term->AppendText(prompt + str + "\n");
+	ptr_term->AppendText(prompt + str + "\n");
 	try{
 		inter.eval(str);
 	}catch(const tcl_error& err){
-		term->AppendText(string(err.what()) + "\n");
+		ptr_term->AppendText(string(err.what()) + "\n");
 	}
 }
 
 void game_gui::load(const string& path){
 	if(wxFileExists(path)){
-		log->AppendText(_("open the file \"") + path + "\"\n");
+		ptr_log->AppendText(_("open the file \"") + path + "\"\n");
 		wxTextFile fileopen(path);
 		fileopen.Open(wxConvLocal);
 		wxString str;
@@ -305,6 +310,6 @@ void game_gui::load(const string& path){
 		process(str.ToStdString());
 		fileopen.Close();
 	}else{
-		term->AppendText(_("cannot find the file \"") + path + "\"\n");
+		ptr_term->AppendText(_("cannot find the file \"") + path + "\"\n");
 	}
 }
