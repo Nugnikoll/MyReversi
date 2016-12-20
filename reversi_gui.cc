@@ -20,7 +20,7 @@ void game_gui::do_show(wxDC& dc){
 	dc.SetPen(wxPen(wxColor(23,95,0),4));
 	vector<choice> choices = game::get_choice(mthd_ab,color,0,0);
 	for(choice& c:choices){
-		dc.DrawRectangle(bias + cell * c.x,bias + cell * c.y,cell,cell);
+		dc.DrawRectangle(bias + cell * (c.pos & 7),bias + cell * (c.pos >> 3),cell,cell);
 	}
 
 	//draw a board
@@ -36,7 +36,7 @@ void game_gui::do_show(wxDC& dc){
 
 	for(int i = 0;i != num;++i){
 		for(int j = 0;j != num;++j){
-			chssmn = brd.get(i,j);
+			chssmn = brd.get(i + (j << 3));
 			if(chssmn == black){
 				dc.SetBrush(wxBrush(wxColor(40,40,40)));
 				dc.SetPen(wxPen(wxColor(20,20,20),4));

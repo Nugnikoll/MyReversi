@@ -30,16 +30,13 @@ void pattern::initial(){
 	}
 }
 
-template float board::score_ptn<true>()const;
-template float board::score_ptn<false>()const;
-template<bool color>
-float board::score_ptn()const{
+float board::score_ptn(cbool color)const{
 
-	short blue_move = this->count_move<true>();
-	short green_move = this->count_move<false>();
+	short blue_move = this->count_move(color);
+	short green_move = this->count_move(!color);
 
 	if((blue_move | green_move) == 0){
-		short num_diff = count<color>() - count<!color>();
+		short num_diff = count(color) - count(!color);
 		num_diff <<= 1;
 		if(num_diff){
 			if(num_diff > 0){
@@ -55,14 +52,14 @@ float board::score_ptn()const{
 	}
 
 	unsigned short index;
-	const brd_type& brd_blue = this->bget<color>();
-	const brd_type& brd_green = this->bget<!color>();
+	const brd_type& brd_blue = this->bget(color);
+	const brd_type& brd_green = this->bget(!color);
 	float result = 0;
 
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
-	result += ptr_pattern->table2[stage][count_move<color>() * 30 + count_move<!color>()].val;
+	result += ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)].val;
 
 	#define extract(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
@@ -128,20 +125,17 @@ float board::score_ptn()const{
 
 //float fdecay = 1 - 0.01;
 
-template void board::adjust_ptn<true>(ccalc_type diff)const;
-template void board::adjust_ptn<false>(ccalc_type diff)const;
-template<bool color>
-void board::adjust_ptn(ccalc_type diff)const{
+void board::adjust_ptn(cbool color,ccalc_type diff)const{
 
 	unsigned short index;
-	const brd_type& brd_blue = this->bget<color>();
-	const brd_type& brd_green = this->bget<!color>();
+	const brd_type& brd_blue = this->bget(color);
+	const brd_type& brd_green = this->bget(!color);
 
 	element* ele;
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
-	ele = &ptr_pattern->table2[stage][count_move<color>() * 30 + count_move<!color>()];
+	ele = &ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)];
 	++ele->cnt;
 	ele->val += diff / ele->cnt;
 
@@ -209,17 +203,14 @@ void board::adjust_ptn(ccalc_type diff)const{
 	#undef diffuse
 }
 
-template float board::search_ptn<true>(cshort height,float alpha,float beta)const;
-template float board::search_ptn<false>(cshort height,float alpha,float beta)const;
-template<bool color>
-float board::search_ptn(cshort height,float alpha,float beta)const{
+float board::search_ptn(cbool color,cshort height,float alpha,float beta)const{
 
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
 
 	if(height == 0){
-		return this->score_ptn<color>();
+		return this->score_ptn(color);
 	}
 
 	calc_type (&table_ref)[size2] = table_temp[color][height];
@@ -229,7 +220,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 	
 	ptr->brd = *this;
 	for(register pos_type i = 0;i != size2;++i){
-		if(ptr->brd.flip<color>(brd_type(1) << i)){
+		if(ptr->brd.flip(color,i)){
 			ptr->pos = i;
 			ptr->val = table_ref[i];
 			(++ptr)->brd = *this;
@@ -240,7 +231,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 		calc_type (&table_ref)[size2] = table_temp[!color][height];
 		//ptr->brd = *this;
 		for(register pos_type i = 0;i != size2;++i){
-			if(ptr->brd.flip<!color>(brd_type(1) << i)){
+			if(ptr->brd.flip(!color,brd_type(1) << i)){
 				ptr->pos = i;
 				ptr->val = table_ref[i];
 				(++ptr)->brd = *this;
@@ -248,7 +239,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 		}
 
 		if(ptr == vec){
-			short num_diff = count<color>() - count<!color>();
+			short num_diff = count(color) - count(!color);
 			num_diff <<= 1;
 			if(num_diff){
 				if(num_diff > 0){
@@ -265,7 +256,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 			sort(vec,ptr);
 
 			for(auto p = vec;p != ptr;++p){
-				temp = p->brd.search_ptn<color>(height - 1,alpha,beta);
+				temp = p->brd.search_ptn(color,height - 1,alpha,beta);
 				table_ref[p->pos] = temp;
 				if(temp <= alpha)
 					return alpha;
@@ -278,7 +269,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 		sort(vec,ptr,greater<brd_val>());
 
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->brd.search_ptn<!color>(height - 1,-beta,-alpha);
+			temp = - p->brd.search_ptn(!color,height - 1,-beta,-alpha);
 			table_ref[p->pos] = temp;
 			if(temp >= beta)
 				return beta;
@@ -386,16 +377,16 @@ bool compete(pattern* const& p1,pattern* const& p2){
 	if(result > 0){
 		ptr_pattern = p1;
 		for(board* p = vec;p != ptr;++p){
-			diff = (100 - p->score_ptn<true>()) / 38;
-			p->adjust_ptn<true>(diff);
-			p->adjust_ptn<false>(-diff);
+			diff = (100 - p->score_ptn(true)) / 38;
+			p->adjust_ptn(true,diff);
+			p->adjust_ptn(false,-diff);
 		}
 		return true;
 	}else if(result < 0){
 		for(board* p = vec;p != ptr;++p){
-			diff = (-100 - p->score_ptn<true>()) / 38;
-			p->adjust_ptn<true>(diff);
-			p->adjust_ptn<false>(-diff);
+			diff = (-100 - p->score_ptn(true)) / 38;
+			p->adjust_ptn(true,diff);
+			p->adjust_ptn(false,-diff);
 		}
 	}
 	return false;
