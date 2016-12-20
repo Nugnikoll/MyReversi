@@ -200,7 +200,10 @@ public:
 				+ wxString::FromDouble(y)
 				+ _(")\n")
 			);
-			this->color = !color;
+			if(brd.get_status(!color) & sts_again){
+			}else{
+				this->color = !color;
+			}
 			this->pos = coordinate(x,y);
 			if(flag_auto_show){
 				show();
@@ -274,7 +277,10 @@ public:
 				+ wxString::FromDouble(pos.y)
 				+ _(")\n")
 			);
-			this->color = !color;
+			if(brd.get_status(!color) & sts_again){
+			}else{
+				this->color = !color;
+			}
 			this->pos = pos;
 			if(flag_auto_show){
 				show();
@@ -292,6 +298,7 @@ public:
 		return pos;
 	}
 	coordinate play(ccoordinate _pos,cmethod mthd){
+		bool color_save = color;
 		bool flag = flip(color,_pos.x,_pos.y);
 		if(!flag){
 			return coordinate(-1,-1);
@@ -302,16 +309,13 @@ public:
 		bool flag_auto = flag_auto_save;
 		flag_auto_save = false;
 
-		while(true){
-			pos = play(mthd,color);
-			status = brd.get_status(color);
+		while(status & sts_again){
+			pos = play(mthd,!color_save);
+			status = brd.get_status(color_save);
 			if(pos.x < 0){
-				color = !color;
-				break;
-			}
-			if(status & sts_again){
-				color = !color;
-			}else{
+				if(flag_auto_show){
+					show();
+				}
 				break;
 			}
 		}

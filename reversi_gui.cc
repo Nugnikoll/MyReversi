@@ -279,6 +279,7 @@ void game_gui::process(const string& str){
 			"set false 0;"
 			"set true 1;"
 
+			"set mthd_rnd 0x0;"
 			"set mthd_ab 0x1;"
 			"set mthd_pvs 0x2;"
 			"set mthd_trans 0x4;"
