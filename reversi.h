@@ -362,7 +362,7 @@ public:
 	float search_ptn(cbool color,cshort height,float alpha,float beta)const;
 
 	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cconf_score conf,ccalc_type gamma = 0)const;
-	vector<choice> get_choice(cmethod method,cbool color,cshort height,cpos_type stage = 0)const;
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cpos_type stage = 0)const;
 
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
 
