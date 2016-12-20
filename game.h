@@ -58,7 +58,7 @@ public:
 	}
 
 	chessman get(cpos_type x,cpos_type y){
-		return brd.get(x,y);
+		return brd.get(x + (y << 3));
 	}
 	void set(cpos_type x, cpos_type y, cchessman chsman){
 		if(flag_auto_save){
@@ -100,7 +100,7 @@ public:
 		if(flag_auto_save){
 			push();
 		}
-		bool result = brd.flip(color,x,y);
+		bool result = brd.flip(color,x + (y << 3));
 		if(result){
 			if(flag_auto_show){
 				show();

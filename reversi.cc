@@ -89,37 +89,15 @@ void board::config(){
 }
 
 vector<choice> board::get_choice(cmethod mthd,cbool color,cshort height,cpos_type stage)const{
-	#define get_choice_mthd(_mthd) \
-		if(mthd == _mthd){ \
-			if(color){ \
-				return get_choice<true,_mthd>(height,conf); \
-			}else{ \
-				return get_choice<false,_mthd>(height,conf); \
-			} \
-		}
-
 	conf_score conf;
 	if(mthd != mthd_ptn){
 		conf = stage_config(stage);
-		get_choice_mthd(mthd_rnd);
-		get_choice_mthd(mthd_ab);
-		get_choice_mthd(mthd_pvs);
-		get_choice_mthd(mthd_trans);
-		get_choice_mthd(mthd_mtdf);
-		//get_choice_mthd(mthd_ids);
 	}
-	get_choice_mthd(mthd_ptn);
-
-	if(color){
-		return get_choice<true,mthd_default>(height,conf);
-	}else{
-		return get_choice<false,mthd_default>(height,conf);
-	}
+	return get_choice(mthd,color,height,conf);
 }
 
-template<bool color,method mthd>
 vector<choice> board::get_choice(
-	cshort height,board::cconf_score conf,ccalc_type gamma
+	cmethod mthd,cbool color,cshort height,board::cconf_score conf,ccalc_type gamma
 )const{
 
     vector<choice> choices;
@@ -139,20 +117,17 @@ vector<choice> board::get_choice(
 	choices.reserve(30);
 
     board brd = *this;
-	for(pos_type i = 0;i != size;++i){
-		for(pos_type j = 0;j != size;++j){
-			if(brd.flip<color>(brd_type(1) << ((j << 3) + i))){
-				result = - brd.search<!color,mthd>(height,_inf,-alpha,0,conf,gamma);
-				if(result - 5 > alpha){
-					alpha = result - 5;
-				}
-				temp.val = result;
-				temp.brd = brd;
-				temp.x = i;
-				temp.y = j;
-				choices.push_back(temp);
-				brd = *this;
+	for(pos_type i = 0;i != size2;++i){
+		if(brd.flip(color,i)){
+			result = - brd.search(mthd,!color,height,_inf,-alpha,0,conf,gamma);
+			if(result - 5 > alpha){
+				alpha = result - 5;
 			}
+			temp.val = result;
+			temp.brd = brd;
+			temp.pos = i;
+			choices.push_back(temp);
+			brd = *this;
 		}
 	}
     return choices;
@@ -233,7 +208,7 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 			variation = 0.75;
 		}
 		choice best = select_choice(choices,variation);
-		flip(color,best.x,best.y);
-		return coordinate(best.x,best.y);
+		flip(color,best.pos);
+		return coordinate(best.pos);
 	}
 }

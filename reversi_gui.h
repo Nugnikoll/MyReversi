@@ -190,7 +190,7 @@ public:
 		if(flag_auto_save){
 			push();
 		}
-		bool result = brd.flip(color,x,y);
+		bool result = brd.flip(color,x + (y << 3));
 		if(result){
 			ptr_log->AppendText(
 				(color? _("black") : _("white"))
@@ -223,14 +223,18 @@ public:
 		wxClientDC dc(ptr_panel);
 		dc.SetTextForeground(wxColor(200,20,20));
 		dc.SetFont(wxFont(8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT));
+
+		pos_type x,y;
 		for(choice& c:choices){
+			x = c.pos & 7;
+			y = c.pos >> 3;
 			object obj;
 			obj.append(*ptr_inter,object(double(c.val)));
-			obj.append(*ptr_inter,object(int(c.x)));
-			obj.append(*ptr_inter,object(int(c.y)));
+			obj.append(*ptr_inter,object(int(x)));
+			obj.append(*ptr_inter,object(int(y)));
 			result.append(*ptr_inter,obj);
 			str = wxString::FromDouble(c.val);
-			dc.DrawText(str,bias + cell * c.x  + cell / 2 - 4 * str.size(),bias + cell * c.y + cell / 2 - 8);
+			dc.DrawText(str,bias + cell * x  + cell / 2 - 4 * str.size(),bias + cell * y + cell / 2 - 8);
 		}
 		return result;
 	}
@@ -246,14 +250,14 @@ public:
 		for(int i = 0;i != num;++i){
 			obj = obj_choices.at(*ptr_inter,i);
 			temp.val = obj.at(*ptr_inter,0).get<double>(*ptr_inter);
-			temp.x = obj.at(*ptr_inter,1).get<int>(*ptr_inter);
-			temp.y = obj.at(*ptr_inter,2).get<int>(*ptr_inter);
+			temp.pos = obj.at(*ptr_inter,1).get<int>(*ptr_inter)
+				+ (obj.at(*ptr_inter,2).get<int>(*ptr_inter) << 3);
 			choices.push_back(temp);
 		}
 		temp = brd.select_choice(choices);
 		result.append(*ptr_inter,object(double(temp.val)));
-		result.append(*ptr_inter,object(int(temp.x)));
-		result.append(*ptr_inter,object(int(temp.y)));
+		result.append(*ptr_inter,object(int(temp.pos & 7)));
+		result.append(*ptr_inter,object(int(temp.pos >> 3)));
 		return result;
 	}
 	virtual coordinate play(cmethod mthd,cbool color,cint height = -1){
