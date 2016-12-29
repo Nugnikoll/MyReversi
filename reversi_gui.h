@@ -86,7 +86,7 @@ public:
 		if(flag_auto_save){
 			push();
 		}
-		brd.set(pos_type(x),pos_type(y),chessman(chsman));
+		brd.set(pos_type(x + (y << 3)),chessman(chsman));
 		if(flag_auto_show){
 			show();
 		}
