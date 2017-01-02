@@ -406,12 +406,16 @@ void reversi_guiFrame::on_tree_item_select(wxTreeEvent& event){
 	vector<trace> vec;
 	board brd;
 
-	mygame.color = ((myTreeItemData*)(book_tree->GetItemData(item)))->tra.color;
 	while(item != book_tree->GetRootItem()){
 		vec.push_back(((myTreeItemData*)(book_tree->GetItemData(item)))->tra);
 		item = book_tree->GetItemParent(item);
 	}
 	reverse(vec.begin(),vec.end());
+	if(!vec.empty()){
+		mygame.color = vec.back().color;
+	}else{
+		mygame.color = true;
+	}
 	brd.initial();
 	for(const trace& ele:vec){
 		brd.flip(!ele.color,ele.pos);
