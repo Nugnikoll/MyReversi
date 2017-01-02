@@ -18,6 +18,12 @@
 
 using namespace Tcl;
 
+class myTreeItemData: public wxTreeItemData{
+public:
+	myTreeItemData(const trace& _tra):tra(_tra){}
+	trace tra;
+};
+
 class game_gui:public game{
 public:
 	const int bias = 10;
@@ -374,12 +380,13 @@ public:
 	void load_node(const wxTreeItemId& item,const node* ptr){
 		wxTreeItemId item_branch;
 		ostringstream out;
+
 		for(ptr = ptr->child;ptr;ptr = ptr->sibling){
 			out << "x:" << (ptr->dat.tra.pos & 7) << " y:" << (ptr->dat.tra.pos >> 3)
 				<< " " << (ptr->dat.tra.color ? "black" : "white")
 				<< " win:" << ptr->dat.win
 				<< " lose:" << ptr->dat.lose;
-			item_branch = ptr_book->AppendItem(item,out.str());
+			item_branch = ptr_book->AppendItem(item,out.str(),-1,-1,new myTreeItemData(ptr->dat.tra));
 			out.str("");
 			load_node(item_branch,ptr);
 		}

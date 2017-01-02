@@ -7,6 +7,8 @@
  * License:
  **************************************************************/
 
+#include <algorithm>
+
 #include "reversi_guiMain.h"
 #include <wx/msgdlg.h>
 
@@ -269,6 +271,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	Connect(id_horizontal,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_horizontal);
 	Connect(id_vertical,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_vertical);
 	Connect(id_reflect,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_reflect);
+	Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
 
 	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
 }
@@ -396,4 +399,23 @@ void reversi_guiFrame::on_context_menu(wxContextMenuEvent& event){
 //	menu->Append(wxID_SELECTALL, _("Select &All"));  
 //  
 	//PopupMenu(menu);
+}
+
+void reversi_guiFrame::on_tree_item_select(wxTreeEvent& event){
+	wxTreeItemId item = event.GetItem();
+	vector<trace> vec;
+	board brd;
+
+	mygame.color = ((myTreeItemData*)(book_tree->GetItemData(item)))->tra.color;
+	while(item != book_tree->GetRootItem()){
+		vec.push_back(((myTreeItemData*)(book_tree->GetItemData(item)))->tra);
+		item = book_tree->GetItemParent(item);
+	}
+	reverse(vec.begin(),vec.end());
+	brd.initial();
+	for(const trace& ele:vec){
+		brd.flip(!ele.color,ele.pos);
+	}
+	mygame.brd = brd;
+	mygame.show();
 }
