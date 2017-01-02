@@ -55,6 +55,7 @@ class reversi_guiFrame: public wxFrame
 		void on_vertical(wxCommandEvent& event);
 		void on_reflect(wxCommandEvent& event);
 		void on_context_menu(wxContextMenuEvent& event);
+		void on_tree_item_select(wxTreeEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;

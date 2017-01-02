@@ -6,6 +6,10 @@
 
 #include "type.h"
 
+struct trace;
+struct data;
+struct node;
+
 struct trace{
 	bool color;
 	pos_type pos;
@@ -19,6 +23,7 @@ struct data{
 
 struct node{
 	data dat;
+	node* parent;
 	node* sibling;
 	node* child;
 };
@@ -31,7 +36,7 @@ public:
 	node* root;
 
 	tree():count(0){
-		root = new node({{true,-1,0,0},NULL,NULL});
+		root = new node({{true,-1,0,0},NULL,NULL,NULL});
 	}
 	~tree(){
 		destroy(root);
@@ -45,6 +50,55 @@ public:
 
 	void save(const string& path);
 	void load(const string& path);
+
+	static node* find_child(node* ptr,pos_type pos){
+		for(ptr = ptr->child;ptr;ptr = ptr->sibling){
+			if(ptr->dat.tra.pos == pos){
+				return ptr;
+			}
+		}
+		return NULL;
+	}
+	static pair<node*,bool> get_child(node* ptr,pos_type pos){
+		if(ptr->child){
+			node* head = ptr;
+			for(ptr = ptr->child;ptr;ptr = ptr->sibling){
+				if(ptr->dat.tra.pos == pos){
+					return pair<node*,bool>(ptr,true);
+				}
+				head = ptr;
+			}
+			return pair<node*,bool>(head->sibling = new node,false);
+		}else{
+			return pair<node*,bool>(ptr->child = new node,false);
+		}
+	}
+
+	// void add_path(trace* path, cbool is_win){
+		// auto p = get_child(root,path->pos);
+		// while(path->pos >= 0){
+			// if(p->second){
+				// assert(p.first->dat.tra.color == path->color);
+				// if(path->color ^ is_win){
+					// ++p.first->dat.win;
+				// }else{
+					// ++p.first->dat.lose;
+				// }
+				// if(p.first->dat.win + p.first->dat.lose < threshold){
+					// break;
+				// }
+			// }else{
+				// p.first->dat.tra.color = path->color;
+				// if(path->color ^ is_win){
+					// p.first = node({{*path,1,0},NULL,NULL})
+				// }else{
+					// p.first = node({{*path,0,1},NULL,NULL})
+				// }
+			// }
+			// ++path;
+			// p = get_child(p->first,path->pos)
+		// }
+	// }
 
 	void add_path(trace* path, cbool is_win){
 		node* head = root;
@@ -73,8 +127,8 @@ public:
 			(flag ? head->child : head->sibling)
 				= (
 					path->color ^ is_win
-					? new node({{*path,1,0},NULL,NULL})
-					: new node({{*path,0,1},NULL,NULL})
+					? new node({{*path,1,0},NULL,NULL,NULL})
+					: new node({{*path,0,1},NULL,NULL,NULL})
 				);
 			++count;
 			break;
