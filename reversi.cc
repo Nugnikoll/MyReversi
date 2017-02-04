@@ -1,4 +1,5 @@
 #include <vector>
+#include <cmath>
 #include <algorithm>
 
 #include "reversi.h" //--
@@ -138,9 +139,6 @@ vector<choice> board::get_choice(
 #ifdef USE_RANDOM
 	#include <random>
 	#include <chrono>
-	default_random_engine engine(
-		chrono::system_clock::now().time_since_epoch().count()
-	);
 #else
 	#include <cstdlib>
 	#include <ctime>

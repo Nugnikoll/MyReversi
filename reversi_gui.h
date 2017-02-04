@@ -20,8 +20,8 @@ using namespace Tcl;
 
 class myTreeItemData: public wxTreeItemData{
 public:
-	myTreeItemData(const trace& _tra):tra(_tra){}
-	trace tra;
+	myTreeItemData(node*const& _ptr): ptr(_ptr){}
+	node* ptr;
 };
 
 class game_gui:public game{
@@ -377,16 +377,16 @@ public:
 		load_node(item_root,book.root);
 	}
 
-	void load_node(const wxTreeItemId& item,const node* ptr){
+	void load_node(const wxTreeItemId& item, node* ptr){
 		wxTreeItemId item_branch;
 		ostringstream out;
 
 		for(ptr = ptr->child;ptr;ptr = ptr->sibling){
-			out << "x:" << (ptr->dat.tra.pos & 7) << " y:" << (ptr->dat.tra.pos >> 3)
-				<< " " << (ptr->dat.tra.color ? "black" : "white")
+			out << "x:" << (ptr->dat.pos & 7) << " y:" << (ptr->dat.pos >> 3)
+				<< " " << (ptr->dat.color ? "black" : "white")
 				<< " win:" << ptr->dat.win
 				<< " lose:" << ptr->dat.lose;
-			item_branch = ptr_book->AppendItem(item,out.str(),-1,-1,new myTreeItemData(ptr->dat.tra));
+			item_branch = ptr_book->AppendItem(item,out.str(),-1,-1,new myTreeItemData(ptr));
 			out.str("");
 			load_node(item_branch,ptr);
 		}

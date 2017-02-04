@@ -39,12 +39,10 @@ struct coordinate{
 };
 typedef const coordinate& ccoordinate;
 
-class board;
 namespace std{
 	template <>
 	struct hash<board>;
 }
-struct choice;
 
 class board{
 	friend struct hash<board>;
@@ -492,7 +490,7 @@ protected:
 			"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
 		;
 
-		brd_type pos = 1;
+		pos_type pos = 0;
 		for(char& chr:s){
 			if(chr == ' '){
 				switch(get(pos)){
@@ -512,7 +510,7 @@ protected:
 					out << "╳";
 					break;
 				}
-				pos <<= 1;
+				++pos;
 			}else{
 				out << chr;
 			}

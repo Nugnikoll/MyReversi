@@ -26,3 +26,5 @@ smain.cc
 python/reversi.py
 python/*wrap.cxx
 python/*wrap_fix.cxx
+
+doc/*

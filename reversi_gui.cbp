@@ -84,6 +84,8 @@
 		<Unit filename="reversi_guiMain.h" />
 		<Unit filename="search.cc" />
 		<Unit filename="tree.cc" />
+		<Unit filename="tree.h" />
+		<Unit filename="type.cc" />
 		<Unit filename="wxsmith/reversi_guiframe.wxs" />
 		<Extensions>
 			<code_completion />
@@ -95,6 +97,15 @@
 					<wxFrame wxs="wxsmith/reversi_guiframe.wxs" src="reversi_guiMain.cpp" hdr="reversi_guiMain.h" fwddecl="0" i18n="1" name="reversi_guiFrame" language="CPP" />
 				</resources>
 			</wxsmith>
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

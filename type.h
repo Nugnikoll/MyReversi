@@ -91,4 +91,13 @@ enum sts_type{
 	sts_wagain = sts_white | sts_again
 };
 
+#ifdef USE_RANDOM
+	#include <random>
+	#include <chrono>
+	extern default_random_engine engine;
+#endif //USE_RANDOM
+
+class board;
+struct choice;
+
 #endif //TYPE_H

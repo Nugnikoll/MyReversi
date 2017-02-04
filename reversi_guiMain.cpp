@@ -403,22 +403,22 @@ void reversi_guiFrame::on_context_menu(wxContextMenuEvent& event){
 
 void reversi_guiFrame::on_tree_item_select(wxTreeEvent& event){
 	wxTreeItemId item = event.GetItem();
-	vector<trace> vec;
+	vector<node*> vec;
 	board brd;
 
 	while(item != book_tree->GetRootItem()){
-		vec.push_back(((myTreeItemData*)(book_tree->GetItemData(item)))->tra);
+		vec.push_back(((myTreeItemData*)(book_tree->GetItemData(item)))->ptr);
 		item = book_tree->GetItemParent(item);
 	}
 	reverse(vec.begin(),vec.end());
 	if(!vec.empty()){
-		mygame.color = vec.back().color;
+		mygame.color = vec.back()->dat.color;
 	}else{
 		mygame.color = true;
 	}
 	brd.initial();
-	for(const trace& ele:vec){
-		brd.flip(!ele.color,ele.pos);
+	for(node *& ptr:vec){
+		brd.flip(!ptr->dat.color,ptr->dat.pos);
 	}
 	mygame.brd = brd;
 	mygame.show();

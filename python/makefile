@@ -2,9 +2,9 @@ pylib_path = /lib/python2.7/config/
 pyhead_path = /usr/include/python2.7/
 src_path = ../
 
-src = $(addprefix $(src_path),reversi.cc flip.cc search.cc pattern.cc tree.cc)
+src = $(addprefix $(src_path),type.cc reversi.cc flip.cc search.cc pattern.cc tree.cc)
 head = $(addprefix $(src_path),type.h reversi.h pattern.h game.h tree.h)
-obj = reversi_wrap.o reversi.o flip.o search.o pattern.o tree.o
+obj = reversi_wrap.o type.o reversi.o flip.o search.o pattern.o tree.o
 target = _reversi.dll
 
 cc = gcc
@@ -22,6 +22,9 @@ $(target): $(obj)
 	$(cxx) -shared -L$(pylib_path) $(obj) -lpython2.7 -o $@
 
 $(obj): $(head)
+
+type.o: $(src_path)type.cc
+	$(cxx) $(compile_option) $< -o $@
 
 reversi.o: $(src_path)reversi.cc
 	$(cxx) $(compile_option) $< -o $@

@@ -103,83 +103,92 @@ void tree::save(ostream& out,const node* const& ptr){
 	#undef WRITE
 }
 
-//void tree::practice(method mthd,cshort height){
-//	board brd;
-//	vector<choice> choices;
-//	coordinate pos1,pos2;
-//	node* ptr = root;
-//
-//	brd.initial();
-//	do{
-//		if(ptr->dat.win + ptr->dat.lose > threshold){
-//			choices = brd.get_choice(mthd,true,height,-1);
-//			ptr = ptr->child;
-//			for(auto& c:choices){
-//				c.val = (c.val * 10 + ptr->dat.win - ptr->dat.lose) / (ptr->dat.win + ptr->dat.lose + 10);
-//				ptr = ptr->sibling;
-//			}
-//		}else if(ptr->date.win + ptr->dat.lose == threshold){
-//		}else{}
-//			pos1 = brd.play(mthd,true,height);
-//			if(pos1.x >= 0){
-//				++ptr;
-//				ptr->tra = trace({false,pos1.x + (pos1.y << 3)});
-//			}
-//
-//		pos2 = brd.play(mthd,false,height);
-//		if(pos2.x >= 0){
-//			ptr->pos = pos2.x + (pos2.y << 3);
-//			ptr->color = true;
-//			++ptr;
-//		}
-//	}while(pos1.x >= 0 || pos2.x >= 0);
-//
-//	ptr->pos = -1;
-//	calc_type result = brd.count(true) - brd.count(false);
-//	
-//	return tuple<trace*,bool,bool>(path,result != 0,result > 0);
-//}
+node* tree::descend(board& brd){
+	node* ptr = this->root;
+	vector<node*> vec;
+	vector<float> param;
 
-tuple<trace*,bool,bool> do_practice(method mthd,cshort height){
-	board brd;
-	coordinate pos1,pos2;
-	trace* path = new trace[board::size2];
-	trace* ptr = path;
-
-	brd.initial();
-	do{
-		pos1 = brd.play(mthd,true,height);
-		if(pos1.x >= 0){
-			ptr->pos = pos1.x + (pos1.y << 3);
-			ptr->color = false;
-			++ptr;
+	while(ptr->child){
+		if(ptr->dat.color){
+			for(ptr = ptr->child;ptr;ptr = ptr->sibling){
+				vec.push_back(ptr);
+				param.push_back(float(ptr->dat.win + 5) / (ptr->dat.win + ptr->dat.lose + 10));
+			}
+		}else{
+			for(ptr = ptr->child;ptr;ptr = ptr->sibling){
+				vec.push_back(ptr);
+				param.push_back(float(ptr->dat.lose + 5) / (ptr->dat.win + ptr->dat.lose + 10));
+			}
 		}
-
-		pos2 = brd.play(mthd,false,height);
-		if(pos2.x >= 0){
-			ptr->pos = pos2.x + (pos2.y << 3);
-			ptr->color = true;
-			++ptr;
-		}
-	}while(pos1.x >= 0 || pos2.x >= 0);
-
-	ptr->pos = -1;
-	calc_type result = brd.count(true) - brd.count(false);
-	
-	return tuple<trace*,bool,bool>(path,result != 0,result > 0);
+		discrete_distribution<int> selector(param.begin(),param.end());
+		ptr = vec[selector(engine)];
+		brd.flip(ptr->parent->dat.color,ptr->dat.pos);
+		// cout << "color: " << ptr->parent->dat.color << endl;
+		// cout << "x: " << (ptr->dat.pos & 7) << " y: " << (ptr->dat.pos >> 3) << endl;
+		// brd.print();
+		vec.clear();
+		param.clear();
+	}
+	return ptr;
 }
 
-void tree::practice(method mthd,cshort height){
-	auto record = do_practice(mthd,height);
+void tree::grow(cmethod mthd,cshort height){
+	board brd;
+	coordinate pos1,pos2;
 
-	// auto ptr = std::get<0>(record);
-	// for(int i = 0;i != 64;++i){
-		// cout << "(" << ptr->pos << "," << ptr->color << ")" << endl;
-		// ++ptr;
-	// }
+	brd.initial();
+	node* ptr = descend(brd);
 
-	if(std::get<1>(record)){
-		this->add_path(std::get<0>(record),std::get<2>(record));
+	bool flag = false, flag_next = false, color = ptr->dat.color;
+	board brd_save = brd;
+
+	do{
+		flag_next = flag;
+		flag = brd.play(mthd,color,height).x >= 0;
+		color = !color;
+	}while(flag || flag_next);
+
+	calc_type diff = brd.count(true) - brd.count(false);
+
+	if(ptr->dat.win + ptr->dat.lose >= threshold - 2){
+		node* ptr_next = ptr;
+		brd = brd_save;
+		pos_type i;
+		for(i = 0;i != board::size2;++i){
+			if(brd.flip(ptr->dat.color,i)){
+				flag = (brd.count_move(!ptr->dat.color) > 0) ^ ptr->dat.color;
+				ptr_next->child = new node({{flag,i,0,0},ptr,NULL,NULL});
+				ptr_next = ptr_next->child;
+				brd = brd_save;
+				++i;
+				break;
+			}
+		}
+		for(;i != board::size2;++i){
+			if(brd.flip(ptr->dat.color,i)){
+				flag = (brd.count_move(!ptr->dat.color) > 0) ^ ptr->dat.color;
+				ptr_next->sibling = new node({{flag,i,0,0},ptr,NULL,NULL});
+				ptr_next = ptr_next->sibling;
+				brd = brd_save;
+			}
+		}
 	}
-	delete std::get<0>(record);
+
+	// if(diff == 0){
+		// while(ptr){
+			// ++ptr->dat.draw;
+			// ptr = ptr->parent;
+		// }
+	// }else 
+	if(diff > 0){
+		while(ptr){
+			++ptr->dat.win;
+			ptr = ptr->parent;
+		}
+	}else if(diff < 0){
+		while(ptr){
+			++ptr->dat.lose;
+			ptr = ptr->parent;
+		}
+	}
 }
