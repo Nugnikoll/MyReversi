@@ -1,12 +1,15 @@
 set grp [group]
-$grp assign 2
-$grp initial
+# $grp assign 2
+# $grp initial
 
-for {set i 0} {$i < 10} {incr i} {
-	for {set j 0} {$j < 1000} {incr j} {$grp train}
-	set ptn [$grp get 0]
-}
+# for {set i 0} {$i < 10} {incr i} {
+	# for {set j 0} {$j < 1000} {incr j} {$grp train}
+	# set ptn [$grp get 0]
+# }
 
+$grp load "python/pattern_100.dat" 1 0 100 1
+
+set ptn [$grp get 0]
 set_ptn $ptn
 
 set mthd_default $mthd_ptn
