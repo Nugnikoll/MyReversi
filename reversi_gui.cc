@@ -186,18 +186,20 @@ void grp_assign(cint size){
 void grp_initial(){
 	return grp.initial();
 }
-void grp_load(
-	const string& filename,cbool is_compress = true,cint num_begin = 0,cint num = 100
-	,cbool is_compatible = true){
-	return grp.load(filename,is_compress,num_begin,num,is_compatible);
+void grp_load(const string& filename,cint num_begin = 0,cint num = 100){
+	return grp.load(filename,num_begin,num);
 }
-void grp_save(const string& filename,const bool& is_compress = true){
-	return grp.save(filename,is_compress);
+void grp_save(const string& filename){
+	return grp.save(filename);
 }
 void grp_train(cint num){
 	for(int i = 0;i != num;++i){
 		grp.train();
 	}
+}
+
+void use_ptn(cint num){
+	set_ptn(grp.get(num));
 }
 
 void game_gui::process(const string& str){
@@ -213,6 +215,7 @@ void game_gui::process(const string& str){
 		inter.def("exit",::quit);
 		inter.def("puts",::term_print);
 		inter.def("print",::term_print);
+
 		inter.def("start",::start);
 		inter.def("flip",::flip);
 		inter.def("play",::play);
@@ -238,26 +241,29 @@ void game_gui::process(const string& str){
 		inter.def("select_choice",::select_choice);
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
+
 		inter.def("load",::load);
+
 		inter.def("grp_assign",::grp_assign);
 		inter.def("grp_initial",::grp_initial);
 		inter.def("grp_load",::grp_load);
 		inter.def("grp_save",::grp_save);
 		inter.def("grp_train",::grp_train);
+
+		inter.def("set_ptn",set_ptn);
+		inter.def("use_ptn",::use_ptn);
+		inter.def("check_ptn",::check_ptn);
+
 		inter.def("load_book",::load_book);
 
 		inter.class_<board>("board");
 //			.def("initial",board::tcl_initial)
-//			.def("bget",board::tcl_bget);
-
-		inter.class_<element>("element")
-			.def("get_cnt",element::get_cnt)
-			.def("to_str",element::to_str);			
+//			.def("bget",board::tcl_bget);		
 
 		inter.class_<pattern>("pattern")
 			.def("initial",pattern::initial)
-			.def("get1",pattern::get1,factory("element"))
-			.def("get2",pattern::get2,factory("element"));
+			.def("get1",pattern::get1)
+			.def("get2",pattern::get2);
 
 		inter.class_<group>("group")
 			.def("assign",group::assign)
@@ -267,8 +273,6 @@ void game_gui::process(const string& str){
 			.def("get",group::get,factory("pattern"))
 			.def("train",group::train)
 			.def("print_record",group::print_record);
-
-		inter.def("set_ptn",set_ptn);
 
 		inter.eval(
 			"set blank 0;"
