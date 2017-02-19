@@ -1,3 +1,20 @@
+/** @mainpage Reversi Documentation
+
+ * @section sec_rv Introduction of Reversi
+	Reversi (also called Othello) is a kind of strategy board game
+	which involves play by two parties on an eight-by-eight square grid.
+	
+ * @section sec_pro Introduction of the Program
+
+ */
+
+/** @file reversi.h
+ * @brief This head file is an essential part of the program
+ * where the most important class board is defined.
+ * Many basic functions are declared here.
+
+ */
+
 #ifndef REVERSI_H
 #define REVERSI_H
 
@@ -44,6 +61,20 @@ namespace std{
 	struct hash<board>;
 }
 
+/** @class board 
+ *
+ * @brief It represent the board of reversi.
+ *
+	It has two data member which are brd_black and brd_white.
+	They represent the board of black stones and board of white stones respectively.
+	Both brd_black and brd_white are 64-bit integer.
+	Where the bit is set to 1, there is a stone.
+	We can assume that brd_black | brd_white is always zero
+	because we can never place a black stone and a white stone at the same cell.
+	This kind of data structure saves a lot of memory and is easy to calculate.
+ *
+ */
+
 class board{
 	friend struct hash<board>;
 public:
@@ -52,6 +83,13 @@ public:
 	};
 	typedef const conf_score& cconf_score;
 
+	/** @fn board()
+	* @brief The default constructor of class board
+		This function do nothing at all.
+		The value of the object board is not defined
+		if it's constructed by this function.
+		To initial the object, please use the function initial() .
+	*/
 	board(){};
 	board(cbrd_type _brd_black,cbrd_type _brd_white)
 		:brd_black(_brd_black),brd_white(_brd_white){}
@@ -80,14 +118,29 @@ public:
 		brd.do_print(out);
 		return out;
 	}
+
+	/** @fn const board& print(ostream& out = cout)const
+	 *	@brief It's a function used to show the board on a terminal.
+	 *	@param out the output stream
+	*/
 	const board& print(ostream& out = cout)const{
 		return do_print(out);
 	}
+
+	/** @fn board& print(ostream& out = cout)
+	 *	@brief It's a function used to show the board on a terminal.
+	 *	@param out the output stream
+	*/
 	board& print(ostream& out = cout){
 		do_print(out);
 		return *this;
 	}
 
+	/** @fn static void config()
+	 *	@brief Make some configuration before evaluate the board.
+		function score() search() can only be called after this function is called.
+	 *	@return configuration that can be used by function score() .
+	*/
 	static void config();
 	conf_score stage_config(pos_type stage)const{
 		conf_score conf;
@@ -122,11 +175,20 @@ public:
 		return conf;
 	}
 
+	/** @fn board& assign(cbrd_type _brd_black,cbrd_type _brd_white)
+	 *	@brief Assign the board to some specific value.
+	 *	@param _brd_black the value of the 64-bit board of black stones
+	 *	@param _brd_black the value of the 64-bit board of white stones
+	*/
 	board& assign(cbrd_type _brd_black,cbrd_type _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
 		return *this;
 	}
+
+	/** @fn board& initial()
+	 *	@brief initialize the board
+	*/
 	board& initial(){
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
@@ -419,20 +481,39 @@ protected:
 	static calc_type table_eval[stage_num][size][enum_num];
 	static calc_type table_temp[2][board::max_height + 1][size2];
 
+	/** @fn static void mirror_h(brd_type& brd)
+	 *	@brief It's a function used to mirror a 64-bit board horizontally.
+	 *	@param brd the 64-bit board
+	*/
 	static void mirror_h(brd_type& brd){
 		brd = (brd & 0xaaaaaaaaaaaaaaaa) >> 1  | (brd & 0x5555555555555555) << 1;
 		brd = (brd & 0xcccccccccccccccc) >> 2  | (brd & 0x3333333333333333) << 2;
 		brd = (brd & 0xf0f0f0f0f0f0f0f0) >> 4  | (brd & 0x0f0f0f0f0f0f0f0f) << 4;
 	}
+
+	/** @fn static void mirror_v(brd_type& brd)
+	 *	@brief It's a function used to mirror a 64-bit board vertically.
+	 *	@param brd the 64-bit board
+	*/
 	static void mirror_v(brd_type& brd){
 		brd = (brd & 0xff00ff00ff00ff00) >> 8  | (brd & 0x00ff00ff00ff00ff) << 8;
 		brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
 		brd = (brd & 0xffffffff00000000) >> 32 | (brd & 0x00000000ffffffff) << 32;
 	}
+
+	/** @fn static void reflect(brd_type& brd)
+	 *	@brief It's a function used to reflect a 64-bit board.
+	 *	@param brd the 64-bit board
+	*/
 	static void reflect(brd_type& brd){
 		mirror_h(brd);
 		mirror_v(brd);
 	}
+
+	/** @fn static void rotate_r(brd_type& brd)
+	 *	@brief It's a function used to rotate a 64-bit board clockwise.
+	 *	@param brd the 64-bit board
+	*/
 	static void rotate_r(brd_type& brd){
 		brd = (brd & 0xf0f0f0f000000000) >> 4  | (brd & 0x0f0f0f0f00000000) >> 32
 			| (brd & 0x00000000f0f0f0f0) << 32 | (brd & 0x000000000f0f0f0f) << 4;
@@ -441,6 +522,11 @@ protected:
 		brd = (brd & 0xaa00aa00aa00aa00) >> 1  | (brd & 0x5500550055005500) >> 8
 			| (brd & 0x00aa00aa00aa00aa) << 8  | (brd & 0x0055005500550055) << 1;
 	}
+
+	/** @fn static void rotate_l(brd_type& brd)
+	 *	@brief It's a function used to rotate a 64-bit board counter-clockwise.
+	 *	@param brd the 64-bit board
+	*/
 	static void rotate_l(brd_type& brd){
 		brd = (brd & 0xf0f0f0f000000000) >> 32 | (brd & 0x0f0f0f0f00000000) << 4
 			| (brd & 0x00000000f0f0f0f0) >> 4  | (brd & 0x000000000f0f0f0f) << 32;
@@ -460,6 +546,12 @@ protected:
 		brd_low = (brd_low & 0xff00ff00ff00ff00) | (brd_low & 0x00ff00ff00ff00ff) >> 1;
 		brd = brd_high | brd_low;
 	}
+
+	/** @fn static void count(brd_type& brd)
+	 *	@brief It's a function used to count the number of bit
+	 *	which are set in a 64-bit board.
+	 *	@param brd the 64-bit board
+	*/
 	static pos_type count(cbrd_type brd){
 		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
 		result = (result & 0x3333333333333333)
