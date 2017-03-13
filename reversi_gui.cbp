@@ -86,6 +86,7 @@
 		<Unit filename="tree.cc" />
 		<Unit filename="tree.h" />
 		<Unit filename="type.cc" />
+		<Unit filename="type.h" />
 		<Unit filename="wxsmith/reversi_guiframe.wxs" />
 		<Extensions>
 			<code_completion />

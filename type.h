@@ -8,6 +8,7 @@ using namespace std;
 //#define USE_REF
 #define USE_FLOAT
 #define USE_RANDOM
+#define DEBUG_SEARCH
 
 #ifdef USE_REF
 	typedef const bool& cbool;
@@ -96,6 +97,11 @@ enum sts_type{
 	#include <chrono>
 	extern default_random_engine engine;
 #endif //USE_RANDOM
+
+#ifdef DEBUG_SEARCH
+	#include <fstream>
+	extern ofstream out;
+#endif
 
 class board;
 struct choice;
