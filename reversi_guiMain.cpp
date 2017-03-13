@@ -250,14 +250,6 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	book_tree->SetFont(text_logFont);
 	Notebook1->AddPage(book_tree, _("book"), false);
 
-	mygame.ptr_frame = this;
-	mygame.ptr_panel = panel_board;
-	mygame.ptr_term = text_terminal;
-	mygame.ptr_input = text_input;
-	mygame.ptr_log = text_log;
-	mygame.ptr_book = book_tree;
-	mygame.is_lock = true;
-
 	Connect(id_player_black,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_black);
 	Connect(id_player_white,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_white);
 	Connect(id_undo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_undo);
@@ -274,6 +266,18 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
 
 	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
+
+	mygame.ptr_frame = this;
+	mygame.ptr_panel = panel_board;
+	mygame.ptr_term = text_terminal;
+	mygame.ptr_input = text_input;
+	mygame.ptr_log = text_log;
+	mygame.ptr_book = book_tree;
+	mygame.is_lock = true;
+
+	#ifdef DEBUG_SEARCH
+		out.open("out.html");
+	#endif
 }
 
 reversi_guiFrame::~reversi_guiFrame()
@@ -295,6 +299,9 @@ void reversi_guiFrame::OnAbout(wxCommandEvent& event)
 
 void reversi_guiFrame::OnClose(wxCloseEvent& event)
 {
+	#ifdef DEBUG_SEARCH
+		out.close();
+	#endif
 }
 
 void reversi_guiFrame::on_panel_board_paint(wxPaintEvent& event)

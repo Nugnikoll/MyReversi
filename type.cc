@@ -5,3 +5,7 @@
 		chrono::system_clock::now().time_since_epoch().count()
 	);
 #endif //USE_RANDOM
+
+#ifdef DEBUG_SEARCH
+	ofstream out;
+#endif

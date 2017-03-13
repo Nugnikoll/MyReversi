@@ -32,16 +32,6 @@ using namespace std;
 #define USE_FLOAT
 #define USE_RANDOM
 
-#ifdef DEBUG_SEARCH
-	#include <fstream>
-	extern ofstream out;
-#endif
-
-#ifdef USE_RANDOM
-	#include <random>
-	extern default_random_engine engine;
-#endif
-
 #include "type.h"
 
 struct coordinate{
