@@ -230,7 +230,7 @@ public:
 		object result;
 		wxString str;
 		wxClientDC dc(ptr_panel);
-		dc.SetTextForeground(wxColor(200,20,20));
+		dc.SetTextForeground(wxColor(255,0,150));
 		dc.SetFont(wxFont(8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT));
 
 		pos_type x,y;
