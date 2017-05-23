@@ -7,6 +7,22 @@
 
 using namespace std;
 
+#define asm_pcmpeqb(a,b) \
+	asm volatile( \
+		"pcmpeqb %2,%0;" \
+		:"=y"(a) \
+		:"0"(a), "y"(b) \
+		: \
+	)
+
+#define asm_emms \
+	asm volatile( \
+		"emms ;" \
+		: \
+		: \
+		: \
+	)
+
 pattern* ptr_pattern = NULL;
 
 void set_ptn(pattern* ptr){
@@ -97,13 +113,10 @@ float board::score_ptn(cbool color)const{
 	extract(0x0180402010080402,0x0101010101010101,5);
 
 	extract(0x0102040810204080,0x0101010101010101,4);
-	extract(0x0204081020408001,0x0808080808080808,5);
-	extract(0x0408102040800102,0x1010101010101010,6);
-	extract(0x0810204080010204,0x2020202020202020,7);
-	extract(0x1020408001020408,0x4040404040404040,8);
-	extract(0x2040800102040810,0x0101010101010101,7);
-	extract(0x4080010204081020,0x0101010101010101,6);
-	extract(0x8001020408102040,0x0101010101010101,5);
+	extract(0x0204081020408001,0x0101010101010101,5);
+	extract(0x0408102040800102,0x0101010101010101,6);
+	extract(0x0810204080010204,0x0101010101010101,7);
+	extract(0x1020408001020408,0x0101010101010101,8);
 
 	//corner pattern
 	extract(0xe0e0c00000000000,0x0000000000002009,9);
@@ -112,6 +125,31 @@ float board::score_ptn(cbool color)const{
 	extract(0x0000000000030707,0x2004010000000000,10);
 
 	#undef extract
+
+	brd_type temp1, temp2;
+
+	#define extract(mask,num) \
+		temp1 = brd_blue & mask; \
+		asm_pcmpeqb(temp1,0); \
+		temp1 = ( \
+				((temp1 & 0x0101010101010101) * 0x8040201008040201) \
+				& 0xff00000000000000 \
+			) >> 48; \
+		temp2 = brd_green & mask; \
+		asm_pcmpeqb(temp2,0); \
+		temp2= ( \
+				((temp2 & 0x0101010101010101) * 0x8040201008040201) \
+				& 0xff00000000000000 \
+			) >> 56; \
+		index = temp1 | temp2; \
+		asm_emms; \
+		result += table1[num][index];
+
+	extract(0x2040800102040810,7);
+	extract(0x4080010204081020,6);
+	extract(0x8001020408102040,5);
+
+	#undef diffuse
 
 	return result;
 }
@@ -174,19 +212,41 @@ void board::adjust_ptn(cbool color,ccalc_type diff)const{
 	diffuse(0x0180402010080402,0x0101010101010101,5);
 
 	diffuse(0x0102040810204080,0x0101010101010101,4);
-	diffuse(0x0204081020408001,0x0808080808080808,5);
-	diffuse(0x0408102040800102,0x1010101010101010,6);
-	diffuse(0x0810204080010204,0x2020202020202020,7);
-	diffuse(0x1020408001020408,0x4040404040404040,8);
-	diffuse(0x2040800102040810,0x0101010101010101,7);
-	diffuse(0x4080010204081020,0x0101010101010101,6);
-	diffuse(0x8001020408102040,0x0101010101010101,5);
+	diffuse(0x0204081020408001,0x0101010101010101,5);
+	diffuse(0x0408102040800102,0x0101010101010101,6);
+	diffuse(0x0810204080010204,0x0101010101010101,7);
+	diffuse(0x1020408001020408,0x0101010101010101,8);
 
 	//corner pattern
 	diffuse(0xe0e0c00000000000,0x0000000000002009,9);
 	diffuse(0x0707030000000000,0x0000000000010420,10);
 	diffuse(0x0000000000c0e0e0,0x0100082000000000,9);
 	diffuse(0x0000000000030707,0x2004010000000000,10);
+
+	#undef diffuse
+
+	brd_type temp1, temp2;
+
+	#define diffuse(mask,num) \
+		temp1 = brd_blue & mask; \
+		asm_pcmpeqb(temp1,0); \
+		temp1 = ( \
+				((temp1 & 0x0101010101010101) * 0x8040201008040201) \
+				& 0xff00000000000000 \
+			) >> 48; \
+		temp2 = brd_green & mask; \
+		asm_pcmpeqb(temp2,0); \
+		temp2 = ( \
+				((temp2 & 0x0101010101010101) * 0x8040201008040201) \
+				& 0xff00000000000000 \
+			) >> 56; \
+		index = temp1 | temp2; \
+		asm_emms; \
+		table1[num][index] += diff / ptr_pattern->count;
+
+	diffuse(0x2040800102040810,7);
+	diffuse(0x4080010204081020,6);
+	diffuse(0x8001020408102040,5);
 
 	#undef diffuse
 }
