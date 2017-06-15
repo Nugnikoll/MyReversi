@@ -7,19 +7,11 @@
 
 using namespace std;
 
-#define asm_pcmpeqb(a,b) \
+#define asm_pext(source, mask, result)\
 	asm volatile( \
-		"pcmpeqb %2,%0;" \
-		:"=y"(a) \
-		:"0"(a), "y"(b) \
-		: \
-	)
-
-#define asm_emms \
-	asm volatile( \
-		"emms ;" \
-		: \
-		: \
+		"pext %1, %2, %0;" \
+		: "=r"(result) \
+		: "r"(mask), "r"(source) \
 		: \
 	)
 
@@ -37,6 +29,75 @@ void pattern::initial(){
 	count = 1000;
 	memset(table1,0,sizeof(table1));
 	memset(table2,0,sizeof(table2));
+}
+
+const brd_type ptn_mask[] = {
+	// horizontal pattern
+	0x00000000000000ff,
+	0x000000000000ff00,
+	0x0000000000ff0000,
+	0x00000000ff000000,
+	0x000000ff00000000,
+	0x0000ff0000000000,
+	0x00ff000000000000,
+	0xff00000000000000,
+
+	//vertical pattern
+	0x0101010101010101,
+	0x0202020202020202,
+	0x0404040404040404,
+	0x0808080808080808,
+	0x1010101010101010,
+	0x2020202020202020,
+	0x4040404040404040,
+	0x8080808080808080,
+
+	//diagnal pattern
+	0x8040201008040201,
+	0x4020100804020180,
+	0x2010080402018040,
+	0x1008040201804020,
+	0x0804020180402010,
+	0x0402018040201008,
+	0x0201804020100804,
+	0x0180402010080402,
+
+	0x0102040810204080,
+	0x0204081020408001,
+	0x0408102040800102,
+	0x0810204080010204,
+	0x1020408001020408,
+	0x2040800102040810,
+	0x4080010204081020,
+	0x8001020408102040,
+
+	//corner pattern
+	0xe0e0c00000000000,
+	0x0707030000000000,
+	0x0000000000c0e0e0,
+	0x0000000000030707
+};
+
+const short ptn_num[] = {
+	0, 1, 2, 3, 3, 2, 1, 0,
+	0, 1, 2, 3, 3, 2, 1, 0,
+	4, 5, 6, 7, 8, 7, 6, 5,
+	4, 5, 6, 7, 8, 7, 6, 5,
+	9, 10, 9, 10
+};
+
+float& board::extract(cbool color, float* const& ptr, cbrd_type mask, cshort num)const{
+	brd_type brd_blue = this->bget(color);
+	brd_type brd_green = this->bget(!color);
+	brd_type index, temp;
+	asm_pext(brd_blue,mask,temp);
+	index = temp << 8;
+	asm_pext(brd_green,mask,temp);
+	index |= temp;
+	//cout << hex << brd_blue << " " << brd_green << endl;
+	//cout << "index: " << hex << index << " mask: " << hex << mask << " num: " << dec << num << endl;
+	//assert((index & ~0xffffull) == 0);
+	return ptr[(num << 16) + index];
 }
 
 float board::score_ptn(cbool color)const{
@@ -60,96 +121,15 @@ float board::score_ptn(cbool color)const{
 		}
 	}
 
-	unsigned short index;
-	const brd_type& brd_blue = this->bget(color);
-	const brd_type& brd_green = this->bget(!color);
 	float result = 0;
-
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
 	result += ptr_pattern->table2[stage][blue_move * 30 + green_move];
 
-	#define extract(mask,shift1,shift2,num) \
-		index = (brd_blue & mask) shift1; \
-		index |= (brd_green & mask) shift2; \
-		result += table1[num][index];
-
-	//horizontal pattern
-	extract(0xff,<<8,,0);
-	extract(0xff00,,>>8,1);
-	extract(0xff0000,>>8,>>16,2);
-	extract(0xff000000,>>16,>>24,3);
-	extract(0xff00000000,>>24,>>32,3);
-	extract(0xff0000000000,>>32,>>40,2);
-	extract(0xff000000000000,>>40,>>48,1);
-	extract(0xff00000000000000,>>48,>>56,0);
-
-	#undef extract
-
-	#define extract(mask,factor,num) \
-		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
-		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		result += table1[num][index];
-
-	//vertical pattern
-	extract(0x0101010101010101,0x0102040810204080,0);
-	extract(0x0202020202020202,0x0081020408102040,1);
-	extract(0x0404040404040404,0x0040810204081020,2);
-	extract(0x0808080808080808,0x0020408102040810,3);
-	extract(0x1010101010101010,0x0010204081020408,3);
-	extract(0x2020202020202020,0x0008102040810204,2);
-	extract(0x4040404040404040,0x0004081020408102,1);
-	extract(0x8080808080808080,0x0002040810204081,0);
-
-	//diagnal pattern
-	extract(0x8040201008040201,0x0101010101010101,4);
-	extract(0x4020100804020180,0x0202020202020202,5);
-	extract(0x2010080402018040,0x0404040404040404,6);
-	extract(0x1008040201804020,0x0808080808080808,7);
-	extract(0x0804020180402010,0x0101010101010101,8);
-	extract(0x0402018040201008,0x0101010101010101,7);
-	extract(0x0201804020100804,0x0101010101010101,6);
-	extract(0x0180402010080402,0x0101010101010101,5);
-
-	extract(0x0102040810204080,0x0101010101010101,4);
-	extract(0x0204081020408001,0x0101010101010101,5);
-	extract(0x0408102040800102,0x0101010101010101,6);
-	extract(0x0810204080010204,0x0101010101010101,7);
-	extract(0x1020408001020408,0x0101010101010101,8);
-
-	//corner pattern
-	extract(0xe0e0c00000000000,0x0000000000002009,9);
-	extract(0x0707030000000000,0x0000000000010420,10);
-	extract(0x0000000000c0e0e0,0x0100082000000000,9);
-	extract(0x0000000000030707,0x2004010000000000,10);
-
-	#undef extract
-
-	brd_type temp1, temp2;
-
-	#define extract(mask,num) \
-		temp1 = brd_blue & mask; \
-		asm_pcmpeqb(temp1,0); \
-		temp1 = ( \
-				((~temp1 & 0x0101010101010101) * 0x8040201008040201) \
-				& 0xff00000000000000 \
-			) >> 48; \
-		temp2 = brd_green & mask; \
-		asm_pcmpeqb(temp2,0); \
-		temp2= ( \
-				((~temp2 & 0x0101010101010101) * 0x8040201008040201) \
-				& 0xff00000000000000 \
-			) >> 56; \
-		index = temp1 | temp2; \
-		asm_emms; \
-		result += table1[num][index];
-
-	extract(0x2040800102040810,7);
-	extract(0x4080010204081020,6);
-	extract(0x8001020408102040,5);
-
-	#undef extract
+	for(int i = 0;i != pattern::size1;++i){
+		result += extract(color,table1,ptn_mask[i],ptn_num[i]);
+	}
 
 	return result;
 }
@@ -161,101 +141,14 @@ vector<float> board::eval_ptn(cbool color)const{
 	short blue_move = this->count_move(color);
 	short green_move = this->count_move(!color);
 
-	unsigned short index;
-	const brd_type& brd_blue = this->bget(color);
-	const brd_type& brd_green = this->bget(!color);
-
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
 	result.push_back(ptr_pattern->table2[stage][blue_move * 30 + green_move]);
 
-	#define extract(mask,shift1,shift2,num) \
-		index = (brd_blue & mask) shift1; \
-		index |= (brd_green & mask) shift2; \
-		result.push_back(num); \
-		result.push_back(index); \
-		result.push_back(table1[num][index]);
-
-	//horizontal pattern
-	extract(0xff,<<8,,0);
-	extract(0xff00,,>>8,1);
-	extract(0xff0000,>>8,>>16,2);
-	extract(0xff000000,>>16,>>24,3);
-	extract(0xff00000000,>>24,>>32,3);
-	extract(0xff0000000000,>>32,>>40,2);
-	extract(0xff000000000000,>>40,>>48,1);
-	extract(0xff00000000000000,>>48,>>56,0);
-
-	#undef extract
-
-	#define extract(mask,factor,num) \
-		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
-		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		result.push_back(num); \
-		result.push_back(index); \
-		result.push_back(table1[num][index]);
-
-	//vertical pattern
-	extract(0x0101010101010101,0x0102040810204080,0);
-	extract(0x0202020202020202,0x0081020408102040,1);
-	extract(0x0404040404040404,0x0040810204081020,2);
-	extract(0x0808080808080808,0x0020408102040810,3);
-	extract(0x1010101010101010,0x0010204081020408,3);
-	extract(0x2020202020202020,0x0008102040810204,2);
-	extract(0x4040404040404040,0x0004081020408102,1);
-	extract(0x8080808080808080,0x0002040810204081,0);
-
-	//diagnal pattern
-	extract(0x8040201008040201,0x0101010101010101,4);
-	extract(0x4020100804020180,0x0202020202020202,5);
-	extract(0x2010080402018040,0x0404040404040404,6);
-	extract(0x1008040201804020,0x0808080808080808,7);
-	extract(0x0804020180402010,0x0101010101010101,8);
-	extract(0x0402018040201008,0x0101010101010101,7);
-	extract(0x0201804020100804,0x0101010101010101,6);
-	extract(0x0180402010080402,0x0101010101010101,5);
-
-	extract(0x0102040810204080,0x0101010101010101,4);
-	extract(0x0204081020408001,0x0101010101010101,5);
-	extract(0x0408102040800102,0x0101010101010101,6);
-	extract(0x0810204080010204,0x0101010101010101,7);
-	extract(0x1020408001020408,0x0101010101010101,8);
-
-	//corner pattern
-	extract(0xe0e0c00000000000,0x0000000000002009,9);
-	extract(0x0707030000000000,0x0000000000010420,10);
-	extract(0x0000000000c0e0e0,0x0100082000000000,9);
-	extract(0x0000000000030707,0x2004010000000000,10);
-
-	#undef extract
-
-	brd_type temp1, temp2;
-
-	#define extract(mask,num) \
-		temp1 = brd_blue & mask; \
-		asm_pcmpeqb(temp1,0); \
-		temp1 = ( \
-				((~temp1 & 0x0101010101010101) * 0x8040201008040201) \
-				& 0xff00000000000000 \
-			) >> 48; \
-		temp2 = brd_green & mask; \
-		asm_pcmpeqb(temp2,0); \
-		temp2= ( \
-				((~temp2 & 0x0101010101010101) * 0x8040201008040201) \
-				& 0xff00000000000000 \
-			) >> 56; \
-		index = temp1 | temp2; \
-		asm_emms; \
-		result.push_back(num); \
-		result.push_back(index); \
-		result.push_back(table1[num][index]);
-
-	extract(0x2040800102040810,7);
-	extract(0x4080010204081020,6);
-	extract(0x8001020408102040,5);
-
-	#undef extract
+	for(int i = 0;i != pattern::size1;++i){
+		result.push_back(extract(color,table1,ptn_mask[i],ptn_num[i]));
+	}
 
 	return result;
 }
@@ -264,97 +157,18 @@ vector<float> board::eval_ptn(cbool color)const{
 
 void board::adjust_ptn(cbool color,ccalc_type diff)const{
 
-	unsigned short index;
-	const brd_type& brd_blue = this->bget(color);
-	const brd_type& brd_green = this->bget(!color);
-
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
 	++ptr_pattern->count;
+
 	ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)]
 		+= diff / ptr_pattern->count;
 
-	#define diffuse(mask,shift1,shift2,num) \
-		index = (brd_blue & mask) shift1; \
-		index |= (brd_green & mask) shift2; \
-		table1[num][index] += diff / ptr_pattern->count;
+	for(int i = 0;i != pattern::size1;++i){
+		extract(color,table1,ptn_mask[i],ptn_num[i]) += diff / ptr_pattern->count;
+	}
 
-	//horizontal pattern
-	diffuse(0xff,<<8,,0);
-	diffuse(0xff00,,>>8,1);
-	diffuse(0xff0000,>>8,>>16,2);
-	diffuse(0xff000000,>>16,>>24,3);
-	diffuse(0xff00000000,>>24,>>32,3);
-	diffuse(0xff0000000000,>>32,>>40,2);
-	diffuse(0xff000000000000,>>40,>>48,1);
-	diffuse(0xff00000000000000,>>48,>>56,0);
-
-	#undef diffuse
-
-	#define diffuse(mask,factor,num) \
-		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
-		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		table1[num][index] += diff / ptr_pattern->count;
-
-	//vertical pattern
-	diffuse(0x0101010101010101,0x0102040810204080,0);
-	diffuse(0x0202020202020202,0x0081020408102040,1);
-	diffuse(0x0404040404040404,0x0040810204081020,2);
-	diffuse(0x0808080808080808,0x0020408102040810,3);
-	diffuse(0x1010101010101010,0x0010204081020408,3);
-	diffuse(0x2020202020202020,0x0008102040810204,2);
-	diffuse(0x4040404040404040,0x0004081020408102,1);
-	diffuse(0x8080808080808080,0x0002040810204081,0);
-
-	//diagnal pattern
-	diffuse(0x8040201008040201,0x0101010101010101,4);
-	diffuse(0x4020100804020180,0x0202020202020202,5);
-	diffuse(0x2010080402018040,0x0404040404040404,6);
-	diffuse(0x1008040201804020,0x0808080808080808,7);
-	diffuse(0x0804020180402010,0x0101010101010101,8);
-	diffuse(0x0402018040201008,0x0101010101010101,7);
-	diffuse(0x0201804020100804,0x0101010101010101,6);
-	diffuse(0x0180402010080402,0x0101010101010101,5);
-
-	diffuse(0x0102040810204080,0x0101010101010101,4);
-	diffuse(0x0204081020408001,0x0101010101010101,5);
-	diffuse(0x0408102040800102,0x0101010101010101,6);
-	diffuse(0x0810204080010204,0x0101010101010101,7);
-	diffuse(0x1020408001020408,0x0101010101010101,8);
-
-	//corner pattern
-	diffuse(0xe0e0c00000000000,0x0000000000002009,9);
-	diffuse(0x0707030000000000,0x0000000000010420,10);
-	diffuse(0x0000000000c0e0e0,0x0100082000000000,9);
-	diffuse(0x0000000000030707,0x2004010000000000,10);
-
-	#undef diffuse
-
-	brd_type temp1, temp2;
-
-	#define diffuse(mask,num) \
-		temp1 = brd_blue & mask; \
-		asm_pcmpeqb(temp1,0); \
-		temp1 = ( \
-				((~temp1 & 0x0101010101010101) * 0x8040201008040201) \
-				& 0xff00000000000000 \
-			) >> 48; \
-		temp2 = brd_green & mask; \
-		asm_pcmpeqb(temp2,0); \
-		temp2 = ( \
-				((~temp2 & 0x0101010101010101) * 0x8040201008040201) \
-				& 0xff00000000000000 \
-			) >> 56; \
-		index = temp1 | temp2; \
-		asm_emms; \
-		table1[num][index] += diff / ptr_pattern->count;
-
-	diffuse(0x2040800102040810,7);
-	diffuse(0x4080010204081020,6);
-	diffuse(0x8001020408102040,5);
-
-	#undef diffuse
 }
 
 float board::search_ptn(cbool color,cshort height,float alpha,float beta)const{
@@ -453,12 +267,12 @@ void pattern::save(ostream& out){
 
 	WRITE(this->count);
 	for(auto& i:table1){
-		for(auto& j:i){
+		for(int j = 0;j != size1;++j){
 			for(size_t k = 0;k != this->length;++k){
 				if(k & (k >> 8)){
 					continue;
 				}
-				WRITE(j[k]);
+				WRITE(i[(j << 16) + k]);
 			}
 		}
 	}
@@ -472,12 +286,12 @@ void pattern::load(istream& in){
 
 	_READ(this->count);
 	for(auto& i:table1){
-		for(auto& j:i){
+		for(int j = 0;j != size1;++j){
 			for(size_t k = 0;k != this->length;++k){
 				if(k & (k >> 8)){
 					continue;
 				}
-				_READ(j[k]);
+				_READ(i[(j << 16) + k]);
 			}
 		}
 	}

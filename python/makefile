@@ -41,11 +41,8 @@ pattern.o: $(src_path)pattern.cc
 tree.o: $(src_path)tree.cc
 	$(cxx) $(compile_option) $< -o $@
 
-reversi_wrap.o: reversi_wrap_fix.cxx
+reversi_wrap.o: reversi_wrap.cxx
 	$(cxx) $(compile_option) -I$(pyhead_path) $< -o $@
-
-reversi_wrap_fix.cxx: reversi_wrap.cxx
-	python fix.py $< $@
 
 reversi_wrap.cxx: reversi.i $(head)
 	swig -python -c++ -threads $<
