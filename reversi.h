@@ -68,10 +68,6 @@ namespace std{
 class board{
 	friend struct hash<board>;
 public:
-	struct conf_score{
-		calc_type *a,*b,*c;
-	};
-	typedef const conf_score& cconf_score;
 
 	/** @fn board()
 	* @brief The default constructor of class board
@@ -124,45 +120,6 @@ public:
 	board& print(ostream& out = cout){
 		do_print(out);
 		return *this;
-	}
-
-	/** @fn static void config()
-	 *	@brief Make some configuration before evaluate the board.
-		function score() search() can only be called after this function is called.
-	 *	@return configuration that can be used by function score() .
-	*/
-	static void config();
-	conf_score stage_config(pos_type stage)const{
-		conf_score conf;
-		if(stage >= stage_num){
-			cout << "Error: out of range\n";
-			conf.a = conf.b = conf.c = 0;
-			return conf;
-		}else if(stage < 0){
-			short total = this->sum();
-			if(total <= 7){
-				stage = 0;
-			}else if(total <= 10){
-				stage = 0;
-			}else if(total <= 33){
-				stage = 0;
-			}else if(total <= size2 - 23){
-				stage = 1;
-			}else if(total <= size2 - 16){
-				stage = 1;
-			}else{
-				stage = 2;
-			}
-		}
-		static bool flag = true;
-		if(flag){
-			config();
-			flag = false;
-		}
-		conf.a = table_eval[stage][0];
-		conf.b = table_eval[stage][1];
-		conf.c = table_eval[stage][2];
-		return conf;
 	}
 
 	/** @fn board& assign(cbrd_type _brd_black,cbrd_type _brd_white)
@@ -350,69 +307,54 @@ public:
 
 	bool flip(cbool color,cpos_type pos);
 
-	calc_type score(cbool color,cconf_score conf)const{
+	calc_type score(cbool color,cpos_type stage)const{
+		calc_type result = 0;
 
-		brd_type blue = bget(color);
-		brd_type green = bget(!color);
-		calc_type result;
+		brd_type brd_blue = bget(color);
+		brd_type brd_green = bget(!color);
 
-		result = conf.a[(unsigned char&)blue]; blue >>= size;
-		result += conf.b[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.b[(unsigned char&)blue]; blue >>= size;
-		result += conf.a[(unsigned char&)blue];
-
-		result -= conf.a[(unsigned char&)green]; green >>= size;
-		result -= conf.b[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.b[(unsigned char&)green]; green >>= size;
-		result -= conf.a[(unsigned char&)green];
+		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
+			* table_param[stage][0];
+		result += (count(brd_blue & 0x7e8181818181817e) - count(brd_green & 0x7e8181818181817e))
+			* table_param[stage][1];
+		result += (count(brd_blue & 0x0042000000004200) - count(brd_green & 0x0042000000004200))
+			* table_param[stage][2];
+		result += (count(brd_blue & 0x003c7e7e7e7e3c00) - count(brd_green & 0x003c7e7e7e7e3c00))
+			* table_param[stage][3];
 
 		return result;
 	}
-	calc_type score(cbool color,cpos_type stage)const{
-		conf_score conf = stage_config(stage);
-		return score(color,conf);
-	}
 
-	calc_type search(cmethod mthd,cbool color,cshort height,ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type acc = 0,cpos_type stage = 0,ccalc_type gamma = 0)const;
 	calc_type search(
 		cmethod mthd,cbool color,
 		cshort height,ccalc_type alpha,ccalc_type beta,
-		ccalc_type acc,cconf_score conf,ccalc_type gamma = 0
+		ccalc_type acc,cshort stage,ccalc_type gamma = 0
 	)const{
 		if(mthd == mthd_rnd){
 			return 0;
 		}else if(mthd & mthd_ptn){
 			return search_ptn(color,height,alpha,beta);
 		}else if(mthd & mthd_mtdf){
-			return search_mtd(color,height,alpha,beta,acc,conf,gamma);
+			return search_mtd(color,height,alpha,beta,acc,stage,gamma);
 		}else if(mthd & mthd_trans){
-			return search_trans(color,height,alpha,beta,acc,conf);
+			return search_trans(color,height,alpha,beta,acc,stage);
 		}else if(mthd & mthd_pvs){
-			return search_pvs(color,height,alpha,beta,acc,conf);
+			return search_pvs(color,height,alpha,beta,acc,stage);
 		}else if(mthd & mthd_ab){
-			return search_ab(color,height,alpha,beta,acc,conf);
+			return search_ab(color,height,alpha,beta,acc,stage);
 		}else{
 			assert(false);
 			return 0;
 		}
 	};
 
-	calc_type search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	calc_type search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	calc_type search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	calc_type search_mtd(cbool color,cshort height,calc_type alpha,calc_type beta,ccalc_type acc,cconf_score conf,calc_type gamma)const;
+	calc_type search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
+	calc_type search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
+	calc_type search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
+	calc_type search_mtd(cbool color,cshort height,calc_type alpha,calc_type beta,ccalc_type acc,cshort stage,calc_type gamma)const;
 	float search_ptn(cbool color,cshort height,float alpha,float beta)const;
 
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cconf_score conf,ccalc_type gamma = 0)const;
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cpos_type stage = 0)const;
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cshort stage = -1,ccalc_type gamma = 0)const;
 
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
 
@@ -470,7 +412,6 @@ protected:
 
 	brd_type brd_black,brd_white;
 
-	static calc_type table_eval[stage_num][size][enum_num];
 	static calc_type table_temp[2][board::max_height + 1][size2];
 
 	static brd_type extract(cbrd_type brd,cbrd_type mask){
