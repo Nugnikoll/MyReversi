@@ -461,7 +461,7 @@ public:
 		}
 	}
 
-	float& extract(cbool color, float* const& ptr, cbrd_type mask, cshort num)const;
+	float& extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const;
 	float score_ptn(cbool color)const;
 	vector<float> eval_ptn(cbool color)const;
 	void adjust_ptn(cbool,ccalc_type diff)const;
@@ -472,6 +472,17 @@ protected:
 
 	static calc_type table_eval[stage_num][size][enum_num];
 	static calc_type table_temp[2][board::max_height + 1][size2];
+
+	static brd_type extract(cbrd_type brd,cbrd_type mask){
+		brd_type result;
+		asm volatile(
+			"pext %1, %2, %0;"
+			: "=r"(result)
+			: "r"(mask), "r"(brd)
+			:
+		);
+		return result;
+	}
 
 	/** @fn static void mirror_h(brd_type& brd)
 	 *	@brief It's a function used to mirror a 64-bit board horizontally.
