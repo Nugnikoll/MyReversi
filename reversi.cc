@@ -9,9 +9,7 @@ const pos_type board::chessman_num;
 const pos_type board::size;
 const pos_type board::size2;
 const pos_type board::pos_num;
-const pos_type board::layer_num;
 const pos_type board::stage_num;
-const pos_type board::enum_num;
 
 #ifdef USE_FLOAT
 	const calc_type board::mark_max = 10000;

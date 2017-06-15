@@ -91,9 +91,7 @@ public:
 	static const char chr_print[chessman_num];
 	enum pos_enum{pos_angle,pos_edge,pos_inner,pos_center};
 	static const pos_type pos_num = 4;
-	static const pos_type layer_num = 3;
 	static const pos_type stage_num = 3;
-	static const pos_type enum_num = 256;
 	static const short max_height = 20;
 
 	typedef pair<calc_type,calc_type> interval;
