@@ -192,6 +192,16 @@ public:
 			show();
 		}
 	}
+
+	object eval_ptn(cbool color){
+		object result;
+		vector<float> vec = brd.eval_ptn(color);
+		for(float& i:vec){
+			result.append(*ptr_inter,object(i));
+		}
+		return result;
+	}
+
 	virtual bool flip(cbool color, cpos_type x, cpos_type y){
 		if(flag_auto_save){
 			push();

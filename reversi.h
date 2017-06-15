@@ -462,6 +462,7 @@ public:
 	}
 
 	float score_ptn(cbool color)const;
+	vector<float> eval_ptn(cbool color)const;
 	void adjust_ptn(cbool,ccalc_type diff)const;
 
 protected:

@@ -68,7 +68,7 @@ float board::score_ptn(cbool color)const{
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
-	result += ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)];
+	result += ptr_pattern->table2[stage][blue_move * 30 + green_move];
 
 	#define extract(mask,shift1,shift2,num) \
 		index = (brd_blue & mask) shift1; \
@@ -132,13 +132,13 @@ float board::score_ptn(cbool color)const{
 		temp1 = brd_blue & mask; \
 		asm_pcmpeqb(temp1,0); \
 		temp1 = ( \
-				((temp1 & 0x0101010101010101) * 0x8040201008040201) \
+				((~temp1 & 0x0101010101010101) * 0x8040201008040201) \
 				& 0xff00000000000000 \
 			) >> 48; \
 		temp2 = brd_green & mask; \
 		asm_pcmpeqb(temp2,0); \
 		temp2= ( \
-				((temp2 & 0x0101010101010101) * 0x8040201008040201) \
+				((~temp2 & 0x0101010101010101) * 0x8040201008040201) \
 				& 0xff00000000000000 \
 			) >> 56; \
 		index = temp1 | temp2; \
@@ -149,7 +149,113 @@ float board::score_ptn(cbool color)const{
 	extract(0x4080010204081020,6);
 	extract(0x8001020408102040,5);
 
-	#undef diffuse
+	#undef extract
+
+	return result;
+}
+
+vector<float> board::eval_ptn(cbool color)const{
+
+	vector<float> result;
+
+	short blue_move = this->count_move(color);
+	short green_move = this->count_move(!color);
+
+	unsigned short index;
+	const brd_type& brd_blue = this->bget(color);
+	const brd_type& brd_green = this->bget(!color);
+
+	short stage = (this->sum() - 1) >> 4;
+	auto table1 = ptr_pattern->table1[stage];
+
+	result.push_back(ptr_pattern->table2[stage][blue_move * 30 + green_move]);
+
+	#define extract(mask,shift1,shift2,num) \
+		index = (brd_blue & mask) shift1; \
+		index |= (brd_green & mask) shift2; \
+		result.push_back(num); \
+		result.push_back(index); \
+		result.push_back(table1[num][index]);
+
+	//horizontal pattern
+	extract(0xff,<<8,,0);
+	extract(0xff00,,>>8,1);
+	extract(0xff0000,>>8,>>16,2);
+	extract(0xff000000,>>16,>>24,3);
+	extract(0xff00000000,>>24,>>32,3);
+	extract(0xff0000000000,>>32,>>40,2);
+	extract(0xff000000000000,>>40,>>48,1);
+	extract(0xff00000000000000,>>48,>>56,0);
+
+	#undef extract
+
+	#define extract(mask,factor,num) \
+		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
+		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
+		result.push_back(num); \
+		result.push_back(index); \
+		result.push_back(table1[num][index]);
+
+	//vertical pattern
+	extract(0x0101010101010101,0x0102040810204080,0);
+	extract(0x0202020202020202,0x0081020408102040,1);
+	extract(0x0404040404040404,0x0040810204081020,2);
+	extract(0x0808080808080808,0x0020408102040810,3);
+	extract(0x1010101010101010,0x0010204081020408,3);
+	extract(0x2020202020202020,0x0008102040810204,2);
+	extract(0x4040404040404040,0x0004081020408102,1);
+	extract(0x8080808080808080,0x0002040810204081,0);
+
+	//diagnal pattern
+	extract(0x8040201008040201,0x0101010101010101,4);
+	extract(0x4020100804020180,0x0202020202020202,5);
+	extract(0x2010080402018040,0x0404040404040404,6);
+	extract(0x1008040201804020,0x0808080808080808,7);
+	extract(0x0804020180402010,0x0101010101010101,8);
+	extract(0x0402018040201008,0x0101010101010101,7);
+	extract(0x0201804020100804,0x0101010101010101,6);
+	extract(0x0180402010080402,0x0101010101010101,5);
+
+	extract(0x0102040810204080,0x0101010101010101,4);
+	extract(0x0204081020408001,0x0101010101010101,5);
+	extract(0x0408102040800102,0x0101010101010101,6);
+	extract(0x0810204080010204,0x0101010101010101,7);
+	extract(0x1020408001020408,0x0101010101010101,8);
+
+	//corner pattern
+	extract(0xe0e0c00000000000,0x0000000000002009,9);
+	extract(0x0707030000000000,0x0000000000010420,10);
+	extract(0x0000000000c0e0e0,0x0100082000000000,9);
+	extract(0x0000000000030707,0x2004010000000000,10);
+
+	#undef extract
+
+	brd_type temp1, temp2;
+
+	#define extract(mask,num) \
+		temp1 = brd_blue & mask; \
+		asm_pcmpeqb(temp1,0); \
+		temp1 = ( \
+				((~temp1 & 0x0101010101010101) * 0x8040201008040201) \
+				& 0xff00000000000000 \
+			) >> 48; \
+		temp2 = brd_green & mask; \
+		asm_pcmpeqb(temp2,0); \
+		temp2= ( \
+				((~temp2 & 0x0101010101010101) * 0x8040201008040201) \
+				& 0xff00000000000000 \
+			) >> 56; \
+		index = temp1 | temp2; \
+		asm_emms; \
+		result.push_back(num); \
+		result.push_back(index); \
+		result.push_back(table1[num][index]);
+
+	extract(0x2040800102040810,7);
+	extract(0x4080010204081020,6);
+	extract(0x8001020408102040,5);
+
+	#undef extract
 
 	return result;
 }
@@ -231,13 +337,13 @@ void board::adjust_ptn(cbool color,ccalc_type diff)const{
 		temp1 = brd_blue & mask; \
 		asm_pcmpeqb(temp1,0); \
 		temp1 = ( \
-				((temp1 & 0x0101010101010101) * 0x8040201008040201) \
+				((~temp1 & 0x0101010101010101) * 0x8040201008040201) \
 				& 0xff00000000000000 \
 			) >> 48; \
 		temp2 = brd_green & mask; \
 		asm_pcmpeqb(temp2,0); \
 		temp2 = ( \
-				((temp2 & 0x0101010101010101) * 0x8040201008040201) \
+				((~temp2 & 0x0101010101010101) * 0x8040201008040201) \
 				& 0xff00000000000000 \
 			) >> 56; \
 		index = temp1 | temp2; \
@@ -380,7 +486,9 @@ void pattern::load(istream& in){
 	#undef _READ
 }
 
-bool compete(pattern* const& p1,pattern* const& p2){
+bool dflag = false;
+
+bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 	board brd;
 	board vec[64];
 	board* ptr = vec;
@@ -392,7 +500,7 @@ bool compete(pattern* const& p1,pattern* const& p2){
 	do{
 		*ptr++ = brd;
 		ptr_pattern = p1;
-		pos1 = brd.play(mthd_ptn,true,0);
+		pos1 = brd.play(mthd,true,depth);
 		if(pos1.x < 0){
 			--ptr;
 		}else{
@@ -403,7 +511,7 @@ bool compete(pattern* const& p1,pattern* const& p2){
 		//*ptr++ = board(brd.bget(false),brd.bget(true));
 		*ptr++ = brd;
 		ptr_pattern = p2;
-		pos2 = brd.play(mthd_ptn,false,0);
+		pos2 = brd.play(mthd,false,depth);
 		if(pos2.x < 0){
 			--ptr;
 		}else{
@@ -422,6 +530,17 @@ bool compete(pattern* const& p1,pattern* const& p2){
 		return false;
 	}
 	(result > 0) ? result = 100 : result = -100;
+
+	if(dflag){
+		cout << "result : " << result << endl;
+		for(p = vec,c = flag;p != ptr;++p,++c){
+			p->print();
+			cout << "flag : " << *c << " ";
+			cout << "score : " << p->score_ptn(true) << " ";
+			cout << "diff : " << (result - p->score_ptn(true)) / 38 << endl;
+		}
+	}
+
 	for(p = vec,c = flag;p != ptr;++p,++c){
 		diff = (result - p->score_ptn(true)) / 38;
 		*c ? p->adjust_ptn(true,diff) : p->adjust_ptn(false,-diff);
@@ -496,19 +615,19 @@ void group::save(const string& path){
 	#undef WRITE
 }
 
-void group::train(){
+void group::train(cmethod mthd, cshort depth){
 	if(this->vec.empty()){
 		return;
 	}
 	short temp;
 	for(size_t i = 1;i != this->vec.size();++i){
 		for(auto j = 0;j + i != this->vec.size();++j){
-			temp = compete(&vec[j],&vec[j + i]);
+			temp = compete(&vec[j],&vec[j + i],mthd,depth);
 			record[j] += temp;
 			record[j + i] -= temp;
 		}
 		for(auto j = 0;j + i != this->vec.size();++j){
-			temp = compete(&vec[j + i],&vec[j]);
+			temp = compete(&vec[j + i],&vec[j],mthd,depth);
 			record[j] -= temp;
 			record[j + i] += temp;
 		}

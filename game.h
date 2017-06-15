@@ -121,8 +121,14 @@ public:
 	int count_move(cbool color){
 		return brd.count_move(color);
 	}
-	int score(cbool color,cint stage){
+	float score(cbool color,cint stage){
 		return brd.score(color,stage);
+	}
+	float score_ptn(cbool color){
+		return brd.score_ptn(color);
+	}
+	vector<float> eval_ptn(cbool color){
+		return brd.eval_ptn(color);
 	}
 	int search(cmethod mthd,cbool color,cshort height,
 		ccalc_type alpha = _inf,ccalc_type beta = inf,cpos_type stage = 0,ccalc_type gamma = 0){

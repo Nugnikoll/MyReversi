@@ -47,11 +47,11 @@ public:
 	pattern* get(const int& pos){
 		return &vec.at(pos);
 	}
-	void train();
+	void train(cmethod mthd,cshort depth);
 	void print_record();
 };
 
-bool compete(pattern* const& p1,pattern* const& p2);
+bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth);
 
 bool is_prime(const long long& num);
 
@@ -59,5 +59,7 @@ extern pattern* ptr_pattern;
 
 extern void set_ptn(pattern* ptr);
 extern bool check_ptn();
+
+extern bool dflag;
 
 #endif //PATTERN_H
