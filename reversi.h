@@ -461,6 +461,7 @@ public:
 		}
 	}
 
+	float& extract(cbool color, float* const& ptr, cbrd_type mask, cshort num)const;
 	float score_ptn(cbool color)const;
 	vector<float> eval_ptn(cbool color)const;
 	void adjust_ptn(cbool,ccalc_type diff)const;

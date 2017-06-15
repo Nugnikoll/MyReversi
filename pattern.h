@@ -18,12 +18,12 @@ struct pattern{
 	static const size_t length = 1 << 16;
 
 	int count;
-	element table1[stage][size1][length];
+	element table1[stage][size1 * length];
 	element table2[stage][size2];
 
 	void initial();
 	element get1(cint stage,cint num,cint pos){
-		return table1[stage][num][pos];
+		return table1[stage][(num << 16) + pos];
 	};
 	element get2(cint stage,cint num){
 		return table2[stage][num];
