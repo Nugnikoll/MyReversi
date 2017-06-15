@@ -99,6 +99,10 @@ int count_move(cbool color){
 	return mygame.count_move(color);
 }
 
+float score(cbool color, cint stage){
+	return mygame.score(color, stage);
+}
+
 object eval_ptn(cbool color){
 	return mygame.eval_ptn(color);
 }
@@ -245,6 +249,7 @@ void game_gui::process(const string& str){
 		inter.def("select_choice",::select_choice);
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
+		inter.def("score",::score);
 		inter.def("eval_ptn",::eval_ptn);
 
 		inter.def("load",::load);

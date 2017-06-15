@@ -3,23 +3,14 @@
 #include "reversi.h"
 #include "tree.h"
 
-calc_type board::search(cmethod mthd,cbool color,cshort height,ccalc_type alpha,
-	ccalc_type beta,ccalc_type acc,cpos_type stage,ccalc_type gamma)const{
-	conf_score conf;
-	if(mthd != mthd_ptn){
-		conf = stage_config(stage);
-	}
-	return search(mthd,color,height,alpha,beta,acc,conf);
-}
-
-calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const{
+calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const{
 
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
 
 	if(height == 0){
-		return this->score(color,conf) + acc;
+		return this->score(color,stage) + acc;
 	}
 
 	calc_type (&table_ref)[size2] = table_temp[color][height];
@@ -74,7 +65,7 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 				acc = (acc >> 1) - (ptr - vec);
 			#endif
 			for(auto p = vec;p != ptr;++p){
-				temp = p->brd.search_ab(color,height - 1,alpha,beta,acc,conf);
+				temp = p->brd.search_ab(color,height - 1,alpha,beta,acc,stage);
 				table_ref[p->pos] = temp;
 				if(temp <= alpha)
 					return alpha;
@@ -92,7 +83,7 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 			acc = (ptr - vec) + (acc >> 1);
 		#endif
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->brd.search_ab(!color,height - 1,-beta,-alpha,-acc,conf);
+			temp = - p->brd.search_ab(!color,height - 1,-beta,-alpha,-acc,stage);
 			table_ref[p->pos] = temp;
 			if(temp >= beta)
 				return beta;
@@ -118,14 +109,14 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 	#endif
 }
 
-calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const{
+calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const{
 
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
 
 	if(height == 0){
-		return this->score(color,conf) + acc;
+		return this->score(color,stage) + acc;
 	}
 
 	calc_type (&table_ref)[size2] = table_temp[color][height];
@@ -180,7 +171,7 @@ calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type 
 				acc = (acc >> 1) - (ptr - vec);
 			#endif
 
-			temp = vec->brd.search_pvs(color,height - 1,alpha,beta,acc,conf);
+			temp = vec->brd.search_pvs(color,height - 1,alpha,beta,acc,stage);
 			table_ref[vec->pos] = temp;
 			if(temp <= alpha)
 				return alpha;
@@ -188,9 +179,9 @@ calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type 
 				beta = temp;
 
 			for(auto p = vec + 1;p != ptr;++p){
-				temp = p->brd.search_ab(color,height - 1,beta - 1,beta,acc,conf);
+				temp = p->brd.search_ab(color,height - 1,beta - 1,beta,acc,stage);
 				if(temp > alpha && temp < beta)
-					temp = p->brd.search_pvs(color,height - 1,alpha,beta - 1,acc,conf);
+					temp = p->brd.search_pvs(color,height - 1,alpha,beta - 1,acc,stage);
 				table_ref[p->pos] = temp;
 				if(temp <= alpha)
 					return alpha;
@@ -209,7 +200,7 @@ calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type 
 			acc = (ptr - vec) + (acc >> 1);
 		#endif
 
-		temp = - vec->brd.search_pvs(!color,height - 1,-beta,-alpha,-acc,conf);
+		temp = - vec->brd.search_pvs(!color,height - 1,-beta,-alpha,-acc,stage);
 		table_ref[vec->pos] = temp;
 		if(temp >= beta)
 			return beta;
@@ -217,9 +208,9 @@ calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type 
 			alpha = temp;
 
 		for(auto p = vec + 1;p != ptr;++p){
-			temp = - p->brd.search_ab(!color,height - 1,-alpha - 1,-alpha,-acc,conf);
+			temp = - p->brd.search_ab(!color,height - 1,-alpha - 1,-alpha,-acc,stage);
 			if(temp > alpha && temp < beta)
-				temp = - p->brd.search_pvs(!color,height - 1,-beta,-alpha,-acc,conf);
+				temp = - p->brd.search_pvs(!color,height - 1,-beta,-alpha,-acc,stage);
 			table_ref[p->pos] = temp;
 			if(temp >= beta)
 				return beta;
@@ -248,19 +239,19 @@ calc_type board::search_pvs(cbool color,cshort height,calc_type alpha,calc_type 
 calc_type board::search_mtd(
 	cbool color,
 	cshort height,calc_type alpha,calc_type beta,
-	ccalc_type acc,cconf_score conf,calc_type gamma
+	ccalc_type acc,cshort stage,calc_type gamma
 )const{
-	calc_type result = search_trans(color,height, gamma, gamma + 1, acc, conf);
+	calc_type result = search_trans(color,height, gamma, gamma + 1, acc, stage);
 	if(result == gamma){
 		do{
 			--gamma;
-			result = search_trans(color,height, gamma, gamma + 1, acc, conf);
+			result = search_trans(color,height, gamma, gamma + 1, acc, stage);
 		}while(result == gamma && result > alpha);
 	}else{
 		assert(result == gamma + 1);
 		do{
 			++gamma;
-			result = search_trans(color,height, gamma, gamma + 1, acc, conf);
+			result = search_trans(color,height, gamma, gamma + 1, acc, stage);
 		}while(result == gamma + 1 && result < beta);
 	}
 	return result;
@@ -282,7 +273,7 @@ unordered_map<board,board::interval>& get_trans(cbool color){
 	}
 }
 
-calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const{
+calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const{
 
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
@@ -291,7 +282,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 	assert(alpha < beta);
 
 	if(height == 0){
-		return this->score(color,conf) + acc;
+		return this->score(color,stage) + acc;
 	}
 
 	auto& trans_table = get_trans(color);
@@ -374,7 +365,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 				acc = (acc >> 1) - (ptr - vec);
 			#endif
 			for(auto p = vec;p != ptr;++p){
-				temp = p->brd.search_trans(color,height - 1,alpha,_beta,acc,conf);
+				temp = p->brd.search_trans(color,height - 1,alpha,_beta,acc,stage);
 				table_ref[p->pos] = temp;
 				if(temp <= alpha){
 					temp = alpha;
@@ -397,7 +388,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 		#endif
 
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->brd.search_trans(color,height - 1,-beta,-_alpha,-acc,conf);
+			temp = - p->brd.search_trans(color,height - 1,-beta,-_alpha,-acc,stage);
 			table_ref[p->pos] = temp;
 			if(temp >= beta){
 				temp = beta;
@@ -437,38 +428,3 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 	return result;
 	#endif
 }
-
-#if 0
-
-template<bool color>
-calc_type board::search_mem(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf,cpnode ptr_node)const{
-
-	#ifdef DEBUG_SEARCH
-	auto fun = [&]()->calc_type{
-	#endif
-
-	if(ptr_node){
-		return (float(ptr_node->win) - ptr_node->lose / ptr_node->win + ptr_node->lose)
-			//+ this->search(color,height,alpha,beta,acc,conf);
-			+ ptr_node->val;
-	}else{
-		return this->search(color,height,alpha,beta,acc,conf);
-	}
-
-	#ifdef DEBUG_SEARCH
-	};
-	out << "<div color=" << color
-		<<" height=" << height
-		<< " alpha=" << alpha
-		<< " beta=" << beta
-		<< " acc=" << acc
-		<< ">\n";
-	do_print(out);
-	calc_type result = fun();
-	out << "result = " << result <<"\n"
-		<< "</div>\n";
-	return result;
-	#endif
-}
-
-#endif
