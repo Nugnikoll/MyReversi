@@ -545,11 +545,14 @@ protected:
 	 *	@param brd the 64-bit board
 	*/
 	static pos_type count(cbrd_type brd){
-		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
-		result = (result & 0x3333333333333333)
-			+ ((result >> 2) & 0x3333333333333333);
-		result = (result + (result >> 4)) & 0x0F0F0F0F0F0F0F0F;
-		return (result * 0x0101010101010101) >> 56;
+		brd_type result;
+		asm volatile(
+			"popcnt %1, %0;"
+			: "=r"(result)
+			: "r"(brd)
+			:
+		);
+		return result;
 	}
 
 	const board& do_print(ostream& out = cout)const{
