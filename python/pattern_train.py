@@ -1,18 +1,22 @@
 import reversi as rv
 
 grp = rv.group();
-grp.assign(10);
 
-for i in range(1000):
-	grp.train();
+mthd = input("method : ");
+mthd_full = "mthd_" + mthd
+mthd_id = getattr(rv,mthd_full)
+depth = input("depth : ");
+size = input("group size : ");
+num = input("number : ");
 
-grp.save("ptn_d0g10i1000.dat");
+grp.assign(size);
+grp.initial();
 
-print("ptn_d0g10i1000");
+for i in range(num):
+	grp.train(mthd_id,depth);
 
-for i in range(10000):
-	grp.train();
+name = "ptn_%s_d%ds%dn%d" % (mthd,depth,size,num)
 
-grp.save("ptn_d0g10i10000.dat");
+grp.save(name + ".dat");
 
-print("ptn_d0g10i10000");
+print(name);

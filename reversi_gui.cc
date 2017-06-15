@@ -99,6 +99,10 @@ int count_move(cbool color){
 	return mygame.count_move(color);
 }
 
+object eval_ptn(cbool color){
+	return mygame.eval_ptn(color);
+}
+
 void flip(cbool color,cint x,cint y){
 	mygame.flip(color,x,y);
 }
@@ -192,9 +196,9 @@ void grp_load(const string& filename,cint num_begin = 0,cint num = 100){
 void grp_save(const string& filename){
 	return grp.save(filename);
 }
-void grp_train(cint num){
+void grp_train(cint num, cint mthd, cint depth){
 	for(int i = 0;i != num;++i){
-		grp.train();
+		grp.train(method(mthd),depth);
 	}
 }
 
@@ -241,6 +245,7 @@ void game_gui::process(const string& str){
 		inter.def("select_choice",::select_choice);
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
+		inter.def("eval_ptn",::eval_ptn);
 
 		inter.def("load",::load);
 
@@ -271,7 +276,7 @@ void game_gui::process(const string& str){
 			.def("load",group::load)
 			.def("save",group::save)
 			.def("get",group::get,factory("pattern"))
-			.def("train",group::train)
+			//.def("train",group::train)
 			.def("print_record",group::print_record);
 
 		inter.eval(
