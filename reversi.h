@@ -488,9 +488,12 @@ protected:
 	 *	@param brd the 64-bit board
 	*/
 	static void mirror_v(brd_type& brd){
-		brd = (brd & 0xff00ff00ff00ff00) >> 8  | (brd & 0x00ff00ff00ff00ff) << 8;
-		brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
-		brd = (brd & 0xffffffff00000000) >> 32 | (brd & 0x00000000ffffffff) << 32;
+		asm volatile(
+			"bswap %0;"
+			: "=r"(brd)
+			: "0"(brd)
+			:
+		);
 	}
 
 	/** @fn static void reflect(brd_type& brd)
