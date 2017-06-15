@@ -7,14 +7,6 @@
 
 using namespace std;
 
-#define asm_pext(source, mask, result)\
-	asm volatile( \
-		"pext %1, %2, %0;" \
-		: "=r"(result) \
-		: "r"(mask), "r"(source) \
-		: \
-	)
-
 pattern* ptr_pattern = NULL;
 
 void set_ptn(pattern* ptr){
@@ -86,14 +78,12 @@ const short ptn_num[] = {
 	9, 10, 9, 10
 };
 
-float& board::extract(cbool color, float* const& ptr, cbrd_type mask, cshort num)const{
+float& board::extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const{
 	brd_type brd_blue = this->bget(color);
 	brd_type brd_green = this->bget(!color);
-	brd_type index, temp;
-	asm_pext(brd_blue,mask,temp);
-	index = temp << 8;
-	asm_pext(brd_green,mask,temp);
-	index |= temp;
+	brd_type index;
+	index = extract(brd_blue,mask) << 8;
+	index |= extract(brd_green,mask);
 	//cout << hex << brd_blue << " " << brd_green << endl;
 	//cout << "index: " << hex << index << " mask: " << hex << mask << " num: " << dec << num << endl;
 	//assert((index & ~0xffffull) == 0);
@@ -128,7 +118,7 @@ float board::score_ptn(cbool color)const{
 	result += ptr_pattern->table2[stage][blue_move * 30 + green_move];
 
 	for(int i = 0;i != pattern::size1;++i){
-		result += extract(color,table1,ptn_mask[i],ptn_num[i]);
+		result += extract_ptn(color,table1,ptn_mask[i],ptn_num[i]);
 	}
 
 	return result;
@@ -147,7 +137,7 @@ vector<float> board::eval_ptn(cbool color)const{
 	result.push_back(ptr_pattern->table2[stage][blue_move * 30 + green_move]);
 
 	for(int i = 0;i != pattern::size1;++i){
-		result.push_back(extract(color,table1,ptn_mask[i],ptn_num[i]));
+		result.push_back(extract_ptn(color,table1,ptn_mask[i],ptn_num[i]));
 	}
 
 	return result;
@@ -166,7 +156,7 @@ void board::adjust_ptn(cbool color,ccalc_type diff)const{
 		+= diff / ptr_pattern->count;
 
 	for(int i = 0;i != pattern::size1;++i){
-		extract(color,table1,ptn_mask[i],ptn_num[i]) += diff / ptr_pattern->count;
+		extract_ptn(color,table1,ptn_mask[i],ptn_num[i]) += diff / ptr_pattern->count;
 	}
 
 }
