@@ -18,9 +18,10 @@ void game_gui::do_show(wxDC& dc){
 	//draw valid moves
 	dc.SetBrush(wxBrush(wxColor(23,95,0)));
 	dc.SetPen(wxPen(wxColor(23,95,0),4));
-	vector<choice> choices = game::get_choice(mthd_ab,color,0,0);
-	for(choice& c:choices){
-		dc.DrawRectangle(bias + cell * (c.pos & 7),bias + cell * (c.pos >> 3),cell,cell);
+	brd_type brd_move = mygame.brd.get_move(color);
+	for(int i = 0;i != board::size2;++i){
+		if(brd_move & (1ull << i))
+		dc.DrawRectangle(bias + cell * (i & 7),bias + cell * (i >> 3),cell,cell);
 	}
 
 	//draw a board
@@ -107,8 +108,11 @@ object eval_ptn(cbool color){
 	return mygame.eval_ptn(color);
 }
 
-void flip(cbool color,cint x,cint y){
-	mygame.flip(color,x,y);
+void config(){
+	return mygame.config();
+} 
+bool flip(cbool color,cint x,cint y){
+	return mygame.flip(color,x,y);
 }
 
 object play(cint mthd,cbool color,cint height){
@@ -225,6 +229,7 @@ void game_gui::process(const string& str){
 		inter.def("print",::term_print);
 
 		inter.def("start",::start);
+		inter.def("config",::config);
 		inter.def("flip",::flip);
 		inter.def("play",::play);
 		inter.def("plays",::plays);
@@ -302,6 +307,8 @@ void game_gui::process(const string& str){
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
 			"set mthd_default $mthd_ab;"
+
+			"config;"
 		);
 	}
 

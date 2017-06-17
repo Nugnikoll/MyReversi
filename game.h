@@ -96,6 +96,9 @@ public:
 			show();
 		}
 	}
+	void config(){
+		return brd.config();
+	}
 	virtual bool flip(cbool color, cpos_type x, cpos_type y){
 		if(flag_auto_save){
 			push();
