@@ -98,16 +98,12 @@ float board::score_ptn(cbool color)const{
 	if((blue_move | green_move) == 0){
 		short num_diff = count(color) - count(!color);
 		num_diff <<= 1;
-		if(num_diff){
-			if(num_diff > 0){
-				return num_diff + 1000;
-			}else if(num_diff < 0){
-				return num_diff - 1000;
-			}else{
-				return num_diff;
-			}
+		if(num_diff > 0){
+			return num_diff + 1000;
+		}else if(num_diff < 0){
+			return num_diff - 1000;
 		}else{
-			return 0;
+			return num_diff;
 		}
 	}
 
