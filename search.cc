@@ -279,7 +279,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 	auto fun = [&]()->calc_type{
 	#endif
 
-	assert(alpha < beta);
+	assert(alpha <= beta);
 
 	if(height == 0){
 		return this->score(color,stage) + acc;
@@ -303,7 +303,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 		if(trans_interval.second < beta){
 			beta = trans_interval.second;
 		}
-		assert(alpha < beta);
+		assert(alpha <= beta);
 	}else{
 		trans_ptr = trans_table.insert(
 			std::make_pair(*this,interval(_inf,inf))

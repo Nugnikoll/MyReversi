@@ -1,5 +1,8 @@
 import reversi as rv
 
+brd = rv.board();
+brd.config();
+
 grp = rv.group();
 
 mthd = input("method : ");
