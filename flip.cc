@@ -1,183 +1,320 @@
 #include "reversi.h"
 
-#define lbound 0xfefefefefefefefe
-#define rbound 0x7f7f7f7f7f7f7f7f
-#define ubound 0xffffffffffffff00
-#define dbound 0x00ffffffffffffff
-#define ulbound 0xfefefefefefefe00
-#define urbound 0x7f7f7f7f7f7f7f00
-#define dlbound 0x00fefefefefefefe
-#define drbound 0x007f7f7f7f7f7f7f
-
-#define up(mask) mask >>= 8
-#define down(mask) mask <<= 8
-#define left(mask) mask >>= 1
-#define right(mask) mask <<= 1
-#define uleft(mask) mask >>= 9
-#define uright(mask) mask >>= 7
-#define dleft(mask) mask <<= 7
-#define dright(mask) mask <<= 9
-
-#define flip_u board::flip_u
-#define flip_d board::flip_d
-#define flip_l board::flip_l
-#define flip_r board::flip_r
-#define flip_ul board::flip_ul
-#define flip_ur board::flip_ur
-#define flip_dl board::flip_dl
-#define flip_dr board::flip_dr
-#define flip_o board::flip_o
-#define flip_n board::flip_n
-
-bool (board::* const board::table_flip[board::size2]) (cbool,cpos_type) =
-{
-	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
-	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
-	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
-	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul,
-	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul
+const brd_type mask_h[board::size] = {
+	0x00000000000000ff,
+	0x000000000000ff00,
+	0x0000000000ff0000,
+	0x00000000ff000000,
+	0x000000ff00000000,
+	0x0000ff0000000000,
+	0x00ff000000000000,
+	0xff00000000000000
 };
 
-#undef flip_u
-#undef flip_d
-#undef flip_l
-#undef flip_r
-#undef flip_ul
-#undef flip_ur
-#undef flip_dl
-#undef flip_dr
-#undef flip_o
-#undef flip_n
+const brd_type mask_v[board::size] = {
+	0x0101010101010101,
+	0x0202020202020202,
+	0x0404040404040404,
+	0x0808080808080808,
+	0x1010101010101010,
+	0x2020202020202020,
+	0x4040404040404040,
+	0x8080808080808080
+};
 
-#define flip_part(bound,dir1,dir2) \
-	while(pos & bound){ \
-		dir1(pos); \
-		if(green & pos) \
-			continue; \
-		if(blue & pos){ \
-			while(dir2(pos), pos != mask){ \
-				blue |= pos; \
-				green &= ~pos; \
-				everflip = true; \
-			} \
-		} \
-		break; \
-	} \
-	pos = mask;
+const brd_type mask_d1[board::size * 2 - 1] = {
+	0x0000000000000001,
+	0x0000000000000102,
+	0x0000000000010204,
+	0x0000000001020408,
+	0x0000000102040810,
+	0x0000010204081020,
+	0x0001020408102040,
+	0x0102040810204080,
+	0x0204081020408000,
+	0x0408102040800000,
+	0x0810204080000000,
+	0x1020408000000000,
+	0x2040800000000000,
+	0x4080000000000000,
+	0x8000000000000000
+};
 
-#define flip_part_u flip_part(ubound,up,down)
-#define flip_part_d flip_part(dbound,down,up)
-#define flip_part_l flip_part(lbound,left,right)
-#define flip_part_r flip_part(rbound,right,left)
-#define flip_part_ul flip_part(ulbound,uleft,dright)
-#define flip_part_ur flip_part(urbound,uright,dleft)
-#define flip_part_dl flip_part(dlbound,dleft,uright)
-#define flip_part_dr flip_part(drbound,dright,uleft)
+const brd_type mask_d2[board::size * 2 - 1] = {
+	0x0000000000000080,
+	0x0000000000008040,
+	0x0000000000804020,
+	0x0000000080402010,
+	0x0000008040201008,
+	0x0000804020100804,
+	0x0080402010080402,
+	0x8040201008040201,
+	0x4020100804020100,
+	0x2010080402010000,
+	0x1008040201000000,
+	0x0804020100000000,
+	0x0402010000000000,
+	0x0201000000000000,
+	0x0100000000000000
+};
 
-#define flip_fun(name,kernel) \
-\
-	bool board::name(cbool color,cpos_type _pos){ \
-		brd_type mask = brd_type(1) << _pos;\
- \
-		if((brd_black | brd_white) & mask){ \
-			return false; \
-		} \
- \
-		bool everflip = false; \
-		brd_type pos = mask; \
-		brd_type& blue = bget(color); \
-		brd_type& green = bget(!color); \
- \
-		kernel \
- \
-		if(everflip){ \
-			blue |= mask; \
-			green &= ~mask; \
-		} \
-		return everflip; \
+const brd_type mask_adj[board::size2] = {
+	0x0000000000000302,
+	0x0000000000000705,
+	0x0000000000000e0a,
+	0x0000000000001c14,
+	0x0000000000003828,
+	0x0000000000007050,
+	0x000000000000e0a0,
+	0x000000000000c040,
+
+	0x0000000000030203,
+	0x0000000000070507,
+	0x00000000000e0a0e,
+	0x00000000001c141c,
+	0x0000000000382838,
+	0x0000000000705070,
+	0x0000000000e0a0e0,
+	0x0000000000c040c0,
+
+	0x0000000003020300,
+	0x0000000007050700,
+	0x000000000e0a0e00,
+	0x000000001c141c00,
+	0x0000000038283800,
+	0x0000000070507000,
+	0x00000000e0a0e000,
+	0x00000000c040c000,
+
+	0x0000000302030000,
+	0x0000000705070000,
+	0x0000000e0a0e0000,
+	0x0000001c141c0000,
+	0x0000003828380000,
+	0x0000007050700000,
+	0x000000e0a0e00000,
+	0x000000c040c00000,
+
+	0x0000030203000000,
+	0x0000070507000000,
+	0x00000e0a0e000000,
+	0x00001c141c000000,
+	0x0000382838000000,
+	0x0000705070000000,
+	0x0000e0a0e0000000,
+	0x0000c040c0000000,
+
+	0x0003020300000000,
+	0x0007050700000000,
+	0x000e0a0e00000000,
+	0x001c141c00000000,
+	0x0038283800000000,
+	0x0070507000000000,
+	0x00e0a0e000000000,
+	0x00c040c000000000,
+
+	0x0302030000000000,
+	0x0705070000000000,
+	0x0e0a0e0000000000,
+	0x1c141c0000000000,
+	0x3828380000000000,
+	0x7050700000000000,
+	0xe0a0e00000000000,
+	0xc040c00000000000,
+
+	0x0203000000000000,
+	0x0507000000000000,
+	0x0a0e000000000000,
+	0x141c000000000000,
+	0x2838000000000000,
+	0x5070000000000000,
+	0xa0e0000000000000,
+	0x40c0000000000000
+};
+
+unsigned short table_flip[1 << 19];
+
+#define asm_pext(brd, mask, result) \
+	asm volatile( \
+		"pext %1, %2, %0;" \
+		: "=&r"(result) \
+		: "r"(mask), "r"(brd) \
+		: \
+	)
+
+#define asm_pdep(brd, mask, result) \
+	asm volatile( \
+		"pdep %1, %2, %0;" \
+		: "=&r"(result) \
+		: "r"(mask), "r"(brd) \
+		: \
+	)
+
+bool board::flip(cbool color,cpos_type pos){
+
+	brd_type& brd_blue = this->bget(color);
+	brd_type& brd_green = this->bget(!color);
+
+	if(
+		(((brd_blue | brd_green) & (1ull << pos)) != 0)
+		|| ((brd_green & mask_adj[pos]) == 0)
+	){
+		return false;
 	}
 
-flip_fun(flip,
-	flip_part_u
-	flip_part_d
-	flip_part_l
-	flip_part_r
-	flip_part_ul
-	flip_part_ur
-	flip_part_dl
-	flip_part_dr
-)
+	brd_type brd_save = brd_blue;
 
-flip_fun(flip_o,
-	flip_part_u
-	flip_part_d
-	flip_part_l
-	flip_part_r
-	flip_part_ul
-	flip_part_ur
-	flip_part_dl
-	flip_part_dr
-)
+	brd_type piece, temp, mask, brd_result;
+	brd_type sum_blue = 0, sum_green = 0, sum_mask = 0;
+	brd_type pos_x = pos & 0x7;
+	brd_type pos_y = pos >> 3;
+	brd_type pos_d;
 
-flip_fun(flip_u,
-	flip_part_u
-	flip_part_ul
-	flip_part_ur
-	flip_part_l
-	flip_part_r
-)
+	//horizontal
+	mask = mask_h[pos_y];
+	piece = (pos_x << 16);
+	asm_pext(brd_blue,mask,temp);
+	piece |= temp << 8;
+	asm_pext(brd_green,mask,temp);
+	piece |= temp;
+	piece = table_flip[piece];
+	asm_pdep(piece,mask,brd_result);
+	sum_green |= brd_result;
+	piece >>= 8;
+	asm_pdep(piece,mask,brd_result);
+	sum_blue |= brd_result;
+	sum_mask |= mask;
 
-flip_fun(flip_d,
-	flip_part_d
-	flip_part_dl
-	flip_part_dr
-	flip_part_l
-	flip_part_r
-)
+	//vertical
+	mask = mask_v[pos_x];
+	piece = (pos_y << 16);
+	asm_pext(brd_blue,mask,temp);
+	piece |= temp << 8;
+	asm_pext(brd_green,mask,temp);
+	piece |= temp;
+	piece = table_flip[piece];
+	asm_pdep(piece,mask,brd_result);
+	sum_green |= brd_result;
+	piece >>= 8;
+	asm_pdep(piece,mask,brd_result);
+	sum_blue |= brd_result;
+	sum_mask |= mask;
 
-flip_fun(flip_l,
-	flip_part_l
-	flip_part_ul
-	flip_part_dl
-	flip_part_u
-	flip_part_d
-)
+	//diagonal
+	pos_d = pos_x + pos_y;
+	mask = mask_d1[pos_d];
+	pos_d -= 7;
+	asm volatile(
+		"mov $0, %%rax;"
+		"cmp $0, %0;"
+		"cmovl %%rax, %0;"
+		:"=r"(pos_d)
+		:"0"(pos_d)
+		:"rax"
+	);
+	piece = ((pos_y - pos_d) << 16);
+	asm_pext(brd_blue,mask,temp);
+	piece |= temp << 8;
+	asm_pext(brd_green,mask,temp);
+	piece |= temp;
+	piece = table_flip[piece];
+	asm_pdep(piece,mask,brd_result);
+	sum_green |= brd_result;
+	piece >>= 8;
+	asm_pdep(piece,mask,brd_result);
+	sum_blue |= brd_result;
+	sum_mask |= mask;
 
-flip_fun(flip_r,
-	flip_part_r
-	flip_part_ur
-	flip_part_dr
-	flip_part_u
-	flip_part_d
-)
+	//diagonal
+	pos_d = pos_y + 7 - pos_x;
+	mask = mask_d2[pos_d];
+	pos_d -= 7;
+	asm volatile(
+		"mov $0, %%rax;"
+		"cmp $0, %0;"
+		"cmovl %%rax, %0;"
+		:"=r"(pos_d)
+		:"0"(pos_d)
+		:"rax"
+	);
+	piece = ((pos_y - pos_d) << 16);
+	asm_pext(brd_blue,mask,temp);
+	piece |= temp << 8;
+	asm_pext(brd_green,mask,temp);
+	piece |= temp;
+	piece = table_flip[piece];
+	asm_pdep(piece,mask,brd_result);
+	sum_green |= brd_result;
+	piece >>= 8;
+	asm_pdep(piece,mask,brd_result);
+	sum_blue |= brd_result;
+	sum_mask |= mask;
 
-flip_fun(flip_ul,
-	flip_part_u
-	flip_part_l
-	flip_part_ul
-)
+	brd_blue = (brd_blue & ~sum_mask) | (sum_blue & sum_mask);
+	brd_green = (brd_green & ~sum_mask) | (sum_green & sum_mask);
 
-flip_fun(flip_ur,
-	flip_part_u
-	flip_part_r
-	flip_part_ur
-)
+	bool result = (brd_blue != brd_save);
+	return result;
+}
 
-flip_fun(flip_dl,
-	flip_part_d
-	flip_part_l
-	flip_part_dl
-)
+unsigned short flip_line(cbrd_type data){
 
-flip_fun(flip_dr,
-	flip_part_d
-	flip_part_r
-	flip_part_dr
-)
+	unsigned short brd_blue = (data >> 8) & 0xff;
+	unsigned short brd_green = data & 0xff;
+	unsigned short mask = 1 << (data >> 16);
+	bool everflip = false;
+	unsigned short result = 0;
+	brd_type pos = mask;
 
-bool board::flip_n(cbool color,cpos_type pos){
-	return false;
+	if((brd_blue | brd_green) & mask){
+		goto label_end;
+	}
+
+	while(pos & 0xfe){
+		pos >>= 1;
+		if(brd_green & pos)
+			continue;
+		if(brd_blue & pos){
+			while(pos <<= 1, pos != mask){
+				brd_blue |= pos;
+				brd_green &= ~pos;
+				everflip = true;
+			}
+		}
+		break;
+	}
+	pos = mask;
+
+	while(pos & 0x7f){
+		pos <<= 1;
+		if(brd_green & pos)
+			continue;
+		if(brd_blue & pos){
+			while(pos >>= 1, pos != mask){
+				brd_blue |= pos;
+				brd_green &= ~pos;
+				everflip = true;
+			}
+		}
+		break;
+	}
+	pos = mask;
+
+	if(everflip){
+		brd_blue |= mask;
+		brd_green &= ~mask;
+	}
+
+	label_end:
+
+	result = (brd_blue << 8) | brd_green;
+	return result;
+}
+
+void board::config(){
+	for(brd_type i = 0;i != (1 << 19);++i){
+		if((i >> 8) & i & 0xff){}else{
+			table_flip[i] = flip_line(i);
+		}
+	}
 }

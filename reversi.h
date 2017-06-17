@@ -303,6 +303,7 @@ public:
 		return count(get_move(color));
 	}
 
+	static void config();
 	bool flip(cbool color,cpos_type pos);
 
 	calc_type score(cbool color,cpos_type stage)const{
@@ -412,11 +413,22 @@ protected:
 
 	static calc_type table_temp[2][board::max_height + 1][size2];
 
-	static brd_type extract(cbrd_type brd,cbrd_type mask){
+	inline static brd_type extract(cbrd_type brd,cbrd_type mask){
 		brd_type result;
 		asm volatile(
 			"pext %1, %2, %0;"
-			: "=r"(result)
+			: "=&r"(result)
+			: "r"(mask), "r"(brd)
+			:
+		);
+		return result;
+	}
+
+	static brd_type deposit(cbrd_type brd,cbrd_type mask){
+		brd_type result;
+		asm volatile(
+			"pdep %1, %2, %0;"
+			: "=&r"(result)
 			: "r"(mask), "r"(brd)
 			:
 		);
@@ -501,7 +513,7 @@ protected:
 		brd_type result;
 		asm volatile(
 			"popcnt %1, %0;"
-			: "=r"(result)
+			: "=&r"(result)
 			: "r"(brd)
 			:
 		);
@@ -557,20 +569,6 @@ protected:
 		}
 		return *this;
 	}
-
-	bool flip_u(cbool color,cpos_type pos);
-	bool flip_d(cbool color,cpos_type pos);
-	bool flip_r(cbool color,cpos_type pos);
-	bool flip_l(cbool color,cpos_type pos);
-	bool flip_ul(cbool color,cpos_type pos);
-	bool flip_ur(cbool color,cpos_type pos);
-	bool flip_dl(cbool color,cpos_type pos);
-	bool flip_dr(cbool color,cpos_type pos);
-	bool flip_o(cbool color,cpos_type pos);
-	bool flip_n(cbool color,cpos_type pos);
-
-	typedef bool (board::* table_flip_type[board::size2]) (cbool,cpos_type);
-	static const table_flip_type table_flip;
 
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;

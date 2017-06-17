@@ -20,7 +20,7 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 	
 	ptr->brd = *this;
 	for(register pos_type i = 0;i != size2;++i){
-		if((ptr->brd.*table_flip[i])(color,i)){
+		if(ptr->brd.flip(color,i)){
 			ptr->pos = i;
 			ptr->val = table_ref[i];
 			(++ptr)->brd = *this;
@@ -31,7 +31,7 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 		calc_type (&table_ref)[size2] = table_temp[!color][height];
 
 		for(register pos_type i = 0;i != size2;++i){
-			if((ptr->brd.*table_flip[i])(!color,i)){
+			if(ptr->brd.flip(!color,i)){
 				ptr->pos = i;
 				ptr->val = table_ref[i];
 				(++ptr)->brd = *this;
@@ -329,7 +329,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 		calc_type (&table_ref)[size2] = table_temp[!color][height];
 		//ptr->brd = *this;
 		for(register pos_type i = 0;i != size2;++i){
-			if(ptr->brd.flip(color,i)){
+			if(ptr->brd.flip(!color,i)){
 				ptr->pos = i;
 				ptr->val = table_ref[i];
 				(++ptr)->brd = *this;
@@ -388,7 +388,7 @@ calc_type board::search_trans(cbool color,cshort height,calc_type alpha,calc_typ
 		#endif
 
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->brd.search_trans(color,height - 1,-beta,-_alpha,-acc,stage);
+			temp = - p->brd.search_trans(!color,height - 1,-beta,-_alpha,-acc,stage);
 			table_ref[p->pos] = temp;
 			if(temp >= beta){
 				temp = beta;
