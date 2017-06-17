@@ -21,6 +21,10 @@
 
 %pointer_functions(pattern,ptn)
 
+%template(shorts) std::vector<short>;
+%template(ints) std::vector<int>;
+%template(floats) std::vector<float>;
+%template(boards) std::vector<board>;
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
 

@@ -87,7 +87,7 @@ float& board::extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort
 	//cout << hex << brd_blue << " " << brd_green << endl;
 	//cout << "index: " << hex << index << " mask: " << hex << mask << " num: " << dec << num << endl;
 	//assert((index & ~0xffffull) == 0);
-	return ptr[(num << 16) + index];
+	return ptr[(brd_type(num) << 16) + index];
 }
 
 float board::score_ptn(cbool color)const{
@@ -107,14 +107,20 @@ float board::score_ptn(cbool color)const{
 		}
 	}
 
+	brd_type brd_blue = this->bget(color);
+	brd_type brd_green = this->bget(!color);
+	brd_type index;
+
 	float result = 0;
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
 	result += ptr_pattern->table2[stage][blue_move * 30 + green_move];
 
-	for(int i = 0;i != pattern::size1;++i){
-		result += extract_ptn(color,table1,ptn_mask[i],ptn_num[i]);
+	for(int i = 0;i != 36;++i){
+		index = extract(brd_blue,ptn_mask[i]) << 8;
+		index |= extract(brd_green,ptn_mask[i]);
+		result +=  table1[(brd_type(ptn_num[i]) << 16) + index];
 	}
 
 	return result;
@@ -127,13 +133,21 @@ vector<float> board::eval_ptn(cbool color)const{
 	short blue_move = this->count_move(color);
 	short green_move = this->count_move(!color);
 
+	brd_type brd_blue = this->bget(color);
+	brd_type brd_green = this->bget(!color);
+	brd_type index;
+
 	short stage = (this->sum() - 1) >> 4;
 	auto table1 = ptr_pattern->table1[stage];
 
 	result.push_back(ptr_pattern->table2[stage][blue_move * 30 + green_move]);
 
-	for(int i = 0;i != pattern::size1;++i){
-		result.push_back(extract_ptn(color,table1,ptn_mask[i],ptn_num[i]));
+	for(int i = 0;i != 36;++i){
+		index = extract(brd_blue,ptn_mask[i]) << 8;
+		index |= extract(brd_green,ptn_mask[i]);
+		result.push_back(i);
+		result.push_back(index);
+		result.push_back(table1[(brd_type(ptn_num[i]) << 16) + index]);
 	}
 
 	return result;
@@ -151,7 +165,7 @@ void board::adjust_ptn(cbool color,ccalc_type diff)const{
 	ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)]
 		+= diff / ptr_pattern->count;
 
-	for(int i = 0;i != pattern::size1;++i){
+	for(int i = 0;i != 36;++i){
 		extract_ptn(color,table1,ptn_mask[i],ptn_num[i]) += diff / ptr_pattern->count;
 	}
 
@@ -298,6 +312,8 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 
 	brd.initial();
 	do{
+		//cout << "board" << endl;
+		//brd.print();
 		*ptr++ = brd;
 		ptr_pattern = p1;
 		pos1 = brd.play(mthd,true,depth);
@@ -308,6 +324,9 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 			++color;
 		}
 
+		//cout << "x1 : " << pos1.x << " y1 : " << pos1.y << endl;
+
+		//brd.print();
 		//*ptr++ = board(brd.bget(false),brd.bget(true));
 		*ptr++ = brd;
 		ptr_pattern = p2;
@@ -318,6 +337,8 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 			*color = false;
 			++color;
 		}
+
+		//cout << "x2 : " << pos2.x << " y2 : " << pos2.y << endl;
 	}while(pos1.x >= 0 || pos2.x >= 0);
 
 	calc_type result = brd.count(true) - brd.count(false);
