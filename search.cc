@@ -3,6 +3,19 @@
 #include "reversi.h"
 #include "tree.h"
 
+float board::table_temp[2][board::max_height + 1][board::size2];
+
+pos_type board::table_pos[board::size2][board::size2];
+pos_type board::table_check[board::size2][board::size2];
+
+void board::config_search(){
+	for(auto& i:table_pos){
+		for(int j = 0;j != board::size2;++j){
+			i[j] = j;
+		}
+	}
+}
+
 calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const{
 
 	#ifdef DEBUG_SEARCH
@@ -13,28 +26,25 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 		return this->score(color,stage) + acc;
 	}
 
-	calc_type (&table_ref)[size2] = table_temp[color][height];
-	brd_val vec[35];
-	brd_val* ptr = vec;
+	board vec[35];
+	board* ptr = vec;
 	calc_type temp;
 	
-	ptr->brd = *this;
-	for(register pos_type i = 0;i != size2;++i){
-		if(ptr->brd.flip(color,i)){
-			ptr->pos = i;
-			ptr->val = table_ref[i];
-			(++ptr)->brd = *this;
+	*ptr = *this;
+	for(pos_type i = 0;i != size2;++i){
+		pos_type pos = table_pos[height][i];
+		if(ptr->flip(color,pos)){
+			*(++ptr) = *this;
+			table_check[height][ptr - vec] = pos;
 		}
 	}
 	
 	if(ptr == vec){
-		calc_type (&table_ref)[size2] = table_temp[!color][height];
-
-		for(register pos_type i = 0;i != size2;++i){
-			if(ptr->brd.flip(!color,i)){
-				ptr->pos = i;
-				ptr->val = table_ref[i];
-				(++ptr)->brd = *this;
+		for(pos_type i = 0;i != size2;++i){
+			pos_type pos = table_pos[height][i];
+			if(ptr->flip(!color,pos)){
+				*(++ptr) = *this;
+				table_check[height][ptr - vec] = pos;
 			}
 		}
 
@@ -45,50 +55,44 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 			#else
 				num_diff <<= 4;
 			#endif
-			if(num_diff){
-				if(num_diff > 0){
-					return num_diff + mark_max;
-				}else if(num_diff < 0){
-					return num_diff - mark_max;
-				}else{
-					return num_diff;
-				}
+			if(num_diff > 0){
+				return num_diff + mark_max;
+			}else if(num_diff < 0){
+				return num_diff - mark_max;
 			}else{
 				return 0;
 			}
 		}else{
-			sort(vec,ptr);
-
 			#ifdef USE_FLOAT
 				acc = (acc / 2) - (ptr - vec);
 			#else
 				acc = (acc >> 1) - (ptr - vec);
 			#endif
 			for(auto p = vec;p != ptr;++p){
-				temp = p->brd.search_ab(color,height - 1,alpha,beta,acc,stage);
-				table_ref[p->pos] = temp;
+				temp = p->search_ab(color,height - 1,alpha,beta,acc,stage);
 				if(temp <= alpha)
 					return alpha;
-				if(temp < beta)
+				if(temp < beta){
 					beta = temp;
+					swap(table_pos[height][0],table_pos[height][table_check[height][p - vec]]);				
+				}
 			}
 			return beta;
 		}
 	}else{
-		sort(vec,ptr,greater<brd_val>());
-
 		#ifdef USE_FLOAT
 			acc = (ptr - vec) + (acc / 2);
 		#else
 			acc = (ptr - vec) + (acc >> 1);
 		#endif
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->brd.search_ab(!color,height - 1,-beta,-alpha,-acc,stage);
-			table_ref[p->pos] = temp;
+			temp = - p->search_ab(!color,height - 1,-beta,-alpha,-acc,stage);
 			if(temp >= beta)
 				return beta;
-			if(temp > alpha)
+			if(temp > alpha){
 				alpha = temp;
+				swap(table_pos[height][0],table_pos[height][table_check[height][p - vec]]);		
+			}
 		}
 	}
     return alpha;

@@ -303,7 +303,11 @@ public:
 		return count(get_move(color));
 	}
 
-	static void config();
+	static void config(){
+		config_flip();
+		config_search();
+	}
+
 	bool flip(cbool color,cpos_type pos);
 
 	calc_type score(cbool color,cpos_type stage)const{
@@ -411,7 +415,13 @@ protected:
 
 	brd_type brd_black,brd_white;
 
-	static calc_type table_temp[2][board::max_height + 1][size2];
+	static float table_temp[2][board::max_height + 1][board::size2];
+
+	static pos_type table_pos[board::size2][board::size2];
+	static pos_type table_check[board::size2][board::size2];
+
+	static void config_flip();
+	static void config_search();
 
 	inline static brd_type extract(cbrd_type brd,cbrd_type mask){
 		brd_type result;
@@ -520,55 +530,7 @@ protected:
 		return result;
 	}
 
-	const board& do_print(ostream& out = cout)const{
-
-		string s =
-			"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
-		;
-
-		pos_type pos = 0;
-		for(char& chr:s){
-			if(chr == ' '){
-				switch(get(pos)){
-				case blank:
-					out << " ";
-					break;
-				case black:
-					out << "●";
-					break;
-				case white:
-					out << "○";
-					break;
-				case null:
-					out << "╳";
-					break;
-				default:
-					out << "╳";
-					break;
-				}
-				++pos;
-			}else{
-				out << chr;
-			}
-		}
-		return *this;
-	}
+	const board& do_print(ostream& out)const;
 
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;
