@@ -311,7 +311,7 @@ unsigned short flip_line(cbrd_type data){
 	return result;
 }
 
-void board::config(){
+void board::config_flip(){
 	for(brd_type i = 0;i != (1 << 19);++i){
 		if((i >> 8) & i & 0xff){}else{
 			table_flip[i] = flip_line(i);

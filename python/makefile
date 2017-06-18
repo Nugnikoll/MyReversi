@@ -23,22 +23,22 @@ $(target): $(obj)
 
 $(obj): $(head)
 
-type.o: $(src_path)type.cc
+type.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)type.cc))
 	$(cxx) $(compile_option) $< -o $@
 
-reversi.o: $(src_path)reversi.cc
+reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)reversi.cc))
 	$(cxx) $(compile_option) $< -o $@
 
-flip.o: $(src_path)flip.cc
+flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)flip.cc))
 	$(cxx) $(compile_option) $< -o $@
 
-search.o: $(src_path)search.cc
+search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)search.cc))
 	$(cxx) $(compile_option) $< -o $@
 
-pattern.o: $(src_path)pattern.cc
+pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)pattern.cc))
 	$(cxx) $(compile_option) $< -o $@
 
-tree.o: $(src_path)tree.cc
+tree.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)tree.cc))
 	$(cxx) $(compile_option) $< -o $@
 
 reversi_wrap.o: reversi_wrap.cxx

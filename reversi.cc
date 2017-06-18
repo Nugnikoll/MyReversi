@@ -16,10 +16,59 @@ const pos_type board::stage_num;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
 calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{20,20,20,20}};
-calc_type board::table_temp[2][board::max_height + 1][board::size2];
 
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
+
+const board& board::do_print(ostream& out = cout)const{
+
+	string s =
+		"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
+	;
+
+	pos_type pos = 0;
+	for(char& chr:s){
+		if(chr == ' '){
+			switch(get(pos)){
+			case blank:
+				out << " ";
+				break;
+			case black:
+				out << "●";
+				break;
+			case white:
+				out << "○";
+				break;
+			case null:
+				out << "╳";
+				break;
+			default:
+				out << "╳";
+				break;
+			}
+			++pos;
+		}else{
+			out << chr;
+		}
+	}
+	return *this;
+}
 
 board& board::mirror(cbool is_horizontal){
 	if(is_horizontal){
