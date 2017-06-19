@@ -95,17 +95,17 @@ float board::score_ptn(cbool color)const{
 	short blue_move = this->count_move(color);
 	short green_move = this->count_move(!color);
 
-	if((blue_move | green_move) == 0){
-		short num_diff = count(color) - count(!color);
-		num_diff <<= 1;
-		if(num_diff > 0){
-			return num_diff + 1000;
-		}else if(num_diff < 0){
-			return num_diff - 1000;
-		}else{
-			return num_diff;
-		}
-	}
+//	if((blue_move | green_move) == 0){
+//		short num_diff = count(color) - count(!color);
+//		num_diff <<= 1;
+//		if(num_diff > 0){
+//			return num_diff + 1000;
+//		}else if(num_diff < 0){
+//			return num_diff - 1000;
+//		}else{
+//			return num_diff;
+//		}
+//	}
 
 	brd_type brd_blue = this->bget(color);
 	brd_type brd_green = this->bget(!color);
@@ -300,8 +300,6 @@ void pattern::load(istream& in){
 	#undef _READ
 }
 
-bool dflag = false;
-
 bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 	board brd;
 	board vec[64];
@@ -312,8 +310,6 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 
 	brd.initial();
 	do{
-		//cout << "board" << endl;
-		//brd.print();
 		*ptr++ = brd;
 		ptr_pattern = p1;
 		pos1 = brd.play(mthd,true,depth);
@@ -324,10 +320,6 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 			++color;
 		}
 
-		//cout << "x1 : " << pos1.x << " y1 : " << pos1.y << endl;
-
-		//brd.print();
-		//*ptr++ = board(brd.bget(false),brd.bget(true));
 		*ptr++ = brd;
 		ptr_pattern = p2;
 		pos2 = brd.play(mthd,false,depth);
@@ -338,7 +330,6 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 			++color;
 		}
 
-		//cout << "x2 : " << pos2.x << " y2 : " << pos2.y << endl;
 	}while(pos1.x >= 0 || pos2.x >= 0);
 
 	calc_type result = brd.count(true) - brd.count(false);
@@ -352,21 +343,53 @@ bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 	}
 	(result > 0) ? result = 100 : result = -100;
 
-	if(dflag){
-		cout << "result : " << result << endl;
-		for(p = vec,c = flag;p != ptr;++p,++c){
-			p->print();
-			cout << "flag : " << *c << " ";
-			cout << "score : " << p->score_ptn(true) << " ";
-			cout << "diff : " << (result - p->score_ptn(true)) / 38 << endl;
-		}
-	}
-
 	for(p = vec,c = flag;p != ptr;++p,++c){
-		diff = (result - p->score_ptn(true)) / 38;
-		*c ? p->adjust_ptn(true,diff) : p->adjust_ptn(false,-diff);
+		diff = *c ? (result - p->score_ptn(true)) : (-result - p->score_ptn(false));
+		diff /= 38;
+		p->adjust_ptn(*c,diff);
 	}
 	return true;
+};
+
+void imitate(pattern* const& p1,cmethod mthd,cshort depth){
+	board brd;
+	board vec[64];
+	board* ptr = vec;
+	bool flag[64];
+	bool* color = flag;
+	coordinate pos1,pos2;
+
+	brd.initial();
+	do{
+		*(ptr++) = brd;
+		pos1 = brd.play(mthd_rnd,true,depth);
+		if(pos1.x < 0){
+			--ptr;
+		}else{
+			*color = true;
+			++color;
+		}
+
+		*(ptr++) = brd;
+		pos2 = brd.play(mthd_rnd,false,depth);
+		if(pos2.x < 0){
+			--ptr;
+		}else{
+			*color = false;
+			++color;
+		}
+	}while(pos1.x >= 0 || pos2.x >= 0);
+
+	ptr_pattern = p1;
+	calc_type diff;
+	board* p;
+	bool* c;
+
+	for(p = vec,c = flag;p != ptr;++p,++c){
+		diff = (p->search(mthd,*c,depth) - p->score_ptn(*c)) / 38;
+		p->adjust_ptn(*c,diff);
+	}
+	assert(c == color);
 };
 
 void group::assign(const int& size){
@@ -437,21 +460,25 @@ void group::save(const string& path){
 }
 
 void group::train(cmethod mthd, cshort depth){
-	if(this->vec.empty()){
-		return;
-	}
-	short temp;
-	for(size_t i = 1;i != this->vec.size();++i){
-		for(auto j = 0;j + i != this->vec.size();++j){
-			temp = compete(&vec[j],&vec[j + i],mthd,depth);
-			record[j] += temp;
-			record[j + i] -= temp;
-		}
-		for(auto j = 0;j + i != this->vec.size();++j){
-			temp = compete(&vec[j + i],&vec[j],mthd,depth);
-			record[j] -= temp;
-			record[j + i] += temp;
-		}
+//	if(this->vec.empty()){
+//		return;
+//	}
+//	short temp;
+//	for(size_t i = 1;i != this->vec.size();++i){
+//		for(auto j = 0;j + i != this->vec.size();++j){
+//			temp = compete(&vec[j],&vec[j + i],mthd,depth);
+//			record[j] += temp;
+//			record[j + i] -= temp;
+//		}
+//		for(auto j = 0;j + i != this->vec.size();++j){
+//			temp = compete(&vec[j + i],&vec[j],mthd,depth);
+//			record[j] -= temp;
+//			record[j + i] += temp;
+//		}
+//	}
+
+	for(pattern& ptn:vec){
+		imitate(&ptn,mthd,depth);
 	}
 }
 

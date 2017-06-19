@@ -50,11 +50,11 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 
 		if(ptr == vec){
 			calc_type num_diff = count(color) - count(!color);
-			#ifdef USE_FLOAT
-				num_diff *= 16;
-			#else
-				num_diff <<= 4;
-			#endif
+//			#ifdef USE_FLOAT
+//				num_diff *= 16;
+//			#else
+//				num_diff <<= 4;
+//			#endif
 			if(num_diff > 0){
 				return num_diff + mark_max;
 			}else if(num_diff < 0){
@@ -74,9 +74,9 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 					return alpha;
 				if(temp < beta){
 					beta = temp;
-//					if(p - vec > 0){
-//						swap(table_pos[height][p - vec - 1],table_pos[height][table_check[height][p - vec]]);				
-//					}
+					if(p - vec > 0){
+						swap(table_pos[height][table_check[height][p - vec] - 1],table_pos[height][table_check[height][p - vec]]);				
+					}
 				}
 			}
 			return beta;
@@ -93,9 +93,9 @@ calc_type board::search_ab(cbool color,cshort height,calc_type alpha,calc_type b
 				return beta;
 			if(temp > alpha){
 				alpha = temp;
-//				if(p - vec > 0){
-//					swap(table_pos[height][p - vec - 1],table_pos[height][table_check[height][p - vec]]);				
-//				}
+				if(p - vec > 0){
+					swap(table_pos[height][table_check[height][p - vec] - 1],table_pos[height][table_check[height][p - vec]]);				
+				}
 			}
 		}
 	}

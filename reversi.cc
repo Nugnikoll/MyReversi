@@ -15,7 +15,7 @@ const pos_type board::stage_num;
 	const calc_type board::mark_max = 10000;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
-calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{20,20,20,20}};
+calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{1,1,1,1}};
 
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
@@ -222,7 +222,7 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 	}else{
 		float variation;
 		if(mthd == mthd_ptn){
-			variation = 0.01;
+			variation = 0.003;
 		}else{
 			variation = 0.75;
 		}

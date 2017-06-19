@@ -330,8 +330,8 @@ public:
 
 	calc_type search(
 		cmethod mthd,cbool color,
-		cshort height,ccalc_type alpha,ccalc_type beta,
-		ccalc_type acc,cshort stage,ccalc_type gamma = 0
+		cshort height,ccalc_type alpha = _inf,ccalc_type beta = inf,
+		ccalc_type acc = 0,cshort stage = 0,ccalc_type gamma = 0
 	)const{
 		if(mthd == mthd_rnd){
 			return 0;
@@ -535,7 +535,7 @@ protected:
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;
 	#else
-		static const calc_type mark_max = 10000;
+		static const calc_type mark_max = 100;
 	#endif
 };
 
