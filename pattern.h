@@ -60,6 +60,4 @@ extern pattern* ptr_pattern;
 extern void set_ptn(pattern* ptr);
 extern bool check_ptn();
 
-extern bool dflag;
-
 #endif //PATTERN_H
