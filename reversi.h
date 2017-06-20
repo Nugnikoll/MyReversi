@@ -99,7 +99,7 @@ public:
 	static calc_type table_param[stage_num][pos_num];
 
 	friend ostream& operator<<(ostream& out,const board& brd){
-		brd.do_print(out);
+		brd.print(out);
 		return out;
 	}
 
@@ -107,34 +107,22 @@ public:
 	 *	@brief It's a function used to show the board on a terminal.
 	 *	@param out the output stream
 	*/
-	const board& print(ostream& out = cout)const{
-		return do_print(out);
-	}
-
-	/** @fn board& print(ostream& out = cout)
-	 *	@brief It's a function used to show the board on a terminal.
-	 *	@param out the output stream
-	*/
-	board& print(ostream& out = cout){
-		do_print(out);
-		return *this;
-	}
+	void print(ostream& out)const;
 
 	/** @fn board& assign(cbrd_type _brd_black,cbrd_type _brd_white)
 	 *	@brief Assign the board to some specific value.
 	 *	@param _brd_black the value of the 64-bit board of black stones
 	 *	@param _brd_black the value of the 64-bit board of white stones
 	*/
-	board& assign(cbrd_type _brd_black,cbrd_type _brd_white){
+	void assign(cbrd_type _brd_black,cbrd_type _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
-		return *this;
 	}
 
 	/** @fn board& initial()
 	 *	@brief initialize the board
 	*/
-	board& initial(){
+	void initial(){
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
 
@@ -170,7 +158,7 @@ public:
 		}
 	}
 
-	board& set(cbool color,cpos_type pos,cbool flag){
+	void set(cbool color,cpos_type pos,cbool flag){
 		brd_type mask = brd_type(1) << pos;
 		if(color){
 			if(flag){
@@ -185,9 +173,8 @@ public:
 				brd_white &= ~mask;
 			}
 		}
-		return *this;
 	}
-	board& set(cpos_type pos, cchessman chsm){
+	void set(cpos_type pos, cchessman chsm){
 		brd_type mask = brd_type(1) << pos;
 		if(chsm & white){
 			brd_white |= mask;
@@ -199,13 +186,27 @@ public:
 		}else{
 			brd_black &= ~mask;
 		}
-		return *this;
 	}
 
-	board& mirror(cbool is_horizontal);
-	board& rotate_r(pos_type n90);
-	board& rotate_l(pos_type n90){
-		return rotate_r(4 - n90);
+	void mirror_h(){
+		mirror_h(brd_black);
+		mirror_h(brd_white);
+	}
+	void mirror_v(){
+		mirror_v(brd_black);
+		mirror_v(brd_white);
+	}
+	void rotate_l(){
+		rotate_l(brd_black);
+		rotate_l(brd_white);
+	}
+	void rotate_r(){
+		rotate_r(brd_black);
+		rotate_r(brd_white);
+	}
+	void reflect(){
+		reflect(brd_black);
+		reflect(brd_white);
 	}
 
 	short count(cbool color)const{
@@ -529,8 +530,6 @@ protected:
 		);
 		return result;
 	}
-
-	const board& do_print(ostream& out)const;
 
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;

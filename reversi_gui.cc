@@ -132,21 +132,27 @@ object plays(cint x,cint y,cint mthd){
 }
 
 bool undo(){
-	return mygame.pop();
+	return mygame.undo();
 }
 
 bool redo(){
 	return mygame.redo();
 }
 
-void mirror(cbool is_horizontal){
-	return mygame.mirror(is_horizontal);
+void mirror_h(){
+	return mygame.mirror_h();
+}
+void mirror_v(){
+	return mygame.mirror_v();
 }
 void reflect(){
 	return mygame.reflect();
 }
-void rotate(cbool is_clockwise){
-	return mygame.rotate(is_clockwise);
+void rotate_l(){
+	return mygame.rotate_l();
+}
+void rotate_r(){
+	return mygame.rotate_r();
 }
 
 bool get_color(){
@@ -235,9 +241,11 @@ void game_gui::process(const string& str){
 		inter.def("plays",::plays);
 		inter.def("undo",::undo);
 		inter.def("redo",::redo);
-		inter.def("mirror",::mirror);
+		inter.def("mirror_h",::mirror_h);
+		inter.def("mirror_v",::mirror_v);
 		inter.def("reflect",::reflect);
-		inter.def("rotate",::rotate);
+		inter.def("rotate_l",::rotate_l);
+		inter.def("rotate_r",::rotate_r);
 		inter.def("auto_show",::auto_show);
 		inter.def("auto_save",::auto_save);
 		inter.def("bget",::bget);
