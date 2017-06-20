@@ -22,51 +22,65 @@ unordered_map<board,board::interval> trans_white;
 
 const board& board::do_print(ostream& out = cout)const{
 
-	string s =
-		"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-		"║ │ │ │ │ │ │ │ ║\n"
-		"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
-	;
+	#if defined(__WIN32) || defined(__WIN64)
 
-	pos_type pos = 0;
-	for(char& chr:s){
-		if(chr == ' '){
-			switch(get(pos)){
-			case blank:
-				out << " ";
-				break;
-			case black:
-				out << "●";
-				break;
-			case white:
-				out << "○";
-				break;
-			case null:
-				out << "╳";
-				break;
-			default:
-				out << "╳";
-				break;
+		for(pos_type i = 0;i != size;++i){
+			for(pos_type j = 0;j != size;++j){
+				out << chr_print[get((i << 3) | j)];
 			}
-			++pos;
-		}else{
-			out << chr;
+			out << '\n';
 		}
-	}
+
+	#else
+
+		string s =
+			"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+			"║ │ │ │ │ │ │ │ ║\n"
+			"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
+		;
+
+		pos_type pos = 0;
+		for(char& chr:s){
+			if(chr == ' '){
+				switch(get(pos)){
+				case blank:
+					out << " ";
+					break;
+				case black:
+					out << "●";
+					break;
+				case white:
+					out << "○";
+					break;
+				case null:
+					out << "╳";
+					break;
+				default:
+					out << "╳";
+					break;
+				}
+				++pos;
+			}else{
+				out << chr;
+			}
+		}
+
+	#endif
+
 	return *this;
 }
 

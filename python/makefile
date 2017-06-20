@@ -5,7 +5,7 @@ src_path = ../
 src = $(addprefix $(src_path),type.cc reversi.cc flip.cc search.cc pattern.cc tree.cc)
 head = $(addprefix $(src_path),type.h reversi.h pattern.h game.h tree.h)
 obj = reversi_wrap.o type.o reversi.o flip.o search.o pattern.o tree.o
-target = _reversi.dll
+target = _reversi.cp35-win_amd64.pyd
 
 cc = gcc
 cxx = g++
@@ -16,33 +16,10 @@ compile_option = -Wall -std=c++11 -O2 -c
 all: $(target)
 
 clean:
-	-rm -f *.o *.cxx *.pyd *.exe *.dll
+	-del *.o *.cxx *.pyd *.pyc *.exe *.dll
 
-$(target): $(obj)
-	$(cxx) -shared -L$(pylib_path) $(obj) -lpython2.7 -o $@
-
-$(obj): $(head)
-
-type.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)type.cc))
-	$(cxx) $(compile_option) $< -o $@
-
-reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)reversi.cc))
-	$(cxx) $(compile_option) $< -o $@
-
-flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)flip.cc))
-	$(cxx) $(compile_option) $< -o $@
-
-search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)search.cc))
-	$(cxx) $(compile_option) $< -o $@
-
-pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)pattern.cc))
-	$(cxx) $(compile_option) $< -o $@
-
-tree.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(src_path)tree.cc))
-	$(cxx) $(compile_option) $< -o $@
-
-reversi_wrap.o: reversi_wrap.cxx
-	$(cxx) $(compile_option) -I$(pyhead_path) $< -o $@
+$(target): reversi_wrap.cxx setup.py
+	python setup.py build_ext --inplace --compiler=mingw32
 
 reversi_wrap.cxx: reversi.i $(head)
 	swig -python -c++ -threads $<
