@@ -339,19 +339,19 @@ void reversi_guiFrame::on_load(wxCommandEvent& event){
 }
 
 void reversi_guiFrame::on_clockwise(wxCommandEvent& event){
-	mygame.process("rotate $true");
+	mygame.process("rotate_r");
 }
 
 void reversi_guiFrame::on_counterclockwise(wxCommandEvent& event){
-	mygame.process("rotate $false");
+	mygame.process("rotate_l");
 }
 
 void reversi_guiFrame::on_horizontal(wxCommandEvent& event){
-	mygame.process("mirror $true");
+	mygame.process("mirror_h");
 }
 
 void reversi_guiFrame::on_vertical(wxCommandEvent& event){
-	mygame.process("mirror $false");
+	mygame.process("mirror_v");
 }
 
 void reversi_guiFrame::on_reflect(wxCommandEvent& event){

@@ -322,14 +322,5 @@ int main(){
 		out.close();
 	#endif
 
-//	 long long a, b;
-//	 cin >> hex >> a >> hex >> b;
-//	 asm volatile(
-//		 "packsswb %2,%0;"
-//		 :"=y"(a)
-//		 :"0"(a),"y"(b)
-//		 :
-//	 );
-//	 cout << hex << a << " " << hex << b;
 	return 0;
 }

@@ -13,7 +13,15 @@ public:
 	virtual ~game(){}
 
 	board brd;
-	vector<board> record;
+	bool color;
+	coordinate pos;
+	struct pack{
+		board brd;
+		bool color;
+		coordinate pos;
+	};
+	vector<pack> record;
+	vector<pack> storage;
 	tree book;
 
 	bool flag_auto_show = true;
@@ -29,15 +37,27 @@ public:
 			show();
 		}
 	}
-	virtual void push(){
-		record.push_back(brd);
+
+	virtual bool undo(){
+		bool result = pop();
+		if(result && flag_auto_show){
+			show();
+		}
+		return result;
 	}
-	virtual bool pop(){
-		if(record.empty()){
+	virtual bool redo(){
+		if(storage.empty()){
 			return false;
 		}else{
-			brd = record.back();
-			record.pop_back();
+			pack temp = {brd,color,pos};
+			record.push_back(temp);
+
+			temp = storage.back();
+			storage.pop_back();
+			brd = temp.brd;
+			color = temp.color;
+			pos = temp.pos;
+
 			if(flag_auto_show){
 				show();
 			}
@@ -69,29 +89,55 @@ public:
 			show();
 		}
 	}
-	void mirror(cbool is_horizontal){
+	void mirror_h(){
 		if(flag_auto_save){
 			push();
 		}
-		brd.mirror(is_horizontal);
+		brd.mirror_h();
+		pos.x = board::size - pos.x - 1;
 		if(flag_auto_show){
 			show();
 		}
 	}
-	void rotate_r(cint n90){
+	void mirror_v(){
 		if(flag_auto_save){
 			push();
 		}
-		brd.rotate_r(n90);
+		brd.mirror_v();
+		pos.y = board::size - pos.y - 1;
 		if(flag_auto_show){
 			show();
 		}
 	}
-	void rotate_l(cint n90){
+	void rotate_l(){
 		if(flag_auto_save){
 			push();
 		}
-		brd.rotate_l(n90);
+		brd.rotate_l();
+		swap(pos.x,pos.y);
+		pos.y = 7 - pos.y;
+		if(flag_auto_show){
+			show();
+		}
+	}
+	void rotate_r(){
+		if(flag_auto_save){
+			push();
+		}
+		brd.rotate_r();
+		swap(pos.x,pos.y);
+		pos.x = 7 - pos.x;
+		if(flag_auto_show){
+			show();
+		}
+	}
+	void reflect(){
+		if(flag_auto_save){
+			push();
+		}
+		brd.reflect();
+		pos.x = board::size - pos.x - 1;
+		pos.y = board::size - pos.y - 1;
 		if(flag_auto_show){
 			show();
 		}
@@ -110,7 +156,7 @@ public:
 			}
 		}else{
 			if(flag_auto_save){
-				do_pop();
+				pop();
 			}
 		}
 		return result;
@@ -155,7 +201,7 @@ public:
 			}
 		}else{
 			if(flag_auto_save){
-				do_pop();
+				pop();
 			}
 		}
 		return pos;
@@ -164,13 +210,27 @@ public:
 	void load_book(const string& path){
 		book.load(path);
 	}
+
 protected:
-	virtual bool do_pop(){
+	void push(){
+		pack temp = {brd,color,pos};
+		record.push_back(temp);
+		storage.clear();
+	}
+
+	bool pop(){
 		if(record.empty()){
 			return false;
 		}else{
-			brd = record.back();
+			pack temp = {brd,color,pos};
+			storage.push_back(temp);
+
+			temp = record.back();
 			record.pop_back();
+			brd = temp.brd;
+			color = temp.color;
+			pos = temp.pos;
+
 			return true;
 		}
 	}

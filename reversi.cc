@@ -20,7 +20,7 @@ calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
 
-const board& board::do_print(ostream& out = cout)const{
+void board::print(ostream& out = cout)const{
 
 	#if defined(__WIN32) || defined(__WIN64)
 
@@ -80,39 +80,6 @@ const board& board::do_print(ostream& out = cout)const{
 		}
 
 	#endif
-
-	return *this;
-}
-
-board& board::mirror(cbool is_horizontal){
-	if(is_horizontal){
-		mirror_h(brd_black);
-		mirror_h(brd_white);
-	}else{
-		mirror_v(brd_black);
-		mirror_v(brd_white);
-	}
-	return *this;
-}
-
-board& board::rotate_r(pos_type n90){
-	n90 = n90 % 4;
-	if(n90 < 0){
-		n90 += 4;
-	}
-	if(n90 == 0){
-		return *this;
-	}else if(n90 == 1){
-		rotate_r(brd_black);
-		rotate_r(brd_white);
-	}else if(n90 == 2){
-		reflect(brd_black);
-		reflect(brd_white);
-	}else if(n90 == 3){
-		rotate_l(brd_black);
-		rotate_l(brd_white);
-	}
-	return *this;
 }
 
 vector<choice> board::get_choice(

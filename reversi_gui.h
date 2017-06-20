@@ -35,15 +35,6 @@ public:
 
 	bool is_lock;
 
-	struct pack{
-		board brd;
-		bool color;
-		coordinate pos;
-	};
-
-	bool color;
-	coordinate pos;
-
 	wxFrame* ptr_frame;
 	wxPanel* ptr_panel;
 	wxTextCtrl* ptr_term;
@@ -97,100 +88,41 @@ public:
 			show();
 		}
 	}
-	virtual void push(){
-		pack temp = {brd,color,pos};
-		record.push_back(temp);
-		storage.clear();
-	}
-	virtual bool pop(){
-		if(record.empty()){
-			return false;
-		}else{
-			pack temp = {brd,color,pos};
-			storage.push_back(temp);
-
-			temp = record.back();
-			record.pop_back();
-			brd = temp.brd;
-			color = temp.color;
-			pos = temp.pos;
-
-			if(flag_auto_show){
-				show();
-			}
+	virtual bool undo(){
+		bool result = game::undo();
+		if(result){
 			ptr_log->AppendText(_("undo\n"));
 			is_lock = false;
-			return true;
 		}
+		return result;
 	}
 	bool redo(){
-		if(storage.empty()){
-			return false;
-		}else{
-			pack temp = {brd,color,pos};
-			record.push_back(temp);
-
-			temp = storage.back();
-			storage.pop_back();
-			brd = temp.brd;
-			color = temp.color;
-			pos = temp.pos;
-
-			if(flag_auto_show){
-				show();
-			}
+		bool result = game::redo();
+		if(result){
 			ptr_log->AppendText(_("redo\n"));
 			is_lock = false;
-			return true;
 		}
+		return result;
 	}
-	void mirror(cbool is_horizontal){
-		if(flag_auto_save){
-			push();
-		}
-		brd.mirror(is_horizontal);
-		if(is_horizontal){
-			pos.x = 7 - pos.x;
-			ptr_log->AppendText(_("mirror horizontally\n"));
-		}else{
-			pos.y = 7 - pos.y;
-			ptr_log->AppendText(_("mirror vertically\n"));
-		}
-		if(flag_auto_show){
-			show();
-		}
+	void mirror_h(){
+		game::mirror_h();
+		ptr_log->AppendText(_("mirror horizontally\n"));
+	}
+	void mirror_v(){
+		game::mirror_v();
+		ptr_log->AppendText(_("mirror vertically\n"));
 	}
 	void reflect(){
-		if(flag_auto_save){
-			push();
-		}
-		brd.rotate_r(2);
-		pos.x = 7 - pos.x;
-		pos.y = 7 - pos.y;
-		ptr_log->AppendText(_("mirror vertically\n"));
-		if(flag_auto_show){
-			show();
-		}
+		game::reflect();
+		ptr_log->AppendText(_("reflect\n"));
 	}
-	void rotate(cbool is_clockwise){
-		if(flag_auto_save){
-			push();
-		}
-		coordinate temp = pos;
-		if(is_clockwise){
-			pos.x = 7 - temp.y;
-			pos.y = temp.x;
-			brd.rotate_r(1);
-			ptr_log->AppendText(_("rotate clockwise\n"));
-		}else{
-			pos.x = temp.y;
-			pos.y = 7 - temp.x;
-			brd.rotate_l(1);
-			ptr_log->AppendText(_("rotate counterclockwise\n"));
-		}
-		if(flag_auto_show){
-			show();
-		}
+	void rotate_l(){
+		game::rotate_l();
+		ptr_log->AppendText(_("rotate clockwise\n"));
+	}
+	void rotate_r(){
+		game::rotate_r();
+		ptr_log->AppendText(_("rotate counterclockwise\n"));
 	}
 
 	object eval_ptn(cbool color){
@@ -226,7 +158,7 @@ public:
 			}
 		}else{
 			if(flag_auto_save){
-				do_pop();
+				pop();
 			}
 			ptr_log->AppendText(
 				(color? _("black") : _("white"))
@@ -308,7 +240,7 @@ public:
 				+ _(" is unable to move.\n")
 			);
 			if(flag_auto_save){
-				do_pop();
+				pop();
 			}
 		}
 		return pos;
@@ -403,25 +335,7 @@ public:
 	}
 
 protected:
-	vector<pack> record;
-	vector<pack> storage;
 
-	virtual bool do_pop(){
-		if(record.empty()){
-			return false;
-		}else{
-			pack temp = {brd,color,pos};
-			storage.push_back(temp);
-
-			temp = record.back();
-			record.pop_back();
-			brd = temp.brd;
-			color = temp.color;
-			pos = temp.pos;
-
-			return true;
-		}
-	}
 };
 
 extern game_gui mygame;
