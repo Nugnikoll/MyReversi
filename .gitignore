@@ -6,6 +6,7 @@
 *.dll
 *.exe
 *.pyc
+*.pyd
 
 *.depend
 *.layout
