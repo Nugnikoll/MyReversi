@@ -11,8 +11,6 @@ void game_gui::show(){
 
 void game_gui::do_show(wxDC& dc){
 
-	//dc.DrawText(wxT("Testing"), 40, 60);
-
 	dc.Clear();
 
 	//draw valid moves
@@ -321,6 +319,9 @@ void game_gui::process(const string& str){
 	}
 
 	ptr_term->AppendText(prompt + str + "\n");
+	if(flag_log){
+		ptr_log->AppendText(mygame.log_string);
+	}
 	try{
 		inter.eval(str);
 	}catch(const tcl_error& err){

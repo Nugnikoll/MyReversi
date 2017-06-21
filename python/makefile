@@ -18,7 +18,7 @@ all: $(target)
 clean:
 	-del *.o *.cxx *.pyd *.pyc *.exe *.dll
 
-$(target): reversi_wrap.cxx setup.py
+$(target): reversi_wrap.cxx setup.py $(src)
 	python setup.py build_ext --inplace --compiler=mingw32
 
 reversi_wrap.cxx: reversi.i $(head)

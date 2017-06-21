@@ -107,7 +107,7 @@ public:
 	 *	@brief It's a function used to show the board on a terminal.
 	 *	@param out the output stream
 	*/
-	void print(ostream& out)const;
+	void print(ostream& out = cout)const;
 
 	/** @fn board& assign(cbrd_type _brd_black,cbrd_type _brd_white)
 	 *	@brief Assign the board to some specific value.
