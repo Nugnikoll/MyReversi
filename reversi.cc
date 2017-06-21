@@ -20,18 +20,18 @@ calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
 
-void board::print(ostream& out = cout)const{
+void board::print(ostream& out)const{
 
-	#if defined(__WIN32) || defined(__WIN64)
-
-		for(pos_type i = 0;i != size;++i){
-			for(pos_type j = 0;j != size;++j){
-				out << chr_print[get((i << 3) | j)];
-			}
-			out << '\n';
-		}
-
-	#else
+//	#if defined(__WIN32) || defined(__WIN64)
+//
+//		for(pos_type i = 0;i != size;++i){
+//			for(pos_type j = 0;j != size;++j){
+//				out << chr_print[get((i << 3) | j)];
+//			}
+//			out << '\n';
+//		}
+//
+//	#else
 
 		string s =
 			"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
@@ -79,7 +79,7 @@ void board::print(ostream& out = cout)const{
 			}
 		}
 
-	#endif
+//	#endif
 }
 
 vector<choice> board::get_choice(
