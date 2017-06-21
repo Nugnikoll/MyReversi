@@ -29,4 +29,6 @@ python/reversi.py
 python/*wrap.cxx
 python/*wrap_fix.cxx
 
+wxsmith/*.xrc
+
 doc/*
