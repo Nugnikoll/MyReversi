@@ -1,4 +1,6 @@
+*.d
 *.o
+*.obj
 *.out
 *.a
 *.res
@@ -17,10 +19,10 @@
 out*
 *temp*
 
-smain.cc
-
 *.dot
 *.png
+
+single/*.cc
 
 !optimize/*.exe
 !optimize/*/*.exe
