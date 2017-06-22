@@ -4,12 +4,14 @@
 
 #include "reversi.h" //--
 
-const brd_type board::last = 0x8000000000000000;
+const brd_type board::last;
 const pos_type board::chessman_num;
 const pos_type board::size;
 const pos_type board::size2;
 const pos_type board::pos_num;
 const pos_type board::stage_num;
+const short board::max_height;
+bool board::flag_unicode = true;
 
 #ifdef USE_FLOAT
 	const calc_type board::mark_max = 10000;
@@ -21,18 +23,7 @@ unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
 
 void board::print(ostream& out)const{
-
-//	#if defined(__WIN32) || defined(__WIN64)
-//
-//		for(pos_type i = 0;i != size;++i){
-//			for(pos_type j = 0;j != size;++j){
-//				out << chr_print[get((i << 3) | j)];
-//			}
-//			out << '\n';
-//		}
-//
-//	#else
-
+	if(flag_unicode){
 		string s =
 			"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
 			"║ │ │ │ │ │ │ │ ║\n"
@@ -78,8 +69,14 @@ void board::print(ostream& out)const{
 				out << chr;
 			}
 		}
-
-//	#endif
+	}else{
+		for(pos_type i = 0;i != size;++i){
+			for(pos_type j = 0;j != size;++j){
+				out << chr_print[get((i << 3) | j)];
+			}
+			out << '\n';
+		}
+	}
 }
 
 vector<choice> board::get_choice(

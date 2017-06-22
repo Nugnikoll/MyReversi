@@ -269,6 +269,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	ptr_log = text_log;
 	ptr_book = book_tree;
 	mygame.flag_lock = true;
+	flag_text_term = false;
 
 	#ifdef DEBUG_SEARCH
 		out.open("out.html");

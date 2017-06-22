@@ -43,11 +43,20 @@
 			<Add directory="F:/Program/Tcl/lib" />
 		</Linker>
 		<Unit filename="cpptcl.cc" />
+		<Unit filename="flip.cc" />
+		<Unit filename="game.h" />
 		<Unit filename="main.cc" />
 		<Unit filename="pattern.cc" />
 		<Unit filename="pattern.h" />
 		<Unit filename="reversi.cc" />
 		<Unit filename="reversi.h" />
+		<Unit filename="reversi_tcl.cc" />
+		<Unit filename="reversi_tcl.h" />
+		<Unit filename="search.cc" />
+		<Unit filename="tree.cc" />
+		<Unit filename="tree.h" />
+		<Unit filename="type.cc" />
+		<Unit filename="type.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
