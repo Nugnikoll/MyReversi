@@ -12,11 +12,7 @@
 #include <wx/textfile.h>
 #include <wx/treectrl.h>
 
-#include "game.h"
-
-#include "cpptcl.h"
-
-using namespace Tcl;
+#include "reversi_tcl.h"
 
 const int bias = 10;
 const int num = 8;
@@ -32,26 +28,13 @@ extern wxTextCtrl* ptr_log;
 extern wxTextCtrl* ptr_input;
 extern wxTreeCtrl* ptr_book;
 
-extern interpreter* ptr_inter;
-
 class myTreeItemData: public wxTreeItemData{
 public:
 	myTreeItemData(node*const& _ptr): ptr(_ptr){}
 	node* ptr;
 };
 
-class game_gui:public game{
-public:
-	virtual void show();
-};
-
 void do_show(wxDC& dc);
-
-void process(const string& str);
-void load(const string& path);
-void load_book(const string& path);
 void load_node(const wxTreeItemId& item, node* ptr);
-
-extern game_gui mygame;
 
 #endif //REVERSI_GUI_H

@@ -105,11 +105,12 @@ class reversi_app(wx.App):
 	def on_redo(self, event):
 		self.process("mygame.redo();");
 	def on_load(self, event):
-		if self.dialog_load.ShowModal() == wxID_OK:
-			path = self.dialog_load.GetPath();
-			pos = 0;
-			path = path.replace("\\","\\\\");
-			self.process("load " + path);
+		pass;
+		# if self.dialog_load.ShowModal() == wxID_OK:
+			# path = self.dialog_load.GetPath();
+			# pos = 0;
+			# path = path.replace("\\","\\\\");
+			# self.process("load " + path);
 	def on_mirror_h(self, event):
 		self.process("mygame.mirror_h();");
 	def on_mirror_v(self, event):

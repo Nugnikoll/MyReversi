@@ -82,6 +82,8 @@
 		<Unit filename="reversi_guiApp.h" />
 		<Unit filename="reversi_guiMain.cpp" />
 		<Unit filename="reversi_guiMain.h" />
+		<Unit filename="reversi_tcl.cc" />
+		<Unit filename="reversi_tcl.h" />
 		<Unit filename="search.cc" />
 		<Unit filename="tree.cc" />
 		<Unit filename="tree.h" />

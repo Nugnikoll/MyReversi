@@ -81,7 +81,7 @@ public:
 		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
 	}
 
-	static const brd_type last;
+	static const brd_type last = 0x8000000000000000;
 	static const pos_type chessman_num = 4;
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
@@ -90,6 +90,8 @@ public:
 	static const pos_type pos_num = 4;
 	static const pos_type stage_num = 3;
 	static const short max_height = 20;
+
+	static bool flag_unicode;
 
 	typedef pair<calc_type,calc_type> interval;
 
