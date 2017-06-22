@@ -217,7 +217,7 @@ public:
 	vector<float> eval_ptn(cbool color){
 		return brd.eval_ptn(color);
 	}
-	int search(cmethod mthd,cbool color,cshort height,
+	calc_type search(cmethod mthd,cbool color,cshort height,
 		ccalc_type alpha = _inf,ccalc_type beta = inf,cpos_type stage = 0,ccalc_type gamma = 0){
 		return brd.search(mthd,color,height,alpha,beta,stage,gamma);
 	}
