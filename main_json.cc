@@ -9,11 +9,9 @@
 
 #include "jsoncpp/json.h"
 
-#include "reversi.h" //++
-//#include "reversi.cc" //++
-#include "pattern.h" //++
-//#include "pattern.cc" //++
-#include "data/data.h" //++
+#include "reversi.h"
+#include "pattern.h"
+// #include "data/data.h"
 
 using namespace std;
  
@@ -32,36 +30,36 @@ int main(){
 	Json::FastWriter writer;
  	reader.parse(str, input);
 
- 	// ·ÖÎö×Ô¼ºÊÕµ½µÄÊäÈëºÍ×Ô¼º¹ıÍùµÄÊä³ö£¬²¢»Ö¸´×´Ì¬
+ 	// åˆ†æè‡ªå·±æ”¶åˆ°çš„è¾“å…¥å’Œè‡ªå·±è¿‡å¾€çš„è¾“å‡ºï¼Œå¹¶æ¢å¤çŠ¶æ€
  	int turns = input["responses"].size();
  	mycolor = (input["requests"][(Json::Value::UInt) 0]["x"].asInt() < 0);
 
  	for (int i = 0; i < turns; i++)
  	{
- 		// ¸ù¾İÕâĞ©ÊäÈëÊä³öÖğ½¥»Ö¸´×´Ì¬µ½µ±Ç°»ØºÏ
+ 		// æ ¹æ®è¿™äº›è¾“å…¥è¾“å‡ºé€æ¸æ¢å¤çŠ¶æ€åˆ°å½“å‰å›åˆ
  		x = input["requests"][i]["x"].asInt();
  		y = input["requests"][i]["y"].asInt();
  		if (x >= 0)
- 			brd.flip(!mycolor,x,y); // Ä£Äâ¶Ô·½Âä×Ó
+ 			brd.flip(!mycolor,x + (y << 3)); // æ¨¡æ‹Ÿå¯¹æ–¹è½å­
 
  		x = input["responses"][i]["x"].asInt();
  		y = input["responses"][i]["y"].asInt();
  		if (x >= 0)
- 		 	brd.flip(mycolor,x,y); // Ä£Äâ¼º·½Âä×Ó
+ 		 	brd.flip(mycolor,x + (y << 3)); // æ¨¡æ‹Ÿå·±æ–¹è½å­
  	}
 
- 	// ¿´¿´×Ô¼º±¾»ØºÏÊäÈë
+ 	// çœ‹çœ‹è‡ªå·±æœ¬å›åˆè¾“å…¥
  	x = input["requests"][turns]["x"].asInt();
  	y = input["requests"][turns]["y"].asInt();
 
  	if (x >= 0)
- 		brd.flip(!mycolor,x,y); // Ä£Äâ¶Ô·½Âä×Ó
+ 		brd.flip(!mycolor,x + (y << 3)); // æ¨¡æ‹Ÿå¯¹æ–¹è½å­
 
-	ptr_pattern = new pattern;
-	ptr_pattern->decompress((float*)(data_table + 3 * 8));
- 	auto coord = brd.play(mthd_ptn,mycolor);
+	// ptr_pattern = new pattern;
+	// ptr_pattern->decompress((float*)(data_table + 3 * 8));
+ 	auto coord = brd.play(mthd_ab,mycolor);
 
-	// ¾ö²ß½áÊø£¬Êä³ö½á¹û£¨ÄãÖ»ĞèĞŞ¸ÄÒÔÉÏ²¿·Ö£©
+	// å†³ç­–ç»“æŸï¼Œè¾“å‡ºç»“æœï¼ˆä½ åªéœ€ä¿®æ”¹ä»¥ä¸Šéƒ¨åˆ†ï¼‰
 
 	result["response"]["x"] = coord.x;
 	result["response"]["y"] = coord.y;
