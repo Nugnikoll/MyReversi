@@ -2,13 +2,13 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="jreversi" />
+		<Option title="reversi_json" />
 		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/jreversi" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/reversi_json" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -17,7 +17,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/jreversi" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/reversi_json" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -32,6 +32,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="flip.cc" />
+		<Unit filename="main_json.cc" />
+		<Unit filename="pattern.cc" />
+		<Unit filename="pattern.h" />
+		<Unit filename="reversi.cc" />
+		<Unit filename="reversi.h" />
+		<Unit filename="search.cc" />
+		<Unit filename="type.cc" />
+		<Unit filename="type.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
