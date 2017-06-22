@@ -9,6 +9,18 @@ import _thread
 import time
 import pdb
 
+def coord2str(self):
+	return "(%d,%d)" % (self.x,self.y);
+setattr(reversi.coordinate,"__str__",coord2str);
+
+def choice2str(self):
+	return "(%d,%d,%f)" % (self.pos >> 3,self.pos & 7,self.val);
+setattr(reversi.choice,"__str__",choice2str);
+
+def choices2str(self):
+	return "[" + ",".join([choice2str(c) for c in self]) + "]";
+setattr(reversi.choices,"__str__",choices2str);
+
 bias = 10;
 num = 8;
 cell = 50;
@@ -165,11 +177,7 @@ class reversi_app(wx.App):
 		self.process("mygame.start();");
 	def on_white(self,event):
 		self.process("mygame.start();");
-		self.process(
-			"result = mygame.play(reversi.mthd_default,True);\n"
-			+ "result = (result.x,result.y);\n"
-			+ "self._print(result);"
-		);
+		self.process("self._print(mygame.play(reversi.mthd_default,True));");
 	def on_undo(self,event):
 		self.process("mygame.undo();");
 	def on_redo(self, event):
@@ -204,11 +212,10 @@ class reversi_app(wx.App):
 		x = int((pos.x - bias) / cell);
 		y = int((pos.y - bias) / cell);
 		self.process(
-			"result = mygame.play(reversi.coordinate(" + str(x) + ","
-			+ str(y) + "),reversi.mthd_default);\n"
-			+ "result = (result.x,result.y);\n"
-			+ "self._print(result);"
-		)
+			"self._print(mygame.play(reversi.coordinate("
+			+ str(x) + ","
+			+ str(y) + "),reversi.mthd_default));"
+		);
 
 	def thrd_launch(self,fun,param):
 		self.thrd_lock = True;

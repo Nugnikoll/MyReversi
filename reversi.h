@@ -40,9 +40,6 @@ struct coordinate{
 	coordinate(cpos_type pos):x(pos & 7),y(pos >> 3){}
 	pos_type x;
 	pos_type y;
-	void print()const{
-		cout << '(' << x << ',' << y << ')';
-	}
 };
 typedef const coordinate& ccoordinate;
 
@@ -213,7 +210,7 @@ public:
 		return count(bget(color));
 	}
 	pos_type sum()const{
-		return count(brd_black ^ brd_white);
+		return count(brd_black | brd_white);
 	}
 	brd_type get_move(cbool color)const{
 		const brd_type& brd_blue = bget(color);
@@ -567,9 +564,6 @@ struct choice{
 	board brd;
 	pos_type pos;
 	float rnd_val;
-	void print()const{
-		cout << '(' << val << ',' << (pos & 7) << ',' << (pos >> 3) << ')';
-	}
 };
 
 extern unordered_map<board,board::interval> trans_black;
