@@ -26,8 +26,7 @@ smain.cc
 !optimize/*/*.exe
 
 python/reversi.py
-python/*wrap.cxx
-python/*wrap_fix.cxx
+python/*wrap.*
 
 wxsmith/*.xrc
 
