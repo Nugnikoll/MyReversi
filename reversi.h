@@ -1,3 +1,20 @@
+/** @mainpage Reversi Documentation
+
+ * @section sec_rv Introduction of Reversi
+	Reversi (also called Othello) is a kind of strategy board game
+	which involves play by two parties on an eight-by-eight square grid.
+	
+ * @section sec_pro Introduction of the Program
+
+ */
+
+/** @file reversi.h
+ * @brief This head file is an essential part of the program
+ * where the most important class board is defined.
+ * Many basic functions are declared here.
+
+ */
+
 #ifndef REVERSI_H
 #define REVERSI_H
 
@@ -15,98 +32,47 @@ using namespace std;
 #define USE_FLOAT
 #define USE_RANDOM
 
-#ifdef DEBUG_SEARCH
-	#include <fstream>
-	extern ofstream out;
-#endif
-
-#ifdef USE_RANDOM
-	#include <random>
-	extern default_random_engine engine;
-#endif
-
-typedef const bool& cbool;
-typedef const short& cshort;
-typedef const int& cint;
-typedef const float& cfloat;
-
-typedef unsigned long long brd_type;
-typedef const brd_type& cbrd_type;
-typedef unsigned char line_type;
-typedef const line_type& cline_type;
-typedef short pos_type;
-typedef const pos_type& cpos_type;
-#ifdef USE_FLOAT
-	typedef float calc_type;
-#else
-	typedef short calc_type;
-#endif
-typedef const calc_type& ccalc_type;
-enum chessman{blank,white,black,null};
-//typedef const chessman& cchessman;
-typedef chessman cchessman;
-
-const calc_type inf = numeric_limits<short>::max();
-const calc_type _inf = - inf;
-
-enum method{
-	mthd_default = 0x1,
-
-	mthd_ab = 0x1, // alpha beta pruning
-	mthd_pvs = 0x2, // principal variation search
-	mthd_trans = 0x4, // transition table
-	mthd_kill = 0x8, // killer heuristic
-	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
-	mthd_ids = 0x20, // iterative deepening search
-	mthd_train = 0x40,
-	mthd_ptn = 0x80
-};
-//typedef const method& cmethod;
-typedef method cmethod;
-
-enum sts_type{
-	sts_null = 0x0,
-	sts_black = 0x1,
-	sts_white = 0x2,
-	sts_turn = 0x4,
-	sts_again = 0x8,
-	sts_end = 0x10,
-
-	sts_bwin = sts_black | sts_end,
-	sts_wwin = sts_white | sts_end,
-	sts_tie = sts_end,
-	sts_bturn = sts_black | sts_turn,
-	sts_wturn = sts_white | sts_turn,
-	sts_bagain = sts_black | sts_again,
-	sts_wagain = sts_white | sts_again
-};
+#include "type.h"
 
 struct coordinate{
 	coordinate():x(-1),y(-1){}
 	coordinate(cpos_type _x,cpos_type _y):x(_x),y(_y){}
+	coordinate(cpos_type pos):x(pos & 7),y(pos >> 3){}
 	pos_type x;
 	pos_type y;
-	void print()const{
-		cout << '(' << x << ',' << y << ')';
-	}
 };
 typedef const coordinate& ccoordinate;
 
-class board;
 namespace std{
 	template <>
 	struct hash<board>;
 }
-struct choice;
+
+/** @class board 
+ *
+ * @brief It represent the board of reversi.
+ *
+	It has two data member which are brd_black and brd_white.
+	They represent the board of black stones and board of white stones respectively.
+	Both brd_black and brd_white are 64-bit integer.
+	Where the bit is set to 1, there is a stone.
+	We can assume that brd_black | brd_white is always zero
+	because we can never place a black stone and a white stone at the same cell.
+	This kind of data structure saves a lot of memory and is easy to calculate.
+ *
+ */
 
 class board{
 	friend struct hash<board>;
 public:
-	struct conf_score{
-		calc_type *a,*b,*c;
-	};
-	typedef const conf_score& cconf_score;
 
+	/** @fn board()
+	* @brief The default constructor of class board
+		This function do nothing at all.
+		The value of the object board is not defined
+		if it's constructed by this function.
+		To initial the object, please use the function initial() .
+	*/
 	board(){};
 	board(cbrd_type _brd_black,cbrd_type _brd_white)
 		:brd_black(_brd_black),brd_white(_brd_white){}
@@ -115,269 +81,58 @@ public:
 		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
 	}
 
-	static const brd_type last;
+	static const brd_type last = 0x8000000000000000;
 	static const pos_type chessman_num = 4;
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
 	static const char chr_print[chessman_num];
 	enum pos_enum{pos_angle,pos_edge,pos_inner,pos_center};
 	static const pos_type pos_num = 4;
-	static const pos_type layer_num = 3;
 	static const pos_type stage_num = 3;
-	static const pos_type enum_num = 256;
 	static const short max_height = 20;
 
-	static calc_type (*fun)(const board& brd,cbool color);
+	static bool flag_unicode;
 
 	typedef pair<calc_type,calc_type> interval;
 
 	static calc_type table_param[stage_num][pos_num];
 
 	friend ostream& operator<<(ostream& out,const board& brd){
-		brd.do_print(out);
+		brd.print(out);
 		return out;
 	}
-	const board& print(ostream& out = cout)const{
-		return do_print(out);
-	}
-	board& print(ostream& out = cout){
-		do_print(out);
-		return *this;
-	}
 
-	static void config();
-	static conf_score stage_config(cpos_type stage){
-		conf_score conf;
-		if(stage < 0 || stage >= stage_num){
-			cout << "Error: out of range\n";
-			conf.a = conf.b = conf.c = 0;
-			return conf;
-		}
-		static bool flag = true;
-		if(flag){
-			config();
-			flag = false;
-		}
-		conf.a = table_eval[stage][0];
-		conf.b = table_eval[stage][1];
-		conf.c = table_eval[stage][2];
-		return conf;
-	}
+	/** @fn const board& print(ostream& out = cout)const
+	 *	@brief It's a function used to show the board on a terminal.
+	 *	@param out the output stream
+	*/
+	void print(ostream& out = cout)const;
 
-	board& assign(cbrd_type _brd_black,cbrd_type _brd_white){
+	/** @fn board& assign(cbrd_type _brd_black,cbrd_type _brd_white)
+	 *	@brief Assign the board to some specific value.
+	 *	@param _brd_black the value of the 64-bit board of black stones
+	 *	@param _brd_black the value of the 64-bit board of white stones
+	*/
+	void assign(cbrd_type _brd_black,cbrd_type _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
-		return *this;
 	}
-	board& initial(){
+
+	/** @fn board& initial()
+	 *	@brief initialize the board
+	*/
+	void initial(){
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
-	brd_type bget(cbool color)const{
-		if(color){
-			return this->bget<true>();
-		}else{
-			return this->bget<false>();
-		}
-	}
-	chessman get(cpos_type x, cpos_type y)const{
-		if(x < 0 || y < 0 || x >= size || y >= size){
-			cout << "Error: out of range\n";
-			return blank;
-		}
-		return get(brd_type(1) << ((y << 3) + x));
-	}
 
-	board& set(cpos_type x, cpos_type y, cchessman chsman){
-		if(x < 0 || y < 0 || x >= size || y >= size){
-			cout << "Error: out of range\n";
-			return *this;
-		}
-		return set(brd_type(1) << ((y << 3) + x),chsman);
-	}
-
-	board& mirror(cbool is_horizontal);
-	board& rotater(pos_type n90);
-	board& rotatel(pos_type n90){
-		return rotater(4 - n90);
-	}
-
-	bool flip(cbool color, cpos_type x, cpos_type y){
-		if(x < 0 || y < 0 || x >= size || y >= size){
-			cout << "Error: out of range\n";
-			return false;
-		}
-		if(color){
-			return flip<true>(brd_type(1) << ((y << 3) + x));
-		}else{
-			return flip<false>(brd_type(1) << ((y << 3) + x));
-		}
-	}
-	calc_type count(cbool color)const{
-		if(color){
-			return count<true>();
-		}else{
-			return count<false>();
-		}
-	}
-	static short count(cbrd_type brd){
-		brd_type result = brd - ((brd >> 1) & 0x5555555555555555);
-		result = (result & 0x3333333333333333)
-			+ ((result >> 2) & 0x3333333333333333);
-		result = (result + (result >> 4)) & 0x0F0F0F0F0F0F0F0F;
-		return (result * 0x0101010101010101) >> 56;
-	}
-	brd_type get_move(cbool color) {
-		if(color){
-			return get_move<true>();
-		}else{
-			return get_move<false>();
-		}
-	}
-	short count_move(cbool color){
-		if(color){
-			return count_move<true>();
-		}else{
-			return count_move<false>();
-		}
-	}
-	calc_type sum()const{
-		return count<true>() + count<false>();
-	} 
-	calc_type score(cbool color,cpos_type stage)const{
-		conf_score conf = stage_config(stage);
-		if(color){
-			return score<true>(conf);
-		}else{
-			return score<false>(conf);
-		}
-	}
-	calc_type search(
-		cmethod mthd,cbool color,cshort height,ccalc_type alpha = _inf,
-		ccalc_type beta = inf,ccalc_type acc = 0,cpos_type stage = 0,ccalc_type gamma = 0)const;
-	vector<choice> get_choice(cmethod method,cbool color,cshort height,cpos_type stage = 0)const;
-	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-	coordinate play(cmethod mthd,cbool color,short height = -1,short stage = -1);
-	sts_type get_status(cbool color){
-		bool flag_black = (count_move(true) == 0);
-		bool flag_white = (count_move(false) == 0);
-		int num_diff = count(true) - count(false);
-		if(color){
-			if(flag_black){
-				if(flag_white){
-					if(num_diff){
-						if(num_diff > 0){
-							return sts_bwin;
-						}else{
-							return sts_wwin;
-						}
-					}else{
-						return sts_tie;
-					}
-				}else{
-					return sts_wagain;
-				}
-			}else{
-				return sts_bturn;
-			}
-		}else{
-			if(flag_white){
-				if(flag_black){
-					if(num_diff){
-						if(num_diff > 0){
-							return sts_bwin;
-						}else{
-							return sts_wwin;
-						}
-					}else{
-						return sts_tie;
-					}
-				}else{
-					return sts_bagain;
-				}
-			}else{
-				return sts_wturn;
-			}
-		}
-	}
-
-protected:
-
-	brd_type brd_black,brd_white;
-
-	static const brd_type  lbound = 0xfefefefefefefefe;
-	static const brd_type  rbound = 0x7f7f7f7f7f7f7f7f;
-	static const brd_type  ubound = 0xffffffffffffff00;
-	static const brd_type  dbound = 0x00ffffffffffffff;
-	static const brd_type ulbound = 0xfefefefefefefe00;
-	static const brd_type urbound = 0x7f7f7f7f7f7f7f00;
-	static const brd_type dlbound = 0x00fefefefefefefe;
-	static const brd_type drbound = 0x007f7f7f7f7f7f7f;
-
-	static calc_type table_eval[stage_num][size][enum_num];
-	static calc_type table_temp[2][board::max_height + 1][size2];
-
-	const board& do_print(ostream& out = cout)const{
-//		brd_type mask = 1;
-//		for(pos_type i = 0;i != size;++i){
-//			for(pos_type j = 0;j != size;++j){
-//				out << chr_print[get(mask)];
-//				mask <<= 1;
-//			}
-//			out << '\n';
-//		}
-		string s =
-			"¨X¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨h¨T¨[\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨c©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤©à©¤¨f\n"
-			"¨U.©¦.©¦.©¦.©¦.©¦.©¦.©¦.¨U\n"
-			"¨^¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨k¨T¨a\n"
-		;
-		brd_type mask = 1;
-		string::size_type pos;
-		while((pos = s.find(".")) != s.npos){
-			s.replace(pos,1,"  ");
-		}
-		for(pos_type i = 0;i != size;++i){
-			for(pos_type j = 0;j != size;++j){
-				s[i * 4 + j * 70 + 37] = chr_print[get(mask)];
-				mask <<= 1;
-			}
-		}
-		while((pos = s.find(".")) != s.npos){
-			s.replace(pos,1," ");
-		}
-		while((pos = s.find("#")) != s.npos){
-			s.replace(pos,2,"¡ñ");
-		}
-		while((pos = s.find("O")) != s.npos){
-			s.replace(pos,2,"¡ð");
-		}
-		out << s;
-		return *this;
-	}
-
-	template<bool color> inline
-	brd_type& bget(){
+	cbrd_type bget(cbool color)const{
 		if(color){
 			return brd_black;
 		}else{
 			return brd_white;
 		}
 	}
-	template<bool color> inline
-	const brd_type& bget()const{
+	brd_type& bget(cbool color){
 		if(color){
 			return brd_black;
 		}else{
@@ -385,7 +140,8 @@ protected:
 		}
 	}
 
-	inline chessman get(cbrd_type mask)const{
+	chessman get(cpos_type pos)const{
+		brd_type mask = brd_type(1) << pos;
 		if(mask & brd_black){
 			if(mask & brd_white){
 				return null;
@@ -400,8 +156,9 @@ protected:
 			}
 		}
 	}
-	template<bool color> inline
-	board& set(cbrd_type mask, cbool flag){
+
+	void set(cbool color,cpos_type pos,cbool flag){
+		brd_type mask = brd_type(1) << pos;
 		if(color){
 			if(flag){
 				brd_black |= mask;
@@ -415,9 +172,9 @@ protected:
 				brd_white &= ~mask;
 			}
 		}
-		return *this;
 	}
-	inline board& set(cbrd_type mask, cchessman chsm){
+	void set(cpos_type pos, cchessman chsm){
+		brd_type mask = brd_type(1) << pos;
 		if(chsm & white){
 			brd_white |= mask;
 		}else{
@@ -428,153 +185,38 @@ protected:
 		}else{
 			brd_black &= ~mask;
 		}
-		return *this;
 	}
 
-	template<bool color>
-	bool flip(cbrd_type mask){
-
-		#define up(mask) mask >>= 8
-		#define down(mask) mask <<= 8
-		#define left(mask) mask >>= 1
-		#define right(mask) mask <<= 1
-		#define uleft(mask) mask >>= 9
-		#define uright(mask) mask >>= 7
-		#define dleft(mask) mask <<= 7
-		#define dright(mask) mask <<= 9
-
-		if((brd_black | brd_white) & mask){
-			return false;
-		}
-		bool everflip = false;
-		brd_type pos = mask;
-		brd_type& blue = bget<color>();
-		brd_type& green = bget<!color>();
-		while(pos & lbound){
-			left(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(right(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & rbound){
-			right(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(left(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & ubound){
-			up(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(down(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & dbound){
-			down(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(up(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & ulbound){
-			uleft(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(dright(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & urbound){
-			uright(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(dleft(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & dlbound){
-			dleft(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(uright(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		pos = mask;
-		while(pos & drbound){
-			dright(pos);
-			if(green & pos)
-				continue;
-			if(blue & pos){
-				while(uleft(pos), pos != mask){
-					blue |= pos;
-					green &= ~pos;
-					everflip = true;
-				}
-			}
-			break;
-		}
-		if(everflip){
-			blue |= mask;
-			green &= ~mask;
-		}
-		return everflip;
+	void mirror_h(){
+		mirror_h(brd_black);
+		mirror_h(brd_white);
 	}
-	template<bool color>
-	short count()const{
-		return count(bget<color>());
+	void mirror_v(){
+		mirror_v(brd_black);
+		mirror_v(brd_white);
 	}
-	template<bool color>
-	brd_type get_move()const{
-		const brd_type& brd_blue = bget<color>();
-		const brd_type& brd_green = bget<!color>();
+	void rotate_l(){
+		rotate_l(brd_black);
+		rotate_l(brd_white);
+	}
+	void rotate_r(){
+		rotate_r(brd_black);
+		rotate_r(brd_white);
+	}
+	void reflect(){
+		reflect(brd_black);
+		reflect(brd_white);
+	}
+
+	short count(cbool color)const{
+		return count(bget(color));
+	}
+	pos_type sum()const{
+		return count(brd_black | brd_white);
+	}
+	brd_type get_move(cbool color)const{
+		const brd_type& brd_blue = bget(color);
+		const brd_type& brd_green = bget(!color);
 		brd_type moves;
 		brd_type brd_green_inner;
 		brd_type brd_flip;
@@ -657,89 +299,242 @@ protected:
 		moves &= ~(brd_blue | brd_green);
 		return moves;
 	}
-	template<bool color>
-	short count_move()const{
-		return count(get_move<color>());
+	short count_move(cbool color)const{
+		return count(get_move(color));
 	}
-	template<bool color> inline
-	calc_type score(cconf_score conf)const{
 
-		brd_type blue = bget<color>();
-		brd_type green = bget<!color>();
-		calc_type result;
+	static void config(){
+		config_flip();
+		config_search();
+	}
 
-		result = conf.a[(unsigned char&)blue]; blue >>= size;
-		result += conf.b[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.c[(unsigned char&)blue]; blue >>= size;
-		result += conf.b[(unsigned char&)blue]; blue >>= size;
-		result += conf.a[(unsigned char&)blue];
+	bool flip(cbool color,cpos_type pos);
 
-		result -= conf.a[(unsigned char&)green]; green >>= size;
-		result -= conf.b[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.c[(unsigned char&)green]; green >>= size;
-		result -= conf.b[(unsigned char&)green]; green >>= size;
-		result -= conf.a[(unsigned char&)green];
+	calc_type score(cbool color,cpos_type stage)const{
+		calc_type result = 0;
 
+		brd_type brd_blue = bget(color);
+		brd_type brd_green = bget(!color);
+
+		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
+			* table_param[stage][0];
+		result += (count(brd_blue & 0x7e8181818181817e) - count(brd_green & 0x7e8181818181817e))
+			* table_param[stage][1];
+		result += (count(brd_blue & 0x0042000000004200) - count(brd_green & 0x0042000000004200))
+			* table_param[stage][2];
+		result += (count(brd_blue & 0x003c7e7e7e7e3c00) - count(brd_green & 0x003c7e7e7e7e3c00))
+			* table_param[stage][3];
+
+		return result;
+	}
+
+	calc_type search(
+		cmethod mthd,cbool color,
+		cshort height,ccalc_type alpha = _inf,ccalc_type beta = inf,
+		ccalc_type acc = 0,cshort stage = 0,ccalc_type gamma = 0
+	)const{
+		if(mthd == mthd_rnd){
+			return 0;
+		}else if(mthd & mthd_ptn){
+			return search_ptn(color,height,alpha,beta);
+		}else if(mthd & mthd_mtdf){
+			return search_mtd(color,height,alpha,beta,acc,stage,gamma);
+		}else if(mthd & mthd_trans){
+			return search_trans(color,height,alpha,beta,acc,stage);
+		}else if(mthd & mthd_pvs){
+			return search_pvs(color,height,alpha,beta,acc,stage);
+		}else if(mthd & mthd_ab){
+			return search_ab(color,height,alpha,beta,acc,stage);
+		}else{
+			assert(false);
+			return 0;
+		}
+	};
+
+	calc_type search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
+	calc_type search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
+	calc_type search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
+	calc_type search_mtd(cbool color,cshort height,calc_type alpha,calc_type beta,ccalc_type acc,cshort stage,calc_type gamma)const;
+	float search_ptn(cbool color,cshort height,float alpha,float beta)const;
+
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cshort stage = -1,ccalc_type gamma = 0)const;
+
+	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
+
+	coordinate play(cmethod mthd,cbool color,short height = -1,cshort stage = -1);
+
+	sts_type get_status(cbool color){
+		bool flag_black = (count_move(true) == 0);
+		bool flag_white = (count_move(false) == 0);
+		int num_diff = count(true) - count(false);
+		if(color){
+			if(flag_black){
+				if(flag_white){
+					if(num_diff){
+						if(num_diff > 0){
+							return sts_bwin;
+						}else{
+							return sts_wwin;
+						}
+					}else{
+						return sts_tie;
+					}
+				}else{
+					return sts_wagain;
+				}
+			}else{
+				return sts_bturn;
+			}
+		}else{
+			if(flag_white){
+				if(flag_black){
+					if(num_diff){
+						if(num_diff > 0){
+							return sts_bwin;
+						}else{
+							return sts_wwin;
+						}
+					}else{
+						return sts_tie;
+					}
+				}else{
+					return sts_bagain;
+				}
+			}else{
+				return sts_wturn;
+			}
+		}
+	}
+
+	float& extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const;
+	float score_ptn(cbool color)const;
+	vector<float> eval_ptn(cbool color)const;
+	void adjust_ptn(cbool,ccalc_type diff)const;
+
+protected:
+
+	brd_type brd_black,brd_white;
+
+	static float table_temp[2][board::max_height + 1][board::size2];
+
+	static pos_type table_pos[board::size2][board::size2];
+	static pos_type table_check[board::size2][board::size2];
+
+	static void config_flip();
+	static void config_search();
+
+	inline static brd_type extract(cbrd_type brd,cbrd_type mask){
+		brd_type result;
+		asm volatile(
+			"pext %1, %2, %0;"
+			: "=&r"(result)
+			: "r"(mask), "r"(brd)
+			:
+		);
+		return result;
+	}
+
+	static brd_type deposit(cbrd_type brd,cbrd_type mask){
+		brd_type result;
+		asm volatile(
+			"pdep %1, %2, %0;"
+			: "=&r"(result)
+			: "r"(mask), "r"(brd)
+			:
+		);
+		return result;
+	}
+
+	/** @fn static void mirror_h(brd_type& brd)
+	 *	@brief It's a function used to mirror a 64-bit board horizontally.
+	 *	@param brd the 64-bit board
+	*/
+	static void mirror_h(brd_type& brd){
+		brd = (brd & 0xaaaaaaaaaaaaaaaa) >> 1  | (brd & 0x5555555555555555) << 1;
+		brd = (brd & 0xcccccccccccccccc) >> 2  | (brd & 0x3333333333333333) << 2;
+		brd = (brd & 0xf0f0f0f0f0f0f0f0) >> 4  | (brd & 0x0f0f0f0f0f0f0f0f) << 4;
+	}
+
+	/** @fn static void mirror_v(brd_type& brd)
+	 *	@brief It's a function used to mirror a 64-bit board vertically.
+	 *	@param brd the 64-bit board
+	*/
+	static void mirror_v(brd_type& brd){
+		asm volatile(
+			"bswap %0;"
+			: "=r"(brd)
+			: "0"(brd)
+			:
+		);
+	}
+
+	/** @fn static void reflect(brd_type& brd)
+	 *	@brief It's a function used to reflect a 64-bit board.
+	 *	@param brd the 64-bit board
+	*/
+	static void reflect(brd_type& brd){
+		mirror_h(brd);
+		mirror_v(brd);
+	}
+
+	/** @fn static void rotate_r(brd_type& brd)
+	 *	@brief It's a function used to rotate a 64-bit board clockwise.
+	 *	@param brd the 64-bit board
+	*/
+	static void rotate_r(brd_type& brd){
+		brd = (brd & 0xf0f0f0f000000000) >> 4  | (brd & 0x0f0f0f0f00000000) >> 32
+			| (brd & 0x00000000f0f0f0f0) << 32 | (brd & 0x000000000f0f0f0f) << 4;
+		brd = (brd & 0xcccc0000cccc0000) >> 2  | (brd & 0x3333000033330000) >> 16
+			| (brd & 0x0000cccc0000cccc) << 16 | (brd & 0x0000333300003333) << 2;
+		brd = (brd & 0xaa00aa00aa00aa00) >> 1  | (brd & 0x5500550055005500) >> 8
+			| (brd & 0x00aa00aa00aa00aa) << 8  | (brd & 0x0055005500550055) << 1;
+	}
+
+	/** @fn static void rotate_l(brd_type& brd)
+	 *	@brief It's a function used to rotate a 64-bit board counter-clockwise.
+	 *	@param brd the 64-bit board
+	*/
+	static void rotate_l(brd_type& brd){
+		brd = (brd & 0xf0f0f0f000000000) >> 32 | (brd & 0x0f0f0f0f00000000) << 4
+			| (brd & 0x00000000f0f0f0f0) >> 4  | (brd & 0x000000000f0f0f0f) << 32;
+		brd = (brd & 0xcccc0000cccc0000) >> 16 | (brd & 0x3333000033330000) << 2
+			| (brd & 0x0000cccc0000cccc) >> 2  | (brd & 0x0000333300003333) << 16;
+		brd = (brd & 0xaa00aa00aa00aa00) >> 8  | (brd & 0x5500550055005500) << 1
+			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
+	}
+	static void transform(brd_type& brd){
+		brd_type brd_high = brd & 0x0103070f1f3f7fff;
+		brd_high = (brd_high & 0xffffffff00000000) << 4 | (brd_high & 0x00000000ffffffff);
+		brd_high = (brd_high & 0xffff0000ffff0000) << 2 | (brd_high & 0x0000ffff0000ffff);
+		brd_high = (brd_high & 0xff00ff00ff00ff00) << 1 | (brd_high & 0x00ff00ff00ff00ff);
+		brd_type brd_low = (brd & 0xfefcf8f0e0c08000) >> 1;
+		brd_low = (brd_low & 0xffffffff00000000) | (brd_low & 0x00000000ffffffff) >> 4;
+		brd_low = (brd_low & 0xffff0000ffff0000) | (brd_low & 0x0000ffff0000ffff) >> 2;
+		brd_low = (brd_low & 0xff00ff00ff00ff00) | (brd_low & 0x00ff00ff00ff00ff) >> 1;
+		brd = brd_high | brd_low;
+	}
+
+	/** @fn static void count(brd_type& brd)
+	 *	@brief It's a function used to count the number of bit
+	 *	which are set in a 64-bit board.
+	 *	@param brd the 64-bit board
+	*/
+	static pos_type count(cbrd_type brd){
+		brd_type result;
+		asm volatile(
+			"popcnt %1, %0;"
+			: "=&r"(result)
+			: "r"(brd)
+			:
+		);
 		return result;
 	}
 
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;
 	#else
-		static const calc_type mark_max = 10000;
+		static const calc_type mark_max = 100;
 	#endif
-
-	template<bool color,method mthd>
-	calc_type search(
-		cshort height,ccalc_type alpha,ccalc_type beta,
-		ccalc_type acc,cconf_score conf,ccalc_type gamma = 0)const{
-		if(mthd & mthd_ptn){
-			return search_ptn<color>(height,alpha,beta);
-		}if(mthd & mthd_train){
-			return search_train<color>(height,alpha,beta,acc,conf);
-		}else if(mthd & mthd_mtdf){
-			return search_mtd<color>(height,alpha,beta,acc,conf,gamma);
-		}else if(mthd & mthd_trans){
-			return search_trans<color>(height,alpha,beta,acc,conf);
-		}else if(mthd & mthd_pvs){
-			return search_pvs<color>(height,alpha,beta,acc,conf);
-		}else if(mthd & mthd_ab){
-			return search<color>(height,alpha,beta,acc,conf);
-		}else{
-			assert(false);
-			return 0;
-		}
-	};
-	template<bool color>
-	calc_type search(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	template<bool color>
-	calc_type search_train(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	template<bool color>
-	calc_type search_pvs(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	template<bool color>
-	calc_type search_trans(cshort height,calc_type alpha,calc_type beta,calc_type acc,cconf_score conf)const;
-	template<bool color>
-	calc_type search_mtd(
-		cshort height,calc_type alpha,calc_type beta,
-		ccalc_type acc,cconf_score conf,calc_type gamma
-	)const;
-	template<bool color>
-	float search_ptn(cshort height,float alpha,float beta)const;
-	
-	template<bool color,method mthd>
-	vector<choice> get_choice(cshort height,cconf_score conf,ccalc_type gamma = 0)const;
-
-	template<bool color>
-	float score_ptn()const;
-
-	template<bool color>
-	void adjust_ptn(float diff)const;
 };
 
 template <>
@@ -769,14 +564,11 @@ struct brd_val{
 struct choice{
 	float val;
 	board brd;
-	pos_type x;
-	pos_type y;
+	pos_type pos;
 	float rnd_val;
-	void print()const{
-		cout << '(' << val << ',' << x << ',' << y << ')';
-	}
 };
 
-void print(const vector<choice>& choices);
+extern unordered_map<board,board::interval> trans_black;
+extern unordered_map<board,board::interval> trans_white;
 
 #endif // REVERSI_H

@@ -1,21 +1,35 @@
+*.d
 *.o
+*.obj
 *.out
 *.a
+*.res
 *.lib
 *.dll
 *.exe
+*.pyc
+*.pyd
+*.dat
 
 *.depend
 *.layout
 *.log
+*.stackdump
 
 out*
 *temp*
 
-smain.cc
-
 *.dot
 *.png
 
+single/*.cc
+
 !optimize/*.exe
 !optimize/*/*.exe
+
+python/reversi.py
+python/*wrap.*
+
+wxsmith/*.xrc
+
+doc/*

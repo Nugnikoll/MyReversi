@@ -9,257 +9,176 @@ using namespace std;
 
 pattern* ptr_pattern = NULL;
 
+void set_ptn(pattern* ptr){
+	ptr_pattern = ptr;
+}
+
+extern bool check_ptn(){
+	return (ptr_pattern != NULL);
+}
+
 void pattern::initial(){
-	static const int limit = 1 << 16;
-	#define initial_set(num,v1,v2,v3,v4,v5,v6,v7,v8) \
-		for(int i = 0;i != limit;++i){ \
-			if(i & 0x8000){ \
-				table[num][i] += v1; \
-			} \
-			if(i & 0x4000){ \
-				table[num][i] += v2; \
-			} \
-			if(i & 0x2000){ \
-				table[num][i] += v3; \
-			} \
-			if(i & 0x1000){ \
-				table[num][i] += v4; \
-			} \
-			if(i & 0x0800){ \
-				table[num][i] += v5; \
-			} \
-			if(i & 0x0400){ \
-				table[num][i] += v6; \
-			} \
-			if(i & 0x0200){ \
-				table[num][i] += v7; \
-			} \
-			if(i & 0x0100){ \
-				table[num][i] += v8; \
-			} \
-			if(i & 0x0080){ \
-				table[num][i] -= v1; \
-			} \
-			if(i & 0x0040){ \
-				table[num][i] -= v2; \
-			} \
-			if(i & 0x0020){ \
-				table[num][i] -= v3; \
-			} \
-			if(i & 0x0010){ \
-				table[num][i] -= v4; \
-			} \
-			if(i & 0x0008){ \
-				table[num][i] -= v5; \
-			} \
-			if(i & 0x0004){ \
-				table[num][i] -= v6; \
-			} \
-			if(i & 0x0002){ \
-				table[num][i] -= v7; \
-			} \
-			if(i & 0x0001){ \
-				table[num][i] -= v8; \
-			} \
-		}
-
-	initial_set(0,6,1,1,1,1,1,1,6);
-	initial_set(1,1,-2,-0.5,-0.5,-0.5,-0.5,-2,1);
-	initial_set(2,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
-	initial_set(3,1,-1,-0.25,-0.25,-0.25,-0.25,-1,1);
-
-	for(int i = 0;i != limit;++i){
-		if((i & 0xc000) == 0x4000){
-			table[0][i] -= 6;
-		}
-		if((i & 0xc000) == 0xc000){
-			table[0][i] += 6;
-		}
-		if((i & 0x0003) == 0x0002){
-			table[0][i] -= 6;
-		}
-		if((i & 0x0003) == 0x0003){
-			table[0][i] += 6;
-		}
-	}
+	count = 1000;
+	memset(table1,0,sizeof(table1));
+	memset(table2,0,sizeof(table2));
 }
 
-template float board::score_ptn<true>()const;
-template float board::score_ptn<false>()const;
-template<bool color>
-float board::score_ptn()const{
+const brd_type ptn_mask[] = {
+	// horizontal pattern
+	0x00000000000000ff,
+	0x000000000000ff00,
+	0x0000000000ff0000,
+	0x00000000ff000000,
+	0x000000ff00000000,
+	0x0000ff0000000000,
+	0x00ff000000000000,
+	0xff00000000000000,
 
-	short blue_move = this->count_move<true>();
-	short green_move = this->count_move<false>();
+	//vertical pattern
+	0x0101010101010101,
+	0x0202020202020202,
+	0x0404040404040404,
+	0x0808080808080808,
+	0x1010101010101010,
+	0x2020202020202020,
+	0x4040404040404040,
+	0x8080808080808080,
 
-	if((blue_move | green_move) == 0){
-		short num_diff = count<color>() - count<!color>();
-		num_diff <<= 1;
-		if(num_diff){
-			if(num_diff > 0){
-				return num_diff + 1000;
-			}else if(num_diff < 0){
-				return num_diff - 1000;
-			}else{
-				return num_diff;
-			}
-		}else{
-			return 0;
-		}
-	}
+	//diagnal pattern
+	0x8040201008040201,
+	0x4020100804020180,
+	0x2010080402018040,
+	0x1008040201804020,
+	0x0804020180402010,
+	0x0402018040201008,
+	0x0201804020100804,
+	0x0180402010080402,
 
-	unsigned short index;
-	const brd_type& brd_blue = this->bget<color>();
-	const brd_type& brd_green = this->bget<!color>();
+	0x0102040810204080,
+	0x0204081020408001,
+	0x0408102040800102,
+	0x0810204080010204,
+	0x1020408001020408,
+	0x2040800102040810,
+	0x4080010204081020,
+	0x8001020408102040,
+
+	//corner pattern
+	0xe0e0c00000000000,
+	0x0707030000000000,
+	0x0000000000c0e0e0,
+	0x0000000000030707
+};
+
+const short ptn_num[] = {
+	0, 1, 2, 3, 3, 2, 1, 0,
+	0, 1, 2, 3, 3, 2, 1, 0,
+	4, 5, 6, 7, 8, 7, 6, 5,
+	4, 5, 6, 7, 8, 7, 6, 5,
+	9, 10, 9, 10
+};
+
+float& board::extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const{
+	brd_type brd_blue = this->bget(color);
+	brd_type brd_green = this->bget(!color);
+	brd_type index;
+	index = extract(brd_blue,mask) << 8;
+	index |= extract(brd_green,mask);
+	//cout << hex << brd_blue << " " << brd_green << endl;
+	//cout << "index: " << hex << index << " mask: " << hex << mask << " num: " << dec << num << endl;
+	//assert((index & ~0xffffull) == 0);
+	return ptr[(brd_type(num) << 16) + index];
+}
+
+float board::score_ptn(cbool color)const{
+
+	short blue_move = this->count_move(color);
+	short green_move = this->count_move(!color);
+
+//	if((blue_move | green_move) == 0){
+//		short num_diff = count(color) - count(!color);
+//		num_diff <<= 1;
+//		if(num_diff > 0){
+//			return num_diff + 1000;
+//		}else if(num_diff < 0){
+//			return num_diff - 1000;
+//		}else{
+//			return num_diff;
+//		}
+//	}
+
+	brd_type brd_blue = this->bget(color);
+	brd_type brd_green = this->bget(!color);
+	brd_type index;
+
 	float result = 0;
+	short stage = (this->sum() - 1) >> 4;
+	auto table1 = ptr_pattern->table1[stage];
 
-	#define extract(mask,shift1,shift2,num) \
-		index = (brd_blue & mask) shift1; \
-		index |= (brd_green & mask) shift2; \
-		result += ptr_pattern->table[num][index];
+	result += ptr_pattern->table2[stage][blue_move * 30 + green_move];
 
-	//horizontal pattern
-	extract(0xff,<<8,,0);
-	extract(0xff00,,>>8,1);
-	extract(0xff0000,>>8,>>16,2);
-	extract(0xff000000,>>16,>>24,3);
-	extract(0xff00000000,>>24,>>32,3);
-	extract(0xff0000000000,>>32,>>40,2);
-	extract(0xff000000000000,>>40,>>48,1);
-	extract(0xff00000000000000,>>48,>>56,0);
+	for(int i = 0;i != 36;++i){
+		index = extract(brd_blue,ptn_mask[i]) << 8;
+		index |= extract(brd_green,ptn_mask[i]);
+		result +=  table1[(brd_type(ptn_num[i]) << 16) + index];
+	}
 
-	#undef extract
-
-	#define extract(mask,factor,num) \
-		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
-		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		result += ptr_pattern->table[num][index];
-
-	//vertical pattern
-	extract(0x0101010101010101,0x8040201008040201,0);
-	extract(0x0202020202020202,0x0081020408102040,1);
-	extract(0x0404040404040404,0x0040810204081020,2);
-	extract(0x0808080808080808,0x0020408102040810,3);
-	extract(0x1010101010101010,0x0010204081020408,3);
-	extract(0x2020202020202020,0x0008102040810204,2);
-	extract(0x4040404040404040,0x0004081020408102,1);
-	extract(0x8080808080808080,0x0002040810204081,0);
-
-	//diagnal pattern
-	extract(0x8040201008040201,0x0101010101010101,4);
-	extract(0x4020100804020180,0x0202020202020202,5);
-	extract(0x2010080402018040,0x0404040404040404,6);
-	extract(0x1008040201804020,0x0808080808080808,7);
-	extract(0x0804020180402010,0x0101010101010101,8);
-	extract(0x0402018040201008,0x0101010101010101,7);
-	extract(0x0201804020100804,0x0101010101010101,6);
-	extract(0x0180402010080402,0x0101010101010101,5);
-
-	extract(0x0102040810204080,0x0101010101010101,4);
-	extract(0x0204081020408001,0x0808080808080808,5);
-	extract(0x0408102040800102,0x1010101010101010,6);
-	extract(0x0810204080010204,0x2020202020202020,7);
-	extract(0x1020408001020408,0x4040404040404040,8);
-	extract(0x2040800102040810,0x0101010101010101,7);
-	extract(0x4080010204081020,0x0101010101010101,6);
-	extract(0x8001020408102040,0x0101010101010101,5);
-
-	//corner pattern
-	extract(0xe0e0c00000000000,0x0000000000002009,9);
-	extract(0x0707030000000000,0x0000000000010420,9);
-	extract(0x0000000000c0e0e0,0x0100082000000000,10);
-	extract(0x0000000000030707,0x2004010000000000,10);
-
-	#undef extract
-
-	return result + blue_move;
+	return result;
 }
 
-float fdecay = 1 - 0.01;
+vector<float> board::eval_ptn(cbool color)const{
 
-template void board::adjust_ptn<true>(float diff)const;
-template void board::adjust_ptn<false>(float diff)const;
-template<bool color>
-void board::adjust_ptn(float diff)const{
+	vector<float> result;
 
-	unsigned short index;
-	const brd_type& brd_blue = this->bget<color>();
-	const brd_type& brd_green = this->bget<!color>();
+	short blue_move = this->count_move(color);
+	short green_move = this->count_move(!color);
 
-	diff *= (0.01 / 36);
+	brd_type brd_blue = this->bget(color);
+	brd_type brd_green = this->bget(!color);
+	brd_type index;
 
-	#define diffuse(mask,shift1,shift2,num) \
-		index = (brd_blue & mask) shift1; \
-		index |= (brd_green & mask) shift2; \
-		(ptr_pattern->table[num][index] += diff) *= fdecay;
+	short stage = (this->sum() - 1) >> 4;
+	auto table1 = ptr_pattern->table1[stage];
 
-	//horizontal pattern
-	diffuse(0xff,<<8,,0);
-	diffuse(0xff00,,>>8,1);
-	diffuse(0xff0000,>>8,>>16,2);
-	diffuse(0xff000000,>>16,>>24,3);
-	diffuse(0xff00000000,>>24,>>32,3);
-	diffuse(0xff0000000000,>>32,>>40,2);
-	diffuse(0xff000000000000,>>40,>>48,1);
-	diffuse(0xff00000000000000,>>48,>>56,0);
+	result.push_back(ptr_pattern->table2[stage][blue_move * 30 + green_move]);
 
-	#undef diffuse
+	for(int i = 0;i != 36;++i){
+		index = extract(brd_blue,ptn_mask[i]) << 8;
+		index |= extract(brd_green,ptn_mask[i]);
+		result.push_back(i);
+		result.push_back(index);
+		result.push_back(table1[(brd_type(ptn_num[i]) << 16) + index]);
+	}
 
-	#define diffuse(mask,factor,num) \
-		index = (((brd_blue & mask) * factor) & 0xff00000000000000) >> 48; \
-		index |= (((brd_green & mask) * factor) & 0xff00000000000000) >> 56; \
-		(ptr_pattern->table[num][index] += diff) *= fdecay;
-
-	//vertical pattern
-	diffuse(0x0101010101010101,0x8040201008040201,0);
-	diffuse(0x0202020202020202,0x0081020408102040,1);
-	diffuse(0x0404040404040404,0x0040810204081020,2);
-	diffuse(0x0808080808080808,0x0020408102040810,3);
-	diffuse(0x1010101010101010,0x0010204081020408,3);
-	diffuse(0x2020202020202020,0x0008102040810204,2);
-	diffuse(0x4040404040404040,0x0004081020408102,1);
-	diffuse(0x8080808080808080,0x0002040810204081,0);
-
-	//diagnal pattern
-	diffuse(0x8040201008040201,0x0101010101010101,4);
-	diffuse(0x4020100804020180,0x0202020202020202,5);
-	diffuse(0x2010080402018040,0x0404040404040404,6);
-	diffuse(0x1008040201804020,0x0808080808080808,7);
-	diffuse(0x0804020180402010,0x0101010101010101,8);
-	diffuse(0x0402018040201008,0x0101010101010101,7);
-	diffuse(0x0201804020100804,0x0101010101010101,6);
-	diffuse(0x0180402010080402,0x0101010101010101,5);
-
-	diffuse(0x0102040810204080,0x0101010101010101,4);
-	diffuse(0x0204081020408001,0x0808080808080808,5);
-	diffuse(0x0408102040800102,0x1010101010101010,6);
-	diffuse(0x0810204080010204,0x2020202020202020,7);
-	diffuse(0x1020408001020408,0x4040404040404040,8);
-	diffuse(0x2040800102040810,0x0101010101010101,7);
-	diffuse(0x4080010204081020,0x0101010101010101,6);
-	diffuse(0x8001020408102040,0x0101010101010101,5);
-
-	//corner pattern
-	diffuse(0xe0e0c00000000000,0x0000000000002009,9);
-	diffuse(0x0707030000000000,0x0000000000010420,9);
-	diffuse(0x0000000000c0e0e0,0x0100082000000000,10);
-	diffuse(0x0000000000030707,0x2004010000000000,10);
-
-	#undef diffuse
+	return result;
 }
 
+//float fdecay = 1 - 0.01;
 
-template float board::search_ptn<true>(cshort height,float alpha,float beta)const;
-template float board::search_ptn<false>(cshort height,float alpha,float beta)const;
-template<bool color>
-float board::search_ptn(cshort height,float alpha,float beta)const{
+void board::adjust_ptn(cbool color,ccalc_type diff)const{
+
+	short stage = (this->sum() - 1) >> 4;
+	auto table1 = ptr_pattern->table1[stage];
+
+	++ptr_pattern->count;
+
+	ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)]
+		+= diff / ptr_pattern->count;
+
+	for(int i = 0;i != 36;++i){
+		extract_ptn(color,table1,ptn_mask[i],ptn_num[i]) += diff / ptr_pattern->count;
+	}
+
+}
+
+float board::search_ptn(cbool color,cshort height,float alpha,float beta)const{
 
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
 
 	if(height == 0){
-		return this->score_ptn<color>();
+		return this->score_ptn(color);
 	}
 
 	calc_type (&table_ref)[size2] = table_temp[color][height];
@@ -269,7 +188,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 	
 	ptr->brd = *this;
 	for(register pos_type i = 0;i != size2;++i){
-		if(ptr->brd.flip<color>(brd_type(1) << i)){
+		if(ptr->brd.flip(color,i)){
 			ptr->pos = i;
 			ptr->val = table_ref[i];
 			(++ptr)->brd = *this;
@@ -280,7 +199,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 		calc_type (&table_ref)[size2] = table_temp[!color][height];
 		//ptr->brd = *this;
 		for(register pos_type i = 0;i != size2;++i){
-			if(ptr->brd.flip<!color>(brd_type(1) << i)){
+			if(ptr->brd.flip(!color,i)){
 				ptr->pos = i;
 				ptr->val = table_ref[i];
 				(++ptr)->brd = *this;
@@ -288,7 +207,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 		}
 
 		if(ptr == vec){
-			short num_diff = count<color>() - count<!color>();
+			short num_diff = count(color) - count(!color);
 			num_diff <<= 1;
 			if(num_diff){
 				if(num_diff > 0){
@@ -305,7 +224,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 			sort(vec,ptr);
 
 			for(auto p = vec;p != ptr;++p){
-				temp = p->brd.search_ptn<color>(height - 1,alpha,beta);
+				temp = p->brd.search_ptn(color,height - 1,alpha,beta);
 				table_ref[p->pos] = temp;
 				if(temp <= alpha)
 					return alpha;
@@ -318,7 +237,7 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 		sort(vec,ptr,greater<brd_val>());
 
 		for(auto p = vec;p != ptr;++p){
-			temp = - p->brd.search_ptn<!color>(height - 1,-beta,-alpha);
+			temp = - p->brd.search_ptn(!color,height - 1,-beta,-alpha);
 			table_ref[p->pos] = temp;
 			if(temp >= beta)
 				return beta;
@@ -343,185 +262,223 @@ float board::search_ptn(cshort height,float alpha,float beta)const{
 	#endif
 }
 
-void pattern::compress(float* const& ptr){
-	size_t j = 0;
-	for(size_t num = 0;num != this->size;++num){
-		for(size_t i = 0;i != this->length;++i){
-			if(i & (i >> 8)){
-				continue;
+void pattern::save(ostream& out){
+	#define WRITE(var) out.write((char *)(&var),sizeof(var))
+
+	WRITE(this->count);
+	for(auto& i:table1){
+		for(int j = 0;j != size1;++j){
+			for(size_t k = 0;k != this->length;++k){
+				if(k & (k >> 8)){
+					continue;
+				}
+				WRITE(i[(j << 16) + k]);
 			}
-			ptr[j] = this->table[num][i];
-			++j;
 		}
 	}
+	WRITE(table2);
+
+	#undef WRITE
 }
 
-void pattern::decompress(float* const& ptr){
-	size_t j = 0;
-	for(size_t num = 0;num != this->size;++num){
-		for(size_t i = 0;i != this->length;++i){
-			if(i & (i >> 8)){
-				continue;
+void pattern::load(istream& in){
+	#define _READ(var) in.read((char *)(&var),sizeof(var))
+
+	_READ(this->count);
+	for(auto& i:table1){
+		for(int j = 0;j != size1;++j){
+			for(size_t k = 0;k != this->length;++k){
+				if(k & (k >> 8)){
+					continue;
+				}
+				_READ(i[(j << 16) + k]);
 			}
-			this->table[num][i] = ptr[j];
-			++j;
 		}
 	}
+	_READ(table2);
+
+	#undef _READ
 }
 
-bool compete(pattern* const& p1,pattern* const& p2){
+bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
 	board brd;
+	board vec[64];
+	board* ptr = vec;
+	bool flag[64];
+	bool* color = flag;
 	coordinate pos1,pos2;
-	brd.assign(0x0000000810000000,0x0000001008000000);
+
+	brd.initial();
 	do{
+		*ptr++ = brd;
 		ptr_pattern = p1;
-		pos1 = brd.play(mthd_ptn,true,0);
+		pos1 = brd.play(mthd,true,depth);
+		if(pos1.x < 0){
+			--ptr;
+		}else{
+			*color = true;
+			++color;
+		}
+
+		*ptr++ = brd;
 		ptr_pattern = p2;
-		pos2 = brd.play(mthd_ptn,false,0);
+		pos2 = brd.play(mthd,false,depth);
+		if(pos2.x < 0){
+			--ptr;
+		}else{
+			*color = false;
+			++color;
+		}
+
 	}while(pos1.x >= 0 || pos2.x >= 0);
-	return brd.count(true) > brd.count(false);
+
+	calc_type result = brd.count(true) - brd.count(false);
+
+	ptr_pattern = p1;
+	calc_type diff;
+	board* p;
+	bool* c;
+	if(result == 0){
+		return false;
+	}
+	(result > 0) ? result = 100 : result = -100;
+
+	for(p = vec,c = flag;p != ptr;++p,++c){
+		diff = *c ? (result - p->score_ptn(true)) : (-result - p->score_ptn(false));
+		diff /= 38;
+		p->adjust_ptn(*c,diff);
+	}
+	return true;
 };
 
-// param cross(const param& p1,const param& p2){
-	// param result;
-	// result.reserve(param::size_max);
-	// do{
-		// for(auto& ptr_pattern:p1){
-			// if(coin(engine)){
-				// result.push_back(*ptr_pattern);
-			// }
-		// }
-		// for(auto& ptr_pattern:p2){
-			// if(result.size() >= param::size_max){
-				// break;
-			// }
-			// if(coin(engine)){
-				// result.push_back(*ptr_pattern);
-			// }
-		// }
-	// }while(result.size() < param::size_min);
-	// return result;
-// }
+void imitate(pattern* const& p1,cmethod mthd,cshort depth){
+	board brd;
+	board vec[64];
+	board* ptr = vec;
+	bool flag[64];
+	bool* color = flag;
+	coordinate pos1,pos2;
 
-void group::assign(const size_t& size){
-	while(vec.size() < size){
+	brd.initial();
+	do{
+		*(ptr++) = brd;
+		pos1 = brd.play(mthd_rnd,true,depth);
+		if(pos1.x < 0){
+			--ptr;
+		}else{
+			*color = true;
+			++color;
+		}
+
+		*(ptr++) = brd;
+		pos2 = brd.play(mthd_rnd,false,depth);
+		if(pos2.x < 0){
+			--ptr;
+		}else{
+			*color = false;
+			++color;
+		}
+	}while(pos1.x >= 0 || pos2.x >= 0);
+
+	ptr_pattern = p1;
+	calc_type diff;
+	board* p;
+	bool* c;
+
+	for(p = vec,c = flag;p != ptr;++p,++c){
+		diff = (p->search(mthd,*c,depth) - p->score_ptn(*c)) / 38;
+		p->adjust_ptn(*c,diff);
+	}
+	assert(c == color);
+};
+
+void group::assign(const int& size){
+	vec.clear();
+	while(vec.size() < (unsigned int)(size)){
 		vec.emplace_back();
 		record.emplace_back(0);
 	}
 }
 
-void group::initial(){
-	for(auto& ptn:vec){
-		ptn.initial();
-	}
-}
-
-void group::load(const string& filename,cbool is_compress,cint num_begin,cint num
-	,cbool is_compatible){
+void group::load(const string& path,cint num_begin,cint num){
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
 
-	ifstream fin(filename,ios::in | ios::binary);
-	size_t group_size,ptn_size,ptn_length;
+	ifstream fin(path,ios::in | ios::binary);
+	size_t ele_size, ptn_size, group_size;
 
 	if(!fin){
 		fin.close();
-		cout << "Error: Cannot open the file: " << filename << " ." << endl;
+		cout << "Error: Cannot open the file: " << path << " ." << endl;
 		return;
 	}
-	
-	_READ(group_size);
-	_READ(ptn_size);
-	_READ(ptn_length);
 
-	if(is_compatible){
-		if(ptn_size != pattern::size){
-			cout << "Warning: The pattern.size does not match." << endl;
-			if(ptn_size > pattern::size){
-				ptn_size = pattern::size;
-			}
-		}
-	}else{
-		if(ptn_size != pattern::size){
-			fin.close();
-			cout << "Error: The pattern.size does not match." << endl;
-			return;
-		}
-	}
-	if(ptn_length != pattern::length){
+	_READ(ele_size);
+	_READ(ptn_size);
+	_READ(group_size);
+
+	if(ptn_size != sizeof(pattern)){
 		fin.close();
-		cout << "The pattern.length does not match." << endl;
+		cout << "Error: The size of pattern does not match." << endl;
+		return;
+	}
+	if(ele_size != sizeof(element)){
+		fin.close();
+		cout << "Error: The size of element does not match." << endl;
 		return;
 	}
 	
 	this->vec.reserve(group_size);
-	if(is_compress){
-		size_t ptr_size = ptn_size * 6561;
-		float* ptr = new float[ptr_size];
-		for(size_t i = 0;i != group_size && i < size_t(num);++i){
-			this->vec.emplace_back();
-			this->record.emplace_back(0);
-			//_READ(this->vec.back());
-			//fin.read((char *)(&this->vec.back()),sizeof(float) * ptn_size * pattern::length);
-			fin.read((char *)(ptr),ptr_size * sizeof(float));
-			this->vec.back().decompress(ptr);
-		}
-		delete ptr;
-	}else{
-		for(size_t i = 0;i != group_size && i < size_t(num);++i){
-			this->vec.emplace_back();
-			this->record.emplace_back(0);
-			//_READ(this->vec.back());
-			fin.read((char *)(&this->vec.back()),sizeof(float) * ptn_size * pattern::length);
-		}
+
+	for(size_t i = 0;i != group_size && i < size_t(num);++i){
+		this->vec.emplace_back();
+		this->record.emplace_back(0);
+		this->vec.back().load(fin);
 	}
+
 	fin.close();
 	#undef _READ
 }
 
-void group::save(const string& filename,const bool& is_compress){
+void group::save(const string& path){
 	#define WRITE(var) fout.write((char *)(&var),sizeof(var))
-	ofstream fout(filename,ios::out | ios::binary);
+	ofstream fout(path,ios::out | ios::binary);
 
+	size_t ele_size = sizeof(element);
+	size_t ptn_size = sizeof(pattern);
 	size_t group_size = vec.size();
-	size_t ptn_size = pattern::size;
-	size_t ptn_length = pattern::length;
 
-	WRITE(group_size);
+	WRITE(ele_size);
 	WRITE(ptn_size);
-	WRITE(ptn_length);
+	WRITE(group_size);
 
-	if(is_compress){
-		size_t ptr_size = ptn_size * 6561;
-		float* ptr = new float[ptr_size];
-		for(auto& ptn:this->vec){
-			ptn.compress(ptr);
-			fout.write((char *)(ptr),ptr_size * sizeof(float));
-		}
-		delete ptr;
-	}else{
-		for(auto& ptn:this->vec){
-			WRITE(ptn);
-		}
+	for(auto& ptn:this->vec){
+		ptn.save(fout);
 	}
+
 	fout.close();
+	#undef WRITE
 }
 
-void group::train(){
-	if(this->vec.empty()){
-		return;
-	}
-	short temp;
-	for(size_t i = 1;i != this->vec.size();++i){
-		for(auto j = 0;j + i != this->vec.size();++j){
-			temp = compete(&vec[j],&vec[j + i]);
-			record[j] += temp;
-			record[j + i] -= temp;
-		}
-		for(auto j = 0;j + i != this->vec.size();++j){
-			temp = compete(&vec[j + i],&vec[j]);
-			record[j] -= temp;
-			record[j + i] += temp;
-		}
+void group::train(cmethod mthd, cshort depth){
+//	if(this->vec.empty()){
+//		return;
+//	}
+//	short temp;
+//	for(size_t i = 1;i != this->vec.size();++i){
+//		for(auto j = 0;j + i != this->vec.size();++j){
+//			temp = compete(&vec[j],&vec[j + i],mthd,depth);
+//			record[j] += temp;
+//			record[j + i] -= temp;
+//		}
+//		for(auto j = 0;j + i != this->vec.size();++j){
+//			temp = compete(&vec[j + i],&vec[j],mthd,depth);
+//			record[j] -= temp;
+//			record[j + i] += temp;
+//		}
+//	}
+
+	for(pattern& ptn:vec){
+		imitate(&ptn,mthd,depth);
 	}
 }
 
