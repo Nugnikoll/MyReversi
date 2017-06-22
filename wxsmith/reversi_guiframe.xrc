@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<wxsmith>
+<resource>
 	<object class="wxFrame" name="reversi_guiFrame">
 		<title>Reversi</title>
 		<icon>E:\LLK\ComputerSci\Cplusplus\reversi\icon\Reversi.bmp</icon>
@@ -283,9 +283,5 @@
 			<widths>-1</widths>
 			<styles>wxSB_NORMAL</styles>
 		</object>
-		<object class="wxFileDialog" variable="dialog_load" member="yes">
-			<message>Select file</message>
-			<wildcard>*.tcl</wildcard>
-		</object>
 	</object>
-</wxsmith>
+</resource>

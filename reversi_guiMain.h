@@ -11,15 +11,18 @@
 #define REVERSI_GUIMAIN_H
 
 //(*Headers(reversi_guiFrame)
+#include <wx/treectrl.h>
 #include <wx/notebook.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/menu.h>
 #include <wx/textctrl.h>
 #include <wx/panel.h>
+#include <wx/filedlg.h>
 #include <wx/frame.h>
 #include <wx/statusbr.h>
 //*)
+#include <wx/treectrl.h>
 
 class reversi_guiFrame: public wxFrame
 {
@@ -43,89 +46,96 @@ class reversi_guiFrame: public wxFrame
 		void on_white(wxCommandEvent& event);
 		void on_undo(wxCommandEvent& event);
 		void on_redo(wxCommandEvent& event);
+		void on_load(wxCommandEvent& event);
 		void on_clear_log(wxCommandEvent& event);
 		void on_clear_term(wxCommandEvent& event);
 		void on_clear_all(wxCommandEvent& event);
-		void on_clockwise(wxCommandEvent& event);
-		void on_counterclockwise(wxCommandEvent& event);
-		void on_horizontal(wxCommandEvent& event);
-		void on_vertical(wxCommandEvent& event);
+		void on_mirror_h(wxCommandEvent& event);
+		void on_mirror_v(wxCommandEvent& event);
+		void on_reflect(wxCommandEvent& event);
+		void on_rotate_r(wxCommandEvent& event);
+		void on_rotate_l(wxCommandEvent& event);
+		void on_context_menu(wxContextMenuEvent& event);
+		void on_tree_item_select(wxTreeEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;
         static const long id_text_label;
-        static const long id_text_terminal;
-        static const long ID_NOTEBOOK1;
-        static const long id_text_input;
-        static const long ID_PANEL1;
-        static const long id_player_black;
-        static const long id_player_white;
-        static const long id_new_game;
-        static const long id_load;
-        static const long id_save;
-        static const long id_quit;
-        static const long id_undo;
-        static const long id_redo;
-        static const long id_clockwise;
-        static const long id_counterclockwise;
-        static const long ID_MENUITEM7;
-        static const long id_horizontal;
-        static const long id_vertical;
-        static const long ID_MENUITEM10;
-        static const long id_clear_log;
-        static const long id_clear_term;
-        static const long id_clear_all;
-        static const long ID_MENUITEM1;
-        static const long ID_MENUITEM2;
-        static const long ID_MENUITEM3;
-        static const long ID_MENUITEM4;
-        static const long ID_MENUITEM5;
-        static const long ID_MENUITEM6;
-        static const long id_algorithm;
-        static const long id_level;
-        static const long id_about;
-        static const long ID_STATUSBAR1;
-        //*)
-
+        static const long id_text_term;
         static const long id_text_log;
+        static const long id_book_tree;
+        static const long id_notebook;
+        static const long id_text_input;
+        static const long id_panel_base;
+        static const long id_menu_black;
+        static const long id_menu_white;
+        static const long id_menu_new;
+        static const long id_menu_load;
+        static const long id_menu_save;
+        static const long id_menu_quit;
+        static const long id_menu_undo;
+        static const long id_menu_redo;
+        static const long id_menu_mirror_h;
+        static const long id_menu_mirror_v;
+        static const long id_menu_reflect;
+        static const long id_menu_rotate_r;
+        static const long id_menu_rotate_l;
+        static const long id_menu_trans;
+        static const long id_menu_clear_log;
+        static const long id_menu_clear_term;
+        static const long id_menu_clear;
+        static const long id_menu_alg_ab;
+        static const long id_menu_alg_pvs;
+        static const long id_menu_alg_trans;
+        static const long id_menu_alg_kill;
+        static const long id_menu_alg_mtdf;
+        static const long id_menu_alg_iter;
+        static const long id_menu_alg;
+        static const long id_menu_level;
+        static const long id_menu_about;
+        static const long id_statusbar;
+        //*)
 
         //(*Declarations(reversi_guiFrame)
-        wxMenuItem* MenuItem8;
-        wxMenuItem* MenuItem26;
-        wxMenuItem* MenuItem7;
-        wxNotebook* Notebook1;
-        wxMenuItem* MenuItem5;
+        wxMenuItem* menu_alg_mtdf;
+        wxMenuItem* menu_save;
+        wxStatusBar* statusbar;
+        wxMenuItem* menu_redo;
+        wxMenuItem* menu_clear_term;
+        wxMenuItem* menu_rotate_l;
+        wxPanel* panel_base;
+        wxTextCtrl* text_term;
+        wxMenu* menu_clear;
+        wxFileDialog* dialog_load;
+        wxMenu* menu_trans;
+        wxNotebook* notebook;
+        wxMenu* menu_alg;
         wxMenu* Menu3;
-        wxMenu* MenuItem3;
-        wxMenuItem* MenuItem4;
-        wxMenuItem* MenuItem14;
+        wxMenuItem* menu_alg_kill;
         wxTextCtrl* text_input;
-        wxMenuItem* MenuItem11;
-        wxMenuItem* MenuItem15;
-        wxMenuItem* MenuItem22;
-        wxPanel* Panel1;
-        wxMenuItem* MenuItem17;
-        wxMenuItem* MenuItem13;
-        wxMenuItem* MenuItem10;
-        wxMenuItem* MenuItem24;
+        wxMenuItem* menu_undo;
+        wxMenu* menu_new;
+        wxMenuItem* menu_reflect;
+        wxBoxSizer* BoxSizer2;
+        wxTreeCtrl* book_tree;
+        wxMenuItem* menu_mirror_v;
+        wxMenuItem* menu_alg_trans;
+        wxMenuItem* menu_level;
+        wxMenu* menu_edit;
         wxStaticText* text_label;
-        wxMenuItem* MenuItem20;
-        wxMenu* MenuItem12;
-        wxStatusBar* StatusBar1;
-        wxMenuItem* MenuItem6;
-        wxMenuItem* MenuItem23;
-        wxTextCtrl* text_terminal;
-        wxMenu* MenuItem25;
-        wxPanel* panel_board;
-        wxMenu* MenuItem21;
-        wxMenuItem* MenuItem16;
-        wxMenuItem* MenuItem9;
-        wxMenu* MenuItem18;
-        wxMenu* Menu4;
-        wxMenuItem* MenuItem19;
-        //*)
-
+        wxMenuItem* menu_load;
+        wxMenuItem* menu_clear_log;
+        wxMenuItem* menu_mirror_h;
+        wxBoxSizer* BoxSizer1;
         wxTextCtrl* text_log;
+        wxMenuItem* menu_black;
+        wxPanel* panel_board;
+        wxMenuItem* menu_alg_iter;
+        wxMenuItem* menu_rotate_r;
+        wxMenuItem* menu_white;
+        wxMenuItem* menu_alg_pvs;
+        wxMenuItem* menu_alg_ab;
+        //*)
 
         DECLARE_EVENT_TABLE()
 };

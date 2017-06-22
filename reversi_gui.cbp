@@ -42,8 +42,6 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="libwxmsw30u.a" />
-					<Add library="libboost_python3-mgw52-mt-1_59.a" />
-					<Add library="libboost_python-mgw52-mt-1_59.a" />
 					<Add directory="F:/Program/wxWidgets/lib/gcc_dll" />
 				</Linker>
 			</Target>
@@ -69,6 +67,7 @@
 			<Add directory="F:/Program/Tcl/lib" />
 		</Linker>
 		<Unit filename="cpptcl.cc" />
+		<Unit filename="flip.cc" />
 		<Unit filename="game.h" />
 		<Unit filename="pattern.cc" />
 		<Unit filename="pattern.h" />
@@ -83,6 +82,13 @@
 		<Unit filename="reversi_guiApp.h" />
 		<Unit filename="reversi_guiMain.cpp" />
 		<Unit filename="reversi_guiMain.h" />
+		<Unit filename="reversi_tcl.cc" />
+		<Unit filename="reversi_tcl.h" />
+		<Unit filename="search.cc" />
+		<Unit filename="tree.cc" />
+		<Unit filename="tree.h" />
+		<Unit filename="type.cc" />
+		<Unit filename="type.h" />
 		<Unit filename="wxsmith/reversi_guiframe.wxs" />
 		<Extensions>
 			<code_completion />
@@ -94,6 +100,15 @@
 					<wxFrame wxs="wxsmith/reversi_guiframe.wxs" src="reversi_guiMain.cpp" hdr="reversi_guiMain.h" fwddecl="0" i18n="1" name="reversi_guiFrame" language="CPP" />
 				</resources>
 			</wxsmith>
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

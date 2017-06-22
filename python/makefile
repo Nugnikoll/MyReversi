@@ -2,10 +2,10 @@ pylib_path = /lib/python2.7/config/
 pyhead_path = /usr/include/python2.7/
 src_path = ../
 
-src = $(addprefix $(src_path),reversi.cc pattern.cc)
-head = $(addprefix $(src_path),reversi.h pattern.h game.h)
-obj = reversi_wrap.o reversi.o pattern.o
-target = _reversi.dll
+src = $(addprefix $(src_path),type.cc reversi.cc flip.cc search.cc pattern.cc tree.cc)
+head = $(addprefix $(src_path),type.h reversi.h pattern.h game.h tree.h)
+obj = reversi_wrap.o type.o reversi.o flip.o search.o pattern.o tree.o
+target = _reversi.cp35-win_amd64.pyd
 
 cc = gcc
 cxx = g++
@@ -16,21 +16,10 @@ compile_option = -Wall -std=c++11 -O2 -c
 all: $(target)
 
 clean:
-	-rm -f *.o *.cxx *.pyd *.exe *.dll
+	-del *.o *.cxx *.pyd *.pyc *.exe *.dll
 
-$(target): $(obj)
-	$(cxx) -shared -L$(pylib_path) $(obj) -lpython2.7 -o $@
-
-$(obj): $(head)
-
-reversi.o: $(src_path)reversi.cc
-	$(cxx) $(compile_option) $< -o $@
-
-pattern.o: $(src_path)pattern.cc
-	$(cxx) $(compile_option) $< -o $@
-
-reversi_wrap.o: reversi_wrap.cxx
-	$(cxx) $(compile_option) -I$(pyhead_path) $< -o $@
+$(target): reversi_wrap.cxx setup.py $(src)
+	python setup.py build_ext --inplace --compiler=mingw32
 
 reversi_wrap.cxx: reversi.i $(head)
 	swig -python -c++ -threads $<
