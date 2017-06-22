@@ -266,9 +266,9 @@ calc_type board::search_mtd(
 }
 
 //Iterative_deepening(root)
-//1:	firstguess ¡û 0
+//1:	firstguess <- 0
 //2:	for depth = 1 to MAX_SEARCH_DEPTH do
-//3:		firstguess ¡û MTDF(root, firstguess, depth)
+//3:		firstguess <- MTDF(root, firstguess, depth)
 //4:		if times_up() then
 //5:		break
 //6:	return firstguess
