@@ -1,9 +1,11 @@
-%module reversi
+%module(directors="1") reversi
 
 %include <std_string.i>
 %include <std_vector.i>
 %include <cpointer.i>
 %include <carrays.i>
+
+%feature("director") game;
 
 %{
 #include "../type.h"

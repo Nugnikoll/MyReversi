@@ -106,4 +106,12 @@ enum sts_type{
 class board;
 struct choice;
 
+#ifdef USE_REF
+	typedef const board& cboard;
+	typedef const choice& cchoice;
+#else
+	typedef board cboard;
+	typedef choice cchoice;
+#endif //USE_REF
+
 #endif //TYPE_H

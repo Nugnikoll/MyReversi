@@ -4,11 +4,59 @@ import re
 import codecs
 import wx
 from wx import xrc
-import reversi as rv
+import reversi
+import _thread
+import time
 import pdb
 
-rv.board.config();
-mygame = rv.game();
+bias = 10;
+num = 8;
+cell = 50;
+width = num * cell;
+cbias = bias + cell / 2;
+radius = cell / 2 - 5;
+
+class game_gui(reversi.game):
+	def show(self):
+		self.do_show(self.dc);
+	def do_show(self,dc):
+		dc.Clear();
+		
+		#draw valid moves
+		dc.SetBrush(wx.Brush(wx.Colour(23,95,0)));
+		dc.SetPen(wx.Pen(wx.Colour(23,95,0),4));
+		brd_move = self.brd.get_move(self.color);
+		for i in range(reversi.board.size2):
+			if brd_move & (1 << i):
+				dc.DrawRectangle(bias + cell * (i & 7),bias + cell * (i >> 3),cell,cell);
+		
+		#draw a board
+		dc.SetPen(wx.Pen(wx.BLACK,4));
+		for i in range(num + 1):
+			dc.DrawLine(bias,bias + cell * i,bias + width,bias + cell * i);
+		for i in range(num + 1):
+			dc.DrawLine(bias + cell * i,bias,bias + cell * i,bias + width);
+		
+		for i in range(num):
+			for j in range(num):
+				chssmn = self.brd.get(i + (j << 3));
+				if chssmn == reversi.black:
+					dc.SetBrush(wx.Brush(wx.Colour(40,40,40)));
+					dc.SetPen(wx.Pen(wx.Colour(20,20,20),4));
+					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
+				elif chssmn == reversi.white:
+					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
+					dc.SetPen(wx.Pen(wx.Colour(230,230,230),4));
+					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
+		
+		#show where is the last move
+		dc.SetBrush(wx.TRANSPARENT_BRUSH);
+		dc.SetPen(wx.Pen(wx.YELLOW,4));
+		dc.DrawCircle(wx.Point(cbias + cell * self.pos.x,cbias + cell * self.pos.y),radius);
+
+reversi.board.config();
+mygame = game_gui();
+mygame.flag_print_term = False;
 
 wxsfile = "../wxsmith/reversi_guiframe.wxs"
 fobj = codecs.open(wxsfile,"r","UTF-8");
@@ -29,6 +77,13 @@ xrcfile = "../wxsmith/reversi_guiframe.xrc"
 fobj = codecs.open(xrcfile,"w","UTF-8");
 fobj.writelines(lines_parse);
 fobj.close();
+
+evt_thrd_id = wx.NewId();
+class thrd_event(wx.PyEvent):
+	def __init__(self,data):
+		wx.PyEvent.__init__(self);
+		self.SetEventType(evt_thrd_id);
+		self.data = data;
 
 class reversi_app(wx.App):
 
@@ -63,6 +118,7 @@ class reversi_app(wx.App):
 		self.Bind(wx.EVT_MENU,self.on_reflect,id = xrc.XRCID("id_menu_reflect"));
 		self.Bind(wx.EVT_MENU,self.on_rotate_r,id = xrc.XRCID("id_menu_rotate_r"));
 		self.Bind(wx.EVT_MENU,self.on_rotate_l,id = xrc.XRCID("id_menu_rotate_l"));
+		self.Connect(-1,-1,evt_thrd_id,self.thrd_catch);
 
 		# Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
 		
@@ -72,6 +128,9 @@ class reversi_app(wx.App):
 		self.frame.SetMinSize(size_suit);
 		self.frame.SetSize(size_suit);
 		self.frame.Show();
+		self.thrd_lock = False;
+
+		mygame.dc = wx.ClientDC(self.panel_board);
 
 	def on_quit(self,event):
 		self.Close();
@@ -80,59 +139,26 @@ class reversi_app(wx.App):
 	def on_panel_board_paint(self, event):
 		self.paint();
 	def paint(self):
-		bias = 10;
-		num = 8;
-		cell = 50;
-		width = num * cell;
-		cbias = bias + cell / 2;
-		radius = cell / 2 - 5;
-
 		dc = wx.ClientDC(self.panel_board);
-		dc.Clear();
-		
-		#draw valid moves
-		dc.SetBrush(wx.Brush(wx.Colour(23,95,0)));
-		dc.SetPen(wx.Pen(wx.Colour(23,95,0),4));
-		brd_move = mygame.brd.get_move(mygame.color);
-		for i in range(rv.board.size2):
-			if brd_move & (1 << i):
-				dc.DrawRectangle(bias + cell * (i & 7),bias + cell * (i >> 3),cell,cell);
-		
-		#draw a board
-		dc.SetPen(wx.Pen(wx.BLACK,4));
-		for i in range(num + 1):
-			dc.DrawLine(bias,bias + cell * i,bias + width,bias + cell * i);
-		for i in range(num + 1):
-			dc.DrawLine(bias + cell * i,bias,bias + cell * i,bias + width);
-		
-		for i in range(num):
-			for j in range(num):
-				chssmn = mygame.brd.get(i + (j << 3));
-				if chssmn == rv.black:
-					dc.SetBrush(wx.Brush(wx.Colour(40,40,40)));
-					dc.SetPen(wx.Pen(wx.Colour(20,20,20),4));
-					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
-				elif chssmn == rv.white:
-					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
-					dc.SetPen(wx.Pen(wx.Colour(230,230,230),4));
-					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
-		
-		#show where is the last move
-		dc.SetBrush(wx.TRANSPARENT_BRUSH);
-		dc.SetPen(wx.Pen(wx.YELLOW,4));
-		dc.DrawCircle(wx.Point(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
-	
+		mygame.do_show(dc)
 	def _print(self,s):
 		self.text_term.AppendText(str(s) + "\n");
-	def process(self,s):
-		self.text_term.AppendText(">>" + s + "\n");
-		exec(s);
+	def refresh(self):
 		if mygame.flag_log:
 			self.text_log.AppendText(mygame.log_string);
 			mygame.flag_log = False;
 		if mygame.flag_show:
 			self.paint();
 			mygame.flag_show = False;
+		if mygame.flag_term:
+			self.text_term.AppendText(mygame.term_string);
+			mygame.flag_term = False;
+	def process(self,s):
+		if self.thrd_lock:
+			return;
+		self.text_term.AppendText(">>" + s + "\n");
+		exec(s);
+		self.refresh();
 	def on_text_input_textenter(self,event):
 		self.process(self.text_input.GetValue());
 	def on_black(self,event):
@@ -140,7 +166,7 @@ class reversi_app(wx.App):
 	def on_white(self,event):
 		self.process("mygame.start();");
 		self.process(
-			"result = mygame.play(rv.mthd_default,True);\n"
+			"result = mygame.play(reversi.mthd_default,True);\n"
 			+ "result = (result.x,result.y);\n"
 			+ "self._print(result);"
 		);
@@ -172,19 +198,35 @@ class reversi_app(wx.App):
 		self.process("self.text_log.Clear();");
 		self.process("self.text_term.Clear();");
 	def on_panel_board_leftdown(self,event):
-		bias = 10;
-		cell = 50;
 		# if mygame.is_lock:
 			# return;
 		pos = event.GetPosition();
 		x = int((pos.x - bias) / cell);
 		y = int((pos.y - bias) / cell);
 		self.process(
-			"result = mygame.play(rv.coordinate(" + str(x) + ","
-			+ str(y) + "),rv.mthd_default);\n"
+			"result = mygame.play(reversi.coordinate(" + str(x) + ","
+			+ str(y) + "),reversi.mthd_default);\n"
 			+ "result = (result.x,result.y);\n"
 			+ "self._print(result);"
 		)
+
+	def thrd_launch(self,fun,param):
+		self.thrd_lock = True;
+		_thread.start_new_thread(fun,param);
+	def thrd_catch(self,event):
+		self.refresh();
+		self.thrd_lock = False;
+	def thrd_wrap(self,fun,param):
+		result = fun(param);
+		if result != None:
+			mygame.term_string = str(result) + "\n";
+			mygame.flag_term = True;
+		wx.PostEvent(self,thrd_event(None));
+	def sleep(self,count):
+		time.sleep(count);
+		mygame.term_string = "sleep for %d seconds\n" % count;
+		mygame.flag_term = True;
+		wx.PostEvent(self, thrd_event(None));
 
 # def on_context_menu(wxContextMenuEvent& event){
 	# //wxMenu* menu = new wxMenu();

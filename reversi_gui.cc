@@ -3,20 +3,108 @@
 
 game_gui mygame;
 group grp;
+tree book;
 
-void game_gui::show(){
-	wxClientDC dc(ptr_panel);
-	mygame.do_show(dc);
+wxFrame* ptr_frame;
+wxPanel* ptr_panel;
+wxTextCtrl* ptr_term;
+wxTextCtrl* ptr_log;
+wxTextCtrl* ptr_input;
+wxTreeCtrl* ptr_book;
+
+interpreter* ptr_inter;
+
+string prompt = ">>";
+
+object brd2obj(cboard brd){
+	object result;
+	result.append(*ptr_inter,object((int)(brd.bget(true) >> 32)));
+	result.append(*ptr_inter,object((int)(brd.bget(true))));
+	result.append(*ptr_inter,object((int)(brd.bget(false) >> 32)));
+	result.append(*ptr_inter,object((int)(brd.bget(false))));
+	return result;
 }
 
-void game_gui::do_show(wxDC& dc){
+board obj2brd(const object& obj){
+	board brd;
+	brd_type brd_black,brd_white;
+	brd_black = (unsigned int)obj.at(*ptr_inter,0).get<int>(*ptr_inter);
+	brd_black <<= 32;
+	brd_black |= (unsigned int)obj.at(*ptr_inter,1).get<int>(*ptr_inter);
+	brd_white = (unsigned int)obj.at(*ptr_inter,2).get<int>(*ptr_inter);
+	brd_white <<= 32;
+	brd_white |= (unsigned int)obj.at(*ptr_inter,3).get<int>(*ptr_inter);
+	brd.assign(brd_black,brd_white);
+	return brd;
+}
+
+object choice2obj(cchoice c){
+	object result;
+	result.append(*ptr_inter,object(double(c.val)));
+	result.append(*ptr_inter,object(int(c.pos & 7)));
+	result.append(*ptr_inter,object(int(c.pos >> 3)));
+	return result;
+}
+
+choice obj2choice(const object& obj){
+	choice result;
+	result.val = obj.at(*ptr_inter,0).get<double>(*ptr_inter);
+	result.pos = obj.at(*ptr_inter,1).get<int>(*ptr_inter)
+		+ (obj.at(*ptr_inter,2).get<int>(*ptr_inter) << 3);
+	return result;
+}
+
+template<typename T>
+object vec2obj(const vector<T>& vec){
+		object result;
+		for(const T& i:vec){
+			result.append(*ptr_inter,object(i));
+		}
+		return result;
+}
+
+template<>
+object vec2obj(const vector<object>& vec){
+		object result;
+		for(const object& i:vec){
+			result.append(*ptr_inter,i);
+		}
+		return result;
+}
+
+vector<object> obj2vec(const object& objs){
+		vector<object> result;
+		object obj;
+		int num = objs.length(*ptr_inter);
+		for(int i = 0;i != num;++i){
+			obj = objs.at(*ptr_inter,i);
+			result.push_back(obj);
+		}
+		return result;
+}
+
+void show_choice(const vector<choice>& choices){
+	wxClientDC dc(ptr_panel);
+	dc.SetTextForeground(wxColor(255,0,150));
+	dc.SetFont(wxFont(8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT));
+	wxString str;
+	pos_type x,y;
+	for(const choice& c:choices){
+		x = c.pos & 7;
+		y = c.pos >> 3;
+		str = wxString::FromDouble(c.val);
+		dc.DrawText(str,bias + cell * x  + cell / 2 - 4 * str.size(),bias + cell * y + cell / 2 - 8);
+	}
+}
+
+void do_show(wxDC& dc){
 
 	dc.Clear();
 
 	//draw valid moves
 	dc.SetBrush(wxBrush(wxColor(23,95,0)));
 	dc.SetPen(wxPen(wxColor(23,95,0),4));
-	brd_type brd_move = mygame.brd.get_move(color);
+	brd_type brd_move = mygame.brd.get_move(mygame.color);
 	for(int i = 0;i != board::size2;++i){
 		if(brd_move & (1ull << i))
 		dc.DrawRectangle(bias + cell * (i & 7),bias + cell * (i >> 3),cell,cell);
@@ -35,7 +123,7 @@ void game_gui::do_show(wxDC& dc){
 
 	for(int i = 0;i != num;++i){
 		for(int j = 0;j != num;++j){
-			chssmn = brd.get(i + (j << 3));
+			chssmn = mygame.brd.get(i + (j << 3));
 			if(chssmn == black){
 				dc.SetBrush(wxBrush(wxColor(40,40,40)));
 				dc.SetPen(wxPen(wxColor(20,20,20),4));
@@ -51,15 +139,44 @@ void game_gui::do_show(wxDC& dc){
 	//show where is the last move
 	dc.SetBrush(*wxTRANSPARENT_BRUSH);
 	dc.SetPen(wxPen(*wxYELLOW,4));
-	dc.DrawCircle(wxPoint(cbias + cell * pos.x,cbias + cell * pos.y),radius);
+	dc.DrawCircle(wxPoint(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
 }
 
+void game_gui::show(){
+	wxClientDC dc(ptr_panel);
+	do_show(dc);
+}
+
+void load_book(const string& path){
+	book.load(path);
+	ptr_book->DeleteAllItems();
+	wxTreeItemId item_root = ptr_book->AddRoot(_("Root"));
+	load_node(item_root,book.root);
+}
+
+void load_node(const wxTreeItemId& item, node* ptr){
+	wxTreeItemId item_branch;
+	ostringstream out;
+
+	for(ptr = ptr->child;ptr;ptr = ptr->sibling){
+		out << "x:" << (ptr->dat.pos & 7) << " y:" << (ptr->dat.pos >> 3)
+			<< " " << (ptr->dat.color ? "black" : "white")
+			<< " win:" << ptr->dat.win
+			<< " lose:" << ptr->dat.lose;
+		item_branch = ptr_book->AppendItem(item,out.str(),-1,-1,new myTreeItemData(ptr));
+		out.str("");
+		load_node(item_branch,ptr);
+	}
+}
+
+
+
 void quit(){
-	mygame.ptr_frame->Destroy();
+	ptr_frame->Destroy();
 }
 
 void term_print(const string& str){
-	mygame.ptr_term->AppendText(str + "\n");
+	ptr_term->AppendText(str + "\n");
 }
 
 void start(){
@@ -67,7 +184,7 @@ void start(){
 }
 
 void auto_show(cbool flag){
-	mygame.flag_auto_show = flag;
+	mygame.flag_print_term = flag;
 }
 
 void auto_save(cbool flag){
@@ -75,11 +192,12 @@ void auto_save(cbool flag){
 }
 
 object bget(){
-	return mygame.bget();
+	return brd2obj(mygame.brd);
 }
 
 void assign(const object& obj){
-	return mygame.assign(obj);
+	board brd = obj2brd(obj);
+	mygame.brd = brd;
 }
 
 int visit(cint x, cint y){
@@ -103,7 +221,7 @@ float score(cbool color, cint stage){
 }
 
 object eval_ptn(cbool color){
-	return mygame.eval_ptn(color);
+	return vec2obj(mygame.eval_ptn(color));
 }
 
 void config(){
@@ -116,16 +234,16 @@ bool flip(cbool color,cint x,cint y){
 object play(cint mthd,cbool color,cint height){
 	auto pos = mygame.play(method(mthd),color,height);
 	object result;
-	result.append(*mygame.ptr_inter,object(int(pos.x)));
-	result.append(*mygame.ptr_inter,object(int(pos.y)));
+	result.append(*ptr_inter,object(int(pos.x)));
+	result.append(*ptr_inter,object(int(pos.y)));
 	return result;
 }
 
 object plays(cint x,cint y,cint mthd){
 	auto pos = mygame.play(coordinate(x,y),method(mthd));
 	object result;
-	result.append(*mygame.ptr_inter,object(int(pos.x)));
-	result.append(*mygame.ptr_inter,object(int(pos.y)));
+	result.append(*ptr_inter,object(int(pos.x)));
+	result.append(*ptr_inter,object(int(pos.y)));
 	return result;
 }
 
@@ -162,17 +280,17 @@ void set_color(cbool color){
 }
 
 bool get_is_lock(){
-	return mygame.is_lock;
+	return mygame.flag_lock;
 }
 
-void set_is_lock(cbool is_lock){
-	mygame.is_lock = is_lock;
+void set_is_lock(cbool flag_lock){
+	mygame.flag_lock = flag_lock;
 }
 
 object get_pos(){
 	object result;
-	result.append(*mygame.ptr_inter,object(int(mygame.pos.x)));
-	result.append(*mygame.ptr_inter,object(int(mygame.pos.y)));
+	result.append(*ptr_inter,object(int(mygame.pos.x)));
+	result.append(*ptr_inter,object(int(mygame.pos.y)));
 	return result;
 }
 
@@ -181,19 +299,26 @@ void set_pos(cint x,cint y){
 }
 
 object get_choice(cint mthd,cbool color,cint height,cint stage){
-	return mygame.get_choice(mthd,color,height,stage);
+	vector<choice> choices = mygame.get_choice(method(mthd),color,height,stage);
+	show_choice(choices);
+	vector<object> vec;
+	for(const choice& c:choices){
+		vec.push_back(choice2obj(c));
+	}
+	return vec2obj(vec);
 }
 
-object select_choice(object obj_choices){
-	return mygame.select_choice(obj_choices);
+object select_choice(object objs){
+	vector<object> vec = obj2vec(objs);
+	vector<choice> choices;
+	for(const object& obj:vec){
+		choices.push_back(obj2choice(obj));
+	}
+	return choice2obj(mygame.select_choice(choices));
 }
 
 void load(const string& path){
-	return mygame.load(path);
-};
-
-void load_book(const string& path){
-	return mygame.load_book(path);
+	return book.load(path);
 };
 
 void grp_assign(cint size){
@@ -218,7 +343,7 @@ void use_ptn(cint num){
 	set_ptn(grp.get(num));
 }
 
-void game_gui::process(const string& str){
+void process(const string& str){
 
 	static interpreter inter;
 	static bool flag = true;
@@ -277,24 +402,6 @@ void game_gui::process(const string& str){
 
 		inter.def("load_book",::load_book);
 
-		inter.class_<board>("board");
-//			.def("initial",board::tcl_initial)
-//			.def("bget",board::tcl_bget);		
-
-		inter.class_<pattern>("pattern")
-			.def("initial",pattern::initial)
-			.def("get1",pattern::get1)
-			.def("get2",pattern::get2);
-
-		inter.class_<group>("group")
-			.def("assign",group::assign)
-			.def("initial",group::initial)
-			.def("load",group::load)
-			.def("save",group::save)
-			.def("get",group::get,factory("pattern"))
-			//.def("train",group::train)
-			.def("print_record",group::print_record);
-
 		inter.eval(
 			"set blank 0;"
 			"set white 1;"
@@ -319,7 +426,7 @@ void game_gui::process(const string& str){
 	}
 
 	ptr_term->AppendText(prompt + str + "\n");
-	if(flag_log){
+	if(mygame.flag_log){
 		ptr_log->AppendText(mygame.log_string);
 	}
 	try{
@@ -329,7 +436,7 @@ void game_gui::process(const string& str){
 	}
 }
 
-void game_gui::load(const string& path){
+void load_script(const string& path){
 	if(wxFileExists(path)){
 		ptr_log->AppendText(_("open the file \"") + path + "\"\n");
 		wxTextFile fileopen(path);

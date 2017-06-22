@@ -259,22 +259,16 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     Connect(id_menu_about,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::OnAbout);
     //*)
 
-//	Connect(id_menu_black,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_black);
-//	Connect(id_menu_white,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_white);
-//	Connect(id_menu_undo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_undo);
-//	Connect(id_menu_redo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_redo);
-//	Connect(id_menu_load,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_load);
 	Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
-
 	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
 
-	mygame.ptr_frame = this;
-	mygame.ptr_panel = panel_board;
-	mygame.ptr_term = text_term;
-	mygame.ptr_input = text_input;
-	mygame.ptr_log = text_log;
-	mygame.ptr_book = book_tree;
-	mygame.is_lock = true;
+	ptr_frame = this;
+	ptr_panel = panel_board;
+	ptr_term = text_term;
+	ptr_input = text_input;
+	ptr_log = text_log;
+	ptr_book = book_tree;
+	mygame.flag_lock = true;
 
 	#ifdef DEBUG_SEARCH
 		out.open("out.html");
@@ -308,24 +302,24 @@ void reversi_guiFrame::OnClose(wxCloseEvent& event)
 void reversi_guiFrame::on_panel_board_paint(wxPaintEvent& event)
 {
 	wxClientDC dc(panel_board);
-	mygame.do_show(dc);
+	do_show(dc);
 }
 
 void reversi_guiFrame::on_black(wxCommandEvent& event){
-	mygame.process("start");
+	process("start");
 }
 
 void reversi_guiFrame::on_white(wxCommandEvent& event){
-	mygame.process("start");
-	mygame.process("puts [play $mthd_default $true 7]");
+	process("start");
+	process("puts [play $mthd_default $true 7]");
 }
 
 void reversi_guiFrame::on_undo(wxCommandEvent& event){
-	mygame.process("undo");
+	process("undo");
 }
 
 void reversi_guiFrame::on_redo(wxCommandEvent& event){
-	mygame.process("redo");
+	process("redo");
 }
 
 void reversi_guiFrame::on_load(wxCommandEvent& event){
@@ -335,28 +329,28 @@ void reversi_guiFrame::on_load(wxCommandEvent& event){
 		while((pos = path.find("\\",pos + 2)) != path.npos){
 			path.replace(pos,1,"\\\\");
 		}
-		mygame.process(string("load ") + path);
+		process(string("load ") + path);
 	}
 }
 
 void reversi_guiFrame::on_rotate_r(wxCommandEvent& event){
-	mygame.process("rotate_r");
+	process("rotate_r");
 }
 
 void reversi_guiFrame::on_rotate_l(wxCommandEvent& event){
-	mygame.process("rotate_l");
+	process("rotate_l");
 }
 
 void reversi_guiFrame::on_mirror_h(wxCommandEvent& event){
-	mygame.process("mirror_h");
+	process("mirror_h");
 }
 
 void reversi_guiFrame::on_mirror_v(wxCommandEvent& event){
-	mygame.process("mirror_v");
+	process("mirror_v");
 }
 
 void reversi_guiFrame::on_reflect(wxCommandEvent& event){
-	mygame.process("reflect");
+	process("reflect");
 }
 
 void reversi_guiFrame::on_clear_log(wxCommandEvent& event){
@@ -374,13 +368,13 @@ void reversi_guiFrame::on_clear_all(wxCommandEvent& event){
 
 void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 {
-	if(mygame.is_lock){
+	if(mygame.flag_lock){
 		return;
 	}
 	wxPoint pos = event.GetPosition();
-	int x = (pos.x - mygame.bias) / mygame.cell;
-	int y = (pos.y - mygame.bias) / mygame.cell;
-	mygame.process(
+	int x = (pos.x - bias) / cell;
+	int y = (pos.y - bias) / cell;
+	process(
 		(
 			_("puts [plays ") + wxString::FromDouble(x) + " "
 			+ wxString::FromDouble(y) + _(" $mthd_default]")
@@ -390,7 +384,7 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 
 void reversi_guiFrame::on_text_input_textenter(wxCommandEvent& event)
 {
-	mygame.process(text_input->GetValue().ToStdString());
+	process(text_input->GetValue().ToStdString());
 }
 
 void reversi_guiFrame::on_context_menu(wxContextMenuEvent& event){

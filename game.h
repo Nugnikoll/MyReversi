@@ -16,6 +16,7 @@ public:
 		color = true;
 		pos.x = pos.y = -1;
 		flag_show = false;
+		flag_term = false;
 		flag_log = false;
 	}
 	virtual ~game(){}
@@ -30,41 +31,35 @@ public:
 	};
 	vector<pack> record;
 	vector<pack> storage;
-	tree book;
 
-	string show_string;
-	bool flag_show;
-	bool flag_auto_show = true;
+	bool flag_print_term = true;
 	bool flag_auto_save = true;
-	bool is_lock;
-	string prompt = ">>";
+	bool flag_show;
+	string term_string;
+	bool flag_term;
 	string log_string;
 	bool flag_log;
+	bool flag_lock;
 
 	virtual void show(){
-		ostringstream out;
-		brd.print(out);
-		show_string = out.str();
+		if(flag_print_term){
+			ostringstream out;
+			brd.print(out);
+			term_string = out.str();
+			flag_term = true;
+		}
 		flag_show = true;
 	}
 	void set_color(cbool _color){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		color = _color;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void set_pos(cint x,cint y){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		pos.x = x;
 		pos.y = y;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void start(){
 		color = true;
@@ -73,25 +68,21 @@ public:
 		brd.initial();
 		log_string = "start a new game\n";
 		flag_log = true;
-		is_lock = false;
-		if(flag_auto_show){
-			show();
-		}
+		flag_lock = false;
+		show();
 	}
 
-	virtual bool undo(){
+	bool undo(){
 		bool result = pop();
 		if(result){
 			log_string = "undo\n";
 			flag_log = true;
-			is_lock = false;
-			if(flag_auto_show){
-				show();
-			}
+			flag_lock = false;
+			show();
 		}
 		return result;
 	}
-	virtual bool redo(){
+	bool redo(){
 		if(storage.empty()){
 			return false;
 		}else{
@@ -106,11 +97,9 @@ public:
 
 			log_string = "redo\n";
 			flag_log = true;
-			is_lock = false;
+			flag_lock = false;
 
-			if(flag_auto_show){
-				show();
-			}
+			show();
 			return true;
 		}
 	}
@@ -118,13 +107,9 @@ public:
 		return brd.bget(color);
 	}
 	void assign(cbrd_type _brd_black,cbrd_type _brd_white){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.assign(_brd_black,_brd_white);
-		if(flag_auto_show){
-			show();
-		}
+		show();
 		log_string = "assign new value to the board\n";
 		flag_log = true;
 	}
@@ -133,84 +118,58 @@ public:
 		return brd.get(x + (y << 3));
 	}
 	void set(cpos_type x, cpos_type y, cchessman chsman){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.set(x,y,chsman);
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void mirror_h(){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.mirror_h();
 		pos.x = board::size - pos.x - 1;
 		log_string = "mirror horizontally\n";
 		flag_log = true;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void mirror_v(){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.mirror_v();
 		pos.y = board::size - pos.y - 1;
 		log_string = "mirror vertically\n";
 		flag_log = true;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void rotate_l(){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.rotate_l();
 		swap(pos.x,pos.y);
 		pos.y = 7 - pos.y;
 		log_string = "rotate clockwise\n";
 		flag_log = true;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void rotate_r(){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.rotate_r();
 		swap(pos.x,pos.y);
 		pos.x = 7 - pos.x;
 		log_string = "rotate counterclockwise\n";
 		flag_log = true;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void reflect(){
-		if(flag_auto_save){
-			push();
-		}
+		push();
 		brd.reflect();
 		pos.x = board::size - pos.x - 1;
 		pos.y = board::size - pos.y - 1;
 		log_string = "reflect\n";
 		flag_log = true;
-		if(flag_auto_show){
-			show();
-		}
+		show();
 	}
 	void config(){
 		return brd.config();
 	}
-	virtual bool flip(cbool color, cpos_type x, cpos_type y){
-		if(flag_auto_save){
-			push();
-		}
+	bool flip(cbool color, cpos_type x, cpos_type y){
+		push();
 		bool result = brd.flip(color,x + (y << 3));
 		ostringstream out;
 		if(result){
@@ -227,9 +186,7 @@ public:
 				this->color = !color;
 			}
 			this->pos = coordinate(x,y);
-			if(flag_auto_show){
-				show();
-			}
+			show();
 		}else{
 			if(flag_auto_save){
 				pop();
@@ -271,10 +228,8 @@ public:
 		return brd.select_choice(choices);
 	}
 
-	virtual coordinate play(cmethod mthd,cbool color,cint height = -1){
-		if(flag_auto_save){
-			push();
-		}
+	coordinate play(cmethod mthd,cbool color,cint height = -1){
+		push();
 		auto pos = brd.play(mthd,color,height);
 		if(pos.x >= 0){
 			ostringstream out;
@@ -291,9 +246,7 @@ public:
 				this->color = !color;
 			}
 			this->pos = pos;
-			if(flag_auto_show){
-				show();
-			}
+			show();
 		}else{
 			log_string = 
 				string(color? ("black") : ("white"))
@@ -321,9 +274,7 @@ public:
 			pos = play(mthd,!color_save);
 			status = brd.get_status(color_save);
 			if(pos.x < 0){
-				if(flag_auto_show){
-					show();
-				}
+				show();
 				break;
 			}
 		}
@@ -331,7 +282,7 @@ public:
 		flag_auto_save = flag_auto;
 
 		if(status & sts_end){
-			is_lock = true;
+			flag_lock = true;
 			ostringstream out;
 			out << brd.count(true)
 				<< " black stones and "
@@ -350,15 +301,13 @@ public:
 		return pos;
 	}
 
-	void load_book(const string& path){
-		book.load(path);
-	}
-
 protected:
 	void push(){
-		pack temp = {brd,color,pos};
-		record.push_back(temp);
-		storage.clear();
+		if(flag_auto_save){
+			pack temp = {brd,color,pos};
+			record.push_back(temp);
+			storage.clear();
+		}
 	}
 
 	bool pop(){
