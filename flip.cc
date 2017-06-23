@@ -149,7 +149,7 @@ unsigned short table_flip[1 << 19];
 		: "r"(mask), "r"(brd) \
 		: \
 	)
-//
+
 bool board::flip(cbool color,cpos_type pos){
 
 	brd_type& brd_blue = this->bget(color);
