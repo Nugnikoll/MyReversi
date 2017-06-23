@@ -10,8 +10,6 @@ fobj.close();
 
 lines = "".join(lines);
 
-# suppress redundant include header macros
-lines = re.sub(r"\s*#include *\".*\".*\n","\n",lines);
 # suppress single line comments
 lines = re.sub(r"(.*)//.*\n","\g<1>\n",lines);
 # suppress multi-line comments

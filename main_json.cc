@@ -20,6 +20,7 @@ int main(){
 	bool mycolor;
 
 	board brd;
+	board::config();
 	brd.initial();
  
  	// input JSON
