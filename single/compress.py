@@ -8,7 +8,7 @@ fobj = codecs.open(filename,"r","utf-8");
 lines = fobj.readlines();
 fobj.close();
 
-lines = "".join(lines)
+lines = "".join(lines);
 
 # suppress redundant include header macros
 lines = re.sub(r"\s*#include *\".*\".*\n","\n",lines);
@@ -31,7 +31,6 @@ while True:
 	piece = piece.span();
 	lines_buff += [lines[piece[0]:piece[1]]];
 	lines = lines[piece[1]:];
-
 lines = lines_buff + [lines];
 
 for i in range(len(lines)):
