@@ -3,10 +3,14 @@ import os;
 import codecs
 
 src_dir = "../";
+# src = ["type.h","reversi.h","game.h","pattern.h","tree.h",
+	# "type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc"];
+# src = [src_dir + x for x in src];
+# src += ["main.cc"];
+
 src = ["type.h","reversi.h","game.h","pattern.h","tree.h",
-	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc"];
+	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc","main_json.cc"];
 src = [src_dir + x for x in src];
-src += ["main.cc"];
 
 lines = [];
 for filename in src:
@@ -15,6 +19,11 @@ for filename in src:
 	lines += fobj.readlines();
 	lines[-1] += "\n";
 	fobj.close();
+
+lines = "".join(lines);
+
+# suppress redundant include header macros
+lines = re.sub(r"\s*#include *\"(?!json).*\".*\n","\n",lines);
 
 target = "main_merge.cc"
 
