@@ -113,6 +113,13 @@ public:
 		log_string = "assign new value to the board\n";
 		flag_log = true;
 	}
+	void assign(cboard _brd){
+		push();
+		brd = _brd;
+		show();
+		log_string = "assign new value to the board\n";
+		flag_log = true;
+	}
 
 	chessman get(cpos_type x,cpos_type y){
 		return brd.get(x + (y << 3));
