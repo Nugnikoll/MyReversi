@@ -92,17 +92,12 @@ vector<choice> board::get_choice(
         return choices;
 	}
 
-	if(mthd & mthd_mtdf){
-		trans_black.clear();
-		trans_white.clear();
-	}
-
 	choices.reserve(30);
 
     board brd = *this;
 	for(pos_type i = 0;i != size2;++i){
 		if(brd.flip(color,i)){
-			result = - brd.search(mthd,!color,height,_inf,-alpha,0,stage,gamma);
+			result = - brd.search(mthd,!color,height,_inf,-alpha,stage,gamma);
 			if(result - 5 > alpha){
 				alpha = result - 5;
 			}

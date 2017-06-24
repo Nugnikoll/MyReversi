@@ -95,7 +95,7 @@ object bget(){
 
 void assign(const object& obj){
 	board brd = obj2brd(obj);
-	mygame.brd = brd;
+	mygame.assign(brd);
 }
 
 int visit(cint x, cint y){
@@ -311,13 +311,13 @@ void process(const string& str){
 
 			"set mthd_rnd 0x0;"
 			"set mthd_ab 0x1;"
-			"set mthd_pvs 0x2;"
-			"set mthd_trans 0x4;"
-			"set mthd_kill 0x8;"
+			"set mthd_kill 0x2;"
+			"set mthd_pvs 0x4;"
+			"set mthd_trans 0x8;"
 			"set mthd_mtdf 0x10;"
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
-			"set mthd_default $mthd_ab;"
+			"set mthd_default $mthd_kill;"
 
 			"config;"
 		);
