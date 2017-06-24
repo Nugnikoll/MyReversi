@@ -59,14 +59,14 @@ enum method{
 
 	mthd_rnd = 0x0, // random
 	mthd_ab = 0x1, // alpha beta pruning
-	mthd_pvs = 0x2, // principal variation search
-	mthd_trans = 0x4, // transition table
-	mthd_kill = 0x8, // killer heuristic
+	mthd_kill = 0x2, // killer heuristic
+	mthd_pvs = 0x4, // principal variation search
+	mthd_trans = 0x8, // transition table
 	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
 	mthd_ids = 0x20, // iterative deepening search
 	mthd_ptn = 0x40,
 
-	mthd_default = mthd_ab
+	mthd_default = mthd_kill
 };
 
 #ifdef USE_REF

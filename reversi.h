@@ -311,10 +311,10 @@ public:
 	bool flip(cbool color,cpos_type pos);
 
 	calc_type score(cbool color,cpos_type stage)const{
-		calc_type result = 0;
-
 		brd_type brd_blue = bget(color);
 		brd_type brd_green = bget(!color);
+
+		calc_type result = this->count_move(color) - this->count_move(!color);
 
 		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
 			* table_param[stage][0];
@@ -328,34 +328,14 @@ public:
 		return result;
 	}
 
+	template<method mthd>
+	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta,cshort stage)const;
+
 	calc_type search(
 		cmethod mthd,cbool color,
 		cshort height,ccalc_type alpha = _inf,ccalc_type beta = inf,
-		ccalc_type acc = 0,cshort stage = 0,ccalc_type gamma = 0
-	)const{
-		if(mthd == mthd_rnd){
-			return 0;
-		}else if(mthd & mthd_ptn){
-			return search_ptn(color,height,alpha,beta);
-		}else if(mthd & mthd_mtdf){
-			return search_mtd(color,height,alpha,beta,acc,stage,gamma);
-		}else if(mthd & mthd_trans){
-			return search_trans(color,height,alpha,beta,acc,stage);
-		}else if(mthd & mthd_pvs){
-			return search_pvs(color,height,alpha,beta,acc,stage);
-		}else if(mthd & mthd_ab){
-			return search_ab(color,height,alpha,beta,acc,stage);
-		}else{
-			assert(false);
-			return 0;
-		}
-	};
-
-	calc_type search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
-	calc_type search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
-	calc_type search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
-	calc_type search_mtd(cbool color,cshort height,calc_type alpha,calc_type beta,ccalc_type acc,cshort stage,calc_type gamma)const;
-	float search_ptn(cbool color,cshort height,float alpha,float beta)const;
+		cshort stage = 0,ccalc_type gamma = 0
+	)const;
 
 	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cshort stage = -1,ccalc_type gamma = 0)const;
 
@@ -414,11 +394,6 @@ public:
 protected:
 
 	brd_type brd_black,brd_white;
-
-	static float table_temp[2][board::max_height + 1][board::size2];
-
-	static pos_type table_pos[board::size2][board::size2];
-	static pos_type table_check[board::size2][board::size2];
 
 	static void config_flip();
 	static void config_search();
@@ -567,8 +542,5 @@ struct choice{
 	pos_type pos;
 	float rnd_val;
 };
-
-extern unordered_map<board,board::interval> trans_black;
-extern unordered_map<board,board::interval> trans_white;
 
 #endif // REVERSI_H
