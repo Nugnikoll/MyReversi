@@ -259,8 +259,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					ptr_val[pos] = result;
 				}
 				if(result >= beta){
-					result = beta;
-					break;
+					return beta;
 				}
 				if(result > alpha){
 					alpha = result;
@@ -290,8 +289,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 						ptr_val[pos] = result;
 					}
 					if(result <= alpha){
-						result = alpha;
-						break;
+						return alpha;
 					}
 					if(result < beta){
 						beta = result;
@@ -313,31 +311,28 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 				if(mthd & mthd_trans){
 					auto& trans_interval = trans_ptr->second;
-					if(result < beta_save){
-						trans_interval.second = result;
+					if(beta < beta_save){
+						trans_interval.second = beta;
 					}
-					if(result > alpha_save){
-						trans_interval.first = result;
+					if(beta > alpha_save){
+						trans_interval.first = beta;
 					}
 				}
-				return result;
+				return beta;
 			}
-			result = min(result,beta);
-		}else{
-			result = max(result,alpha);
 		}
 
 		if(mthd & mthd_trans){
 			auto& trans_interval = trans_ptr->second;
-			if(result < beta_save){
-				trans_interval.second = result;
+			if(alpha < beta_save){
+				trans_interval.second = alpha;
 			}
-			if(result > alpha_save){
-				trans_interval.first = result;
+			if(alpha > alpha_save){
+				trans_interval.first = alpha;
 			}
 		}
 
-		return result;
+		return alpha;
 
 	}
 
