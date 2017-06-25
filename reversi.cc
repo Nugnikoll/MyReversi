@@ -79,7 +79,7 @@ void board::print(ostream& out)const{
 }
 
 vector<choice> board::get_choice(
-	cmethod mthd,cbool color,cshort height,cshort stage,ccalc_type gamma
+	cmethod mthd,cbool color,cshort height,ccalc_type gamma
 )const{
 
     vector<choice> choices;
@@ -96,7 +96,7 @@ vector<choice> board::get_choice(
     board brd = *this;
 	for(pos_type i = 0;i != size2;++i){
 		if(brd.flip(color,i)){
-			result = - brd.search(mthd,!color,height,_inf,-alpha,stage,gamma);
+			result = - brd.search(mthd,!color,height,_inf,-alpha,gamma);
 			if(result - 5 > alpha){
 				alpha = result - 5;
 			}
