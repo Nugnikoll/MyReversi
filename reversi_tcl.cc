@@ -114,8 +114,8 @@ int count_move(cbool color){
 	return mygame.count_move(color);
 }
 
-float score(cbool color, cint stage){
-	return mygame.score(color, stage);
+float score(cbool color){
+	return mygame.score(color);
 }
 
 object eval_ptn(cbool color){
@@ -196,8 +196,8 @@ void set_pos(cint x,cint y){
 	mygame.set_pos(x,y);
 }
 
-object get_choice(cint mthd,cbool color,cint height,cint stage){
-	vector<choice> choices = mygame.get_choice(method(mthd),color,height,stage);
+object get_choice(cint mthd,cbool color,cint height){
+	vector<choice> choices = mygame.get_choice(method(mthd),color,height);
 	show_choice(choices);
 	vector<object> vec;
 	for(const choice& c:choices){

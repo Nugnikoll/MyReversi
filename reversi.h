@@ -81,7 +81,6 @@ public:
 		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
 	}
 
-	static const brd_type last = 0x8000000000000000;
 	static const pos_type chessman_num = 4;
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
@@ -310,9 +309,19 @@ public:
 
 	bool flip(cbool color,cpos_type pos);
 
-	calc_type score(cbool color,cpos_type stage)const{
+	calc_type score(cbool color)const{
 		brd_type brd_blue = bget(color);
 		brd_type brd_green = bget(!color);
+		
+		short stage;
+		short total = this->sum();
+		if(total <= 40){
+			stage = 0;
+		}else if(total <= size2 - 7){
+			stage = 1;
+		}else{
+			stage = 2;
+		}
 
 		calc_type result = this->count_move(color) - this->count_move(!color);
 
@@ -341,7 +350,7 @@ public:
 
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
 
-	coordinate play(cmethod mthd,cbool color,short height = -1,cshort stage = -1);
+	coordinate play(cmethod mthd,cbool color,short height = -1);
 
 	sts_type get_status(cbool color){
 		bool flag_black = (count_move(true) == 0);

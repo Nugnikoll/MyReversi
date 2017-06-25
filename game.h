@@ -19,7 +19,7 @@ public:
 		flag_term = false;
 		flag_log = false;
 	}
-	virtual ~game(){}
+	~game(){}
 
 	board brd;
 	bool color;
@@ -208,8 +208,8 @@ public:
 	int count_move(cbool color){
 		return brd.count_move(color);
 	}
-	float score(cbool color,cint stage){
-		return brd.score(color,stage);
+	float score(cbool color){
+		return brd.score(color);
 	}
 	float score_ptn(cbool color){
 		return brd.score_ptn(color);
@@ -218,11 +218,11 @@ public:
 		return brd.eval_ptn(color);
 	}
 	calc_type search(cmethod mthd,cbool color,cshort height,
-		ccalc_type alpha = _inf,ccalc_type beta = inf,cpos_type stage = 0,ccalc_type gamma = 0){
-		return brd.search(mthd,color,height,alpha,beta,stage,gamma);
+		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0){
+		return brd.search(mthd,color,height,alpha,beta,gamma);
 	}
-	vector<choice> get_choice(cmethod mthd,cbool color,cint height,cint stage){
-		return brd.get_choice(mthd,color,height,stage);
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height){
+		return brd.get_choice(mthd,color,height);
 	}
 	choice select_choice(const vector<choice>& choices){
 		return brd.select_choice(choices);
