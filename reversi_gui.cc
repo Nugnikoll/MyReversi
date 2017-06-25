@@ -71,6 +71,10 @@ void game_gui::show(){
 	do_show(dc);
 }
 
+void game_gui::log_print(const string& str){
+	ptr_log->AppendText(str);
+}
+
 void load_book(const string& path){
 	book.load(path);
 	ptr_book->DeleteAllItems();

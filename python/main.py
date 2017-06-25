@@ -65,6 +65,7 @@ class reversi_app(wx.App):
 		self.thrd_lock = False;
 
 		mygame.dc = wx.ClientDC(self.panel_board);
+		mygame.text_log = self.text_log;
 
 	def on_quit(self,event):
 		self.Close();
