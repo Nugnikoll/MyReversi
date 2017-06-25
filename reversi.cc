@@ -4,7 +4,6 @@
 
 #include "reversi.h" //--
 
-const brd_type board::last;
 const pos_type board::chessman_num;
 const pos_type board::size;
 const pos_type board::size2;
@@ -17,7 +16,7 @@ bool board::flag_unicode = true;
 	const calc_type board::mark_max = 100;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
-calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{1,1,1,1}};
+calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{5,2,1,1}};
 
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
@@ -88,8 +87,8 @@ vector<choice> board::get_choice(
     choice temp;
 	calc_type alpha = _inf;
 
-    if(height < 0){
-        return choices;
+	if(height < 0){
+		return choices;
 	}
 
 	choices.reserve(30);
@@ -153,24 +152,7 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 	);
 }
 
-coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
-
-	if(stage < 0){
-		short total = this->sum();
-		if(total <= 7){
-			stage = 0;
-		}else if(total <= 10){
-			stage = 0;
-		}else if(total <= 33){
-			stage = 0;
-		}else if(total <= size2 - 23){
-			stage = 1;
-		}else if(total <= size2 - 16){
-			stage = 1;
-		}else{
-			stage = 2;
-		}
-	}
+coordinate board::play(cmethod mthd,cbool color,short height){
 
 	if(height < 0){
 		short total = this->sum();
@@ -178,8 +160,6 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 			height = 9;
 		}else if(total <= 10){
 			height = 8;
-		}else if(total <= 33){
-			height = 7;
 		}else if(total <= size2 - 22){
 			height = 7;
 		}else if(total <= size2 - 15){
@@ -189,7 +169,7 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 		}
 	}
 
-	vector<choice> choices = get_choice(mthd,color,height,stage);
+	vector<choice> choices = get_choice(mthd,color,height);
 	if(choices.empty()){
 		return coordinate(-1,-1);
 	}else{
