@@ -338,15 +338,14 @@ public:
 	}
 
 	template<method mthd>
-	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta,cshort stage)const;
+	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta)const;
 
 	calc_type search(
-		cmethod mthd,cbool color,
-		cshort height,ccalc_type alpha = _inf,ccalc_type beta = inf,
-		cshort stage = 0,ccalc_type gamma = 0
+		cmethod mthd,cbool color,cshort height,
+		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0
 	)const;
 
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cshort stage = -1,ccalc_type gamma = 0)const;
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,ccalc_type gamma = 0)const;
 
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
 
