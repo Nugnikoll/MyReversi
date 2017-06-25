@@ -1,5 +1,27 @@
 #include "reversi.h"
 
+const pos_type pos_diag1[board::size2] = {
+	0,0,0,0,0,0,0,0,
+	1,1,1,1,1,1,1,0,
+	2,2,2,2,2,2,1,0,
+	3,3,3,3,3,2,1,0,
+	4,4,4,4,3,2,1,0,
+	5,5,5,4,3,2,1,0,
+	6,6,5,4,3,2,1,0,
+	7,6,5,4,3,2,1,0
+};
+
+const pos_type pos_diag2[board::size2] = {
+	0,0,0,0,0,0,0,0,
+	0,1,1,1,1,1,1,1,
+	0,1,2,2,2,2,2,2,
+	0,1,2,3,3,3,3,3,
+	0,1,2,3,4,4,4,4,
+	0,1,2,3,4,5,5,5,
+	0,1,2,3,4,5,6,6,
+	0,1,2,3,4,5,6,7
+};
+
 const brd_type mask_h[board::size] = {
 	0x00000000000000ff,
 	0x000000000000ff00,
@@ -57,6 +79,8 @@ const brd_type mask_d2[board::size * 2 - 1] = {
 	0x0201000000000000,
 	0x0100000000000000
 };
+
+brd_type mask_hvd[board::size2];
 
 const brd_type mask_adj[board::size2] = {
 	0x0000000000000302,
@@ -165,14 +189,13 @@ bool board::flip(cbool color,cpos_type pos){
 	brd_type brd_save = brd_blue;
 
 	brd_type piece, temp, mask, brd_result;
-	brd_type sum_blue = 0, sum_green = 0, sum_mask = 0;
+	brd_type sum_blue = 0, sum_green = 0;
 	brd_type pos_x = pos & 0x7;
 	brd_type pos_y = pos >> 3;
-	brd_type pos_d;
 
 	//horizontal
 	mask = mask_h[pos_y];
-	piece = (pos_x << 16);
+	piece = pos_x << 16;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -183,11 +206,10 @@ bool board::flip(cbool color,cpos_type pos){
 	piece >>= 8;
 	asm_pdep(piece,mask,brd_result);
 	sum_blue |= brd_result;
-	sum_mask |= mask;
 
 	//vertical
 	mask = mask_v[pos_x];
-	piece = (pos_y << 16);
+	piece = pos_y << 16;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -198,21 +220,10 @@ bool board::flip(cbool color,cpos_type pos){
 	piece >>= 8;
 	asm_pdep(piece,mask,brd_result);
 	sum_blue |= brd_result;
-	sum_mask |= mask;
 
 	//diagonal
-	pos_d = pos_x + pos_y;
-	mask = mask_d1[pos_d];
-	pos_d -= 7;
-	asm volatile(
-		"mov $0, %%rax;"
-		"cmp $0, %0;"
-		"cmovl %%rax, %0;"
-		:"=r"(pos_d)
-		:"0"(pos_d)
-		:"rax"
-	);
-	piece = ((pos_y - pos_d) << 16);
+	mask = mask_d1[pos_x + pos_y];
+	piece = pos_diag1[pos] << 16;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -223,21 +234,10 @@ bool board::flip(cbool color,cpos_type pos){
 	piece >>= 8;
 	asm_pdep(piece,mask,brd_result);
 	sum_blue |= brd_result;
-	sum_mask |= mask;
 
 	//diagonal
-	pos_d = pos_y + 7 - pos_x;
-	mask = mask_d2[pos_d];
-	pos_d -= 7;
-	asm volatile(
-		"mov $0, %%rax;"
-		"cmp $0, %0;"
-		"cmovl %%rax, %0;"
-		:"=r"(pos_d)
-		:"0"(pos_d)
-		:"rax"
-	);
-	piece = ((pos_y - pos_d) << 16);
+	mask = mask_d2[pos_y + 7 - pos_x];
+	piece = pos_diag2[pos] << 16;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -248,10 +248,10 @@ bool board::flip(cbool color,cpos_type pos){
 	piece >>= 8;
 	asm_pdep(piece,mask,brd_result);
 	sum_blue |= brd_result;
-	sum_mask |= mask;
 
-	brd_blue = (brd_blue & ~sum_mask) | (sum_blue & sum_mask);
-	brd_green = (brd_green & ~sum_mask) | (sum_green & sum_mask);
+	mask = mask_hvd[pos];
+	brd_blue = (brd_blue & ~mask) | (sum_blue & mask);
+	brd_green = (brd_green & ~mask) | (sum_green & mask);
 
 	bool result = (brd_blue != brd_save);
 	return result;
@@ -312,6 +312,18 @@ unsigned short flip_line(cbrd_type data){
 }
 
 void board::config_flip(){
+	brd_type mask;
+	pos_type pos_x,pos_y;
+	for(pos_type i = 0;i != size2;++i){
+		pos_x = i & 0x7;
+		pos_y = i >> 3;
+		mask = mask_h[pos_y];
+		mask |= mask_v[pos_x];
+		mask |= mask_d1[pos_x + pos_y];
+		mask |= mask_d2[pos_y + 7 - pos_x];
+		mask_hvd[i] = mask;
+	}
+
 	for(brd_type i = 0;i != (1 << 19);++i){
 		if((i >> 8) & i & 0xff){}else{
 			table_flip[i] = flip_line(i);
