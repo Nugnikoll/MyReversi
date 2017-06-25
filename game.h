@@ -50,6 +50,11 @@ public:
 		}
 		flag_show = true;
 	}
+	virtual void log_print(const string& str){
+		log_string = str;
+		flag_log = true;
+	}
+
 	void set_color(cbool _color){
 		push();
 		color = _color;
@@ -66,8 +71,7 @@ public:
 		pos.x = pos.y = -1;
 		record.clear();
 		brd.initial();
-		log_string = "start a new game\n";
-		flag_log = true;
+		log_print("start a new game\n");
 		flag_lock = false;
 		show();
 	}
@@ -75,8 +79,7 @@ public:
 	bool undo(){
 		bool result = pop();
 		if(result){
-			log_string = "undo\n";
-			flag_log = true;
+			log_print("undo\n");
 			flag_lock = false;
 			show();
 		}
@@ -95,8 +98,7 @@ public:
 			color = temp.color;
 			pos = temp.pos;
 
-			log_string = "redo\n";
-			flag_log = true;
+			log_print("redo\n");
 			flag_lock = false;
 
 			show();
@@ -110,15 +112,13 @@ public:
 		push();
 		brd.assign(_brd_black,_brd_white);
 		show();
-		log_string = "assign new value to the board\n";
-		flag_log = true;
+		log_print("assign new value to the board\n");
 	}
 	void assign(cboard _brd){
 		push();
 		brd = _brd;
 		show();
-		log_string = "assign new value to the board\n";
-		flag_log = true;
+		log_print("assign new value to the board\n");
 	}
 
 	chessman get(cpos_type x,cpos_type y){
@@ -133,16 +133,14 @@ public:
 		push();
 		brd.mirror_h();
 		pos.x = board::size - pos.x - 1;
-		log_string = "mirror horizontally\n";
-		flag_log = true;
+		log_print("mirror horizontally\n");
 		show();
 	}
 	void mirror_v(){
 		push();
 		brd.mirror_v();
 		pos.y = board::size - pos.y - 1;
-		log_string = "mirror vertically\n";
-		flag_log = true;
+		log_print("mirror vertically\n");
 		show();
 	}
 	void rotate_l(){
@@ -150,8 +148,7 @@ public:
 		brd.rotate_l();
 		swap(pos.x,pos.y);
 		pos.y = 7 - pos.y;
-		log_string = "rotate clockwise\n";
-		flag_log = true;
+		log_print("rotate clockwise\n");
 		show();
 	}
 	void rotate_r(){
@@ -159,8 +156,7 @@ public:
 		brd.rotate_r();
 		swap(pos.x,pos.y);
 		pos.x = 7 - pos.x;
-		log_string = "rotate counterclockwise\n";
-		flag_log = true;
+		log_print("rotate counterclockwise\n");
 		show();
 	}
 	void reflect(){
@@ -168,8 +164,7 @@ public:
 		brd.reflect();
 		pos.x = board::size - pos.x - 1;
 		pos.y = board::size - pos.y - 1;
-		log_string = "reflect\n";
-		flag_log = true;
+		log_print("reflect\n");
 		show();
 	}
 	void config(){
@@ -186,8 +181,7 @@ public:
 				<< ","
 				<< y
 				<< ")\n";
-			log_string = out.str();
-			flag_log = true;
+			log_print(out.str());
 			if(brd.get_status(!color) & sts_again){
 			}else{
 				this->color = !color;
@@ -200,8 +194,7 @@ public:
 			}
 			out << (color? "black" : "white")
 				<< " cannot place a stone here\n";
-			log_string = out.str();
-			flag_log = true;
+			log_print(out.str());
 		}
 		return result;
 	}
@@ -246,8 +239,7 @@ public:
 				<< ","
 				<< pos.y
 				<< ")\n";
-			log_string = out.str();
-			flag_log = true;
+			log_print(out.str());
 			if(brd.get_status(!color) & sts_again){
 			}else{
 				this->color = !color;
@@ -255,10 +247,10 @@ public:
 			this->pos = pos;
 			show();
 		}else{
-			log_string = 
+			log_print(
 				string(color? ("black") : ("white"))
-				+ " is unable to move.\n";
-			flag_log = true;
+				+ " is unable to move.\n"
+			);
 			if(flag_auto_save){
 				pop();
 			}
@@ -302,8 +294,7 @@ public:
 			}else{
 				out << "a tie\n";
 			}
-			log_string = out.str();	
-			flag_log = true;
+			log_print(out.str());
 		}
 		return pos;
 	}

@@ -23,6 +23,7 @@ void quit(){
 void game_gui::show(){
 	brd.print();
 }
+void game_gui::log_print(const string& str){}
 
 void term_print(const string& str){
 	cout << str << endl;
