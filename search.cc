@@ -243,18 +243,20 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				}else{
 					result = 0;
 				}
-
-				if(mthd & mthd_trans){
-					auto& trans_interval = trans_ptr->second;
-					if(beta < beta_save){
-						trans_interval.second = beta;
-					}
-					if(beta > alpha_save){
-						trans_interval.first = beta;
-					}
-				}
-				return beta;
+				return result;
 			}
+
+			if(mthd & mthd_trans){
+				auto& trans_interval = trans_ptr->second;
+				if(beta < beta_save){
+					trans_interval.second = beta;
+				}
+				if(beta > alpha_save){
+					trans_interval.first = beta;
+				}
+			}
+
+			return beta;
 		}
 
 		if(mthd & mthd_trans){
