@@ -317,7 +317,7 @@ void process(const string& str){
 			"set mthd_mtdf 0x10;"
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
-			"set mthd_default $mthd_kill;"
+			"set mthd_default [expr $mthd_kill | $mthd_ab];"
 
 			"set h_default -1;"
 
