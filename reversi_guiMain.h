@@ -57,7 +57,8 @@ class reversi_guiFrame: public wxFrame
 		void on_rotate_l(wxCommandEvent& event);
 		void on_context_menu(wxContextMenuEvent& event);
 		void on_tree_item_select(wxTreeEvent& event);
-		void on_menu_level_n(wxCommandEvent& event);
+		void on_menu_alg(wxCommandEvent& event);
+		void on_menu_level(wxCommandEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;
@@ -85,12 +86,14 @@ class reversi_guiFrame: public wxFrame
         static const long id_menu_clear_log;
         static const long id_menu_clear_term;
         static const long id_menu_clear;
+        static const long id_menu_alg_rnd;
         static const long id_menu_alg_ab;
         static const long id_menu_alg_pvs;
         static const long id_menu_alg_trans;
         static const long id_menu_alg_kill;
         static const long id_menu_alg_mtdf;
         static const long id_menu_alg_iter;
+        static const long id_menu_alg_ptn;
         static const long id_menu_alg;
         static const long id_menu_level1;
         static const long id_menu_level2;
@@ -106,6 +109,7 @@ class reversi_guiFrame: public wxFrame
         //*)
 
         //(*Declarations(reversi_guiFrame)
+        wxMenu* menu_set;
         wxMenuItem* menu_alg_mtdf;
         wxMenuItem* menu_save;
         wxStatusBar* statusbar;
@@ -123,7 +127,6 @@ class reversi_guiFrame: public wxFrame
         wxNotebook* notebook;
         wxMenuItem* MenuItem2;
         wxMenu* menu_alg;
-        wxMenu* Menu3;
         wxMenuItem* menu_alg_kill;
         wxMenuItem* MenuItem1;
         wxMenuItem* MenuItem4;
@@ -134,6 +137,7 @@ class reversi_guiFrame: public wxFrame
         wxBoxSizer* BoxSizer2;
         wxTreeCtrl* book_tree;
         wxMenuItem* menu_mirror_v;
+        wxMenuItem* MenuItem10;
         wxMenuItem* menu_alg_trans;
         wxMenu* menu_edit;
         wxMenu* menu_level;
@@ -143,6 +147,7 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_clear_log;
         wxMenuItem* MenuItem6;
         wxMenuItem* menu_mirror_h;
+        wxMenuItem* menu_alg_rnd;
         wxBoxSizer* BoxSizer1;
         wxTextCtrl* text_log;
         wxMenuItem* menu_black;
