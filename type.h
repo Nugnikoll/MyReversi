@@ -66,7 +66,7 @@ enum method{
 	mthd_ids = 0x20, // iterative deepening search
 	mthd_ptn = 0x40,
 
-	mthd_default = mthd_kill
+	mthd_default = mthd_kill | mthd_ab
 };
 
 #ifdef USE_REF
