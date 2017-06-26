@@ -14,12 +14,14 @@
 
 #include "reversi_tcl.h"
 
-const int bias = 10;
+const int bias = 34;
 const int num = 8;
-const int cell = 50;
+const int cell = 44;
 const int width = num * cell;
 const int cbias = bias + cell / 2;
-const int radius = cell / 2 - 5;
+const int radius = cell / 2 - 4;
+const int thick = 3;
+const int margin = 20;
 
 extern wxFrame* ptr_frame;
 extern wxPanel* ptr_panel;
