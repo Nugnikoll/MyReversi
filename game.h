@@ -228,7 +228,7 @@ public:
 		return brd.select_choice(choices);
 	}
 
-	coordinate play(cmethod mthd,cbool color,cint height = -1){
+	coordinate play(cmethod mthd,cbool color,cshort height = -1){
 		push();
 		auto pos = brd.play(mthd,color,height);
 		if(pos.x >= 0){
@@ -257,7 +257,7 @@ public:
 		}
 		return pos;
 	}
-	coordinate play(ccoordinate _pos,cmethod mthd){
+	coordinate play(ccoordinate _pos,cmethod mthd,cshort height = -1){
 		bool color_save = color;
 		bool flag = flip(color,_pos.x,_pos.y);
 		if(!flag){
@@ -270,7 +270,7 @@ public:
 		flag_auto_save = false;
 
 		while(status & sts_again){
-			pos = play(mthd,!color_save);
+			pos = play(mthd,!color_save,height);
 			status = brd.get_status(color_save);
 			if(pos.x < 0){
 				show();

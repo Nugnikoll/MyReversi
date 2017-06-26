@@ -137,8 +137,8 @@ object play(cint mthd,cbool color,cint height){
 	return result;
 }
 
-object plays(cint x,cint y,cint mthd){
-	auto pos = mygame.play(coordinate(x,y),method(mthd));
+object plays(cint x,cint y,cint mthd,cint height){
+	auto pos = mygame.play(coordinate(x,y),method(mthd),height);
 	object result;
 	result.append(*ptr_inter,object(int(pos.x)));
 	result.append(*ptr_inter,object(int(pos.y)));
@@ -318,6 +318,8 @@ void process(const string& str){
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
 			"set mthd_default $mthd_kill;"
+
+			"set h_default -1;"
 
 			"config;"
 		);
