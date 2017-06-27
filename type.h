@@ -8,7 +8,7 @@ using namespace std;
 //#define USE_REF
 #define USE_FLOAT
 #define USE_RANDOM
-//define DEBUG_SEARCH
+//#define DEBUG_SEARCH
 
 #ifdef USE_REF
 	typedef const bool& cbool;

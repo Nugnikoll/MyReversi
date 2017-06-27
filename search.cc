@@ -4,7 +4,6 @@
 #include "pattern.h"
 
 calc_type table_val[board::size2][board::size2];
-calc_type alpha_save, beta_save;
 typedef unordered_map<board,board::interval> trans_type;
 trans_type trans_table;
 trans_type::iterator trans_ptr;
@@ -129,6 +128,13 @@ calc_type board::search(
 template<method mthd>
 calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta)const{
 
+	struct brd_val{
+		board brd;
+		pos_type pos;
+		calc_type val;
+	};
+	typedef const brd_val& cbrd_val;
+
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
@@ -136,6 +142,8 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 	if(mthd == mthd_rnd){
 		return 0;
 	}else{
+
+		calc_type alpha_save,beta_save;
 
 		if(mthd & mthd_trans){
 			trans_ptr = trans_table.find(*this);
@@ -172,40 +180,59 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				return this->score(color);
 		}
 
-		board brd;
+		brd_val vec[32];
+		brd_val* ptr = vec;
 		calc_type result;
-		pos_type table_pos[size2];
 		calc_type* ptr_val = table_val[this->sum()];
-		bool flag_flip = false;
 		const method mthd_temp = method(mthd & ~mthd_pvs);
 
-		for(pos_type i = 0;i != size2;++i){
-			table_pos[i] = i;
-		}
-		if(mthd & mthd_kill){
-			sort(table_pos,table_pos + size2,
-				[&ptr_val](cpos_type p1,cpos_type p2) -> bool{
-					return ptr_val[p1] > ptr_val[p2];
+		ptr->brd = *this;
+		for(pos_type pos = 0;pos != size2;++pos){
+			if(ptr->brd.flip(color,pos)){
+				if(mthd & mthd_kill){
+					ptr->pos = pos;
+					ptr->val = ptr_val[pos];
 				}
-			);
+				++ptr;
+				ptr->brd = *this;
+			}
 		}
 
-		brd = *this;
-		for(cpos_type pos:table_pos){
-			if(brd.flip(color,pos)){
+		if(ptr != vec){
+
+			if(mthd & mthd_kill){
+				make_heap(vec,ptr,
+					[](cbrd_val b1,cbrd_val b2){
+						return b1.val < b2.val;
+					}
+				);
+			}
+
+			for(brd_val* p = ptr;p != vec;){
+
+				if(mthd & mthd_kill){
+					pop_heap(vec,p,
+						[](cbrd_val b1,cbrd_val b2){
+							return b1.val < b2.val;
+						}
+					);
+				}
+
+				--p;
+
 				if(mthd & mthd_pvs){
-					if(flag_flip){
-						result = - brd.search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
+					if(p == vec){
+						result = - p->brd.search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
-							result = - brd.search<mthd>(!color,height - 1,-beta,-alpha);
+							result = - p->brd.search<mthd>(!color,height - 1,-beta,-alpha);
 					}else{
-						result = - brd.search<mthd>(!color,height - 1,-beta,-alpha);
+						result = - p->brd.search<mthd>(!color,height - 1,-beta,-alpha);
 					}
 				}else{
-					result = - brd.search<mthd>(!color,height - 1,-beta,-alpha);
+					result = - p->brd.search<mthd>(!color,height - 1,-beta,-alpha);
 				}
 				if(mthd & mthd_kill){
-					ptr_val[pos] = result;
+					ptr_val[p->pos] = result;
 				}
 				if(result >= beta){
 					return beta;
@@ -213,29 +240,66 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				if(result > alpha){
 					alpha = result;
 				}
-				brd = *this;
-				flag_flip = true;
 			}
-		}
-		
-		if(!flag_flip){
-			reverse(table_pos,table_pos + size2);
 
-			for(cpos_type pos:table_pos){
-				if(brd.flip(!color,pos)){
+			if(mthd & mthd_trans){
+				auto& trans_interval = trans_ptr->second;
+				if(alpha < beta_save){
+					trans_interval.second = alpha;
+				}
+				if(alpha > alpha_save){
+					trans_interval.first = alpha;
+				}
+			}
+
+			return alpha;
+
+		}else{
+
+			//ptr->brd = *this;
+			for(pos_type pos = 0;pos != size2;++pos){
+				if(ptr->brd.flip(!color,pos)){
+					if(mthd & mthd_kill){
+						ptr->pos = pos;
+						ptr->val = ptr_val[pos];
+					}
+					++ptr;
+					ptr->brd = *this;
+				}
+			}
+
+			if(ptr != vec){
+
+				if(mthd & mthd_kill){
+					make_heap(vec,ptr,
+						[](cbrd_val b1,cbrd_val b2){
+							return b1.val > b2.val;
+						}
+					);
+				}
+
+				for(brd_val* p = ptr;p != vec;){
+
+					if(mthd & mthd_kill){
+						pop_heap(vec,p,
+							[](cbrd_val b1,cbrd_val b2){
+								return b1.val > b2.val;
+							}
+						);
+					}
+
+					--p;
+
 					if(mthd & mthd_pvs){
-						if(flag_flip){
-							result = brd.search<mthd_temp>(color,height - 1,beta - 1,beta);
+						if(p == vec){
+							result = p->brd.search<mthd_temp>(color,height - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
-								result = brd.search<mthd>(color,height - 1,alpha,beta);
+								result = p->brd.search<mthd>(color,height - 1,alpha,beta);
 						}else{
-							result = brd.search<mthd>(color,height - 1,alpha,beta);
+							result = p->brd.search<mthd>(color,height - 1,alpha,beta);
 						}
 					}else{
-						result = brd.search<mthd>(color,height - 1,alpha,beta);
-					}
-					if(mthd & mthd_kill){
-						ptr_val[pos] = result;
+						result = p->brd.search<mthd>(color,height - 1,alpha,beta);
 					}
 					if(result <= alpha){
 						return alpha;
@@ -243,12 +307,22 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					if(result < beta){
 						beta = result;
 					}
-					brd = *this;
-					flag_flip = true;
 				}
-			}
 
-			if(!flag_flip){
+				if(mthd & mthd_trans){
+					auto& trans_interval = trans_ptr->second;
+					if(beta < beta_save){
+						trans_interval.second = beta;
+					}
+					if(beta > alpha_save){
+						trans_interval.first = beta;
+					}
+				}
+
+				return beta;
+
+			}else{
+
 				calc_type num_diff = count(color) - count(!color);
 				if(num_diff > 0){
 					result =  num_diff + mark_max;
@@ -258,32 +332,9 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					result = 0;
 				}
 				return result;
-			}
 
-			if(mthd & mthd_trans){
-				auto& trans_interval = trans_ptr->second;
-				if(beta < beta_save){
-					trans_interval.second = beta;
-				}
-				if(beta > alpha_save){
-					trans_interval.first = beta;
-				}
-			}
-
-			return beta;
-		}
-
-		if(mthd & mthd_trans){
-			auto& trans_interval = trans_ptr->second;
-			if(alpha < beta_save){
-				trans_interval.second = alpha;
-			}
-			if(alpha > alpha_save){
-				trans_interval.first = alpha;
 			}
 		}
-
-		return alpha;
 
 	}
 
@@ -294,7 +345,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 		<< " alpha=" << alpha
 		<< " beta=" << beta
 		<< ">\n";
-	do_print(out);
+	this->print(out);
 	calc_type result = fun();
 	out << "result = " << result <<"\n"
 		<< "</div>\n";
