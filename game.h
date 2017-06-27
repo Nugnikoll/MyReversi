@@ -217,11 +217,11 @@ public:
 	vector<float> eval_ptn(cbool color){
 		return brd.eval_ptn(color);
 	}
-	calc_type search(cmethod mthd,cbool color,cshort height,
+	calc_type search(cmethod mthd,cbool color,cshort height = -1,
 		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0){
 		return brd.search(mthd,color,height,alpha,beta,gamma);
 	}
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height){
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height = -1){
 		return brd.get_choice(mthd,color,height);
 	}
 	choice select_choice(const vector<choice>& choices){

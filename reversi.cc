@@ -2,7 +2,8 @@
 #include <cmath>
 #include <algorithm>
 
-#include "reversi.h" //--
+#include "reversi.h"
+#include "search.h"
 
 const pos_type board::chessman_num;
 const pos_type board::size;
@@ -87,8 +88,8 @@ vector<choice> board::get_choice(
     choice temp;
 	calc_type alpha = _inf;
 
-	if(height < 0){
-		return choices;
+	if(mthd & mthd_trans){
+		table_trans.clear();
 	}
 
 	choices.reserve(30);
