@@ -2,18 +2,7 @@
 
 import wx
 import reversi
-
-def coord2str(self):
-	return "(%d,%d)" % (self.x,self.y);
-setattr(reversi.coordinate,"__str__",coord2str);
-
-def choice2str(self):
-	return "(%d,%d,%f)" % (self.pos >> 3,self.pos & 7,self.val);
-setattr(reversi.choice,"__str__",choice2str);
-
-def choices2str(self):
-	return "[" + ",".join([choice2str(c) for c in self]) + "]";
-setattr(reversi.choices,"__str__",choices2str);
+import reversi as rv
 
 bias = 34;
 num = 8;
@@ -23,6 +12,24 @@ cbias = bias + cell / 2;
 radius = cell / 2 - 4;
 thick = 3;
 margin = 20;
+
+grp = reversi.group();
+
+def coord2str(self):
+	return "(%d,%d)" % (self.x,self.y);
+setattr(reversi.coordinate,"__str__",coord2str);
+
+def choice2str(self):
+	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
+setattr(reversi.choice,"__str__",choice2str);
+
+def choices2str(self):
+	return "[" + ",".join([choice2str(c) for c in self]) + "]";
+setattr(reversi.choices,"__str__",choices2str);
+
+def floats2str(self):
+	return "[" + ",".join([str(f) for f in self]) + "]";
+setattr(reversi.floats,"__str__",floats2str)
 
 class game_gui(reversi.game):
 	def show(self):

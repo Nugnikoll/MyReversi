@@ -1,12 +1,11 @@
 #include <algorithm>
 
 #include "reversi.h"
+#include "search.h"
 #include "pattern.h"
 
 calc_type table_val[board::size2][board::size2];
-typedef unordered_map<board,board::interval> trans_type;
-trans_type trans_table;
-trans_type::iterator trans_ptr;
+trans_type table_trans;
 
 void board::config_search(){}
 
@@ -144,10 +143,11 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 	}else{
 
 		calc_type alpha_save,beta_save;
+		trans_type::iterator trans_ptr;
 
 		if(mthd & mthd_trans){
-			trans_ptr = trans_table.find(*this);
-			if(trans_ptr != trans_table.end()){
+			trans_ptr = table_trans.find(*this);
+			if(trans_ptr != table_trans.end()){
 				auto& trans_interval = trans_ptr->second;
 				if(trans_interval.first >= beta){
 					return trans_interval.first;
@@ -165,7 +165,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				}
 				assert(alpha <= beta);
 			}else{
-				trans_ptr = trans_table.insert(
+				trans_ptr = table_trans.insert(
 					std::make_pair(*this,interval(_inf,inf))
 				).first;
 			}

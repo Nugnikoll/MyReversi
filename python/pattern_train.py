@@ -1,6 +1,6 @@
 import reversi as rv
 
-def train(mthd,depth,size,num)
+def train(mthd,depth,size,num):
 	brd = rv.board();
 	brd.config();
 

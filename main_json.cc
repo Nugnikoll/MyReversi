@@ -58,7 +58,7 @@ int main(){
 
 	// ptr_pattern = new pattern;
 	// ptr_pattern->decompress((float*)(data_table + 3 * 8));
- 	auto coord = brd.play(mthd_ab,mycolor);
+ 	auto coord = brd.play(method(mthd_ab | mthd_kill),mycolor);
 
 	// 决策结束，输出结果（你只需修改以上部分）
 
