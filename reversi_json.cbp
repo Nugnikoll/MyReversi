@@ -39,6 +39,7 @@
 		<Unit filename="reversi.cc" />
 		<Unit filename="reversi.h" />
 		<Unit filename="search.cc" />
+		<Unit filename="search.h" />
 		<Unit filename="type.cc" />
 		<Unit filename="type.h" />
 		<Extensions>

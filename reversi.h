@@ -81,7 +81,6 @@ public:
 		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
 	}
 
-	static const brd_type last = 0x8000000000000000;
 	static const pos_type chessman_num = 4;
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
@@ -310,11 +309,21 @@ public:
 
 	bool flip(cbool color,cpos_type pos);
 
-	calc_type score(cbool color,cpos_type stage)const{
-		calc_type result = 0;
-
+	calc_type score(cbool color)const{
 		brd_type brd_blue = bget(color);
 		brd_type brd_green = bget(!color);
+		
+		short stage;
+		short total = this->sum();
+		if(total <= 40){
+			stage = 0;
+		}else if(total <= size2 - 7){
+			stage = 1;
+		}else{
+			stage = 2;
+		}
+
+		calc_type result = this->count_move(color) - this->count_move(!color);
 
 		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
 			* table_param[stage][0];
@@ -328,40 +337,19 @@ public:
 		return result;
 	}
 
+	template<method mthd>
+	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta)const;
+
 	calc_type search(
-		cmethod mthd,cbool color,
-		cshort height,ccalc_type alpha = _inf,ccalc_type beta = inf,
-		ccalc_type acc = 0,cshort stage = 0,ccalc_type gamma = 0
-	)const{
-		if(mthd == mthd_rnd){
-			return 0;
-		}else if(mthd & mthd_ptn){
-			return search_ptn(color,height,alpha,beta);
-		}else if(mthd & mthd_mtdf){
-			return search_mtd(color,height,alpha,beta,acc,stage,gamma);
-		}else if(mthd & mthd_trans){
-			return search_trans(color,height,alpha,beta,acc,stage);
-		}else if(mthd & mthd_pvs){
-			return search_pvs(color,height,alpha,beta,acc,stage);
-		}else if(mthd & mthd_ab){
-			return search_ab(color,height,alpha,beta,acc,stage);
-		}else{
-			assert(false);
-			return 0;
-		}
-	};
+		cmethod mthd,cbool color,cshort height,
+		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0
+	)const;
 
-	calc_type search_ab(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
-	calc_type search_pvs(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
-	calc_type search_trans(cbool color,cshort height,calc_type alpha,calc_type beta,calc_type acc,cshort stage)const;
-	calc_type search_mtd(cbool color,cshort height,calc_type alpha,calc_type beta,ccalc_type acc,cshort stage,calc_type gamma)const;
-	float search_ptn(cbool color,cshort height,float alpha,float beta)const;
-
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,cshort stage = -1,ccalc_type gamma = 0)const;
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,ccalc_type gamma = 0)const;
 
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
 
-	coordinate play(cmethod mthd,cbool color,short height = -1,cshort stage = -1);
+	coordinate play(cmethod mthd,cbool color,short height = -1);
 
 	sts_type get_status(cbool color){
 		bool flag_black = (count_move(true) == 0);
@@ -414,11 +402,6 @@ public:
 protected:
 
 	brd_type brd_black,brd_white;
-
-	static float table_temp[2][board::max_height + 1][board::size2];
-
-	static pos_type table_pos[board::size2][board::size2];
-	static pos_type table_check[board::size2][board::size2];
 
 	static void config_flip();
 	static void config_search();
@@ -567,8 +550,5 @@ struct choice{
 	pos_type pos;
 	float rnd_val;
 };
-
-extern unordered_map<board,board::interval> trans_black;
-extern unordered_map<board,board::interval> trans_white;
 
 #endif // REVERSI_H

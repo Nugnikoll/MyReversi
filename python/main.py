@@ -33,6 +33,17 @@ class reversi_app(wx.App):
 		self.text_input = xrc.XRCCTRL(self.frame, "id_text_input");
 		self.text_term = xrc.XRCCTRL(self.frame, "id_text_term");
 		self.text_log = xrc.XRCCTRL(self.frame, "id_text_log");
+		self.menubar = self.frame.GetMenuBar();
+		self.menu_alg = self.menubar.FindItemById(xrc.XRCID("id_menu_alg")).GetSubMenu();
+		self.menu_alg_rnd = self.menubar.FindItemById(xrc.XRCID("id_menu_alg_rnd"));
+		self.menu_level = self.menubar.FindItemById(xrc.XRCID("id_menu_level")).GetSubMenu();
+
+		self.id_menu_alg_rnd = xrc.XRCID("id_menu_alg_rnd");
+		self.id_menu_alg_ab = xrc.XRCID("id_menu_alg_ab");
+		self.id_menu_alg_kill = xrc.XRCID("id_menu_alg_kill");
+		self.id_menu_alg_pvs = xrc.XRCID("id_menu_alg_pvs");
+		self.id_menu_alg_trans = xrc.XRCID("id_menu_alg_trans");
+		self.id_menu_alg_ptn = xrc.XRCID("id_menu_alg_ptn");
 
 		self.panel_board.Bind(wx.EVT_PAINT,self.on_panel_board_paint);
 		self.panel_board.Bind(wx.EVT_LEFT_DOWN,self.on_panel_board_leftdown);
@@ -54,6 +65,12 @@ class reversi_app(wx.App):
 		self.Bind(wx.EVT_MENU,self.on_rotate_l,id = xrc.XRCID("id_menu_rotate_l"));
 		self.Connect(-1,-1,evt_thrd_id,self.thrd_catch);
 
+		for item in self.menu_alg.GetMenuItems():
+			self.Bind(wx.EVT_MENU,self.on_menu_alg,item);
+
+		for item in self.menu_level.GetMenuItems():
+			self.Bind(wx.EVT_MENU,self.on_menu_level,item);
+
 		# Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
 		
 		# self.panel_board.Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
@@ -63,8 +80,10 @@ class reversi_app(wx.App):
 		self.frame.SetSize(size_suit);
 		self.frame.Show();
 		self.thrd_lock = False;
+		self.h_default = -1;
 
 		mygame.dc = wx.ClientDC(self.panel_board);
+		mygame.text_log = self.text_log;
 
 	def on_quit(self,event):
 		self.Close();
@@ -135,10 +154,70 @@ class reversi_app(wx.App):
 		x = int((pos.x - bias) / cell);
 		y = int((pos.y - bias) / cell);
 		self.process(
-			"self._print(mygame.play(reversi.coordinate("
-			+ str(x) + ","
-			+ str(y) + "),reversi.mthd_default));"
+			"self._print("
+				"mygame.play("
+					"reversi.coordinate(%d,%d),"
+					"reversi.mthd_default,"
+					"self.h_default"
+				")"
+			");"
+			% (x,y)
 		);
+	def on_menu_alg(self,event):
+		id = event.GetId();
+		item = self.menu_alg.FindItemById(id);
+
+		if id == self.id_menu_alg_rnd:
+			if self.menu_alg_rnd.IsChecked():
+				for ptr in self.menu_alg.GetMenuItems():
+					ptr.Check(False);
+				self.process("reversi.mthd_default = reversi.mthd_rnd")
+			self.menu_alg_rnd.Check(True);
+		else:
+			if item.IsChecked():
+				item.Check(True);
+				self.menu_alg_rnd.Check(False);
+
+				if id == self.id_menu_alg_ab:
+					self.process("reversi.mthd_default |= reversi.mthd_ab");
+				elif id == self.id_menu_alg_kill:
+					self.process("reversi.mthd_default |= reversi.mthd_kill");
+				elif id == self.id_menu_alg_pvs:
+					self.process("reversi.mthd_default |= reversi.mthd_pvs");
+				elif id == self.id_menu_alg_trans:
+					self.process("reversi.mthd_default |= reversi.mthd_trans");
+				elif id == self.id_menu_alg_ptn:
+					self.process("reversi.mthd_default |= reversi.mthd_ptn");
+			else:
+				flag = False;
+				for ptr in self.menu_alg.GetMenuItems():
+					if ptr.IsChecked():
+						flag = True;
+				if not flag:
+					self.menu_alg_rnd.Check(True);
+
+				if id == self.id_menu_alg_ab:
+					self.process("reversi.mthd_default &= ~reversi.mthd_ab");
+				elif id == self.id_menu_alg_kill:
+					self.process("reversi.mthd_default &= ~reversi.mthd_kill");
+				elif id == self.id_menu_alg_pvs:
+					self.process("reversi.mthd_default &= ~reversi.mthd_pvs");
+				elif id == self.id_menu_alg_trans:
+					self.process("reversi.mthd_default &= ~reversi.mthd_trans");
+				elif id == self.id_menu_alg_ptn:
+					self.process("reversi.mthd_default &= ~reversi.mthd_ptn");
+
+	def on_menu_level(self,event):
+		for item in self.menu_level.GetMenuItems():
+			item.Check(False);
+
+		pos = 0;
+		(item,pos) = self.menu_level.FindChildItem(event.GetId());
+		item.Check(True);
+		if pos >= 7:
+			pos = -1;
+
+		self.process("self.h_default = %d" % pos);
 
 	def thrd_launch(self,fun,param):
 		self.thrd_lock = True;
@@ -187,7 +266,7 @@ class reversi_app(wx.App):
 	# if(!vec.empty()){
 		# mygame.color = vec.back()->dat.color;
 	# }else{
-		# mygame.color = true;
+		# mygame.color = True;
 	# }
 	# brd.initial();
 	# for(node *& ptr:vec){

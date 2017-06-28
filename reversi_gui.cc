@@ -10,7 +10,13 @@ wxTreeCtrl* ptr_book;
 void show_choice(const vector<choice>& choices){
 	wxClientDC dc(ptr_panel);
 	dc.SetTextForeground(wxColor(255,0,150));
-	dc.SetFont(wxFont(8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT));
+	dc.SetFont(
+		wxFont(
+			8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,
+			wxFONTWEIGHT_BOLD,false,_T("Consolas")
+			,wxFONTENCODING_DEFAULT
+		)
+	);
 	wxString str;
 	pos_type x,y;
 	for(const choice& c:choices){
@@ -26,8 +32,8 @@ void do_show(wxDC& dc){
 	dc.Clear();
 
 	//draw valid moves
-	dc.SetBrush(wxBrush(wxColor(23,95,0)));
-	dc.SetPen(wxPen(wxColor(23,95,0),4));
+	dc.SetBrush(wxBrush(wxColor(30,100,0)));
+	dc.SetPen(wxPen(wxColor(30,100,0),thick));
 	brd_type brd_move = mygame.brd.get_move(mygame.color);
 	for(int i = 0;i != board::size2;++i){
 		if(brd_move & (1ull << i))
@@ -35,7 +41,7 @@ void do_show(wxDC& dc){
 	}
 
 	//draw a board
-	dc.SetPen(wxPen(*wxBLACK,4));
+	dc.SetPen(wxPen(*wxBLACK,thick));
 	for(int i = 0;i != num + 1;++i){
 		dc.DrawLine(bias,bias + cell * i,bias + width,bias + cell * i);
 	}
@@ -43,32 +49,66 @@ void do_show(wxDC& dc){
 		dc.DrawLine(bias + cell * i,bias,bias + cell * i,bias + width);
 	}
 
-	chessman chssmn;
+	//draw the outline of the board
+	dc.SetBrush(*wxBLACK);
+	dc.SetPen(wxPen(*wxBLACK,thick));
+	dc.DrawRectangle(bias - margin,bias - margin,margin,width + margin * 2);
+	dc.DrawRectangle(bias - margin,bias - margin,width + margin * 2,margin);
+	dc.DrawRectangle(bias + width,bias - margin,margin,width + margin * 2);
+	dc.DrawRectangle(bias - margin,bias + width,width + margin * 2,margin);
 
+	//draw coordinate labels
+	dc.SetTextForeground(wxColor(190,190,190));
+	dc.SetFont(
+		wxFont(
+			12,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,
+			wxFONTWEIGHT_BOLD,false,_T("Consolas")
+			,wxFONTENCODING_DEFAULT
+		)
+	);
+	for(int i = 0;i != num;++i){
+		dc.DrawText(char('A' + i),bias + cell / 2 + cell * i - 4,bias - margin / 2 - 10);
+		dc.DrawText(char('A' + i),bias + cell / 2 + cell * i - 4,bias + width + margin / 2 - 12);
+		dc.DrawText(char('1' + i),bias - margin / 2 - 4,bias + cell / 2 + cell * i - 10);
+		dc.DrawText(char('1' + i),bias + width + margin / 2 - 5,bias + cell / 2 + cell * i - 10);
+	}
+
+	//draw stones
+	chessman chssmn;
 	for(int i = 0;i != num;++i){
 		for(int j = 0;j != num;++j){
 			chssmn = mygame.brd.get(i + (j << 3));
 			if(chssmn == black){
 				dc.SetBrush(wxBrush(wxColor(40,40,40)));
-				dc.SetPen(wxPen(wxColor(20,20,20),4));
+				dc.SetPen(wxPen(wxColor(20,20,20),thick));
 				dc.DrawCircle(wxPoint(cbias + cell * i,cbias + cell * j),radius);
 			}else if(chssmn == white){
 				dc.SetBrush(wxBrush(wxColor(210,210,210)));
-				dc.SetPen(wxPen(wxColor(230,230,230),4));
+				dc.SetPen(wxPen(wxColor(230,230,230),thick));
 				dc.DrawCircle(wxPoint(cbias + cell * i,cbias + cell * j),radius);
 			}
 		}
 	}
 
 	//show where is the last move
-	dc.SetBrush(*wxTRANSPARENT_BRUSH);
-	dc.SetPen(wxPen(*wxYELLOW,4));
-	dc.DrawCircle(wxPoint(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
+	if(mygame.pos.x >= 0){
+		if(mygame.color){
+			dc.SetPen(wxPen(wxColor(210,210,70),thick));
+		}else{
+			dc.SetPen(wxPen(wxColor(70,70,0),thick));
+		}
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		dc.DrawCircle(wxPoint(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
+	}
 }
 
 void game_gui::show(){
 	wxClientDC dc(ptr_panel);
 	do_show(dc);
+}
+
+void game_gui::log_print(const string& str){
+	ptr_log->AppendText(str);
 }
 
 void load_book(const string& path){

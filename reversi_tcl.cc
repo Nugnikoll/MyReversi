@@ -95,7 +95,7 @@ object bget(){
 
 void assign(const object& obj){
 	board brd = obj2brd(obj);
-	mygame.brd = brd;
+	mygame.assign(brd);
 }
 
 int visit(cint x, cint y){
@@ -114,8 +114,8 @@ int count_move(cbool color){
 	return mygame.count_move(color);
 }
 
-float score(cbool color, cint stage){
-	return mygame.score(color, stage);
+float score(cbool color){
+	return mygame.score(color);
 }
 
 object eval_ptn(cbool color){
@@ -137,8 +137,8 @@ object play(cint mthd,cbool color,cint height){
 	return result;
 }
 
-object plays(cint x,cint y,cint mthd){
-	auto pos = mygame.play(coordinate(x,y),method(mthd));
+object plays(cint x,cint y,cint mthd,cint height){
+	auto pos = mygame.play(coordinate(x,y),method(mthd),height);
 	object result;
 	result.append(*ptr_inter,object(int(pos.x)));
 	result.append(*ptr_inter,object(int(pos.y)));
@@ -196,8 +196,8 @@ void set_pos(cint x,cint y){
 	mygame.set_pos(x,y);
 }
 
-object get_choice(cint mthd,cbool color,cint height,cint stage){
-	vector<choice> choices = mygame.get_choice(method(mthd),color,height,stage);
+object get_choice(cint mthd,cbool color,cint height){
+	vector<choice> choices = mygame.get_choice(method(mthd),color,height);
 	show_choice(choices);
 	vector<object> vec;
 	for(const choice& c:choices){
@@ -311,13 +311,15 @@ void process(const string& str){
 
 			"set mthd_rnd 0x0;"
 			"set mthd_ab 0x1;"
-			"set mthd_pvs 0x2;"
-			"set mthd_trans 0x4;"
-			"set mthd_kill 0x8;"
+			"set mthd_kill 0x2;"
+			"set mthd_pvs 0x4;"
+			"set mthd_trans 0x8;"
 			"set mthd_mtdf 0x10;"
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
-			"set mthd_default $mthd_ab;"
+			"set mthd_default [expr $mthd_kill | $mthd_ab];"
+
+			"set h_default -1;"
 
 			"config;"
 		);

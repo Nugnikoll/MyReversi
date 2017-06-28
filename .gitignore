@@ -20,7 +20,8 @@ out*
 *temp*
 
 *.dot
-*.png
+optimize/*.png
+optimize/*/*.png
 
 single/*.cc
 
