@@ -9,6 +9,11 @@ trans_type table_trans;
 
 void board::config_search(){}
 
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wswitch"
+#endif
+
 calc_type board::search(
 	cmethod mthd,cbool color,cshort height,
 	ccalc_type alpha,ccalc_type beta,ccalc_type gamma
@@ -123,6 +128,10 @@ calc_type board::search(
 	}
 
 };
+
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
 
 template<method mthd>
 calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta)const{
