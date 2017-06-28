@@ -2,9 +2,9 @@
 #include <cmath>
 #include <algorithm>
 
-#include "reversi.h" //--
+#include "reversi.h"
+#include "search.h"
 
-const brd_type board::last;
 const pos_type board::chessman_num;
 const pos_type board::size;
 const pos_type board::size2;
@@ -14,10 +14,10 @@ const short board::max_height;
 bool board::flag_unicode = true;
 
 #ifdef USE_FLOAT
-	const calc_type board::mark_max = 10000;
+	const calc_type board::mark_max = 100;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
-calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{1,1,1,1}};
+calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{5,2,1,1}};
 
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
@@ -80,7 +80,7 @@ void board::print(ostream& out)const{
 }
 
 vector<choice> board::get_choice(
-	cmethod mthd,cbool color,cshort height,cshort stage,ccalc_type gamma
+	cmethod mthd,cbool color,cshort height,ccalc_type gamma
 )const{
 
     vector<choice> choices;
@@ -88,13 +88,8 @@ vector<choice> board::get_choice(
     choice temp;
 	calc_type alpha = _inf;
 
-    if(height < 0){
-        return choices;
-	}
-
-	if(mthd & mthd_mtdf){
-		trans_black.clear();
-		trans_white.clear();
+	if(mthd & mthd_trans){
+		table_trans.clear();
 	}
 
 	choices.reserve(30);
@@ -102,7 +97,7 @@ vector<choice> board::get_choice(
     board brd = *this;
 	for(pos_type i = 0;i != size2;++i){
 		if(brd.flip(color,i)){
-			result = - brd.search(mthd,!color,height,_inf,-alpha,0,stage,gamma);
+			result = - brd.search(mthd,!color,height,_inf,-alpha,gamma);
 			if(result - 5 > alpha){
 				alpha = result - 5;
 			}
@@ -129,7 +124,7 @@ vector<choice> board::get_choice(
 choice board::select_choice(vector<choice> choices,const float& variation){
 
 	if(choices.empty()){
-		throw runtime_error("There's no choice!");
+		throw runtime_error("There is no choice!");
 	}
 
 	#ifdef USE_RANDOM
@@ -158,24 +153,7 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 	);
 }
 
-coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
-
-	if(stage < 0){
-		short total = this->sum();
-		if(total <= 7){
-			stage = 0;
-		}else if(total <= 10){
-			stage = 0;
-		}else if(total <= 33){
-			stage = 0;
-		}else if(total <= size2 - 23){
-			stage = 1;
-		}else if(total <= size2 - 16){
-			stage = 1;
-		}else{
-			stage = 2;
-		}
-	}
+coordinate board::play(cmethod mthd,cbool color,short height){
 
 	if(height < 0){
 		short total = this->sum();
@@ -183,8 +161,6 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 			height = 9;
 		}else if(total <= 10){
 			height = 8;
-		}else if(total <= 33){
-			height = 7;
 		}else if(total <= size2 - 22){
 			height = 7;
 		}else if(total <= size2 - 15){
@@ -194,7 +170,7 @@ coordinate board::play(cmethod mthd,cbool color,short height,cshort stage){
 		}
 	}
 
-	vector<choice> choices = get_choice(mthd,color,height,stage);
+	vector<choice> choices = get_choice(mthd,color,height);
 	if(choices.empty()){
 		return coordinate(-1,-1);
 	}else{

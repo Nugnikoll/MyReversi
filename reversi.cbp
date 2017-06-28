@@ -53,6 +53,7 @@
 		<Unit filename="reversi_tcl.cc" />
 		<Unit filename="reversi_tcl.h" />
 		<Unit filename="search.cc" />
+		<Unit filename="search.h" />
 		<Unit filename="tree.cc" />
 		<Unit filename="tree.h" />
 		<Unit filename="type.cc" />

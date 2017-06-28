@@ -7,6 +7,7 @@
 class game_gui:public game{
 public:
 	virtual void show();
+	virtual void log_print(const string&);
 };
 
 void process(const string& str);

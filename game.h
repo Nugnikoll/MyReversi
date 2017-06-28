@@ -19,7 +19,7 @@ public:
 		flag_term = false;
 		flag_log = false;
 	}
-	virtual ~game(){}
+	~game(){}
 
 	board brd;
 	bool color;
@@ -50,6 +50,11 @@ public:
 		}
 		flag_show = true;
 	}
+	virtual void log_print(const string& str){
+		log_string = str;
+		flag_log = true;
+	}
+
 	void set_color(cbool _color){
 		push();
 		color = _color;
@@ -66,8 +71,7 @@ public:
 		pos.x = pos.y = -1;
 		record.clear();
 		brd.initial();
-		log_string = "start a new game\n";
-		flag_log = true;
+		log_print("start a new game\n");
 		flag_lock = false;
 		show();
 	}
@@ -75,8 +79,7 @@ public:
 	bool undo(){
 		bool result = pop();
 		if(result){
-			log_string = "undo\n";
-			flag_log = true;
+			log_print("undo\n");
 			flag_lock = false;
 			show();
 		}
@@ -95,8 +98,7 @@ public:
 			color = temp.color;
 			pos = temp.pos;
 
-			log_string = "redo\n";
-			flag_log = true;
+			log_print("redo\n");
 			flag_lock = false;
 
 			show();
@@ -110,8 +112,13 @@ public:
 		push();
 		brd.assign(_brd_black,_brd_white);
 		show();
-		log_string = "assign new value to the board\n";
-		flag_log = true;
+		log_print("assign new value to the board\n");
+	}
+	void assign(cboard _brd){
+		push();
+		brd = _brd;
+		show();
+		log_print("assign new value to the board\n");
 	}
 
 	chessman get(cpos_type x,cpos_type y){
@@ -126,16 +133,14 @@ public:
 		push();
 		brd.mirror_h();
 		pos.x = board::size - pos.x - 1;
-		log_string = "mirror horizontally\n";
-		flag_log = true;
+		log_print("mirror horizontally\n");
 		show();
 	}
 	void mirror_v(){
 		push();
 		brd.mirror_v();
 		pos.y = board::size - pos.y - 1;
-		log_string = "mirror vertically\n";
-		flag_log = true;
+		log_print("mirror vertically\n");
 		show();
 	}
 	void rotate_l(){
@@ -143,8 +148,7 @@ public:
 		brd.rotate_l();
 		swap(pos.x,pos.y);
 		pos.y = 7 - pos.y;
-		log_string = "rotate clockwise\n";
-		flag_log = true;
+		log_print("rotate clockwise\n");
 		show();
 	}
 	void rotate_r(){
@@ -152,8 +156,7 @@ public:
 		brd.rotate_r();
 		swap(pos.x,pos.y);
 		pos.x = 7 - pos.x;
-		log_string = "rotate counterclockwise\n";
-		flag_log = true;
+		log_print("rotate counterclockwise\n");
 		show();
 	}
 	void reflect(){
@@ -161,8 +164,7 @@ public:
 		brd.reflect();
 		pos.x = board::size - pos.x - 1;
 		pos.y = board::size - pos.y - 1;
-		log_string = "reflect\n";
-		flag_log = true;
+		log_print("reflect\n");
 		show();
 	}
 	void config(){
@@ -179,8 +181,7 @@ public:
 				<< ","
 				<< y
 				<< ")\n";
-			log_string = out.str();
-			flag_log = true;
+			log_print(out.str());
 			if(brd.get_status(!color) & sts_again){
 			}else{
 				this->color = !color;
@@ -193,8 +194,7 @@ public:
 			}
 			out << (color? "black" : "white")
 				<< " cannot place a stone here\n";
-			log_string = out.str();
-			flag_log = true;
+			log_print(out.str());
 		}
 		return result;
 	}
@@ -208,8 +208,8 @@ public:
 	int count_move(cbool color){
 		return brd.count_move(color);
 	}
-	float score(cbool color,cint stage){
-		return brd.score(color,stage);
+	float score(cbool color){
+		return brd.score(color);
 	}
 	float score_ptn(cbool color){
 		return brd.score_ptn(color);
@@ -217,18 +217,18 @@ public:
 	vector<float> eval_ptn(cbool color){
 		return brd.eval_ptn(color);
 	}
-	calc_type search(cmethod mthd,cbool color,cshort height,
-		ccalc_type alpha = _inf,ccalc_type beta = inf,cpos_type stage = 0,ccalc_type gamma = 0){
-		return brd.search(mthd,color,height,alpha,beta,stage,gamma);
+	calc_type search(cmethod mthd,cbool color,cshort height = -1,
+		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0){
+		return brd.search(mthd,color,height,alpha,beta,gamma);
 	}
-	vector<choice> get_choice(cmethod mthd,cbool color,cint height,cint stage){
-		return brd.get_choice(mthd,color,height,stage);
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height = -1){
+		return brd.get_choice(mthd,color,height);
 	}
 	choice select_choice(const vector<choice>& choices){
 		return brd.select_choice(choices);
 	}
 
-	coordinate play(cmethod mthd,cbool color,cint height = -1){
+	coordinate play(cmethod mthd,cbool color,cshort height = -1){
 		push();
 		auto pos = brd.play(mthd,color,height);
 		if(pos.x >= 0){
@@ -239,8 +239,7 @@ public:
 				<< ","
 				<< pos.y
 				<< ")\n";
-			log_string = out.str();
-			flag_log = true;
+			log_print(out.str());
 			if(brd.get_status(!color) & sts_again){
 			}else{
 				this->color = !color;
@@ -248,17 +247,17 @@ public:
 			this->pos = pos;
 			show();
 		}else{
-			log_string = 
+			log_print(
 				string(color? ("black") : ("white"))
-				+ " is unable to move.\n";
-			flag_log = true;
+				+ " is unable to move.\n"
+			);
 			if(flag_auto_save){
 				pop();
 			}
 		}
 		return pos;
 	}
-	coordinate play(ccoordinate _pos,cmethod mthd){
+	coordinate play(ccoordinate _pos,cmethod mthd,cshort height = -1){
 		bool color_save = color;
 		bool flag = flip(color,_pos.x,_pos.y);
 		if(!flag){
@@ -271,7 +270,7 @@ public:
 		flag_auto_save = false;
 
 		while(status & sts_again){
-			pos = play(mthd,!color_save);
+			pos = play(mthd,!color_save,height);
 			status = brd.get_status(color_save);
 			if(pos.x < 0){
 				show();
@@ -295,8 +294,7 @@ public:
 			}else{
 				out << "a tie\n";
 			}
-			log_string = out.str();	
-			flag_log = true;
+			log_print(out.str());
 		}
 		return pos;
 	}
