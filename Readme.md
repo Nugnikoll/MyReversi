@@ -46,7 +46,7 @@ Personally, I've only built the project on 64-bit windows and cygwin but I belie
 	3. Change the paths of libraries.
 	4. Compile it.
 
-- Build reversi python GUI version
+- Build reversi python GUI version (apparently there's no need to embed tcl anymore)
 	1. Install latest version of gcc, python3, swig, wxpython.
 	2. Run cmd/shell.
 	3. Enter the directory $(REVERSI_PROJECT)/python/
