@@ -2,7 +2,7 @@
 <wxsmith>
 	<object class="wxFrame" name="reversi_guiFrame">
 		<title>Reversi</title>
-		<icon>E:\LLK\ComputerSci\Cplusplus\reversi\icon\Reversi.bmp</icon>
+		<icon>E:\LLK\ComputerSci\Cplusplus\reversi\image\Reversi.bmp</icon>
 		<id_arg>0</id_arg>
 		<object class="wxBoxSizer" variable="BoxSizer1" member="yes">
 			<object class="sizeritem">
@@ -236,14 +236,14 @@
 					</object>
 				</object>
 			</object>
-			<object class="wxMenu" name="id_menu_set" variable="menu_set" member="yes">
+			<object class="wxMenu" variable="menu_set" member="yes">
 				<label>&amp;Settings</label>
 				<object class="wxMenu" name="id_menu_alg" variable="menu_alg" member="yes">
 					<label>&amp;Algorithm</label>
 					<object class="wxMenuItem" name="id_menu_alg_rnd" variable="menu_alg_rnd" member="yes">
 						<label>&amp;Random</label>
-						<checkable>1</checkable>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
+						<checkable>1</checkable>
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_ab" variable="menu_alg_ab" member="yes">
 						<label>&amp;Alpha-Beta Pruning</label>
@@ -281,8 +281,8 @@
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_ptn" variable="MenuItem10" member="yes">
 						<label>&amp;Pattern</label>
-						<checkable>1</checkable>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
+						<checkable>1</checkable>
 					</object>
 				</object>
 				<object class="wxMenu" name="id_menu_level" variable="menu_level" member="yes">
