@@ -50,8 +50,8 @@ Personally, I've only built the project on 64-bit windows and cygwin but I belie
 	1. Install latest version of gcc, python3, swig, wxpython.
 	2. Run cmd/shell.
 	3. Enter the directory $(REVERSI_PROJECT)/python/
-	4. Type following command.
-		`swig -python -c++ -threads reversi_wrap.cxx`
+	4. Type following command.  
+		`swig -python -c++ -threads reversi_wrap.cxx`  
 		`python3 setup.py build_ext --inplace --compiler=mingw32`  
 		Note: `--compiler=mingw32` has to changed according to your compiler.  
 		If it's built successfully, dynamic link library _reversi.pyd or _reversi.dll or _reversi.so should be generated and main.py can be executed.
