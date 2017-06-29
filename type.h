@@ -8,6 +8,11 @@ using namespace std;
 //#define USE_REF
 #define USE_FLOAT
 #define USE_RANDOM
+#if defined(__GNUC__) || defined(__clang__)
+	#if defined(__x86_64__) || defined(__ppc64__)
+		#define USE_ASM
+	#endif
+#endif
 //#define DEBUG_SEARCH
 
 #ifdef USE_REF

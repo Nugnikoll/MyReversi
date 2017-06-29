@@ -126,7 +126,7 @@ public:
 	}
 	void set(cpos_type x, cpos_type y, cchessman chsman){
 		push();
-		brd.set(x,y,chsman);
+		brd.set(x + (y << 3),chsman);
 		show();
 	}
 	void mirror_h(){

@@ -12,7 +12,6 @@
  * @brief This head file is an essential part of the program
  * where the most important class board is defined.
  * Many basic functions are declared here.
-
  */
 
 #ifndef REVERSI_H
@@ -27,10 +26,6 @@
 #include <unordered_map>
 
 using namespace std;
-
-//#define DEBUG_SEARCH
-#define USE_FLOAT
-#define USE_RANDOM
 
 #include "type.h"
 
@@ -73,7 +68,7 @@ public:
 		if it's constructed by this function.
 		To initial the object, please use the function initial() .
 	*/
-	board(){};
+	board() = default;
 	board(cbrd_type _brd_black,cbrd_type _brd_white)
 		:brd_black(_brd_black),brd_white(_brd_white){}
 
@@ -125,65 +120,111 @@ public:
 	}
 
 	cbrd_type bget(cbool color)const{
-		if(color){
-			return brd_black;
-		}else{
-			return brd_white;
-		}
+		#ifdef USE_ASM
+			const brd_type* ptr;
+			asm volatile(
+				"test %3, %3;"
+				"cmovnz %1, %0;"
+				"cmovz %2, %0"
+				:"=r"(ptr)
+				:"r"(&brd_black), "r"(&brd_white), "r"(color)
+			);
+			return *ptr;
+		#else
+			if(color){
+				return brd_black;
+			}else{
+				return brd_white;
+			}
+		#endif
 	}
 	brd_type& bget(cbool color){
-		if(color){
-			return brd_black;
-		}else{
-			return brd_white;
-		}
+		#ifdef USE_ASM
+			brd_type* ptr;
+			asm volatile(
+				"test %3, %3;"
+				"cmovnz %1, %0;"
+				"cmovz %2, %0"
+				:"=r"(ptr)
+				:"r"(&brd_black), "r"(&brd_white), "r"(color)
+			);
+			return *ptr;
+		#else
+			if(color){
+				return brd_black;
+			}else{
+				return brd_white;
+			}
+		#endif
 	}
 
 	chessman get(cpos_type pos)const{
-		brd_type mask = brd_type(1) << pos;
-		if(mask & brd_black){
-			if(mask & brd_white){
-				return null;
+		#ifdef USE_ASM
+			chessman result,temp;
+			asm volatile(
+				"mov $0, %0;"
+				"mov %5, %1;"
+				"bt %4, %2;"
+				"cmovc %1, %0;"
+				"mov %0, %1;"
+				"or %6, %1;"
+				"bt %4, %3;"
+				"cmovc %1, %0;"
+				:"=&r"(result), "=&r"(temp)
+				:"r"(brd_black), "r"(brd_white), "r"(brd_type(pos)),
+					"g"(black), "g"(white)
+			);
+			return result;
+		#else
+			brd_type mask = brd_type(1) << pos;
+			if(mask & brd_black){
+				if(mask & brd_white){
+					return null;
+				}else{
+					return black;
+				}
 			}else{
-				return black;
+				if(mask & brd_white){
+					return white;
+				}else{
+					return blank;
+				}
 			}
-		}else{
-			if(mask & brd_white){
-				return white;
-			}else{
-				return blank;
-			}
-		}
+		#endif
 	}
 
-	void set(cbool color,cpos_type pos,cbool flag){
-		brd_type mask = brd_type(1) << pos;
-		if(color){
-			if(flag){
-				brd_black |= mask;
-			}else{
-				brd_white &= ~mask;
-			}
-		}else{
-			if(flag){
-				brd_black |= mask;
-			}else{
-				brd_white &= ~mask;
-			}
-		}
-	}
 	void set(cpos_type pos, cchessman chsm){
-		brd_type mask = brd_type(1) << pos;
-		if(chsm & white){
-			brd_white |= mask;
-		}else{
-			brd_white &= ~mask;
-		}
-		if(chsm & black){
-			brd_black |= mask;
-		}else{
-			brd_black &= ~mask;
-		}
+		#ifdef USE_ASM
+			brd_type temp;
+			asm volatile(
+				"mov %0, %1;"
+				"bts %2, %1;"
+				"test %4, %3;"
+				"cmovnz %1, %0;"
+				:"+r"(brd_black), "=&r"(temp)
+				:"r"(brd_type(pos)), "r"(chsm), "g"(black)
+			);
+			asm volatile(
+				"mov %0, %1;"
+				"bts %2, %1;"
+				"test %4, %3;"
+				"cmovnz %1, %0;"
+				:"+r"(brd_white), "=&r"(temp)
+				:"r"(brd_type(pos)), "r"(chsm), "g"(white)
+			);
+		#else
+			brd_type mask = brd_type(1) << pos;
+			if(chsm & white){
+				brd_white |= mask;
+			}else{
+				brd_white &= ~mask;
+			}
+			if(chsm & black){
+				brd_black |= mask;
+			}else{
+				brd_black &= ~mask;
+			}
+		#endif
 	}
 
 	void mirror_h(){
@@ -214,6 +255,9 @@ public:
 		return count(brd_black | brd_white);
 	}
 	brd_type get_move(cbool color)const{
+		// This part of code is brought from Zebra.
+		// I rewrite it in 64-bit style.
+
 		const brd_type& brd_blue = bget(color);
 		const brd_type& brd_green = bget(!color);
 		brd_type moves;
@@ -406,25 +450,55 @@ protected:
 	static void config_flip();
 	static void config_search();
 
-	inline static brd_type extract(cbrd_type brd,cbrd_type mask){
+	static brd_type extract(cbrd_type brd,cbrd_type mask){
 		brd_type result;
-		asm volatile(
-			"pext %1, %2, %0;"
-			: "=&r"(result)
-			: "r"(mask), "r"(brd)
-			:
-		);
+
+		#ifdef USE_ASM
+			asm volatile(
+				"pext %1, %2, %0;"
+				: "=&r"(result)
+				: "r"(mask), "r"(brd)
+				:
+			);
+		#else
+			brd_type mask_i,mask_r = 1;
+			result = 0;
+			for(pos_type i = 0;i != size2;++i){
+				mask_i = 1ull << i;
+				if(mask & mask_i){
+					if(brd & mask_i){
+						result |= mask_r;
+					}
+					mask_r <<= 1;
+				}
+			}
+		#endif
+
 		return result;
 	}
 
 	static brd_type deposit(cbrd_type brd,cbrd_type mask){
 		brd_type result;
-		asm volatile(
-			"pdep %1, %2, %0;"
-			: "=&r"(result)
-			: "r"(mask), "r"(brd)
-			:
-		);
+		#ifdef USE_ASM
+			asm volatile(
+				"pdep %1, %2, %0;"
+				: "=&r"(result)
+				: "r"(mask), "r"(brd)
+				:
+			);
+		#else
+			brd_type mask_i,mask_r = 1;
+			result = 0;
+			for(pos_type i = 0;i != size2;++i){
+				mask_i = 1ull << i;
+				if(mask & mask_i){
+					if(brd & mask_r){
+						result |= mask_i;
+					}
+					mask_r <<= 1;
+				}
+			}
+		#endif
 		return result;
 	}
 
@@ -443,12 +517,18 @@ protected:
 	 *	@param brd the 64-bit board
 	*/
 	static void mirror_v(brd_type& brd){
-		asm volatile(
-			"bswap %0;"
-			: "=r"(brd)
-			: "0"(brd)
-			:
-		);
+		#ifdef USE_ASM
+			asm volatile(
+				"bswap %0;"
+				: "=r"(brd)
+				: "0"(brd)
+				:
+			);
+		#else
+			brd = (brd & 0xff00ff00ff00ff00) >> 8  | (brd & 0x00ff00ff00ff00ff) << 8;
+			brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
+			brd = (brd & 0xffffffff00000000) >> 32 | (brd & 0x00000000ffffffff) << 32;
+		#endif
 	}
 
 	/** @fn static void reflect(brd_type& brd)
@@ -485,17 +565,6 @@ protected:
 		brd = (brd & 0xaa00aa00aa00aa00) >> 8  | (brd & 0x5500550055005500) << 1
 			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
 	}
-	static void transform(brd_type& brd){
-		brd_type brd_high = brd & 0x0103070f1f3f7fff;
-		brd_high = (brd_high & 0xffffffff00000000) << 4 | (brd_high & 0x00000000ffffffff);
-		brd_high = (brd_high & 0xffff0000ffff0000) << 2 | (brd_high & 0x0000ffff0000ffff);
-		brd_high = (brd_high & 0xff00ff00ff00ff00) << 1 | (brd_high & 0x00ff00ff00ff00ff);
-		brd_type brd_low = (brd & 0xfefcf8f0e0c08000) >> 1;
-		brd_low = (brd_low & 0xffffffff00000000) | (brd_low & 0x00000000ffffffff) >> 4;
-		brd_low = (brd_low & 0xffff0000ffff0000) | (brd_low & 0x0000ffff0000ffff) >> 2;
-		brd_low = (brd_low & 0xff00ff00ff00ff00) | (brd_low & 0x00ff00ff00ff00ff) >> 1;
-		brd = brd_high | brd_low;
-	}
 
 	/** @fn static void count(brd_type& brd)
 	 *	@brief It's a function used to count the number of bit
@@ -504,12 +573,22 @@ protected:
 	*/
 	static pos_type count(cbrd_type brd){
 		brd_type result;
-		asm volatile(
-			"popcnt %1, %0;"
-			: "=&r"(result)
-			: "r"(brd)
-			:
-		);
+
+		#ifdef USE_ASM
+			asm volatile(
+				"popcnt %1, %0;"
+				: "=&r"(result)
+				: "r"(brd)
+				:
+			);
+		#else
+			result = brd - ((brd >> 1) & 0x5555555555555555);
+			result = (result & 0x3333333333333333)
+				+ ((result >> 2) & 0x3333333333333333);
+			result = (result + (result >> 4)) & 0x0F0F0F0F0F0F0F0F;
+			return (result * 0x0101010101010101) >> 56;
+		#endif
+
 		return result;
 	}
 
@@ -529,18 +608,6 @@ struct hash<board> : public unary_function<board, size_t>{
 			+ size_t(brd.brd_white) * 1009562269
 			+ size_t(brd.brd_white >> 32) * 739351663
 		);
-	}
-};
-
-struct brd_val{
-	board brd;
-	pos_type pos;
-	calc_type val;
-	friend inline bool operator<(const brd_val& b1,const brd_val& b2){
-		return b1.val < b2.val;
-	}
-	friend inline bool operator>(const brd_val& b1,const brd_val& b2){
-		return b1.val > b2.val;
 	}
 };
 

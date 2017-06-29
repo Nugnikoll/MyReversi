@@ -143,6 +143,17 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 	};
 	typedef const brd_val& cbrd_val;
 
+	#define trans_save(data) \
+		if(mthd & mthd_trans){ \
+			auto& trans_interval = trans_ptr->second; \
+			if(data < beta_save){ \
+				trans_interval.second = data; \
+			} \
+			if(data > alpha_save){ \
+				trans_interval.first = data; \
+			} \
+		}
+
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
@@ -244,6 +255,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					ptr_val[p->pos] = result;
 				}
 				if(result >= beta){
+					trans_save(result);
 					return beta;
 				}
 				if(result > alpha){
@@ -251,15 +263,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				}
 			}
 
-			if(mthd & mthd_trans){
-				auto& trans_interval = trans_ptr->second;
-				if(alpha < beta_save){
-					trans_interval.second = alpha;
-				}
-				if(alpha > alpha_save){
-					trans_interval.first = alpha;
-				}
-			}
+			trans_save(alpha);
 
 			return alpha;
 
@@ -311,6 +315,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 						result = p->brd.search<mthd>(color,height - 1,alpha,beta);
 					}
 					if(result <= alpha){
+						trans_save(result);
 						return alpha;
 					}
 					if(result < beta){
@@ -318,15 +323,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					}
 				}
 
-				if(mthd & mthd_trans){
-					auto& trans_interval = trans_ptr->second;
-					if(beta < beta_save){
-						trans_interval.second = beta;
-					}
-					if(beta > alpha_save){
-						trans_interval.first = beta;
-					}
-				}
+				trans_save(beta)
 
 				return beta;
 
@@ -340,6 +337,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				}else{
 					result = 0;
 				}
+				trans_save(result);
 				return result;
 
 			}
