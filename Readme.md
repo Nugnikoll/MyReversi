@@ -34,11 +34,10 @@ Personally, I've only built the project on 64-bit windows and cygwin but I belie
 	5. Compile it.
 
 - Build reversi which can be executed on [Botzone](https://botzone.org)
-	2. Create a C++ project.
-	3. Add following files to your project.  
-	2. Open reversi.cbp with CodeBlocks or use cbp2make.exe to generate makefile on your own platform.
-	4. Write your main.cc source file with "reversi.h" ("game.h") included.
-	5. Compile it.
+	1. Open reversi_json.cbp with CodeBlocks or use cbp2make.exe to generate makefile on your own platform.
+	2. Compile it.
+
+	To submit it to Botzone, several sources have to be merged into a single file. If you have python installed, run the script ./single/merge.py and main_merge.cc will be generated automatically.
 
 - Build reversi with tcl embeded
 	1. Install TCL, Boost. Download cpptcl.
