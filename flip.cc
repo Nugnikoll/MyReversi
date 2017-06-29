@@ -1,5 +1,7 @@
 #include "reversi.h"
 
+#ifdef USE_ASM
+
 const pos_type pos_diag1[board::size2] = {
 	0,0,0,0,0,0,0,0,
 	1,1,1,1,1,1,1,0,
@@ -330,3 +332,172 @@ void board::config_flip(){
 		}
 	}
 }
+
+#else
+
+#define lbound 0xfefefefefefefefe
+#define rbound 0x7f7f7f7f7f7f7f7f
+#define ubound 0xffffffffffffff00
+#define dbound 0x00ffffffffffffff
+#define ulbound 0xfefefefefefefe00
+#define urbound 0x7f7f7f7f7f7f7f00
+#define dlbound 0x00fefefefefefefe
+#define drbound 0x007f7f7f7f7f7f7f
+
+#define up(mask) mask >>= 8
+#define down(mask) mask <<= 8
+#define left(mask) mask >>= 1
+#define right(mask) mask <<= 1
+#define uleft(mask) mask >>= 9
+#define uright(mask) mask >>= 7
+#define dleft(mask) mask <<= 7
+#define dright(mask) mask <<= 9
+
+#define flip_part(bound,dir1,dir2) \
+	while(pos & bound){ \
+		dir1(pos); \
+		if(green & pos) \
+			continue; \
+		if(blue & pos){ \
+			while(dir2(pos), pos != mask){ \
+				blue |= pos; \
+				green &= ~pos; \
+				everflip = true; \
+			} \
+		} \
+		break; \
+	} \
+	pos = mask;
+
+#define flip_part_u flip_part(ubound,up,down)
+#define flip_part_d flip_part(dbound,down,up)
+#define flip_part_l flip_part(lbound,left,right)
+#define flip_part_r flip_part(rbound,right,left)
+#define flip_part_ul flip_part(ulbound,uleft,dright)
+#define flip_part_ur flip_part(urbound,uright,dleft)
+#define flip_part_dl flip_part(dlbound,dleft,uright)
+#define flip_part_dr flip_part(drbound,dright,uleft)
+
+#define flip_fun(name,kernel) \
+\
+	bool name(board* const& ptr,cbool color,cpos_type _pos){ \
+		brd_type& blue = ptr->bget(color); \
+		brd_type& green = ptr->bget(!color); \
+		brd_type mask = brd_type(1) << _pos;\
+ \
+		if((blue | green) & mask){ \
+			return false; \
+		} \
+ \
+		bool everflip = false; \
+		brd_type pos = mask; \
+ \
+		kernel \
+ \
+		if(everflip){ \
+			blue |= mask; \
+			green &= ~mask; \
+		} \
+		return everflip; \
+	}
+
+flip_fun(flip,
+	flip_part_u
+	flip_part_d
+	flip_part_l
+	flip_part_r
+	flip_part_ul
+	flip_part_ur
+	flip_part_dl
+	flip_part_dr
+)
+
+flip_fun(flip_o,
+	flip_part_u
+	flip_part_d
+	flip_part_l
+	flip_part_r
+	flip_part_ul
+	flip_part_ur
+	flip_part_dl
+	flip_part_dr
+)
+
+flip_fun(flip_u,
+	flip_part_u
+	flip_part_ul
+	flip_part_ur
+	flip_part_l
+	flip_part_r
+)
+
+flip_fun(flip_d,
+	flip_part_d
+	flip_part_dl
+	flip_part_dr
+	flip_part_l
+	flip_part_r
+)
+
+flip_fun(flip_l,
+	flip_part_l
+	flip_part_ul
+	flip_part_dl
+	flip_part_u
+	flip_part_d
+)
+
+flip_fun(flip_r,
+	flip_part_r
+	flip_part_ur
+	flip_part_dr
+	flip_part_u
+	flip_part_d
+)
+
+flip_fun(flip_ul,
+	flip_part_u
+	flip_part_l
+	flip_part_ul
+)
+
+flip_fun(flip_ur,
+	flip_part_u
+	flip_part_r
+	flip_part_ur
+)
+
+flip_fun(flip_dl,
+	flip_part_d
+	flip_part_l
+	flip_part_dl
+)
+
+flip_fun(flip_dr,
+	flip_part_d
+	flip_part_r
+	flip_part_dr
+)
+
+bool flip_n(board* const&,cbool color,cpos_type pos){
+	return false;
+}
+
+bool (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =
+{
+	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
+	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
+	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
+	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
+	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
+	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
+	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul,
+	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul
+};
+
+bool board::flip(cbool color,cpos_type pos){
+	return (table_flip[pos])(this,color,pos);
+}
+void board::config_flip(){}
+
+#endif //USE_ASM
