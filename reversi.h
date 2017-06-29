@@ -198,6 +198,7 @@ public:
 			brd_type temp;
 			asm volatile(
 				"mov %0, %1;"
+				"btr %2, %0;"
 				"bts %2, %1;"
 				"test %4, %3;"
 				"cmovnz %1, %0;"
@@ -206,6 +207,7 @@ public:
 			);
 			asm volatile(
 				"mov %0, %1;"
+				"btr %2, %0;"
 				"bts %2, %1;"
 				"test %4, %3;"
 				"cmovnz %1, %0;"
