@@ -229,229 +229,6 @@ public:
 		#endif
 	}
 
-	void mirror_h(){
-		mirror_h(brd_black);
-		mirror_h(brd_white);
-	}
-	void mirror_v(){
-		mirror_v(brd_black);
-		mirror_v(brd_white);
-	}
-	void rotate_l(){
-		rotate_l(brd_black);
-		rotate_l(brd_white);
-	}
-	void rotate_r(){
-		rotate_r(brd_black);
-		rotate_r(brd_white);
-	}
-	void reflect(){
-		reflect(brd_black);
-		reflect(brd_white);
-	}
-
-	short count(cbool color)const{
-		return count(bget(color));
-	}
-	pos_type sum()const{
-		return count(brd_black | brd_white);
-	}
-	brd_type get_move(cbool color)const{
-		// This part of code is brought from Zebra.
-		// I rewrite it in 64-bit style.
-
-		const brd_type& brd_blue = bget(color);
-		const brd_type& brd_green = bget(!color);
-		brd_type moves;
-		brd_type brd_green_inner;
-		brd_type brd_flip;
-		brd_type brd_green_adj;
-
-		brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
-
-		brd_flip = (brd_blue >> 1) & brd_green_inner;
-		brd_flip |= (brd_flip >> 1) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
-		brd_flip |= (brd_flip >> 2) & brd_green_adj;
-		brd_flip |= (brd_flip >> 2) & brd_green_adj;
-
-		moves = brd_flip >> 1;
-
-		brd_flip = (brd_blue << 1) & brd_green_inner;
-		brd_flip |= (brd_flip << 1) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 1);
-		brd_flip |= (brd_flip << 2) & brd_green_adj;
-		brd_flip |= (brd_flip << 2) & brd_green_adj;
-
-		moves |= brd_flip << 1;
-
-		brd_flip = (brd_blue >> 8) & brd_green;
-		brd_flip |= (brd_flip >> 8) & brd_green;
-
-		brd_green_adj = brd_green & (brd_green >> 8);
-		brd_flip |= (brd_flip >> 16) & brd_green_adj;
-		brd_flip |= (brd_flip >> 16) & brd_green_adj;
-
-		moves |= brd_flip >> 8;
-
-		brd_flip = (brd_blue << 8) & brd_green;
-		brd_flip |= (brd_flip << 8) & brd_green;
-
-		brd_green_adj = brd_green & (brd_green << 8);
-		brd_flip |= (brd_flip << 16) & brd_green_adj;
-		brd_flip |= (brd_flip << 16) & brd_green_adj;
-
-		moves |= brd_flip << 8;
-
-		brd_flip = (brd_blue >> 7) & brd_green_inner;
-		brd_flip |= (brd_flip >> 7) & brd_green_inner;
-		
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
-		brd_flip |= (brd_flip >> 14) & brd_green_adj;
-		brd_flip |= (brd_flip >> 14) & brd_green_adj;
-		
-		moves |= brd_flip >> 7;
-
-		brd_flip = (brd_blue << 7) & brd_green_inner;
-		brd_flip |= (brd_flip << 7) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 7);
-		brd_flip |= (brd_flip << 14) & brd_green_adj;
-		brd_flip |= (brd_flip << 14) & brd_green_adj;
-
-		moves |= brd_flip << 7;
-
-		brd_flip = (brd_blue >> 9) & brd_green_inner;
-		brd_flip |= (brd_flip >> 9) & brd_green_inner;
-		
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
-		brd_flip |= (brd_flip >> 18) & brd_green_adj;
-		brd_flip |= (brd_flip >> 18) & brd_green_adj;
-		
-		moves |= brd_flip >> 9;
-		
-		brd_flip = (brd_blue << 9) & brd_green_inner;
-		brd_flip |= (brd_flip << 9) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 9);
-		brd_flip |= (brd_flip << 18) & brd_green_adj;
-		brd_flip |= (brd_flip << 18) & brd_green_adj;
-
-		moves |= brd_flip << 9;
-
-		moves &= ~(brd_blue | brd_green);
-		return moves;
-	}
-	short count_move(cbool color)const{
-		return count(get_move(color));
-	}
-
-	static void config(){
-		config_flip();
-		config_search();
-	}
-
-	bool flip(cbool color,cpos_type pos);
-
-	calc_type score(cbool color)const{
-		brd_type brd_blue = bget(color);
-		brd_type brd_green = bget(!color);
-		
-		short stage;
-		short total = this->sum();
-		if(total <= 40){
-			stage = 0;
-		}else if(total <= size2 - 7){
-			stage = 1;
-		}else{
-			stage = 2;
-		}
-
-		calc_type result = this->count_move(color) - this->count_move(!color);
-
-		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
-			* table_param[stage][0];
-		result += (count(brd_blue & 0x7e8181818181817e) - count(brd_green & 0x7e8181818181817e))
-			* table_param[stage][1];
-		result += (count(brd_blue & 0x0042000000004200) - count(brd_green & 0x0042000000004200))
-			* table_param[stage][2];
-		result += (count(brd_blue & 0x003c7e7e7e7e3c00) - count(brd_green & 0x003c7e7e7e7e3c00))
-			* table_param[stage][3];
-
-		return result;
-	}
-
-	template<method mthd>
-	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta)const;
-
-	calc_type search(
-		cmethod mthd,cbool color,cshort height,
-		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0
-	)const;
-
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,ccalc_type gamma = 0)const;
-
-	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-
-	coordinate play(cmethod mthd,cbool color,short height = -1);
-
-	sts_type get_status(cbool color){
-		bool flag_black = (count_move(true) == 0);
-		bool flag_white = (count_move(false) == 0);
-		int num_diff = count(true) - count(false);
-		if(color){
-			if(flag_black){
-				if(flag_white){
-					if(num_diff){
-						if(num_diff > 0){
-							return sts_bwin;
-						}else{
-							return sts_wwin;
-						}
-					}else{
-						return sts_tie;
-					}
-				}else{
-					return sts_wagain;
-				}
-			}else{
-				return sts_bturn;
-			}
-		}else{
-			if(flag_white){
-				if(flag_black){
-					if(num_diff){
-						if(num_diff > 0){
-							return sts_bwin;
-						}else{
-							return sts_wwin;
-						}
-					}else{
-						return sts_tie;
-					}
-				}else{
-					return sts_bagain;
-				}
-			}else{
-				return sts_wturn;
-			}
-		}
-	}
-
-	float& extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const;
-	float score_ptn(cbool color)const;
-	vector<float> eval_ptn(cbool color)const;
-	void adjust_ptn(cbool,ccalc_type diff)const;
-
-protected:
-
-	brd_type brd_black,brd_white;
-
-	static void config_flip();
-	static void config_search();
-
 	static brd_type extract(cbrd_type brd,cbrd_type mask){
 		brd_type result;
 
@@ -593,6 +370,331 @@ protected:
 
 		return result;
 	}
+
+	static brd_type get_edge_stable(cbrd_type brd){
+		brd_type brd_ul,brd_ur,brd_dl,brd_dr;
+
+		brd_ul = brd;
+		brd_ul &= (brd_ul >>  1) | 0x8080808080808080;
+		brd_ul &= (brd_ul >>  2) | 0xc0c0c0c0c0c0c0c0;
+		brd_ul &= (brd_ul >>  4) | 0xf0f0f0f0f0f0f0f0;
+		brd_dl = brd_ul;
+		brd_ul &= (brd_ul >>  8) | 0xff00000000000000;
+		brd_ul &= (brd_ul >> 16) | 0xffff000000000000;
+		brd_ul &= (brd_ul >> 32) | 0xffffffff00000000;
+		brd_dl &= (brd_dl <<  8) | 0x00000000000000ff;
+		brd_dl &= (brd_dl << 16) | 0x000000000000ffff;
+		brd_dl &= (brd_dl << 32) | 0x00000000ffffffff;
+
+		brd_ur = brd;
+		brd_ur &= (brd_ur <<  1) | 0x0101010101010101;
+		brd_ur &= (brd_ur <<  2) | 0x0303030303030303;
+		brd_ur &= (brd_ur <<  4) | 0x0f0f0f0f0f0f0f0f;
+		brd_dr = brd_ur;
+		brd_ur &= (brd_ur >>  8) | 0xff00000000000000;
+		brd_ur &= (brd_ur >> 16) | 0xffff000000000000;
+		brd_ur &= (brd_ur >> 32) | 0xffffffff00000000;
+		brd_dr &= (brd_dr <<  8) | 0x00000000000000ff;
+		brd_dr &= (brd_dr << 16) | 0x000000000000ffff;
+		brd_dr &= (brd_dr << 32) | 0x00000000ffffffff;
+
+		return brd_ul | brd_ur | brd_dl | brd_dr;
+	}
+
+	static brd_type get_stable(cbrd_type brd){
+		brd_type brd_l,brd_r,brd_u,brd_d,brd_ul,brd_ur,brd_dl,brd_dr;
+
+		brd_l  = brd;
+		brd_l  &= (brd_l  >>  1) | 0x8080808080808080;
+		brd_l  &= (brd_l  >>  2) | 0xc0c0c0c0c0c0c0c0;
+		brd_l  &= (brd_l  >>  4) | 0xf0f0f0f0f0f0f0f0;
+
+		brd_r  = brd;
+		brd_r  &= (brd_r  <<  1) | 0x0101010101010101;
+		brd_r  &= (brd_r  <<  2) | 0x0303030303030303;
+		brd_r  &= (brd_r  <<  4) | 0x0f0f0f0f0f0f0f0f;
+
+		brd_u  = brd;
+		brd_u  &= (brd_u  >>  8) | 0xff00000000000000;
+		brd_u  &= (brd_u  >> 16) | 0xffff000000000000;
+		brd_u  &= (brd_u  >> 32) | 0xffffffff00000000;
+
+		brd_d  = brd;
+		brd_d  &= (brd_d  <<  8) | 0x00000000000000ff;
+		brd_d  &= (brd_d  << 16) | 0x000000000000ffff;
+		brd_d  &= (brd_d  << 32) | 0x00000000ffffffff;
+
+		brd_ul = brd;
+		brd_ul &= (brd_ul >>  9) | 0xff80808080808080;
+		brd_ul &= (brd_ul >> 18) | 0xffffc0c0c0c0c0c0;
+		brd_ul &= (brd_ul >> 36) | 0xfffffffff0f0f0f0;
+
+		brd_dl = brd;
+		brd_dl &= (brd_dl <<  7) | 0x80808080808080ff;
+		brd_dl &= (brd_dl << 14) | 0xc0c0c0c0c0c0ffff;
+		brd_dl &= (brd_dl << 28) | 0xf0f0f0f0ffffffff;
+
+		brd_ur = brd;
+		brd_ur &= (brd_ur >>  7) | 0xff01010101010101;
+		brd_ur &= (brd_ur >> 14) | 0xffff030303030303;
+		brd_ur &= (brd_ur >> 28) | 0xffffffff0f0f0f0f;
+
+		brd_dr = brd;
+		brd_dr &= (brd_dr <<  9) | 0x01010101010101ff;
+		brd_dr &= (brd_dr << 18) | 0x030303030303ffff;
+		brd_dr &= (brd_dr << 36) | 0x0f0f0f0fffffffff;
+
+		return (brd_l | brd_r) & (brd_u | brd_d)
+			& (brd_ul | brd_dr) & (brd_ur | brd_dl);
+	}
+
+	static brd_type get_front(cbrd_type brd){
+		brd_type brd_reverse, brd_front;
+
+		brd_reverse = ~brd;
+		brd_front = 0;
+
+		brd_front |= brd & (brd_reverse >> 1) & 0x7f7f7f7f7f7f7f7f;
+		brd_front |= brd & (brd_reverse << 1) & 0xfefefefefefefefe;
+		brd_front |= brd & (brd_reverse >> 8);
+		brd_front |= brd & (brd_reverse << 8);
+		brd_front |= brd & (brd_reverse >> 9) & 0x7f7f7f7f7f7f7f7f;
+		brd_front |= brd & (brd_reverse >> 7) & 0xfefefefefefefefe;
+		brd_front |= brd & (brd_reverse << 7) & 0x7f7f7f7f7f7f7f7f;
+		brd_front |= brd & (brd_reverse << 9) & 0xfefefefefefefefe;
+
+		return brd_front;
+	}
+
+	void mirror_h(){
+		mirror_h(brd_black);
+		mirror_h(brd_white);
+	}
+	void mirror_v(){
+		mirror_v(brd_black);
+		mirror_v(brd_white);
+	}
+	void rotate_l(){
+		rotate_l(brd_black);
+		rotate_l(brd_white);
+	}
+	void rotate_r(){
+		rotate_r(brd_black);
+		rotate_r(brd_white);
+	}
+	void reflect(){
+		reflect(brd_black);
+		reflect(brd_white);
+	}
+
+	short count(cbool color)const{
+		return count(bget(color));
+	}
+	pos_type sum()const{
+		return count(brd_black | brd_white);
+	}
+	brd_type get_move(cbool color)const{
+		// This part of code is brought from Zebra.
+		// I rewrite it in 64-bit style.
+
+		const brd_type& brd_blue = bget(color);
+		const brd_type& brd_green = bget(!color);
+		brd_type moves;
+		brd_type brd_green_inner;
+		brd_type brd_flip;
+		brd_type brd_green_adj;
+
+		brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+
+		brd_flip = (brd_blue >> 1) & brd_green_inner;
+		brd_flip |= (brd_flip >> 1) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
+		brd_flip |= (brd_flip >> 2) & brd_green_adj;
+		brd_flip |= (brd_flip >> 2) & brd_green_adj;
+
+		moves = brd_flip >> 1;
+
+		brd_flip = (brd_blue << 1) & brd_green_inner;
+		brd_flip |= (brd_flip << 1) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner << 1);
+		brd_flip |= (brd_flip << 2) & brd_green_adj;
+		brd_flip |= (brd_flip << 2) & brd_green_adj;
+
+		moves |= brd_flip << 1;
+
+		brd_flip = (brd_blue >> 8) & brd_green;
+		brd_flip |= (brd_flip >> 8) & brd_green;
+
+		brd_green_adj = brd_green & (brd_green >> 8);
+		brd_flip |= (brd_flip >> 16) & brd_green_adj;
+		brd_flip |= (brd_flip >> 16) & brd_green_adj;
+
+		moves |= brd_flip >> 8;
+
+		brd_flip = (brd_blue << 8) & brd_green;
+		brd_flip |= (brd_flip << 8) & brd_green;
+
+		brd_green_adj = brd_green & (brd_green << 8);
+		brd_flip |= (brd_flip << 16) & brd_green_adj;
+		brd_flip |= (brd_flip << 16) & brd_green_adj;
+
+		moves |= brd_flip << 8;
+
+		brd_flip = (brd_blue >> 7) & brd_green_inner;
+		brd_flip |= (brd_flip >> 7) & brd_green_inner;
+		
+		brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
+		brd_flip |= (brd_flip >> 14) & brd_green_adj;
+		brd_flip |= (brd_flip >> 14) & brd_green_adj;
+		
+		moves |= brd_flip >> 7;
+
+		brd_flip = (brd_blue << 7) & brd_green_inner;
+		brd_flip |= (brd_flip << 7) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner << 7);
+		brd_flip |= (brd_flip << 14) & brd_green_adj;
+		brd_flip |= (brd_flip << 14) & brd_green_adj;
+
+		moves |= brd_flip << 7;
+
+		brd_flip = (brd_blue >> 9) & brd_green_inner;
+		brd_flip |= (brd_flip >> 9) & brd_green_inner;
+		
+		brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
+		brd_flip |= (brd_flip >> 18) & brd_green_adj;
+		brd_flip |= (brd_flip >> 18) & brd_green_adj;
+		
+		moves |= brd_flip >> 9;
+		
+		brd_flip = (brd_blue << 9) & brd_green_inner;
+		brd_flip |= (brd_flip << 9) & brd_green_inner;
+
+		brd_green_adj = brd_green_inner & (brd_green_inner << 9);
+		brd_flip |= (brd_flip << 18) & brd_green_adj;
+		brd_flip |= (brd_flip << 18) & brd_green_adj;
+
+		moves |= brd_flip << 9;
+
+		moves &= ~(brd_blue | brd_green);
+		return moves;
+	}
+	short count_move(cbool color)const{
+		return count(get_move(color));
+	}
+
+	static void config(){
+		config_flip();
+		config_search();
+	}
+
+	bool flip(cbool color,cpos_type pos);
+
+	calc_type score(cbool color)const{
+		brd_type brd_blue = bget(color);
+		brd_type brd_green = bget(!color);
+		brd_type brd_mix = brd_blue | brd_white;
+		brd_type brd_temp;
+
+		short stage;
+		short total = count(brd_mix);
+		if(total <= 40){
+			stage = 0;
+		}else if(total <= size2 - 7){
+			stage = 1;
+		}else{
+			stage = 2;
+		}
+
+		calc_type result = 0;
+		result += count_move(color) - count_move(!color);
+		brd_temp = get_stable(brd_mix);
+		result += count(brd_blue & brd_temp) - count(brd_green & brd_temp);
+		brd_temp = get_front(brd_mix);
+		result += count(brd_green & brd_temp) - count(brd_blue & brd_temp);
+
+		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
+			* table_param[stage][0];
+		result += (count(brd_blue & 0x7e8181818181817e) - count(brd_green & 0x7e8181818181817e))
+			* table_param[stage][1];
+		result += (count(brd_blue & 0x0042000000004200) - count(brd_green & 0x0042000000004200))
+			* table_param[stage][2];
+		result += (count(brd_blue & 0x003c7e7e7e7e3c00) - count(brd_green & 0x003c7e7e7e7e3c00))
+			* table_param[stage][3];
+
+		return result;
+	}
+
+	template<method mthd>
+	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta)const;
+
+	calc_type search(
+		cmethod mthd,cbool color,cshort height,
+		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0
+	)const;
+
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,ccalc_type gamma = 0)const;
+
+	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
+
+	coordinate play(cmethod mthd,cbool color,short height = -1);
+
+	sts_type get_status(cbool color){
+		bool flag_black = (count_move(true) == 0);
+		bool flag_white = (count_move(false) == 0);
+		int num_diff = count(true) - count(false);
+		if(color){
+			if(flag_black){
+				if(flag_white){
+					if(num_diff){
+						if(num_diff > 0){
+							return sts_bwin;
+						}else{
+							return sts_wwin;
+						}
+					}else{
+						return sts_tie;
+					}
+				}else{
+					return sts_wagain;
+				}
+			}else{
+				return sts_bturn;
+			}
+		}else{
+			if(flag_white){
+				if(flag_black){
+					if(num_diff){
+						if(num_diff > 0){
+							return sts_bwin;
+						}else{
+							return sts_wwin;
+						}
+					}else{
+						return sts_tie;
+					}
+				}else{
+					return sts_bagain;
+				}
+			}else{
+				return sts_wturn;
+			}
+		}
+	}
+
+	float& extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const;
+	float score_ptn(cbool color)const;
+	vector<float> eval_ptn(cbool color)const;
+	void adjust_ptn(cbool,ccalc_type diff)const;
+
+protected:
+
+	brd_type brd_black,brd_white;
+
+	static void config_flip();
+	static void config_search();
 
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;
