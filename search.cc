@@ -242,14 +242,14 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 				if(mthd & mthd_pvs){
 					if(p == vec){
-						result = - p->brd.search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
+						result = - p->brd.template search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
-							result = - p->brd.search<mthd>(!color,height - 1,-beta,-alpha);
+							result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}else{
-						result = - p->brd.search<mthd>(!color,height - 1,-beta,-alpha);
+						result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}
 				}else{
-					result = - p->brd.search<mthd>(!color,height - 1,-beta,-alpha);
+					result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 				}
 				if(mthd & mthd_kill){
 					ptr_val[p->pos] = result;
@@ -305,14 +305,14 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 					if(mthd & mthd_pvs){
 						if(p == vec){
-							result = p->brd.search<mthd_temp>(color,height - 1,beta - 1,beta);
+							result = p->brd.template search<mthd_temp>(color,height - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
-								result = p->brd.search<mthd>(color,height - 1,alpha,beta);
+								result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
 						}else{
-							result = p->brd.search<mthd>(color,height - 1,alpha,beta);
+							result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
 						}
 					}else{
-						result = p->brd.search<mthd>(color,height - 1,alpha,beta);
+						result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
 					}
 					if(result <= alpha){
 						trans_save(result);
