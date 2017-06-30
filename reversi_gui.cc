@@ -100,6 +100,42 @@ void do_show(wxDC& dc){
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.DrawCircle(wxPoint(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
 	}
+
+//	int shrink = 14;
+//
+//	//draw frontier
+//	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+//	dc.SetPen(wxPen(wxColor(210,0,0),thick));
+//	brd_type brd_front = board::get_front(mygame.bget(true) | mygame.bget(false));
+//	for(int i = 0;i != board::size2;++i){
+//		if(brd_front & (1ull << i)){
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + cell - shrink
+//			);
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + cell - shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + shrink
+//			);
+//		}
+//	}
+//
+//	//draw stable stones
+//	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+//	dc.SetPen(wxPen(wxColor(0,0,210),thick));
+//	brd_type brd_stable = board::get_stable(mygame.bget(true) | mygame.bget(false));
+//	for(int i = 0;i != board::size2;++i){
+//		if(brd_stable & (1ull << i)){
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + cell - shrink
+//			);
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + cell - shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + shrink
+//			);
+//		}
+//	}
 }
 
 void game_gui::show(){

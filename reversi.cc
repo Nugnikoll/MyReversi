@@ -17,7 +17,7 @@ bool board::flag_unicode = true;
 	const calc_type board::mark_max = 100;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
-calc_type board::table_param[stage_num][board::pos_num] = {{20,1,-6,-1},{10,1,-3,0},{5,2,1,1}};
+calc_type board::table_param[stage_num][board::pos_num] = {{12,0.5,-6,-0.2},{10,0.5,-5,0.2},{3,1,0,0}};
 
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
