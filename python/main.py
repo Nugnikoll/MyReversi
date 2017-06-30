@@ -37,6 +37,7 @@ class reversi_app(wx.App):
 		self.menu_alg = self.menubar.FindItemById(xrc.XRCID("id_menu_alg")).GetSubMenu();
 		self.menu_alg_rnd = self.menubar.FindItemById(xrc.XRCID("id_menu_alg_rnd"));
 		self.menu_level = self.menubar.FindItemById(xrc.XRCID("id_menu_level")).GetSubMenu();
+		self.statusbar = self.frame.GetStatusBar();
 
 		self.id_menu_alg_rnd = xrc.XRCID("id_menu_alg_rnd");
 		self.id_menu_alg_ab = xrc.XRCID("id_menu_alg_ab");
@@ -110,8 +111,11 @@ class reversi_app(wx.App):
 		if self.thrd_lock:
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
+		time_start = time.clock();
 		exec(s);
 		self.refresh();
+		time_end = time.clock();
+		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
 	def on_text_input_textenter(self,event):
 		self.process(self.text_input.GetValue());
 	def on_black(self,event):

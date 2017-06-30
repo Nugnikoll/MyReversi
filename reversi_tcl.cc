@@ -1,3 +1,6 @@
+#include <chrono>
+#include <sstream>
+
 #include "cpptcl.h"
 #include "reversi_tcl.h"
 
@@ -329,7 +332,13 @@ void process(const string& str){
 		term_print(string(">>") + str);
 	}
 	try{
+		chrono::system_clock::time_point time_start = chrono::system_clock::now();
 		inter.eval(str);
+		chrono::system_clock::time_point time_end = chrono::system_clock::now();
+		chrono::duration<double> time_exec = time_end - time_start;
+		ostringstream buffer;
+		buffer << "Execution time : " << time_exec.count() << " seconds";
+		status_print(buffer.str());
 	}catch(const tcl_error& err){
 		term_print(string(err.what()));
 	}
