@@ -29,6 +29,7 @@ void term_print(const string& str){
 	cout << str << endl;
 }
 void log_print(const string& str){}
+void status_print(const string& str){}
 void show_choice(const vector<choice>& choices){}
 void load_book(const string& path){}
 

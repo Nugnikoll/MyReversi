@@ -181,6 +181,10 @@ void log_print(const string& str){
 	ptr_log->AppendText(str);
 }
 
+void status_print(const string& str){
+	ptr_frame->GetStatusBar()->SetStatusText(str,0);
+}
+
 void load_script(const string& path){
 	if(wxFileExists(path)){
 		ptr_log->AppendText(_("open the file \"") + path + "\"\n");
