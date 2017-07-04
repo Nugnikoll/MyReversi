@@ -11,17 +11,17 @@
 #include "../type.h"
 #include "../reversi.h"
 #include "../game.h"
+#include "../matrix.h"
 #include "../pattern.h"
 #include "../tree.h"
 %}
 
 %include "../type.h"
 %include "../reversi.h"
+%include "../matrix.h"
 %include "../pattern.h"
 %include "../game.h"
 %include "../tree.h"
-
-%pointer_functions(pattern,ptn)
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;
@@ -29,10 +29,11 @@
 %template(boards) std::vector<board>;
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
+%rename(samples) std::unordered_set<board>;
+%template(mat_i) matrix<int>;
+%template(mat_f) matrix<float>;
 
 %array_class(pos_type, pos_array);
 
 %rename(__eq__) board::operator==;
-%rename(__gt__) brd_val::operator>;
-%rename(__lt__) brd_val::operator<;
 %ignore board::operator<<(ostream& out,const board& brd);

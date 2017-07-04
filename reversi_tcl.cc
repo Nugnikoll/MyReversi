@@ -7,7 +7,6 @@
 using namespace Tcl;
 
 game_gui mygame;
-group grp;
 tree book;
 
 interpreter* ptr_inter;
@@ -121,9 +120,9 @@ float score(cbool color){
 	return mygame.score(color);
 }
 
-object eval_ptn(cbool color){
-	return vec2obj(mygame.eval_ptn(color));
-}
+//object eval_ptn(cbool color){
+//	return vec2obj(mygame.eval_ptn(color));
+//}
 
 void config(){
 	return mygame.config();
@@ -222,11 +221,8 @@ void load(const string& path){
 	return book.load(path);
 };
 
-void grp_assign(cint size){
-	return grp.assign(size);
-}
-void grp_initial(){
-	return grp.initial();
+void grp_initial(cint size){
+	return grp.initial(size);
 }
 void grp_load(const string& filename,cint num_begin = 0,cint num = 100){
 	return grp.load(filename,num_begin,num);
@@ -234,15 +230,15 @@ void grp_load(const string& filename,cint num_begin = 0,cint num = 100){
 void grp_save(const string& filename){
 	return grp.save(filename);
 }
-void grp_train(cint num, cint mthd, cint depth){
-	for(int i = 0;i != num;++i){
-		grp.train(method(mthd),depth);
-	}
-}
+//void grp_train(cint num, cint mthd, cint depth){
+//	for(int i = 0;i != num;++i){
+//		grp.train(method(mthd),depth);
+//	}
+//}
 
-void use_ptn(cint num){
-	set_ptn(grp.get(num));
-}
+//void use_ptn(cint num){
+//	set_ptn(grp.get(num));
+//}
 
 void process(const string& str){
 
@@ -287,19 +283,18 @@ void process(const string& str){
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
 		inter.def("score",::score);
-		inter.def("eval_ptn",::eval_ptn);
+//		inter.def("eval_ptn",::eval_ptn);
 
 		inter.def("load",::load);
 
-		inter.def("grp_assign",::grp_assign);
 		inter.def("grp_initial",::grp_initial);
 		inter.def("grp_load",::grp_load);
 		inter.def("grp_save",::grp_save);
-		inter.def("grp_train",::grp_train);
+//		inter.def("grp_train",::grp_train);
 
-		inter.def("set_ptn",set_ptn);
-		inter.def("use_ptn",::use_ptn);
-		inter.def("check_ptn",::check_ptn);
+//		inter.def("set_ptn",set_ptn);
+//		inter.def("use_ptn",::use_ptn);
+//		inter.def("check_ptn",::check_ptn);
 
 		inter.def("load_book",::load_book);
 

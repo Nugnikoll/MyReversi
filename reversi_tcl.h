@@ -24,7 +24,6 @@ void load_book(const string& path);
 
 //export
 extern game_gui mygame;
-extern group grp;
 extern tree book;
 extern bool flag_text_term;
 

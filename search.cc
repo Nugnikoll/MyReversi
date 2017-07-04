@@ -238,17 +238,18 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					);
 				}
 
-				--p;
-
 				if(mthd & mthd_pvs){
-					if(p == vec){
+					if(p != ptr){
+						--p;
 						result = - p->brd.template search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
 							result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}else{
+						--p;
 						result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}
 				}else{
+					--p;
 					result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 				}
 				if(mthd & mthd_kill){
@@ -301,17 +302,18 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 						);
 					}
 
-					--p;
-
 					if(mthd & mthd_pvs){
-						if(p == vec){
+						if(p != ptr){
+							--p;
 							result = p->brd.template search<mthd_temp>(color,height - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
 								result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
 						}else{
+							--p;
 							result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
 						}
 					}else{
+						--p;
 						result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
 					}
 					if(result <= alpha){

@@ -1,3 +1,6 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -19,7 +22,7 @@ public:
 		flag_term = false;
 		flag_log = false;
 	}
-	~game(){}
+	virtual ~game(){}
 
 	board brd;
 	bool color;
@@ -211,12 +214,12 @@ public:
 	float score(cbool color){
 		return brd.score(color);
 	}
-	float score_ptn(cbool color){
-		return brd.score_ptn(color);
-	}
-	vector<float> eval_ptn(cbool color){
-		return brd.eval_ptn(color);
-	}
+//	float score_ptn(cbool color){
+//		return brd.score_ptn(color);
+//	}
+//	vector<float> eval_ptn(cbool color){
+//		return brd.eval_ptn(color);
+//	}
 	calc_type search(cmethod mthd,cbool color,cshort height = -1,
 		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0){
 		return brd.search(mthd,color,height,alpha,beta,gamma);
@@ -325,3 +328,5 @@ protected:
 		}
 	}
 };
+
+#endif //GAME_H
