@@ -2,28 +2,44 @@
 #include <algorithm>
 #include <cstring>
 
-#include "reversi.h" //--
-#include "pattern.h" //--
+#include "reversi.h"
+#include "pattern.h"
 
 using namespace std;
 
-pattern* ptr_pattern = NULL;
+group grp;
 
-void set_ptn(pattern* ptr){
-	ptr_pattern = ptr;
-}
+int table_map[1 << 16];
+int table_map_inv[6561];
 
-extern bool check_ptn(){
-	return (ptr_pattern != NULL);
-}
+const short pattern::table_num[pattern::size_n] = {
+	0, 1, 2, 3, 3, 2, 1, 0,
+	0, 1, 2, 3, 3, 2, 1, 0,
+	4, 5, 6, 7, 8, 7, 6, 5,
+	4, 5, 6, 7, 8, 7, 6, 5,
+	9, 10, 9, 10
+};
 
-void pattern::initial(){
-	count = 1000;
-	memset(table1,0,sizeof(table1));
-	memset(table2,0,sizeof(table2));
-}
+const short pattern::table_num_size[pattern::size] = {
+	4,4,4,4,2,4,4,4,2,2,2
+};
 
-const brd_type ptn_mask[] = {
+
+const short pattern::table_num_convert[pattern::size][4] = {
+	{0, 7, 8, 15},
+	{1, 6, 9, 14},
+	{2, 5, 10, 13},
+	{3, 4, 11, 12},
+	{16, 24},
+	{17, 23, 25, 31},
+	{18, 22, 26, 30},
+	{19, 21, 27, 29},
+	{20, 28},
+	{32, 34},
+	{33, 35}
+};
+
+const brd_type pattern::table_mask[pattern::size_n] = {
 	// horizontal pattern
 	0x00000000000000ff,
 	0x000000000000ff00,
@@ -70,250 +86,43 @@ const brd_type ptn_mask[] = {
 	0x0000000000030707
 };
 
-const short ptn_num[] = {
-	0, 1, 2, 3, 3, 2, 1, 0,
-	0, 1, 2, 3, 3, 2, 1, 0,
-	4, 5, 6, 7, 8, 7, 6, 5,
-	4, 5, 6, 7, 8, 7, 6, 5,
-	9, 10, 9, 10
-};
+void get_index(cbool color, cboard brd, int* const& ind){
+	
+	brd_type brd_blue = brd.bget(color);
+	brd_type brd_green = brd.bget(!color);
+	brd_type result,mask;
 
-float& board::extract_ptn(cbool color, float* const& ptr, cbrd_type mask, cshort num)const{
-	brd_type brd_blue = this->bget(color);
-	brd_type brd_green = this->bget(!color);
-	brd_type index;
-	index = extract(brd_blue,mask) << 8;
-	index |= extract(brd_green,mask);
-	//cout << hex << brd_blue << " " << brd_green << endl;
-	//cout << "index: " << hex << index << " mask: " << hex << mask << " num: " << dec << num << endl;
-	//assert((index & ~0xffffull) == 0);
-	return ptr[(brd_type(num) << 16) + index];
+	for(int i = 0;i != pattern::size_n;++i){
+		mask = pattern::table_mask[i];
+		result = pattern::table_num[i] << 16;
+		result |= board::extract(brd_blue,mask) << 8;
+		result |= board::extract(brd_green,mask);
+		ind[i] = result;
+	}
 }
 
 float board::score_ptn(cbool color)const{
+	brd_type brd_blue = bget(color);
+	brd_type brd_green = bget(!color);
+	brd_type index,mask;
+	float result;
 
-	short blue_move = this->count_move(color);
-	short green_move = this->count_move(!color);
-
-//	if((blue_move | green_move) == 0){
-//		short num_diff = count(color) - count(!color);
-//		num_diff <<= 1;
-//		if(num_diff > 0){
-//			return num_diff + 1000;
-//		}else if(num_diff < 0){
-//			return num_diff - 1000;
-//		}else{
-//			return num_diff;
-//		}
-//	}
-
-	brd_type brd_blue = this->bget(color);
-	brd_type brd_green = this->bget(!color);
-	brd_type index;
-
-	float result = 0;
-	short stage = (this->sum() - 1) >> 4;
-	auto table1 = ptr_pattern->table1[stage];
-
-	result += ptr_pattern->table2[stage][blue_move * 30 + green_move];
-
-	for(int i = 0;i != 36;++i){
-		index = extract(brd_blue,ptn_mask[i]) << 8;
-		index |= extract(brd_green,ptn_mask[i]);
-		result +=  table1[(brd_type(ptn_num[i]) << 16) + index];
+	result = 0;
+	for(int i = 0;i != pattern::size_n;++i){
+		mask = pattern::table_mask[i];
+		index = pattern::table_num[i] << 16;
+		index |= board::extract(brd_blue,mask) << 8;
+		index |= board::extract(brd_green,mask);
+		result += grp.at(0).at(index);
 	}
-
 	return result;
-}
-
-vector<float> board::eval_ptn(cbool color)const{
-
-	vector<float> result;
-
-	short blue_move = this->count_move(color);
-	short green_move = this->count_move(!color);
-
-	brd_type brd_blue = this->bget(color);
-	brd_type brd_green = this->bget(!color);
-	brd_type index;
-
-	short stage = (this->sum() - 1) >> 4;
-	auto table1 = ptr_pattern->table1[stage];
-
-	result.push_back(ptr_pattern->table2[stage][blue_move * 30 + green_move]);
-
-	for(int i = 0;i != 36;++i){
-		index = extract(brd_blue,ptn_mask[i]) << 8;
-		index |= extract(brd_green,ptn_mask[i]);
-		result.push_back(i);
-		result.push_back(index);
-		result.push_back(table1[(brd_type(ptn_num[i]) << 16) + index]);
-	}
-
-	return result;
-}
-
-//float fdecay = 1 - 0.01;
-
-void board::adjust_ptn(cbool color,ccalc_type diff)const{
-
-	short stage = (this->sum() - 1) >> 4;
-	auto table1 = ptr_pattern->table1[stage];
-
-	++ptr_pattern->count;
-
-	ptr_pattern->table2[stage][count_move(color) * 30 + count_move(!color)]
-		+= diff / ptr_pattern->count;
-
-	for(int i = 0;i != 36;++i){
-		extract_ptn(color,table1,ptn_mask[i],ptn_num[i]) += diff / ptr_pattern->count;
-	}
-
-}
-
-void pattern::save(ostream& out){
-	#define WRITE(var) out.write((char *)(&var),sizeof(var))
-
-	WRITE(this->count);
-	for(auto& i:table1){
-		for(int j = 0;j != size1;++j){
-			for(size_t k = 0;k != this->length;++k){
-				if(k & (k >> 8)){
-					continue;
-				}
-				WRITE(i[(j << 16) + k]);
-			}
-		}
-	}
-	WRITE(table2);
-
-	#undef WRITE
-}
-
-void pattern::load(istream& in){
-	#define _READ(var) in.read((char *)(&var),sizeof(var))
-
-	_READ(this->count);
-	for(auto& i:table1){
-		for(int j = 0;j != size1;++j){
-			for(size_t k = 0;k != this->length;++k){
-				if(k & (k >> 8)){
-					continue;
-				}
-				_READ(i[(j << 16) + k]);
-			}
-		}
-	}
-	_READ(table2);
-
-	#undef _READ
-}
-
-bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth){
-	board brd;
-	board vec[64];
-	board* ptr = vec;
-	bool flag[64];
-	bool* color = flag;
-	coordinate pos1,pos2;
-
-	brd.initial();
-	do{
-		*ptr++ = brd;
-		ptr_pattern = p1;
-		pos1 = brd.play(mthd,true,depth);
-		if(pos1.x < 0){
-			--ptr;
-		}else{
-			*color = true;
-			++color;
-		}
-
-		*ptr++ = brd;
-		ptr_pattern = p2;
-		pos2 = brd.play(mthd,false,depth);
-		if(pos2.x < 0){
-			--ptr;
-		}else{
-			*color = false;
-			++color;
-		}
-
-	}while(pos1.x >= 0 || pos2.x >= 0);
-
-	calc_type result = brd.count(true) - brd.count(false);
-
-	ptr_pattern = p1;
-	calc_type diff;
-	board* p;
-	bool* c;
-	if(result == 0){
-		return false;
-	}
-	(result > 0) ? result = 100 : result = -100;
-
-	for(p = vec,c = flag;p != ptr;++p,++c){
-		diff = *c ? (result - p->score_ptn(true)) : (-result - p->score_ptn(false));
-		diff /= 38;
-		p->adjust_ptn(*c,diff);
-	}
-	return true;
-};
-
-void imitate(pattern* const& p1,cmethod mthd,cshort depth){
-	board brd;
-	board vec[64];
-	board* ptr = vec;
-	bool flag[64];
-	bool* color = flag;
-	coordinate pos1,pos2;
-
-	brd.initial();
-	do{
-		*(ptr++) = brd;
-		pos1 = brd.play(mthd_rnd,true,depth);
-		if(pos1.x < 0){
-			--ptr;
-		}else{
-			*color = true;
-			++color;
-		}
-
-		*(ptr++) = brd;
-		pos2 = brd.play(mthd_rnd,false,depth);
-		if(pos2.x < 0){
-			--ptr;
-		}else{
-			*color = false;
-			++color;
-		}
-	}while(pos1.x >= 0 || pos2.x >= 0);
-
-	ptr_pattern = p1;
-	calc_type diff;
-	board* p;
-	bool* c;
-
-	for(p = vec,c = flag;p != ptr;++p,++c){
-		diff = (p->search(mthd,*c,depth) - p->score_ptn(*c)) / 38;
-		p->adjust_ptn(*c,diff);
-	}
-	assert(c == color);
-};
-
-void group::assign(const int& size){
-	vec.clear();
-	while(vec.size() < (unsigned int)(size)){
-		vec.emplace_back();
-		record.emplace_back(0);
-	}
 }
 
 void group::load(const string& path,cint num_begin,cint num){
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
 
 	ifstream fin(path,ios::in | ios::binary);
-	size_t ele_size, ptn_size, group_size;
+	size_t calc_size, ptn_size, group_size;
 
 	if(!fin){
 		fin.close();
@@ -321,18 +130,18 @@ void group::load(const string& path,cint num_begin,cint num){
 		return;
 	}
 
-	_READ(ele_size);
+	_READ(calc_size);
 	_READ(ptn_size);
 	_READ(group_size);
 
+	if(calc_size != sizeof(calc_type)){
+		fin.close();
+		cout << "Error: The size of element does not match." << endl;
+		return;
+	}
 	if(ptn_size != sizeof(pattern)){
 		fin.close();
 		cout << "Error: The size of pattern does not match." << endl;
-		return;
-	}
-	if(ele_size != sizeof(element)){
-		fin.close();
-		cout << "Error: The size of element does not match." << endl;
 		return;
 	}
 	
@@ -340,8 +149,7 @@ void group::load(const string& path,cint num_begin,cint num){
 
 	for(size_t i = 0;i != group_size && i < size_t(num);++i){
 		this->vec.emplace_back();
-		this->record.emplace_back(0);
-		this->vec.back().load(fin);
+		_READ(this->vec.back());
 	}
 
 	fin.close();
@@ -352,50 +160,130 @@ void group::save(const string& path){
 	#define WRITE(var) fout.write((char *)(&var),sizeof(var))
 	ofstream fout(path,ios::out | ios::binary);
 
-	size_t ele_size = sizeof(element);
+	size_t calc_size = sizeof(calc_type);
 	size_t ptn_size = sizeof(pattern);
 	size_t group_size = vec.size();
 
-	WRITE(ele_size);
+	WRITE(calc_size);
 	WRITE(ptn_size);
 	WRITE(group_size);
 
 	for(auto& ptn:this->vec){
-		ptn.save(fout);
+		WRITE(ptn);
 	}
 
 	fout.close();
 	#undef WRITE
 }
 
-void group::train(cmethod mthd, cshort depth){
-//	if(this->vec.empty()){
-//		return;
-//	}
-//	short temp;
-//	for(size_t i = 1;i != this->vec.size();++i){
-//		for(auto j = 0;j + i != this->vec.size();++j){
-//			temp = compete(&vec[j],&vec[j + i],mthd,depth);
-//			record[j] += temp;
-//			record[j + i] -= temp;
-//		}
-//		for(auto j = 0;j + i != this->vec.size();++j){
-//			temp = compete(&vec[j + i],&vec[j],mthd,depth);
-//			record[j] -= temp;
-//			record[j + i] += temp;
-//		}
-//	}
+matrix<float> mat_i2f(const matrix<int>& m){
+	return m;
+}
+float mat_2f(const matrix<float>& m){
+	return m.at(0);
+}
 
-	for(pattern& ptn:vec){
-		imitate(&ptn,mthd,depth);
+unordered_set<board> sample_gen(cint n){
+	unordered_set<board> brds;
+	board brd,brd_save;
+	coordinate pos1,pos2;
+
+	for(int i = 0;i != n;++i){
+		brd.initial();
+		do{
+			brd_save = brd;
+			pos1 = brd.play(mthd_rnd,true,0);
+			if(pos1.x >= 0){
+				brds.insert(brd_save);
+			}
+
+			brd_save = brd;
+			pos2 = brd.play(mthd_rnd,false,0);
+			if(pos2.x >= 0){
+				brd_save.reverse();
+				brds.insert(brd_save);
+			}
+		}while(pos1.x >= 0 || pos2.x >= 0);
+	}
+	return brds;
+};
+
+matrix<int> sample_process(const unordered_set<board>& brds){
+	int i = 0;
+	matrix<int> result(brds.size(),pattern::size_n);
+	for(cboard brd:brds){
+		get_index(true,brd,result[i]);
+		++i;
+	}
+	return result;
+}
+
+matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
+	int h = index1.geth(), w = index2.geth();
+	matrix<int> result(h,w);
+	for(int i = 0;i != h;++i){
+		for(int j = 0;j != w;++j){
+			result[i][j] = 0;
+			for(int k = 0;k != pattern::size;++k){
+				for(int l = 0;l != pattern::table_num_size[k];++l){
+					for(int m = 0;m != pattern::table_num_size[k];++m){
+						result[i][j] += (
+							index1[i][pattern::table_num_convert[k][l]]
+							== index2[j][pattern::table_num_convert[k][m]]
+						);
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height){
+	int i = 0;
+	matrix<calc_type> result(brds.size(),1);
+	for(cboard brd:brds){
+		result.at(i) = brd.search(mthd,true,height);
+		++i;
+	}
+	return result;
+}
+
+matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index){
+	matrix<calc_type> result(index.geth(),1);
+	for(int i = 0;i != index.geth();++i){
+		result.at(i) = 0;
+		for(int j = 0;j != index.getw();++j){
+			result.at(i) += ptn.at(index[i][j]);
+		}
+	}
+	return result;
+}
+
+void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& delta){
+	for(int i = 0;i != index.geth();++i){
+		for(int j = 0;j != index.getw();++j){
+			ptn.at(index[i][j]) += delta.at(i);
+		}
 	}
 }
 
-void group::print_record(){
-	cout << '(';
-	for(auto& i:this->record){
-		cout << i << ',';
-	}cout << "\b)";
+void optimize(pattern& ptn, const matrix<int>& index, const matrix<float>& target, cint step){
+	matrix<float> corr = matrix<float>(correlate(index,index));
+	matrix<float> corr_2 = corr * corr;
+
+	matrix<calc_type> value = evaluate(ptn,index);
+	matrix<calc_type> epsilon = target - value;
+	calc_type epsilon_2 = epsilon.modulus();
+	cout << "epsilon_2 : " << epsilon_2 << endl;
+	//delta_ptn = epsilon.transpose() * 2 * pattern
+	calc_type alpha = (epsilon.transpose() * corr * epsilon).at(0) / (epsilon.transpose() * corr_2 * epsilon).at(0);
+	adjust(ptn,index,- alpha * 2 * epsilon);
+
+	value = evaluate(ptn,index);
+	epsilon = target - value;
+	epsilon_2 = epsilon.modulus();
+	cout << "epsilon_2 : " << epsilon_2 << endl;
 }
 
 bool is_prime(const long long& num){

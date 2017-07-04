@@ -5,59 +5,104 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <unordered_set>
 
-#include "reversi.h" //--
+#include "matrix.h"
+#include "type.h"
 
 using namespace std;
 
-typedef float element;
+class pattern;
+class group;
 
-struct pattern{
-	static const size_t stage = 4;
-	static const size_t size1 = 11,size2 = 30 * 30;
+extern group grp;
+
+extern int table_map[65536];
+extern int table_map_inv[6561];
+
+class pattern{
+public:
+	pattern() = default;
+	pattern(const pattern&) = default;
+	pattern(pattern&&) = default;
+	pattern& operator=(const pattern&) = default;
+	pattern& operator=(pattern&&) = default;
+
+	static const size_t size = 11;
+	static const size_t size_n = 36;
 	static const size_t length = 1 << 16;
+	static const short table_num[size_n];
+	static const short table_num_size[size];
+	static const short table_num_convert[size][4];
+	static const brd_type table_mask[size_n];
 
-	int count;
-	element table1[stage][size1 * length];
-	element table2[stage][size2];
+	calc_type table[size * length];
 
-	void initial();
-	element get1(cint stage,cint num,cint pos){
-		return table1[stage][(num << 16) + pos];
+	void initial(){
+		memset(table,0,sizeof(table));
+	}
+	static void config(){
+		int j = 0;
+		for(int i = 0;i != length;++i){
+			if((i & (i >> 8)) == 0){
+				table_map[i] = j;
+				table_map_inv[j] = i;
+				++j;
+			}else{
+				table_map[i] = -1;
+			}
+		}
+	}
+
+	calc_type& at(cint n,cint pos){
+		return table[(n << 16) + pos];
 	};
-	element get2(cint stage,cint num){
-		return table2[stage][num];
+	ccalc_type at(cint n,cint pos)const{
+		return table[(n << 16) + pos];
 	};
-	void save(ostream& out);
-	void load(istream& in);
+	calc_type& at(cint n){
+		return table[n];
+	};
+	ccalc_type at(cint n)const{
+		return table[n];
+	};
 };
 
 class group{
 public:
 	vector<pattern> vec;
-	vector<short> record;
-	void assign(const int& size);
-	void initial(){
+	void initial(const int& size){
+		vec.clear();
+		while(vec.size() < (unsigned int)(size)){
+			vec.emplace_back();
+		}
 		for(auto& ptn:vec){
 			ptn.initial();
 		}
 	}
 	void load(const string& path,cint num_begin = 0,cint num = 100);
 	void save(const string& path);
-	pattern* get(const int& pos){
-		return &vec.at(pos);
+	const pattern& at(const int& pos)const{
+		return vec.at(pos);
 	}
-	void train(cmethod mthd,cshort depth);
-	void print_record();
+	pattern& at(const int& pos){
+		return vec.at(pos);
+	}
+//	void train(cmethod mthd,cshort depth);
 };
 
-bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth);
+//bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth);
+void get_index(cbool color, cboard brd, int* const& ind);
+matrix<float> mat_i2f(const matrix<int>& m);
+float mat_2f(const matrix<float>& m);
+unordered_set<board> sample_gen(cint n);
+matrix<int> sample_process(const unordered_set<board>& brds);
+matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2);
+matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height);
+matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index);
+void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& delta);
+void optimize(pattern& ptn, const matrix<int>& index, const matrix<float>& target, cint step);
 
 bool is_prime(const long long& num);
-
-extern pattern* ptr_pattern;
-
-extern void set_ptn(pattern* ptr);
-extern bool check_ptn();
 
 #endif //PATTERN_H
