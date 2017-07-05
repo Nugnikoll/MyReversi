@@ -19,6 +19,8 @@
 out*
 *temp*
 
+data/data.cc
+
 *.dot
 optimize/*.png
 optimize/*/*.png

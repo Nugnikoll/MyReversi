@@ -125,6 +125,7 @@ float score(cbool color){
 //}
 
 void config(){
+	pattern::config();
 	return mygame.config();
 } 
 bool flip(cbool color,cint x,cint y){
@@ -224,8 +225,8 @@ void load(const string& path){
 void grp_initial(cint size){
 	return grp.initial(size);
 }
-void grp_load(const string& filename,cint num_begin = 0,cint num = 100){
-	return grp.load(filename,num_begin,num);
+void grp_load(const string& filename){
+	return grp.load(filename);
 }
 void grp_save(const string& filename){
 	return grp.save(filename);
