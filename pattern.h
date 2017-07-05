@@ -31,6 +31,7 @@ public:
 	static const size_t size = 11;
 	static const size_t size_n = 36;
 	static const size_t length = 1 << 16;
+	static const size_t length_compress = 6561;
 	static const short table_num[size_n];
 	static const short table_num_size[size];
 	static const short table_num_convert[size][4];
@@ -66,6 +67,8 @@ public:
 	ccalc_type at(cint n)const{
 		return table[n];
 	};
+	void load(istream& fin);
+	void save(ostream& fout)const;
 };
 
 class group{
@@ -80,8 +83,9 @@ public:
 			ptn.initial();
 		}
 	}
-	void load(const string& path,cint num_begin = 0,cint num = 100);
-	void save(const string& path);
+	void load(istream& fin);
+	void load(const string& path);
+	void save(const string& path)const;
 	const pattern& at(const int& pos)const{
 		return vec.at(pos);
 	}

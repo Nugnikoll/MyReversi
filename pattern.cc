@@ -106,19 +106,79 @@ float board::score_ptn(cbool color)const{
 	brd_type brd_green = bget(!color);
 	brd_type index,mask;
 	float result;
+	const pattern& ptn = grp.vec[0];
 
 	result = 0;
-	for(int i = 0;i != pattern::size_n;++i){
-		mask = pattern::table_mask[i];
-		index = pattern::table_num[i] << 16;
-		index |= board::extract(brd_blue,mask) << 8;
-		index |= board::extract(brd_green,mask);
-		result += grp.at(0).at(index);
-	}
+	#define repeat(i) \
+		mask = pattern::table_mask[i]; \
+		index = pattern::table_num[i] << 16; \
+		index |= board::extract(brd_blue,mask) << 8; \
+		index |= board::extract(brd_green,mask); \
+		result += ptn.at(index);
+
+	#define repeat4(i) \
+		repeat(i + 0);repeat(i + 1);repeat(i + 2);repeat(i + 3);
+
+	#define repeat16(i) \
+		repeat4(i + 0);repeat4(i + 4);repeat4(i + 8);repeat4(i + 12);
+
+	repeat16(0);repeat16(16);repeat4(32);
+
 	return result;
 }
 
-void group::load(const string& path,cint num_begin,cint num){
+void pattern::load(istream& fin){
+	#define _READ(var) fin.read((char *)(&var),sizeof(var))
+
+	for(int i = 0;i != size;++i){
+		for(int j = 0;j != length_compress;++j){
+			_READ(table[(i << 16) + table_map_inv[j]]);
+		}
+	}
+
+	#undef _READ
+}
+void pattern::save(ostream& fout)const{
+	#define WRITE(var) fout.write((const char *)(&var),sizeof(var))
+
+	for(int i = 0;i != size;++i){
+		for(int j = 0;j != length_compress;++j){
+			WRITE(table[(i << 16) + table_map_inv[j]]);
+		}
+	}
+
+	#undef WRITE
+}
+
+void group::load(istream& fin){
+	#define _READ(var) fin.read((char *)(&var),sizeof(var))
+
+	size_t calc_size, ptn_size, group_size;
+
+	_READ(calc_size);
+	_READ(ptn_size);
+	_READ(group_size);
+
+	if(calc_size != sizeof(calc_type)){
+		cout << "Error: The size of element does not match." << endl;
+		return;
+	}
+	if(ptn_size != sizeof(pattern)){
+		cout << "Error: The size of pattern does not match." << endl;
+		return;
+	}
+	
+	this->vec.reserve(group_size);
+
+	for(size_t i = 0;i != group_size;++i){
+		this->vec.emplace_back();
+		this->vec.back().load(fin);
+	}
+
+	#undef _READ
+}
+
+void group::load(const string& path){
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
 
 	ifstream fin(path,ios::in | ios::binary);
@@ -147,17 +207,17 @@ void group::load(const string& path,cint num_begin,cint num){
 	
 	this->vec.reserve(group_size);
 
-	for(size_t i = 0;i != group_size && i < size_t(num);++i){
+	for(size_t i = 0;i != group_size;++i){
 		this->vec.emplace_back();
-		_READ(this->vec.back());
+		this->vec.back().load(fin);
 	}
 
 	fin.close();
 	#undef _READ
 }
 
-void group::save(const string& path){
-	#define WRITE(var) fout.write((char *)(&var),sizeof(var))
+void group::save(const string& path)const{
+	#define WRITE(var) fout.write((const char *)(&var),sizeof(var))
 	ofstream fout(path,ios::out | ios::binary);
 
 	size_t calc_size = sizeof(calc_type);
@@ -168,8 +228,8 @@ void group::save(const string& path){
 	WRITE(ptn_size);
 	WRITE(group_size);
 
-	for(auto& ptn:this->vec){
-		WRITE(ptn);
+	for(const pattern& ptn:this->vec){
+		ptn.save(fout);
 	}
 
 	fout.close();

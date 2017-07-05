@@ -6,12 +6,13 @@
 #include <iomanip>
 #include <cstdlib>
 #include <string>
+#include <sstream>
 
 #include "jsoncpp/json.h"
 
 #include "reversi.h"
 #include "pattern.h"
-// #include "data/data.h"
+#include "data/data.h"
 
 using namespace std;
  
@@ -21,6 +22,7 @@ int main(){
 
 	board brd;
 	board::config();
+	pattern::config();
 	brd.initial();
  
  	// input JSON
@@ -56,9 +58,15 @@ int main(){
  	if (x >= 0)
  		brd.flip(!mycolor,x + (y << 3)); // 模拟对方落子
 
-	// ptr_pattern = new pattern;
-	// ptr_pattern->decompress((float*)(data_table + 3 * 8));
- 	auto coord = brd.play(method(mthd_ab | mthd_kill),mycolor);
+	string buffer;
+	for(const char& chr:data_table){
+		buffer += chr;
+	}
+
+	istringstream in;
+	in.str(buffer);
+	grp.load(in);
+	auto coord = brd.play(method(mthd_ab | mthd_kill | mthd_ptn),mycolor);
 
 	// 决策结束，输出结果（你只需修改以上部分）
 
