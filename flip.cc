@@ -181,13 +181,6 @@ bool board::flip(cbool color,cpos_type pos){
 	brd_type& brd_blue = this->bget(color);
 	brd_type& brd_green = this->bget(!color);
 
-//	if(
-//		(((brd_blue | brd_green) & (1ull << pos)) != 0)
-//		|| ((brd_green & mask_adj[pos]) == 0)
-//	){
-//		return false;
-//	}
-
 	brd_type brd_save = brd_blue;
 
 	brd_type piece, temp, mask, brd_result;
