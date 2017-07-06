@@ -8,8 +8,8 @@ src_dir = "../";
 # src = [src_dir + x for x in src];
 # src += ["main.cc"];
 
-src = ["type.h","reversi.h","search.h","game.h","matrix.h","pattern.h","tree.h","data/data.h",
-	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc","main_json.cc","data/data.cc"];
+src = ["type.h","reversi.h","search.h","game.h","matrix.h","pattern.h","tree.h",
+	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc","main_json.cc"];
 src = [src_dir + x for x in src];
 
 lines = [];

@@ -1,22 +1,16 @@
-//#pragma GCC diagnostic error "-std=c++11"
-#pragma GCC optimize ("O3")
-
-#include <iostream>
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
 #include <string>
-#include <sstream>
 
 #include "jsoncpp/json.h"
 
 #include "reversi.h"
 #include "pattern.h"
-#include "data/data.h"
 
 using namespace std;
  
-int main(){
+int main(int argc, char *argv[], char *envp[]){
 	int x,y;
 	bool mycolor;
 
@@ -58,14 +52,7 @@ int main(){
  	if (x >= 0)
  		brd.flip(!mycolor,x + (y << 3)); // 模拟对方落子
 
-	string buffer;
-	for(const char& chr:data_table){
-		buffer += chr;
-	}
-
-	istringstream in;
-	in.str(buffer);
-	grp.load(in);
+	grp.load("./data/pattern.dat");
 	auto coord = brd.play(method(mthd_ab | mthd_kill | mthd_ptn),mycolor);
 
 	// 决策结束，输出结果（你只需修改以上部分）
