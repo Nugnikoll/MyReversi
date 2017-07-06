@@ -144,6 +144,73 @@ calc_type board::search(
 	#pragma GCC diagnostic pop
 #endif
 
+const brd_type mask_after[board::size2] = {
+	0xfffffffffffffffe,
+	0xfffffffffffffffc,
+	0xfffffffffffffff8,
+	0xfffffffffffffff0,
+	0xffffffffffffffe0,
+	0xffffffffffffffc0,
+	0xffffffffffffff80,
+	0xffffffffffffff00,
+	0xfffffffffffffe00,
+	0xfffffffffffffc00,
+	0xfffffffffffff800,
+	0xfffffffffffff000,
+	0xffffffffffffe000,
+	0xffffffffffffc000,
+	0xffffffffffff8000,
+	0xffffffffffff0000,
+	0xfffffffffffe0000,
+	0xfffffffffffc0000,
+	0xfffffffffff80000,
+	0xfffffffffff00000,
+	0xffffffffffe00000,
+	0xffffffffffc00000,
+	0xffffffffff800000,
+	0xffffffffff000000,
+	0xfffffffffe000000,
+	0xfffffffffc000000,
+	0xfffffffff8000000,
+	0xfffffffff0000000,
+	0xffffffffe0000000,
+	0xffffffffc0000000,
+	0xffffffff80000000,
+	0xffffffff00000000,
+	0xfffffffe00000000,
+	0xfffffffc00000000,
+	0xfffffff800000000,
+	0xfffffff000000000,
+	0xffffffe000000000,
+	0xffffffc000000000,
+	0xffffff8000000000,
+	0xffffff0000000000,
+	0xfffffe0000000000,
+	0xfffffc0000000000,
+	0xfffff80000000000,
+	0xfffff00000000000,
+	0xffffe00000000000,
+	0xffffc00000000000,
+	0xffff800000000000,
+	0xffff000000000000,
+	0xfffe000000000000,
+	0xfffc000000000000,
+	0xfff8000000000000,
+	0xfff0000000000000,
+	0xffe0000000000000,
+	0xffc0000000000000,
+	0xff80000000000000,
+	0xff00000000000000,
+	0xfe00000000000000,
+	0xfc00000000000000,
+	0xf800000000000000,
+	0xf000000000000000,
+	0xe000000000000000,
+	0xc000000000000000,
+	0x8000000000000000,
+	0x0000000000000000
+};
+
 template<method mthd>
 calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta)const{
 
@@ -216,17 +283,30 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 		calc_type result;
 		calc_type* ptr_val = table_val[this->sum()];
 		const method mthd_temp = method(mthd & ~mthd_pvs);
+		brd_type brd_move = this->get_move(color);
+		brd_type pos;
 
 		ptr->brd = *this;
-		for(pos_type pos = 0;pos != size2;++pos){
-			if(ptr->brd.flip(color,pos)){
-				if(mthd & mthd_kill){
-					ptr->pos = pos;
-					ptr->val = ptr_val[pos];
-				}
-				++ptr;
-				ptr->brd = *this;
+		asm volatile(
+			"tzcnt %1, %0;"
+			:"=&r"(pos)
+			:"r"(brd_move)
+			:
+		);
+		while(pos != size2){
+			ptr->brd.flip(color,pos);
+			if(mthd & mthd_kill){
+				ptr->pos = pos;
+				ptr->val = ptr_val[pos];
 			}
+			++ptr;
+			ptr->brd = *this;
+			asm volatile(
+				"tzcnt %1, %0;"
+				:"=&r"(pos)
+				:"r"(brd_move & mask_after[pos])
+				:
+			);
 		}
 
 		if(ptr != vec){
@@ -281,16 +361,28 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 		}else{
 
+			brd_move = this->get_move(!color);
 			//ptr->brd = *this;
-			for(pos_type pos = 0;pos != size2;++pos){
-				if(ptr->brd.flip(!color,pos)){
-					if(mthd & mthd_kill){
-						ptr->pos = pos;
-						ptr->val = ptr_val[pos];
-					}
-					++ptr;
-					ptr->brd = *this;
+			asm volatile(
+				"tzcnt %1, %0;"
+				:"=&r"(pos)
+				:"r"(brd_move)
+				:
+			);
+			while(pos != size2){
+				ptr->brd.flip(!color,pos);
+				if(mthd & mthd_kill){
+					ptr->pos = pos;
+					ptr->val = ptr_val[pos];
 				}
+				++ptr;
+				ptr->brd = *this;
+				asm volatile(
+					"tzcnt %1, %0;"
+					:"=&r"(pos)
+					:"r"(brd_move & mask_after[pos])
+					:
+				);
 			}
 
 			if(ptr != vec){
