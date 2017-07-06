@@ -91,15 +91,15 @@ vector<choice> board::get_choice(
 	if(mthd & mthd_trans){
 		table_trans.clear();
 	}
-	if(mthd & mthd_kill){
-		for(int i = this->sum();i != size2;++i){
-			for(int j = 0;j != size2;++j){
-				if(table_val[i][j] == 0){
-					table_val[i][j] = table_val_init[j];
-				}
-			}
-		}
-	}
+//	if(mthd & mthd_kill){
+//		for(int i = this->sum();i != size2;++i){
+//			for(int j = 0;j != size2;++j){
+//				if(table_val[i][j] == 0){
+//					table_val[i][j] = table_val_init[j];
+//				}
+//			}
+//		}
+//	}
 
 	choices.reserve(30);
 
