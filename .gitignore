@@ -20,6 +20,7 @@ out*
 *temp*
 
 data/data.cc
+!data/pattern.dat
 
 *.dot
 optimize/*.png
