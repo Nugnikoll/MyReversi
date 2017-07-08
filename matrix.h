@@ -2,6 +2,8 @@
 #define MATRIX_H
 
 #include <iostream>
+#include <string>
+#include <fstream>
 #include <cstring>
 #include <initializer_list>
 #include <cassert>
@@ -140,20 +142,37 @@ public:
 //        return *this;
 //    }
 
-    matrix& input(std::istream& in = std::cin){
+    void input(std::istream& in = std::cin){
 		int size = height * width;
         for(int i = 0;i != size;++i){
 			in >> table[i];
 		}
-        return *this;
     }
-    const matrix& output(std::ostream& out = std::cout)const{
-        return this->do_output(out);
+    void output(std::ostream& out = std::cout)const{
+        if(table == NULL)
+            return ;
+        for(int i = 0;i != height;++i){
+            for(int j = 0;j != width;++j)
+                out << table[i * width + j] << " ";
+            out << "\n";
+        }
     }
-    matrix& output(std::ostream& out = std::cout){
-        this->do_output(out);
-        return *this;
-    }
+
+	void load(const std::string& filename){
+		ifstream fin(filename);
+		fin.read((char *)(&height),sizeof(height));
+		fin.read((char *)(&width),sizeof(width));
+		fin.read((char *)(table),sizeof(T) * height * width);
+		fin.close();
+	}
+
+	void save(const std::string& filename)const{
+		ofstream fout(filename);
+		fout.write((const char *)(&height),sizeof(height));
+		fout.write((const char *)(&width),sizeof(width));
+		fout.write((const char *)(table),sizeof(T) * height * width);
+		fout.close();
+	}
 
     bool operator==(const matrix& m)const{
         assert(height == m.height && width == m.width);
@@ -311,17 +330,6 @@ private:
     int height;
     int width;
     T* table;
-
-    const matrix& do_output(std::ostream& out = std::cout)const{
-        if(table == NULL)
-            return *this;
-        for(int i = 0;i != height;++i){
-            for(int j = 0;j != width;++j)
-                out << table[i * width + j] << " ";
-            out << "\n";
-        }
-        return *this;
-    }
 };
 
 #endif // MATRIX_H

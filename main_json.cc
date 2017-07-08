@@ -52,7 +52,7 @@ int main(int argc, char *argv[], char *envp[]){
  	if (x >= 0)
  		brd.flip(!mycolor,x + (y << 3)); // 模拟对方落子
 
-	grp.load("./data/pattern.dat");
+	grp.load("./data/pattern2.dat");
 	auto coord = brd.play(method(mthd_ab | mthd_kill | mthd_ptn),mycolor);
 
 	// 决策结束，输出结果（你只需修改以上部分）

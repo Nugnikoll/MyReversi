@@ -126,7 +126,8 @@ float score(cbool color){
 
 void config(){
 	pattern::config();
-	return mygame.config();
+	mygame.config();
+	grp.load("python/ptn_opt.dat");
 } 
 bool flip(cbool color,cint x,cint y){
 	return mygame.flip(color,x,y);

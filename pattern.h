@@ -28,7 +28,7 @@ public:
 	pattern& operator=(const pattern&) = default;
 	pattern& operator=(pattern&&) = default;
 
-	static const size_t size = 11;
+	static const size_t size = 10;
 	static const size_t size_n = 36;
 	static const size_t length = 1 << 16;
 	static const size_t length_compress = 6561;
@@ -92,7 +92,10 @@ public:
 	pattern& at(const int& pos){
 		return vec.at(pos);
 	}
-//	void train(cmethod mthd,cshort depth);
+
+	static void config(const string& str){
+		grp.load(str);
+	}
 };
 
 //bool compete(pattern* const& p1,pattern* const& p2,cmethod mthd,cshort depth);
