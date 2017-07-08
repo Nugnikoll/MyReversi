@@ -90,6 +90,7 @@ vector<choice> board::get_choice(
 
 	if(mthd & mthd_trans){
 		table_trans.clear();
+//		table_trans.reserve(10000000);
 	}
 //	if(mthd & mthd_kill){
 //		for(int i = this->sum();i != size2;++i){
@@ -184,8 +185,8 @@ coordinate board::play(cmethod mthd,cbool color,short height){
 		return coordinate(-1,-1);
 	}else{
 		float variation;
-		if(mthd == mthd_ptn){
-			variation = 0.003;
+		if(mthd & mthd_ptn){
+			variation = 0.15;
 		}else{
 			variation = 0.75;
 		}
