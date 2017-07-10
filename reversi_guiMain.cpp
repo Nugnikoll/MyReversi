@@ -217,14 +217,13 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menu_alg_ab->Check(true);
     menu_alg_pvs = new wxMenuItem(menu_alg, id_menu_alg_pvs, _("&Principal Variation Search"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_pvs);
-    menu_alg_trans = new wxMenuItem(menu_alg, id_menu_alg_trans, _("&Transition Table"), wxEmptyString, wxITEM_CHECK);
+    menu_alg_trans = new wxMenuItem(menu_alg, id_menu_alg_trans, _("&Transposition Table"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_trans);
     menu_alg_kill = new wxMenuItem(menu_alg, id_menu_alg_kill, _("&Killer Heuristic"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_kill);
     menu_alg_kill->Check(true);
     menu_alg_mtdf = new wxMenuItem(menu_alg, id_menu_alg_mtdf, _("&Memory-Enhanced Test Driver"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_mtdf);
-    menu_alg_mtdf->Enable(false);
     menu_alg_iter = new wxMenuItem(menu_alg, id_menu_alg_iter, _("&Iterative Deepening Search"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_iter);
     menu_alg_iter->Enable(false);
@@ -435,6 +434,8 @@ void reversi_guiFrame::on_menu_alg(wxCommandEvent& event){
 				process("set mthd_default [expr $mthd_default | $mthd_pvs]");
 			}else if(id == id_menu_alg_trans){
 				process("set mthd_default [expr $mthd_default | $mthd_trans]");
+			}else if(id == id_menu_alg_mtdf){
+				process("set mthd_default [expr $mthd_default | $mthd_mtdf]");
 			}else if(id == id_menu_alg_ptn){
 				process("set mthd_default [expr $mthd_default | $mthd_ptn]");
 			}
@@ -457,6 +458,8 @@ void reversi_guiFrame::on_menu_alg(wxCommandEvent& event){
 				process("set mthd_default [expr $mthd_default & ~ $mthd_pvs]");
 			}else if(id == id_menu_alg_trans){
 				process("set mthd_default [expr $mthd_default & ~ $mthd_trans]");
+			}else if(id == id_menu_alg_trans){
+				process("set mthd_default [expr $mthd_default & ~ $mthd_mtdf]");
 			}else if(id == id_menu_alg_ptn){
 				process("set mthd_default [expr $mthd_default & ~ $mthd_ptn]");
 			}

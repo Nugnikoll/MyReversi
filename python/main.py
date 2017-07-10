@@ -12,6 +12,9 @@ wxsfile = "../wxsmith/reversi_guiframe.wxs";
 xrcfile = "../wxsmith/reversi_guiframe.xrc";
 wxs2xrc(wxsfile,xrcfile);
 
+rv.pattern.config();
+rv.group.config("ptn_opt.dat")
+
 evt_thrd_id = wx.NewId();
 class thrd_event(wx.PyEvent):
 	def __init__(self,data):
@@ -44,6 +47,7 @@ class reversi_app(wx.App):
 		self.id_menu_alg_kill = xrc.XRCID("id_menu_alg_kill");
 		self.id_menu_alg_pvs = xrc.XRCID("id_menu_alg_pvs");
 		self.id_menu_alg_trans = xrc.XRCID("id_menu_alg_trans");
+		self.id_menu_alg_mtdf = xrc.XRCID("id_menu_alg_mtdf");
 		self.id_menu_alg_ptn = xrc.XRCID("id_menu_alg_ptn");
 
 		self.panel_board.Bind(wx.EVT_PAINT,self.on_panel_board_paint);
@@ -190,6 +194,8 @@ class reversi_app(wx.App):
 					self.process("reversi.mthd_default |= reversi.mthd_pvs");
 				elif id == self.id_menu_alg_trans:
 					self.process("reversi.mthd_default |= reversi.mthd_trans");
+				elif id == self.id_menu_alg_mtdf:
+					self.process("reversi.mthd_default |= reversi.mthd_mtdf");
 				elif id == self.id_menu_alg_ptn:
 					self.process("reversi.mthd_default |= reversi.mthd_ptn");
 			else:
@@ -208,6 +214,8 @@ class reversi_app(wx.App):
 					self.process("reversi.mthd_default &= ~reversi.mthd_pvs");
 				elif id == self.id_menu_alg_trans:
 					self.process("reversi.mthd_default &= ~reversi.mthd_trans");
+				elif id == self.id_menu_alg_mtdf:
+					self.process("reversi.mthd_default &= ~reversi.mthd_mtdf");
 				elif id == self.id_menu_alg_ptn:
 					self.process("reversi.mthd_default &= ~reversi.mthd_ptn");
 

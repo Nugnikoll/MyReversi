@@ -257,7 +257,7 @@
 						<checkable>1</checkable>
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_trans" variable="menu_alg_trans" member="yes">
-						<label>&amp;Transition Table</label>
+						<label>&amp;Transposition Table</label>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
@@ -269,7 +269,6 @@
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_mtdf" variable="menu_alg_mtdf" member="yes">
 						<label>&amp;Memory-Enhanced Test Driver</label>
-						<enabled>0</enabled>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>

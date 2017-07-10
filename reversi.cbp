@@ -46,6 +46,7 @@
 		<Unit filename="flip.cc" />
 		<Unit filename="game.h" />
 		<Unit filename="main.cc" />
+		<Unit filename="matrix.h" />
 		<Unit filename="pattern.cc" />
 		<Unit filename="pattern.h" />
 		<Unit filename="reversi.cc" />
