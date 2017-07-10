@@ -159,8 +159,14 @@ class reversi_app(wx.App):
 		# if mygame.is_lock:
 			# return;
 		pos = event.GetPosition();
-		x = int((pos.x - bias) / cell);
-		y = int((pos.y - bias) / cell);
+		if pos.x < bias:
+			x = -1;
+		else:
+			x = int((pos.x - bias) / cell);
+		if pos.y < bias:
+			y = -1;
+		else:
+			y = int((pos.y - bias) / cell);
 		self.process(
 			"self._print("
 				"mygame.play("

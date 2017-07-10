@@ -487,8 +487,8 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 		return;
 	}
 	wxPoint pos = event.GetPosition();
-	int x = (pos.x - bias) / cell;
-	int y = (pos.y - bias) / cell;
+	int x = pos.x < bias ? -1 : (pos.x - bias) / cell;
+	int y = pos.y < bias ? -1 : (pos.y - bias) / cell;
 	process(
 		(
 			_("puts [plays ") + wxString::FromDouble(x) + " "
