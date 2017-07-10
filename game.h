@@ -175,7 +175,12 @@ public:
 	}
 	bool flip(cbool color, cpos_type x, cpos_type y){
 		push();
-		bool result = brd.flip(color,x + (y << 3));
+		bool result;
+		if(x < 0 || x >= board::size || y < 0 || y >= board::size){
+			result = false;
+		}else{
+			result = brd.flip(color,x + (y << 3));
+		}
 		ostringstream out;
 		if(result){
 			out << 	(color? "black" : "white")
