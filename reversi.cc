@@ -89,7 +89,8 @@ vector<choice> board::get_choice(
 	calc_type alpha = _inf;
 
 	if(mthd & mthd_trans){
-		table_trans.clear();
+		table_trans[0].clear();
+		table_trans[1].clear();
 //		table_trans.reserve(10000000);
 	}
 //	if(mthd & mthd_kill){
@@ -108,9 +109,9 @@ vector<choice> board::get_choice(
 	for(pos_type i = 0;i != size2;++i){
 		if(brd.flip(color,i)){
 			result = - brd.search(mthd,!color,height,_inf,-alpha,gamma);
-			if(result - 5 > alpha){
-				alpha = result - 5;
-			}
+//			if(result - 5 > alpha){
+//				alpha = result - 5;
+//			}
 			temp.val = result;
 			temp.brd = brd;
 			temp.pos = i;
