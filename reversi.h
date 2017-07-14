@@ -240,16 +240,13 @@ public:
 				:
 			);
 		#else
-			brd_type mask_i,mask_r = 1;
+			brd_type msk = mask;
 			result = 0;
-			for(pos_type i = 0;i != size2;++i){
-				mask_i = 1ull << i;
-				if(mask & mask_i){
-					if(brd & mask_i){
-						result |= mask_r;
-					}
-					mask_r <<= 1;
+			for(brd_type i = 1;msk;i <<= 1){
+				if(brd & msk & -msk){
+					result |= i;
 				}
+				msk &= msk - 1;
 			}
 		#endif
 
@@ -266,16 +263,13 @@ public:
 				:
 			);
 		#else
-			brd_type mask_i,mask_r = 1;
+			brd_type msk = mask;
 			result = 0;
-			for(pos_type i = 0;i != size2;++i){
-				mask_i = 1ull << i;
-				if(mask & mask_i){
-					if(brd & mask_r){
-						result |= mask_i;
-					}
-					mask_r <<= 1;
+			for(pos_type i = 1;msk;i <<= 1){
+				if(brd & i){
+					result |= msk & -msk;
 				}
+				msk &= msk - 1;
 			}
 		#endif
 		return result;
