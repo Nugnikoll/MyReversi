@@ -28,6 +28,7 @@
 using namespace std;
 
 #include "type.h"
+#include "asm.h"
 
 struct coordinate{
 	coordinate():x(-1),y(-1){}
@@ -232,13 +233,8 @@ public:
 	static brd_type extract(cbrd_type brd,cbrd_type mask){
 		brd_type result;
 
-		#ifdef USE_ASM
-			asm volatile(
-				"pext %1, %2, %0;"
-				: "=&r"(result)
-				: "r"(mask), "r"(brd)
-				:
-			);
+		#ifdef USE_ASM_BMI
+			asm_pext(brd,mask,result);
 		#else
 			brd_type msk = mask;
 			result = 0;
@@ -255,13 +251,8 @@ public:
 
 	static brd_type deposit(cbrd_type brd,cbrd_type mask){
 		brd_type result;
-		#ifdef USE_ASM
-			asm volatile(
-				"pdep %1, %2, %0;"
-				: "=&r"(result)
-				: "r"(mask), "r"(brd)
-				:
-			);
+		#ifdef USE_ASM_BMI
+			asm_pdep(brd,mask,result);
 		#else
 			brd_type msk = mask;
 			result = 0;
@@ -295,12 +286,7 @@ public:
 	*/
 	static void mirror_v(brd_type& brd){
 		#ifdef USE_ASM
-			asm volatile(
-				"bswap %0;"
-				: "=r"(brd)
-				: "0"(brd)
-				:
-			);
+			asm_bswap(brd);
 		#else
 			brd = (brd & 0xff00ff00ff00ff00) >> 8  | (brd & 0x00ff00ff00ff00ff) << 8;
 			brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
@@ -352,12 +338,7 @@ public:
 		brd_type result;
 
 		#ifdef USE_ASM
-			asm volatile(
-				"popcnt %1, %0;"
-				: "=&r"(result)
-				: "r"(brd)
-				:
-			);
+			asm_popcnt(brd,result);
 		#else
 			result = brd - ((brd >> 1) & 0x5555555555555555);
 			result = (result & 0x3333333333333333)
@@ -699,7 +680,7 @@ protected:
 };
 
 template <>
-struct hash<board> : public unary_function<board, size_t>{
+struct std::hash<board> : public unary_function<board, size_t>{
 	size_t operator()(const board& brd) const{
 		return (
 			size_t(brd.brd_black)

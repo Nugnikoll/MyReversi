@@ -229,6 +229,15 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 			} \
 		}
 
+
+	#ifdef USE_ASM
+		#define trail_zero_count(brd,result) \
+			asm_tzcnt(brd,result)
+	#else
+		#define trail_zero_count(brd,result) \
+			result = count(~brd & (brd - 1))
+	#endif
+
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
@@ -312,13 +321,8 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 		brd_type pos;
 
 		ptr->brd = *this;
-		asm volatile(
-			"tzcnt %1, %0;"
-			:"=&r"(pos)
-			:"r"(brd_move)
-			:
-		);
-		while(pos != size2){
+		trail_zero_count(brd_move,pos);
+		while(brd_move){
 			ptr->brd.flip(color,pos);
 			if(mthd & mthd_kill){
 				ptr->pos = pos;
@@ -327,12 +331,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 			++ptr;
 			ptr->brd = *this;
 			brd_move &= brd_move - 1;
-			asm volatile(
-				"tzcnt %1, %0;"
-				:"=&r"(pos)
-				:"r"(brd_move)
-				:
-			);
+			trail_zero_count(brd_move,pos);
 		}
 
 		if(ptr != vec){
@@ -388,14 +387,8 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 		}else{
 
 			brd_move = this->get_move(!color);
-			//ptr->brd = *this;
-			asm volatile(
-				"tzcnt %1, %0;"
-				:"=&r"(pos)
-				:"r"(brd_move)
-				:
-			);
-			while(pos != size2){
+			trail_zero_count(brd_move,pos);
+			while(brd_move){
 				ptr->brd.flip(!color,pos);
 				if(mthd & mthd_kill){
 					ptr->pos = pos;
@@ -404,12 +397,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				++ptr;
 				ptr->brd = *this;
 				brd_move &= brd_move - 1;
-				asm volatile(
-					"tzcnt %1, %0;"
-					:"=&r"(pos)
-					:"r"(brd_move)
-					:
-				);
+				trail_zero_count(brd_move,pos);
 			}
 
 			if(ptr != vec){

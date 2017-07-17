@@ -9,6 +9,7 @@
 
 %{
 #include "../type.h"
+#include "../asm.h"
 #include "../reversi.h"
 #include "../game.h"
 #include "../matrix.h"
