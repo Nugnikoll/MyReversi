@@ -1,6 +1,6 @@
 #include "reversi.h"
 
-#ifdef USE_ASM
+#ifdef USE_ASM_BMI
 
 const pos_type pos_diag1[board::size2] = {
 	0,0,0,0,0,0,0,0,
@@ -159,22 +159,6 @@ const brd_type mask_adj[board::size2] = {
 };
 
 unsigned short table_flip[1 << 19];
-
-#define asm_pext(brd, mask, result) \
-	asm volatile( \
-		"pext %1, %2, %0;" \
-		: "=&r"(result) \
-		: "r"(mask), "r"(brd) \
-		: \
-	)
-
-#define asm_pdep(brd, mask, result) \
-	asm volatile( \
-		"pdep %1, %2, %0;" \
-		: "=&r"(result) \
-		: "r"(mask), "r"(brd) \
-		: \
-	)
 
 bool board::flip(cbool color,cpos_type pos){
 

@@ -32,6 +32,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="asm.h" />
 		<Unit filename="flip.cc" />
 		<Unit filename="main_json.cc" />
 		<Unit filename="matrix.h" />

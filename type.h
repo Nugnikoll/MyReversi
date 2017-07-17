@@ -11,7 +11,11 @@ using namespace std;
 #if defined(__GNUC__) || defined(__clang__)
 	#if defined(__x86_64__) || defined(__ppc64__)
 		#define USE_ASM
+		#define USE_ASM_BMI
 	#endif
+#endif
+#ifndef USE_ASM
+	#undef USE_ASM_BMI
 #endif
 //#define DEBUG_SEARCH
 

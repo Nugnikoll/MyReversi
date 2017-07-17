@@ -3,7 +3,7 @@ pyhead_path = /usr/include/python2.7/
 src_path = ../
 
 src = $(addprefix $(src_path),type.cc reversi.cc flip.cc search.cc pattern.cc tree.cc)
-head = $(addprefix $(src_path),type.h reversi.h matrix.h pattern.h game.h tree.h)
+head = $(addprefix $(src_path),type.h asm.h reversi.h matrix.h pattern.h game.h tree.h)
 obj = reversi_wrap.o type.o reversi.o flip.o search.o pattern.o tree.o
 target = _reversi.cp35-win_amd64.pyd
 

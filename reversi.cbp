@@ -42,6 +42,7 @@
 			<Add option="-ltcl86" />
 			<Add directory="F:/Program/Tcl/lib" />
 		</Linker>
+		<Unit filename="asm.h" />
 		<Unit filename="cpptcl.cc" />
 		<Unit filename="flip.cc" />
 		<Unit filename="game.h" />
