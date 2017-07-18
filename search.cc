@@ -212,7 +212,6 @@ template<method mthd>
 calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta)const{
 
 	struct brd_val{
-		board brd;
 		pos_type pos;
 		calc_type val;
 	};
@@ -314,22 +313,20 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 		brd_val vec[32];
 		brd_val* ptr = vec;
+		board brd;
 		calc_type result;
 		calc_type* ptr_val = table_val[this->sum()];
 		const method mthd_temp = method(mthd & ~mthd_pvs);
 		brd_type brd_move = this->get_move(color);
 		brd_type pos;
 
-		ptr->brd = *this;
 		trail_zero_count(brd_move,pos);
 		while(brd_move){
-			ptr->brd.flip(color,pos);
+			ptr->pos = pos;
 			if(mthd & mthd_kill){
-				ptr->pos = pos;
 				ptr->val = ptr_val[pos];
 			}
 			++ptr;
-			ptr->brd = *this;
 			brd_move &= brd_move - 1;
 			trail_zero_count(brd_move,pos);
 		}
@@ -354,19 +351,20 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					);
 				}
 
+				--p;
+				brd = *this;
+				brd.flip(color,p->pos);
+
 				if(mthd & mthd_pvs){
-					if(p != ptr){
-						--p;
-						result = - p->brd.template search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
+					if(p + 1 != ptr){
+						result = - brd.template search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
-							result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
+							result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}else{
-						--p;
-						result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
+						result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}
 				}else{
-					--p;
-					result = - p->brd.template search<mthd>(!color,height - 1,-beta,-alpha);
+					result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 				}
 				if(mthd & mthd_kill){
 					ptr_val[p->pos] = result;
@@ -389,13 +387,11 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 			brd_move = this->get_move(!color);
 			trail_zero_count(brd_move,pos);
 			while(brd_move){
-				ptr->brd.flip(!color,pos);
+				ptr->pos = pos;
 				if(mthd & mthd_kill){
-					ptr->pos = pos;
 					ptr->val = ptr_val[pos];
 				}
 				++ptr;
-				ptr->brd = *this;
 				brd_move &= brd_move - 1;
 				trail_zero_count(brd_move,pos);
 			}
@@ -420,19 +416,20 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 						);
 					}
 
+					--p;
+					brd = *this;
+					brd.flip(!color,p->pos);
+
 					if(mthd & mthd_pvs){
-						if(p != ptr){
-							--p;
-							result = p->brd.template search<mthd_temp>(color,height - 1,beta - 1,beta);
+						if(p + 1 != ptr){
+							result = brd.template search<mthd_temp>(color,height - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
-								result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
+								result = brd.template search<mthd>(color,height - 1,alpha,beta);
 						}else{
-							--p;
-							result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
+							result = brd.template search<mthd>(color,height - 1,alpha,beta);
 						}
 					}else{
-						--p;
-						result = p->brd.template search<mthd>(color,height - 1,alpha,beta);
+						result = brd.template search<mthd>(color,height - 1,alpha,beta);
 					}
 					if(result <= alpha){
 						trans_save(result);
