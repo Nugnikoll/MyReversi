@@ -316,7 +316,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 		board brd;
 		calc_type result;
 		calc_type* ptr_val = table_val[this->sum()];
-		const method mthd_temp = method(mthd & ~mthd_pvs);
+		const method mthd_de_pvs = method(mthd & ~mthd_pvs);
 		brd_type brd_move = this->get_move(color);
 		brd_type pos;
 
@@ -355,9 +355,9 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				brd = *this;
 				brd.flip(color,p->pos);
 
-				if(mthd & mthd_pvs){
+				if((mthd & mthd_pvs) != 0 && height > 1){
 					if(p + 1 != ptr){
-						result = - brd.template search<mthd_temp>(!color,height - 1,-alpha - 1,-alpha);
+						result = - brd.template search<mthd_de_pvs>(!color,height - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
 							result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
 					}else{
@@ -420,9 +420,9 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					brd = *this;
 					brd.flip(!color,p->pos);
 
-					if(mthd & mthd_pvs){
+					if((mthd & mthd_pvs) != 0 && height > 1){
 						if(p + 1 != ptr){
-							result = brd.template search<mthd_temp>(color,height - 1,beta - 1,beta);
+							result = brd.template search<mthd_de_pvs>(color,height - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
 								result = brd.template search<mthd>(color,height - 1,alpha,beta);
 						}else{
