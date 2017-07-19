@@ -81,12 +81,14 @@ public:
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
 	static const char chr_print[chessman_num];
-	enum pos_enum{pos_angle,pos_edge,pos_inner,pos_center};
 	static const pos_type pos_num = 4;
 	static const pos_type stage_num = 3;
 	static const short max_height = 20;
 
+	static brd_type node_count;
+
 	static bool flag_unicode;
+
 
 	typedef pair<calc_type,calc_type> interval;
 
@@ -568,6 +570,8 @@ public:
 		config_flip();
 		config_search();
 	}
+
+	static void clear_search_info();
 
 	bool flip(cbool color,cpos_type pos);
 

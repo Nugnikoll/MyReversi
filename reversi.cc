@@ -12,6 +12,7 @@ const pos_type board::pos_num;
 const pos_type board::stage_num;
 const short board::max_height;
 bool board::flag_unicode = true;
+brd_type board::node_count;
 
 #ifdef USE_FLOAT
 	const calc_type board::mark_max = 100;
@@ -88,11 +89,8 @@ vector<choice> board::get_choice(
     choice temp;
 	calc_type alpha = _inf;
 
-	if(mthd & mthd_trans){
-		table_trans[0].clear();
-		table_trans[1].clear();
-//		table_trans.reserve(10000000);
-	}
+	clear_search_info();
+
 //	if(mthd & mthd_kill){
 //		for(int i = this->sum();i != size2;++i){
 //			for(int j = 0;j != size2;++j){

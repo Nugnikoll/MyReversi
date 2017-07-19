@@ -20,6 +20,12 @@ const calc_type table_val_init[board::size2] = {
 
 void board::config_search(){}
 
+void board::clear_search_info(){
+	node_count = 0;
+	table_trans[0].clear();
+	table_trans[1].clear();
+}
+
 #ifdef __GNUC__
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wswitch"
@@ -252,9 +258,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 
 		if(mthd & mthd_trans){
-			table_trans[0].clear();
-			table_trans[1].clear();
-		//	table_trans.reserve(10000000);
+			clear_search_info();
 		}
 
 		calc_type result = search<mthd_de_mtdf>(color,height, gamma, gamma + 1);
@@ -272,6 +276,8 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 		return result;
 
 	}else{
+
+		++node_count;
 
 		calc_type alpha_save,beta_save;
 		trans_type::iterator trans_ptr;
