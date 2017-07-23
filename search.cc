@@ -256,24 +256,32 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 	}else if((mthd & mthd_mtdf) && (depth >= 7)){
 
 		const method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
-		calc_type gamma = search<mthd_de_mtdf>(color,5,alpha,beta);
+		calc_type gamma = search<mthd_de_mtdf>(color,depth - 4,alpha,beta);
 
 
 		if(mthd & mthd_trans){
 			clear_search_info();
 		}
 
-		calc_type result = search<mthd_de_mtdf>(color,depth, gamma, gamma + 1);
-		if(result <= gamma){
+		calc_type window_width = 1;
+		calc_type window_alpha = gamma - window_width / 2;
+		calc_type window_beta = gamma + window_width / 2;
+
+		calc_type result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
+		if(result <= window_alpha){
 			do{
-				--gamma;
-				result = search<mthd_de_mtdf>(color,depth, gamma, gamma + 1);
-			}while(result <= gamma && result > alpha);
-		}else if(result >= gamma + 1){
+				window_width *= 2;
+				window_beta = window_alpha;
+				window_alpha = window_beta - window_width;
+				result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
+			}while(result <= window_alpha && result > alpha);
+		}else if(result >= window_beta){
 			do{
-				++gamma;
-				result = search<mthd_de_mtdf>(color,depth, gamma, gamma + 1);
-			}while(result >= gamma + 1 && result < beta);
+				window_width *= 2;
+				window_alpha = window_beta;
+				window_beta = window_alpha + window_width;
+				result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
+			}while(result >= window_beta && result < beta);
 		}
 		return result;
 
