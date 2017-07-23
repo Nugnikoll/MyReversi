@@ -214,6 +214,11 @@ calc_type board::search(
 	#pragma GCC diagnostic pop
 #endif
 
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 const short depth_hash = 3;
 
 template<method mthd>
@@ -493,10 +498,6 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 	#endif
 }
 
-//Iterative_deepening(root)
-//1:	firstguess <- 0
-//2:	for depth = 1 to MAX_SEARCH_DEPTH do
-//3:		firstguess <- MTDF(root, firstguess, depth)
-//4:		if times_up() then
-//5:		break
-//6:	return firstguess
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
