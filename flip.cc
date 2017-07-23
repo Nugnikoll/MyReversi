@@ -239,9 +239,9 @@ bool board::flip(cbool color,cpos_type pos){
 unsigned short flip_line(cbrd_type data){
 
 	unsigned short brd_blue = (data >> 8) & 0xff;
+	unsigned short brd_blue_save = brd_blue;
 	unsigned short brd_green = data & 0xff;
 	unsigned short mask = 1 << (data >> 16);
-	bool everflip = false;
 	unsigned short result = 0;
 	brd_type pos = mask;
 
@@ -257,7 +257,6 @@ unsigned short flip_line(cbrd_type data){
 			while(pos <<= 1, pos != mask){
 				brd_blue |= pos;
 				brd_green &= ~pos;
-				everflip = true;
 			}
 		}
 		break;
@@ -272,14 +271,13 @@ unsigned short flip_line(cbrd_type data){
 			while(pos >>= 1, pos != mask){
 				brd_blue |= pos;
 				brd_green &= ~pos;
-				everflip = true;
 			}
 		}
 		break;
 	}
 	pos = mask;
 
-	if(everflip){
+	if(brd_blue != brd_blue_save){
 		brd_blue |= mask;
 		brd_green &= ~mask;
 	}
@@ -339,7 +337,6 @@ void board::config_flip(){
 			while(dir2(pos), pos != mask){ \
 				blue |= pos; \
 				green &= ~pos; \
-				everflip = true; \
 			} \
 		} \
 		break; \
@@ -358,7 +355,7 @@ void board::config_flip(){
 #define flip_fun(name,kernel) \
 \
 	bool name(board* const& ptr,cbool color,cpos_type _pos){ \
-		brd_type& blue = ptr->bget(color); \
+		brd_type& blue = ptr->bget(color), blue_save = blue; \
 		brd_type& green = ptr->bget(!color); \
 		brd_type mask = brd_type(1) << _pos;\
  \
@@ -366,11 +363,11 @@ void board::config_flip(){
 			return false; \
 		} \
  \
-		bool everflip = false; \
 		brd_type pos = mask; \
  \
 		kernel \
  \
+		bool everflip = (blue != blue_save); \
 		if(everflip){ \
 			blue |= mask; \
 			green &= ~mask; \

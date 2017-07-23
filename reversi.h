@@ -71,7 +71,7 @@ public:
 	*/
 	board() = default;
 	board(cbrd_type _brd_black,cbrd_type _brd_white)
-		:brd_black(_brd_black),brd_white(_brd_white){}
+		:brd_white(_brd_white),brd_black(_brd_black){}
 
 	friend bool operator==(const board& b1,const board& b2){
 		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
@@ -126,11 +126,9 @@ public:
 		#ifdef USE_ASM
 			const brd_type* ptr;
 			asm volatile(
-				"test %3, %3;"
-				"cmovnz %1, %0;"
-				"cmovz %2, %0"
+				"lea (%1,%2,8), %0"
 				:"=r"(ptr)
-				:"r"(&brd_black), "r"(&brd_white), "r"(color)
+				:"r"(&brd_white), "r"(brd_type(color))
 			);
 			return *ptr;
 		#else
@@ -145,11 +143,9 @@ public:
 		#ifdef USE_ASM
 			brd_type* ptr;
 			asm volatile(
-				"test %3, %3;"
-				"cmovnz %1, %0;"
-				"cmovz %2, %0"
+				"lea (%1,%2,8), %0"
 				:"=r"(ptr)
-				:"r"(&brd_black), "r"(&brd_white), "r"(color)
+				:"r"(&brd_white), "r"(brd_type(color))
 			);
 			return *ptr;
 		#else
@@ -671,7 +667,7 @@ public:
 
 protected:
 
-	brd_type brd_black,brd_white;
+	brd_type brd_white,brd_black;
 
 	static void config_flip();
 	static void config_search();
