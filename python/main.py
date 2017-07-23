@@ -296,4 +296,6 @@ class reversi_app(wx.App):
 
 if __name__ == "__main__":
 	app = reversi_app(False);
+	def _print(s):
+		return app._print(s);
 	app.MainLoop();
