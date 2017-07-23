@@ -73,7 +73,7 @@ enum method{
 	mthd_trans = 0x8, // transition table
 	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
 	mthd_ids = 0x20, // iterative deepening search
-	mthd_ptn = 0x40,
+	mthd_ptn = 0x40, // pattern
 
 	mthd_default = mthd_kill | mthd_ab
 };
