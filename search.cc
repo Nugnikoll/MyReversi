@@ -32,22 +32,22 @@ void board::clear_search_info(){
 #endif
 
 calc_type board::search(
-	cmethod mthd,cbool color,cshort height,
+	cmethod mthd,cbool color,cshort depth,
 	ccalc_type alpha,ccalc_type beta,ccalc_type gamma
 )const{
 
-	if(height < 0){
+	if(depth < 0){
 		short total = this->sum();
 		if(total <= 7){
-			height = 9;
+			depth = 9;
 		}else if(total <= 10){
-			height = 8;
+			depth = 8;
 		}else if(total <= size2 - 22){
-			height = 7;
+			depth = 7;
 		}else if(total <= size2 - 15){
-			height = 8;
+			depth = 8;
 		}else{
-			height = 20;
+			depth = 20;
 		}
 	}
 
@@ -67,7 +67,7 @@ calc_type board::search(
 					s += [str[j]];
 			s = (
 				"case " + "|".join(s) + " :\n"
-				+ "\treturn board::search<method(" + "|".join(s) + ")>(color,height,alpha,beta);\n"
+				+ "\treturn board::search<method(" + "|".join(s) + ")>(color,depth,alpha,beta);\n"
 			);
 			result += s;
 
@@ -76,133 +76,133 @@ calc_type board::search(
 
 	switch(mthd){
 	case mthd_rnd:
-		return board::search<method(mthd_rnd)>(color,height,alpha,beta);
+		return board::search<method(mthd_rnd)>(color,depth,alpha,beta);
 	case mthd_ab :
-		return board::search<method(mthd_ab)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab)>(color,depth,alpha,beta);
 	case mthd_kill :
-		return board::search<method(mthd_kill)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill :
-		return board::search<method(mthd_ab|mthd_kill)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill)>(color,depth,alpha,beta);
 	case mthd_pvs :
-		return board::search<method(mthd_pvs)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs :
-		return board::search<method(mthd_ab|mthd_pvs)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs :
-		return board::search<method(mthd_kill|mthd_pvs)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs)>(color,depth,alpha,beta);
 	case mthd_trans :
-		return board::search<method(mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_trans)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_trans :
-		return board::search<method(mthd_ab|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_trans :
-		return board::search<method(mthd_kill|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_trans :
-		return board::search<method(mthd_ab|mthd_kill|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_trans :
-		return board::search<method(mthd_pvs|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_trans :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_trans :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_trans :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans)>(color,depth,alpha,beta);
 	case mthd_mtdf :
-		return board::search<method(mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_mtdf :
-		return board::search<method(mthd_kill|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_kill|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_mtdf :
-		return board::search<method(mthd_pvs|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_mtdf :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_kill|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_kill|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_pvs|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf)>(color,depth,alpha,beta);
 	case mthd_ptn :
-		return board::search<method(mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_ptn :
-		return board::search<method(mthd_pvs|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_trans|mthd_ptn :
-		return board::search<method(mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_pvs|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_pvs|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	case mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn :
-		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,height,alpha,beta);
+		return board::search<method(mthd_ab|mthd_kill|mthd_pvs|mthd_trans|mthd_mtdf|mthd_ptn)>(color,depth,alpha,beta);
 	default:
 		assert(false);
 		return 0;
@@ -214,8 +214,10 @@ calc_type board::search(
 	#pragma GCC diagnostic pop
 #endif
 
+const short depth_hash = 3;
+
 template<method mthd>
-calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta)const{
+calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)const{
 
 	struct brd_val{
 		pos_type pos;
@@ -224,7 +226,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 	typedef const brd_val& cbrd_val;
 
 	#define trans_save(data) \
-		if(mthd & mthd_trans){ \
+		if((mthd & mthd_trans) && depth >= depth_hash){ \
 			auto& trans_interval = trans_ptr->second; \
 			if(data < beta_save){ \
 				trans_interval.second = data; \
@@ -251,7 +253,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 		return 0;
 
-	}else if((mthd & mthd_mtdf) && (height >= 7)){
+	}else if((mthd & mthd_mtdf) && (depth >= 7)){
 
 		const method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
 		calc_type gamma = search<mthd_de_mtdf>(color,5,alpha,beta);
@@ -261,16 +263,16 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 			clear_search_info();
 		}
 
-		calc_type result = search<mthd_de_mtdf>(color,height, gamma, gamma + 1);
+		calc_type result = search<mthd_de_mtdf>(color,depth, gamma, gamma + 1);
 		if(result <= gamma){
 			do{
 				--gamma;
-				result = search<mthd_de_mtdf>(color,height, gamma, gamma + 1);
+				result = search<mthd_de_mtdf>(color,depth, gamma, gamma + 1);
 			}while(result <= gamma && result > alpha);
 		}else if(result >= gamma + 1){
 			do{
 				++gamma;
-				result = search<mthd_de_mtdf>(color,height, gamma, gamma + 1);
+				result = search<mthd_de_mtdf>(color,depth, gamma, gamma + 1);
 			}while(result >= gamma + 1 && result < beta);
 		}
 		return result;
@@ -279,10 +281,17 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 
 		++node_count;
 
+		if(depth == 0){
+			if(mthd & mthd_ptn)
+				return this->score_ptn(color);
+			else
+				return this->score(color);
+		}
+
 		calc_type alpha_save,beta_save;
 		trans_type::iterator trans_ptr;
 
-		if(mthd & mthd_trans){
+		if((mthd & mthd_trans) && depth >= depth_hash){
 			trans_ptr = table_trans[color].find(*this);
 			if(trans_ptr != table_trans[color].end()){
 				auto& trans_interval = trans_ptr->second;
@@ -308,13 +317,6 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 			}
 			alpha_save = alpha;
 			beta_save = beta;
-		}
-
-		if(height == 0){
-			if(mthd & mthd_ptn)
-				return this->score_ptn(color);
-			else
-				return this->score(color);
 		}
 
 		brd_val vec[32];
@@ -361,16 +363,16 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 				brd = *this;
 				brd.flip(color,p->pos);
 
-				if((mthd & mthd_pvs) != 0 && height > 1){
+				if((mthd & mthd_pvs) && depth > 1){
 					if(p + 1 != ptr){
-						result = - brd.template search<mthd_de_pvs>(!color,height - 1,-alpha - 1,-alpha);
+						result = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
-							result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
+							result = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
 					}else{
-						result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
+						result = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
 					}
 				}else{
-					result = - brd.template search<mthd>(!color,height - 1,-beta,-alpha);
+					result = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
 				}
 				if(mthd & mthd_kill){
 					ptr_val[p->pos] = result;
@@ -426,16 +428,16 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 					brd = *this;
 					brd.flip(!color,p->pos);
 
-					if((mthd & mthd_pvs) != 0 && height > 1){
+					if((mthd & mthd_pvs) && depth > 1){
 						if(p + 1 != ptr){
-							result = brd.template search<mthd_de_pvs>(color,height - 1,beta - 1,beta);
+							result = brd.template search<mthd_de_pvs>(color,depth - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
-								result = brd.template search<mthd>(color,height - 1,alpha,beta);
+								result = brd.template search<mthd>(color,depth - 1,alpha,beta);
 						}else{
-							result = brd.template search<mthd>(color,height - 1,alpha,beta);
+							result = brd.template search<mthd>(color,depth - 1,alpha,beta);
 						}
 					}else{
-						result = brd.template search<mthd>(color,height - 1,alpha,beta);
+						result = brd.template search<mthd>(color,depth - 1,alpha,beta);
 					}
 					if(result <= alpha){
 						trans_save(result);
@@ -471,7 +473,7 @@ calc_type board::search(cbool color,cshort height,calc_type alpha,calc_type beta
 	#ifdef DEBUG_SEARCH
 	};
 	out << "<div color=" << color
-		<< " height=" << height
+		<< " depth=" << depth
 		<< " alpha=" << alpha
 		<< " beta=" << beta
 		<< ">\n";
