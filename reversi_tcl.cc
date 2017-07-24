@@ -168,6 +168,9 @@ void rotate_l(){
 void rotate_r(){
 	return mygame.rotate_r();
 }
+void reverse(){
+	return mygame.reverse();
+}
 
 bool get_color(){
 	return mygame.color;
@@ -255,6 +258,7 @@ void process(const string& str){
 		inter.def("reflect",::reflect);
 		inter.def("rotate_l",::rotate_l);
 		inter.def("rotate_r",::rotate_r);
+		inter.def("reverse",::reverse);
 		inter.def("auto_show",::auto_show);
 		inter.def("auto_save",::auto_save);
 		inter.def("bget",::bget);

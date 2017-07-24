@@ -170,6 +170,13 @@ public:
 		log_print("reflect\n");
 		show();
 	}
+	void reverse(){
+		push();
+		brd.reverse();
+		color = !color;
+		log_print("reverse\n");
+		show();
+	}
 	void config(){
 		return brd.config();
 	}

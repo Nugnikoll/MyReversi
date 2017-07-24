@@ -200,27 +200,32 @@
 					<object class="wxMenuItem" name="id_menu_mirror_h" variable="menu_mirror_h" member="yes">
 						<label>Mirror &amp;Horizontally</label>
 						<accel>Alt+H</accel>
-						<handler function="on_mirror_h" entry="EVT_MENU" />
+						<handler function="on_transform" entry="EVT_MENU" />
 					</object>
 					<object class="wxMenuItem" name="id_menu_mirror_v" variable="menu_mirror_v" member="yes">
 						<label>Mirror &amp;Vertically</label>
 						<accel>Alt+V</accel>
-						<handler function="on_mirror_v" entry="EVT_MENU" />
+						<handler function="on_transform" entry="EVT_MENU" />
 					</object>
 					<object class="wxMenuItem" name="id_menu_reflect" variable="menu_reflect" member="yes">
 						<label>&amp;Reflect</label>
 						<accel>Alt+R</accel>
-						<handler function="on_reflect" entry="EVT_MENU" />
+						<handler function="on_transform" entry="EVT_MENU" />
 					</object>
 					<object class="wxMenuItem" name="id_menu_rotate_r" variable="menu_rotate_r" member="yes">
 						<label>Rotate &amp;Clockwise</label>
 						<accel>Alt+C</accel>
-						<handler function="on_rotate_r" entry="EVT_MENU" />
+						<handler function="on_transform" entry="EVT_MENU" />
 					</object>
 					<object class="wxMenuItem" name="id_menu_rotate_l" variable="menu_rotate_l" member="yes">
 						<label>Rotate Coun&amp;terclockwise</label>
 						<accel>Alt+T</accel>
-						<handler function="on_rotate_l" entry="EVT_MENU" />
+						<handler function="on_transform" entry="EVT_MENU" />
+					</object>
+					<object class="wxMenuItem" name="id_menu_reverse" variable="menu_reverse" member="yes">
+						<label>Reverse</label>
+						<accel>Alt+S</accel>
+						<handler function="on_transform" entry="EVT_MENU" />
 					</object>
 				</object>
 				<object class="wxMenu" name="id_menu_clear" variable="menu_clear" member="yes">

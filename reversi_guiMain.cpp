@@ -72,6 +72,7 @@ const long reversi_guiFrame::id_menu_mirror_v = wxNewId();
 const long reversi_guiFrame::id_menu_reflect = wxNewId();
 const long reversi_guiFrame::id_menu_rotate_r = wxNewId();
 const long reversi_guiFrame::id_menu_rotate_l = wxNewId();
+const long reversi_guiFrame::id_menu_reverse = wxNewId();
 const long reversi_guiFrame::id_menu_trans = wxNewId();
 const long reversi_guiFrame::id_menu_clear_log = wxNewId();
 const long reversi_guiFrame::id_menu_clear_term = wxNewId();
@@ -202,6 +203,8 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menu_trans->Append(menu_rotate_r);
     menu_rotate_l = new wxMenuItem(menu_trans, id_menu_rotate_l, _("Rotate Coun&terclockwise\tAlt+T"), wxEmptyString, wxITEM_NORMAL);
     menu_trans->Append(menu_rotate_l);
+    menu_reverse = new wxMenuItem(menu_trans, id_menu_reverse, _("Reverse\tAlt+S"), wxEmptyString, wxITEM_NORMAL);
+    menu_trans->Append(menu_reverse);
     menu_edit->Append(id_menu_trans, _("&Transform"), menu_trans, wxEmptyString);
     menu_clear = new wxMenu();
     menu_clear_log = new wxMenuItem(menu_clear, id_menu_clear_log, _("&Log"), wxEmptyString, wxITEM_NORMAL);
@@ -282,11 +285,12 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     Connect(id_menu_quit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::OnQuit);
     Connect(id_menu_undo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_undo);
     Connect(id_menu_redo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_redo);
-    Connect(id_menu_mirror_h,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_mirror_h);
-    Connect(id_menu_mirror_v,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_mirror_v);
-    Connect(id_menu_reflect,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_reflect);
-    Connect(id_menu_rotate_r,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_rotate_r);
-    Connect(id_menu_rotate_l,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_rotate_l);
+    Connect(id_menu_mirror_h,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
+    Connect(id_menu_mirror_v,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
+    Connect(id_menu_reflect,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
+    Connect(id_menu_rotate_r,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
+    Connect(id_menu_rotate_l,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
+    Connect(id_menu_reverse,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
     Connect(id_menu_clear_log,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_log);
     Connect(id_menu_clear_term,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_term);
     Connect(id_menu_clear,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_all);
@@ -386,24 +390,21 @@ void reversi_guiFrame::on_load(wxCommandEvent& event){
 	}
 }
 
-void reversi_guiFrame::on_rotate_r(wxCommandEvent& event){
-	process("rotate_r");
-}
-
-void reversi_guiFrame::on_rotate_l(wxCommandEvent& event){
-	process("rotate_l");
-}
-
-void reversi_guiFrame::on_mirror_h(wxCommandEvent& event){
-	process("mirror_h");
-}
-
-void reversi_guiFrame::on_mirror_v(wxCommandEvent& event){
-	process("mirror_v");
-}
-
-void reversi_guiFrame::on_reflect(wxCommandEvent& event){
-	process("reflect");
+void reversi_guiFrame::on_transform(wxCommandEvent& event){
+	long id = event.GetId();
+	if(id == id_menu_rotate_r){
+		process("rotate_r");
+	}else if(id == id_menu_rotate_l){
+		process("rotate_l");
+	}else if(id == id_menu_mirror_h){
+		process("mirror_h");
+	}else if(id == id_menu_mirror_v){
+		process("mirror_v");
+	}else if(id == id_menu_reflect){
+		process("reflect");
+	}else if(id == id_menu_reverse){
+		process("reverse");
+	}
 }
 
 void reversi_guiFrame::on_clear_log(wxCommandEvent& event){
