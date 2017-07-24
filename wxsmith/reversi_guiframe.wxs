@@ -245,6 +245,7 @@
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
+					<object class="separator" />
 					<object class="wxMenuItem" name="id_menu_alg_ab" variable="menu_alg_ab" member="yes">
 						<label>&amp;Alpha-Beta Pruning</label>
 						<checked>1</checked>
@@ -252,7 +253,7 @@
 						<checkable>1</checkable>
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_pvs" variable="menu_alg_pvs" member="yes">
-						<label>&amp;Principal Variation Search</label>
+						<label>Principal &amp;Variation Search</label>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
@@ -278,52 +279,63 @@
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_alg_ptn" variable="MenuItem10" member="yes">
+					<object class="wxMenuItem" name="id_menu_alg_ptn" variable="menu_alg_ptn" member="yes">
 						<label>&amp;Pattern</label>
+						<checked>1</checked>
+						<handler function="on_menu_alg" entry="EVT_MENU" />
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="id_menu_alg_mpc" variable="menu_alg_mpc" member="yes">
+						<label>Multi-Probability &amp;Cut</label>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
 				</object>
 				<object class="wxMenu" name="id_menu_level" variable="menu_level" member="yes">
 					<label>&amp;Level</label>
-					<object class="wxMenuItem" name="id_menu_level1" variable="MenuItem1" member="yes">
+					<object class="wxMenuItem" name="id_menu_level1" variable="menu_level1" member="yes">
 						<label>Level 1</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level2" variable="MenuItem2" member="yes">
+					<object class="wxMenuItem" name="id_menu_level2" variable="menu_level2" member="yes">
 						<label>Level 2</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level3" variable="MenuItem3" member="yes">
+					<object class="wxMenuItem" name="id_menu_level3" variable="menu_level3" member="yes">
 						<label>Level 3</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level4" variable="MenuItem4" member="yes">
+					<object class="wxMenuItem" name="id_menu_level4" variable="menu_level4" member="yes">
 						<label>Level 4</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level5" variable="MenuItem5" member="yes">
+					<object class="wxMenuItem" name="id_menu_level5" variable="menu_level5" member="yes">
 						<label>Level 5</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level6" variable="MenuItem6" member="yes">
+					<object class="wxMenuItem" name="id_menu_level6" variable="menu_level6" member="yes">
 						<label>Level 6</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level7" variable="MenuItem7" member="yes">
+					<object class="wxMenuItem" name="id_menu_level7" variable="menu_level7" member="yes">
 						<label>Level 7</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_level8" variable="MenuItem8" member="yes">
+					<object class="wxMenuItem" name="id_menu_level8" variable="menu_level8" member="yes">
 						<label>Level 8</label>
 						<checked>1</checked>
+						<handler function="on_menu_level" entry="EVT_MENU" />
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="id_menu_level9" variable="menu_level9" member="yes">
+						<label>Level 9</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>

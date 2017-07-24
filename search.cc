@@ -65,9 +65,11 @@ calc_type board::search(
 		search_mthd_trans(mthd) search_mthd_trans(mthd | mthd_mtdf)
 	#define search_mthd_ptn(mthd) \
 		search_mthd_mtdf(mthd) search_mthd_mtdf(mthd | mthd_ptn)
+	#define search_mthd_mpc(mthd) \
+		search_mthd_ptn(mthd) search_mthd_ptn(mthd | mthd_mpc)
 
 	switch(mthd){
-		search_mthd_ptn(mthd_rnd);
+		search_mthd_mpc(mthd_rnd);
 	default:
 		assert(false);
 		return 0;
@@ -84,7 +86,10 @@ calc_type board::search(
 	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
+const short depth_kill = 2;
+const short depth_pvs = 2;
 const short depth_hash = 3;
+const short depth_mtdf = 7;
 
 template<method mthd>
 calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)const{
@@ -96,7 +101,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 	typedef const brd_val& cbrd_val;
 
 	#define trans_save(data) \
-		if((mthd & mthd_trans) && depth >= depth_hash){ \
+		if(flag_hash){ \
 			auto& trans_interval = trans_ptr->second; \
 			if(data < beta_save){ \
 				trans_interval.second = data; \
@@ -123,7 +128,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 
 		return 0;
 
-	}else if((mthd & mthd_mtdf) && (depth >= 7)){
+	}else if((mthd & mthd_mtdf) && (depth >= depth_mtdf)){
 
 		const method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
 		calc_type gamma = search<mthd_de_mtdf>(color,depth - 4,alpha,beta);
@@ -166,10 +171,14 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 				return this->score(color);
 		}
 
+		bool flag_kill = (mthd & mthd_kill) && depth >= depth_kill;
+		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
+		bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
+
 		calc_type alpha_save,beta_save;
 		trans_type::iterator trans_ptr;
 
-		if((mthd & mthd_trans) && depth >= depth_hash){
+		if(flag_hash){
 			trans_ptr = table_trans[color].find(*this);
 			if(trans_ptr != table_trans[color].end()){
 				auto& trans_interval = trans_ptr->second;
@@ -219,7 +228,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 
 		if(ptr != vec){
 
-			if(mthd & mthd_kill){
+			if(flag_kill){
 				make_heap(vec,ptr,
 					[](cbrd_val b1,cbrd_val b2){
 						return b1.val < b2.val;
@@ -229,7 +238,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 
 			for(brd_val* p = ptr;p != vec;){
 
-				if(mthd & mthd_kill){
+				if(flag_kill){
 					pop_heap(vec,p,
 						[](cbrd_val b1,cbrd_val b2){
 							return b1.val < b2.val;
@@ -241,7 +250,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 				brd = *this;
 				brd.flip(color,p->pos);
 
-				if((mthd & mthd_pvs) && depth > 1){
+				if(flag_pvs){
 					if(p + 1 != ptr){
 						result = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - 1,-alpha);
 						if(result > alpha && result < beta)
@@ -252,7 +261,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 				}else{
 					result = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
 				}
-				if(mthd & mthd_kill){
+				if(flag_kill){
 					ptr_val[p->pos] = result;
 				}
 				if(result >= beta){
@@ -274,7 +283,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 			trail_zero_count(brd_move,pos);
 			while(brd_move){
 				ptr->pos = pos;
-				if(mthd & mthd_kill){
+				if(flag_kill){
 					ptr->val = ptr_val[pos];
 				}
 				++ptr;
@@ -284,7 +293,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 
 			if(ptr != vec){
 
-				if(mthd & mthd_kill){
+				if(flag_kill){
 					make_heap(vec,ptr,
 						[](cbrd_val b1,cbrd_val b2){
 							return b1.val > b2.val;
@@ -294,7 +303,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 
 				for(brd_val* p = ptr;p != vec;){
 
-					if(mthd & mthd_kill){
+					if(flag_kill){
 						pop_heap(vec,p,
 							[](cbrd_val b1,cbrd_val b2){
 								return b1.val > b2.val;
@@ -306,7 +315,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 					brd = *this;
 					brd.flip(!color,p->pos);
 
-					if((mthd & mthd_pvs) && depth > 1){
+					if(flag_pvs){
 						if(p + 1 != ptr){
 							result = brd.template search<mthd_de_pvs>(color,depth - 1,beta - 1,beta);
 							if(result > alpha && result < beta)
@@ -316,6 +325,9 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 						}
 					}else{
 						result = brd.template search<mthd>(color,depth - 1,alpha,beta);
+					}
+					if(flag_kill){
+						ptr_val[p->pos] = result;
 					}
 					if(result <= alpha){
 						trans_save(result);

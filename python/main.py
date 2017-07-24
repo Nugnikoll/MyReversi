@@ -49,6 +49,7 @@ class reversi_app(wx.App):
 		self.id_menu_alg_trans = xrc.XRCID("id_menu_alg_trans");
 		self.id_menu_alg_mtdf = xrc.XRCID("id_menu_alg_mtdf");
 		self.id_menu_alg_ptn = xrc.XRCID("id_menu_alg_ptn");
+		self.id_menu_alg_mpc = xrc.XRCID("id_menu_alg_mpc");
 
 		self.panel_board.Bind(wx.EVT_PAINT,self.on_panel_board_paint);
 		self.panel_board.Bind(wx.EVT_LEFT_DOWN,self.on_panel_board_leftdown);
@@ -204,6 +205,8 @@ class reversi_app(wx.App):
 					self.process("reversi.mthd_default |= reversi.mthd_mtdf");
 				elif id == self.id_menu_alg_ptn:
 					self.process("reversi.mthd_default |= reversi.mthd_ptn");
+				elif id == self.id_menu_alg_mpc:
+					self.process("reversi.mthd_default |= reversi.mthd_mpc");
 			else:
 				flag = False;
 				for ptr in self.menu_alg.GetMenuItems():
@@ -224,6 +227,8 @@ class reversi_app(wx.App):
 					self.process("reversi.mthd_default &= ~reversi.mthd_mtdf");
 				elif id == self.id_menu_alg_ptn:
 					self.process("reversi.mthd_default &= ~reversi.mthd_ptn");
+				elif id == self.id_menu_alg_mpc:
+					self.process("reversi.mthd_default &= ~reversi.mthd_mpc");
 
 	def on_menu_level(self,event):
 		for item in self.menu_level.GetMenuItems():
@@ -232,8 +237,10 @@ class reversi_app(wx.App):
 		pos = 0;
 		(item,pos) = self.menu_level.FindChildItem(event.GetId());
 		item.Check(True);
-		if pos >= 7:
+		if pos == 7:
 			pos = -1;
+		elif pos >= 8:
+			pos = -2;
 
 		self.process("self.h_default = %d" % pos);
 

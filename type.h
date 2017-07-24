@@ -74,8 +74,9 @@ enum method{
 	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
 	mthd_ids = 0x20, // iterative deepening search
 	mthd_ptn = 0x40, // pattern
+	mthd_mpc = 0x80, // multi-probability cut
 
-	mthd_default = mthd_kill | mthd_ab
+	mthd_default = mthd_ab | mthd_kill | mthd_ptn
 };
 
 #ifdef USE_REF

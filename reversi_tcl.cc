@@ -120,10 +120,6 @@ float score(cbool color){
 	return mygame.score(color);
 }
 
-//object eval_ptn(cbool color){
-//	return vec2obj(mygame.eval_ptn(color));
-//}
-
 void config(){
 	pattern::config();
 	mygame.config();
@@ -232,15 +228,6 @@ void grp_load(const string& filename){
 void grp_save(const string& filename){
 	return grp.save(filename);
 }
-//void grp_train(cint num, cint mthd, cint depth){
-//	for(int i = 0;i != num;++i){
-//		grp.train(method(mthd),depth);
-//	}
-//}
-
-//void use_ptn(cint num){
-//	set_ptn(grp.get(num));
-//}
 
 void process(const string& str){
 
@@ -285,18 +272,12 @@ void process(const string& str){
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
 		inter.def("score",::score);
-//		inter.def("eval_ptn",::eval_ptn);
 
 		inter.def("load",::load);
 
 		inter.def("grp_initial",::grp_initial);
 		inter.def("grp_load",::grp_load);
 		inter.def("grp_save",::grp_save);
-//		inter.def("grp_train",::grp_train);
-
-//		inter.def("set_ptn",set_ptn);
-//		inter.def("use_ptn",::use_ptn);
-//		inter.def("check_ptn",::check_ptn);
 
 		inter.def("load_book",::load_book);
 
@@ -317,7 +298,8 @@ void process(const string& str){
 			"set mthd_mtdf 0x10;"
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
-			"set mthd_default [expr $mthd_kill | $mthd_ab];"
+			"set mthd_mpc 0x80;"
+			"set mthd_default [expr $mthd_ab | $mthd_kill | $mthd_ptn];"
 
 			"set h_default -1;"
 
