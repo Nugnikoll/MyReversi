@@ -196,7 +196,8 @@ class reversi_app(wx.App):
 		if id == self.id_menu_alg_rnd:
 			if self.menu_alg_rnd.IsChecked():
 				for ptr in self.menu_alg.GetMenuItems():
-					ptr.Check(False);
+					if ptr.IsCheckable():
+						ptr.Check(False);
 				self.process("reversi.mthd_default = reversi.mthd_rnd")
 			self.menu_alg_rnd.Check(True);
 		else:
