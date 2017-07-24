@@ -164,7 +164,7 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 
 coordinate board::play(cmethod mthd,cbool color,short height){
 
-	if(height < 0){
+	if(height == -1){
 		short total = this->sum();
 		if(total <= 7){
 			height = 9;
@@ -172,6 +172,21 @@ coordinate board::play(cmethod mthd,cbool color,short height){
 			height = 8;
 		}else if(total <= size2 - 22){
 			height = 7;
+		}else if(total <= size2 - 15){
+			height = 8;
+		}else{
+			height = 20;
+		}
+	}
+
+	if(height <= -2){
+		short total = this->sum();
+		if(total <= 7){
+			height = 9;
+		}else if(total <= 10){
+			height = 8;
+		}else if(total <= size2 - 22){
+			height = 8;
 		}else if(total <= size2 - 15){
 			height = 8;
 		}else{
