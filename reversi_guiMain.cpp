@@ -225,11 +225,13 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menu_alg->Append(menu_alg_pvs);
     menu_alg_trans = new wxMenuItem(menu_alg, id_menu_alg_trans, _("&Transposition Table"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_trans);
+    menu_alg_trans->Check(true);
     menu_alg_kill = new wxMenuItem(menu_alg, id_menu_alg_kill, _("&Killer Heuristic"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_kill);
     menu_alg_kill->Check(true);
     menu_alg_mtdf = new wxMenuItem(menu_alg, id_menu_alg_mtdf, _("&Memory-Enhanced Test Driver"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_mtdf);
+    menu_alg_mtdf->Check(true);
     menu_alg_iter = new wxMenuItem(menu_alg, id_menu_alg_iter, _("&Iterative Deepening Search"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_iter);
     menu_alg_iter->Enable(false);
