@@ -76,6 +76,9 @@ public:
 	friend bool operator==(const board& b1,const board& b2){
 		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
 	}
+	friend bool operator!=(const board& b1,const board& b2){
+		return (b1.brd_black != b2.brd_black) || (b1.brd_white != b2.brd_white);
+	}
 
 	static const pos_type chessman_num = 4;
 	static const pos_type size = 8;
@@ -569,7 +572,7 @@ public:
 
 	static void clear_search_info();
 
-	bool flip(cbool color,cpos_type pos);
+	void flip(cbool color,cpos_type pos);
 
 	calc_type score(cbool color)const{
 		brd_type brd_blue = bget(color);

@@ -132,6 +132,14 @@ node* tree::descend(board& brd){
 	return ptr;
 }
 
+#ifdef USE_ASM
+	#define trail_zero_count(brd,result) \
+		asm_tzcnt(brd,result)
+#else
+	#define trail_zero_count(brd,result) \
+		result = count(~brd & (brd - 1))
+#endif
+
 void tree::grow(cmethod mthd,cshort height){
 	board brd;
 	coordinate pos1,pos2;
@@ -153,24 +161,26 @@ void tree::grow(cmethod mthd,cshort height){
 	if(ptr->dat.win + ptr->dat.lose >= threshold - 2){
 		node* ptr_next = ptr;
 		brd = brd_save;
-		pos_type i;
-		for(i = 0;i != board::size2;++i){
-			if(brd.flip(ptr->dat.color,i)){
-				flag = (brd.count_move(!ptr->dat.color) > 0) ^ ptr->dat.color;
-				ptr_next->child = new node({{flag,i,0,0},ptr,NULL,NULL});
+		brd_type brd_move = brd.get_move(color);
+		brd_type pos;
+		bool flag_first = true;
+
+		trail_zero_count(brd_move,pos);
+		while(brd_move){
+			brd.flip(ptr->dat.color,pos);
+			flag = (brd.count_move(!ptr->dat.color) > 0) ^ ptr->dat.color;
+
+			if(flag_first){
+				ptr_next->child = new node({{flag,short(pos),0,0},ptr,NULL,NULL});
 				ptr_next = ptr_next->child;
-				brd = brd_save;
-				++i;
-				break;
-			}
-		}
-		for(;i != board::size2;++i){
-			if(brd.flip(ptr->dat.color,i)){
-				flag = (brd.count_move(!ptr->dat.color) > 0) ^ ptr->dat.color;
-				ptr_next->sibling = new node({{flag,i,0,0},ptr,NULL,NULL});
+			}else{
+				ptr_next->sibling = new node({{flag,short(pos),0,0},ptr,NULL,NULL});
 				ptr_next = ptr_next->sibling;
-				brd = brd_save;
 			}
+			flag_first = false;
+			brd = brd_save;
+			brd_move &= brd_move - 1;
+			trail_zero_count(brd_move,pos);
 		}
 	}
 
