@@ -42,7 +42,7 @@ struct mtdf_info{
 	}
 };
 
-mtdf_info table_mtdf_info[board::size2][16][16];
+mtdf_info table_mtdf_info[board::size2][board::size2][16];
 
 void board::config_search(){}
 
@@ -161,7 +161,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 
 		mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
 
-		calc_type window_width = sqrt(info.sigma) * 3;
+		calc_type window_width = sqrt(info.sigma) * 2;
 		calc_type window_alpha = gamma + info.bias - window_width / 2;
 		calc_type window_beta = gamma + info.bias + window_width / 2;
 
