@@ -80,46 +80,6 @@ void board::print(ostream& out)const{
 	}
 }
 
-vector<choice> board::get_choice(
-	cmethod mthd,cbool color,cshort height,ccalc_type gamma
-)const{
-
-    vector<choice> choices;
-	calc_type result;
-    choice temp;
-	calc_type alpha = _inf;
-
-	clear_search_info();
-
-//	if(mthd & mthd_kill){
-//		for(int i = this->sum();i != size2;++i){
-//			for(int j = 0;j != size2;++j){
-//				if(table_val[i][j] == 0){
-//					table_val[i][j] = table_val_init[j];
-//				}
-//			}
-//		}
-//	}
-
-	choices.reserve(30);
-
-    board brd = *this;
-	for(pos_type i = 0;i != size2;++i){
-		if(brd.flip(color,i)){
-			result = - brd.search(mthd,!color,height,_inf,-alpha,gamma);
-//			if(result - 5 > alpha){
-//				alpha = result - 5;
-//			}
-			temp.val = result;
-			temp.brd = brd;
-			temp.pos = i;
-			choices.push_back(temp);
-			brd = *this;
-		}
-	}
-    return choices;
-}
-
 #define USE_RANDOM
 
 #ifdef USE_RANDOM

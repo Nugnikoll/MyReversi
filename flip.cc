@@ -160,12 +160,10 @@ const brd_type mask_adj[board::size2] = {
 
 unsigned short table_flip[1 << 19];
 
-bool board::flip(cbool color,cpos_type pos){
+void board::flip(cbool color,cpos_type pos){
 
 	brd_type& brd_blue = this->bget(color);
 	brd_type& brd_green = this->bget(!color);
-
-	brd_type brd_save = brd_blue;
 
 	brd_type piece, temp, mask, brd_result;
 	brd_type sum_blue = 0, sum_green = 0;
@@ -231,9 +229,6 @@ bool board::flip(cbool color,cpos_type pos){
 	mask = mask_hvd[pos];
 	brd_blue = (brd_blue & ~mask) | (sum_blue & mask);
 	brd_green = (brd_green & ~mask) | (sum_green & mask);
-
-	bool result = (brd_blue != brd_save);
-	return result;
 }
 
 unsigned short flip_line(cbrd_type data){
@@ -354,7 +349,7 @@ void board::config_flip(){
 
 #define flip_fun(name,kernel) \
 \
-	bool name(board* const& ptr,cbool color,cpos_type _pos){ \
+	void name(board* const& ptr,cbool color,cpos_type _pos){ \
 		brd_type& blue = ptr->bget(color), blue_save = blue; \
 		brd_type& green = ptr->bget(!color); \
 		brd_type mask = brd_type(1) << _pos;\
@@ -367,12 +362,10 @@ void board::config_flip(){
  \
 		kernel \
  \
-		bool everflip = (blue != blue_save); \
-		if(everflip){ \
+		if(blue != blue_save){ \
 			blue |= mask; \
 			green &= ~mask; \
 		} \
-		return everflip; \
 	}
 
 flip_fun(flip,
@@ -453,11 +446,11 @@ flip_fun(flip_dr,
 	flip_part_dr
 )
 
-bool flip_n(board* const&,cbool color,cpos_type pos){
+void flip_n(board* const&,cbool color,cpos_type pos){
 	return false;
 }
 
-bool (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =
+void (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =
 {
 	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
 	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
@@ -469,7 +462,7 @@ bool (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =
 	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul
 };
 
-bool board::flip(cbool color,cpos_type pos){
+void board::flip(cbool color,cpos_type pos){
 	return (table_flip[pos])(this,color,pos);
 }
 void board::config_flip(){}

@@ -42,7 +42,7 @@ struct mtdf_info{
 	}
 };
 
-mtdf_info table_mtdf_info[board::size2][board::size2][16];
+mtdf_info table_mtdf_info[board::size2 + 1][board::size2][16];
 
 void board::config_search(){}
 
@@ -406,3 +406,49 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 #ifdef __GNUC__
 	#pragma GCC diagnostic pop
 #endif
+
+vector<choice> board::get_choice(
+	cmethod mthd,cbool color,cshort height,ccalc_type gamma
+)const{
+
+    vector<choice> choices;
+	calc_type result;
+    choice temp;
+	calc_type alpha = _inf;
+
+	clear_search_info();
+
+//	if(mthd & mthd_kill){
+//		for(int i = this->sum();i != size2;++i){
+//			for(int j = 0;j != size2;++j){
+//				if(table_val[i][j] == 0){
+//					table_val[i][j] = table_val_init[j];
+//				}
+//			}
+//		}
+//	}
+
+	choices.reserve(30);
+
+	brd_type brd_move = this->get_move(color);
+	brd_type pos;
+
+    board brd = *this;
+	trail_zero_count(brd_move,pos);
+	while(brd_move){
+		brd.flip(color,pos);
+		result = - brd.search(mthd,!color,height,_inf,-alpha,gamma);
+//		if(result - 5 > alpha){
+//			alpha = result - 5;
+//		}
+		temp.val = result;
+		temp.brd = brd;
+		temp.pos = pos;
+		choices.push_back(temp);
+		brd = *this;
+		brd_move &= brd_move - 1;
+		trail_zero_count(brd_move,pos);
+	}
+
+    return choices;
+}

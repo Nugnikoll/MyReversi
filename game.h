@@ -186,11 +186,13 @@ public:
 		if(x < 0 || x >= board::size || y < 0 || y >= board::size){
 			result = false;
 		}else{
-			result = brd.flip(color,x + (y << 3));
+			board brd_save = brd;
+			brd.flip(color,x + (y << 3));
+			result = (brd != brd_save);
 		}
 		ostringstream out;
 		if(result){
-			out << 	(color? "black" : "white")
+			out << 	(color ? "black" : "white")
 				<< " place a stone at ("
 				<< x
 				<< ","
