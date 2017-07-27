@@ -1,8 +1,14 @@
 #include <algorithm>
+#include <cmath>
 
 #include "reversi.h"
 #include "search.h"
 #include "pattern.h"
+
+const short depth_kill = 2;
+const short depth_pvs = 2;
+const short depth_hash = 3;
+const short depth_mtdf = 7;
 
 calc_type table_val[board::size2][board::size2];
 trans_type table_trans[2];
@@ -17,6 +23,26 @@ const calc_type table_val_init[board::size2] = {
 	0.0003,0.0002,0.0004,0.0005,0.0005,0.0004,0.0002,0.0003,
 	0.0010,0.0003,0.0007,0.0008,0.0008,0.0007,0.0003,0.0010
 };
+
+struct mtdf_info{
+	mtdf_info():num(1),bias(0),sigma(1){}
+
+	int num;
+	calc_type bias;
+	calc_type sigma;
+
+	void adjust(ccalc_type diff){
+		bias *= num;
+		sigma *= num;
+		bias += diff;
+		++num;
+		bias /= num;
+		sigma += (diff - bias) * (diff - bias);
+		sigma /= num;
+	}
+};
+
+mtdf_info table_mtdf_info[board::size2][16][16];
 
 void board::config_search(){}
 
@@ -86,11 +112,6 @@ calc_type board::search(
 	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
-const short depth_kill = 2;
-const short depth_pvs = 2;
-const short depth_hash = 3;
-const short depth_mtdf = 7;
-
 template<method mthd>
 calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)const{
 
@@ -131,16 +152,18 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 	}else if((mthd & mthd_mtdf) && (depth >= depth_mtdf)){
 
 		const method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
-		calc_type gamma = search<mthd_de_mtdf>(color,depth - 4,alpha,beta);
-
+		short depth_presearch = (depth & 1) ? 5 : 4;
+		calc_type gamma = search<mthd_de_mtdf>(color,depth_presearch,alpha,beta);
 
 		if(mthd & mthd_trans){
 			clear_search_info();
 		}
 
-		calc_type window_width = 1;
-		calc_type window_alpha = gamma - window_width / 2;
-		calc_type window_beta = gamma + window_width / 2;
+		mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
+
+		calc_type window_width = sqrt(info.sigma) * 3;
+		calc_type window_alpha = gamma + info.bias - window_width / 2;
+		calc_type window_beta = gamma + info.bias + window_width / 2;
 
 		calc_type result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
 		if(result <= window_alpha){
@@ -158,6 +181,11 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta)
 				result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
 			}while(result >= window_beta && result < beta);
 		}
+
+		if(result > alpha && result < beta){
+			info.adjust(result - gamma);
+		}
+
 		return result;
 
 	}else{
