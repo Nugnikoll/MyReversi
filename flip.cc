@@ -82,8 +82,6 @@ const brd_type mask_d2[board::size * 2 - 1] = {
 	0x0100000000000000
 };
 
-brd_type mask_hvd[board::size2];
-
 const brd_type mask_adj[board::size2] = {
 	0x0000000000000302,
 	0x0000000000000705,
@@ -160,6 +158,16 @@ const brd_type mask_adj[board::size2] = {
 
 unsigned short table_flip[1 << 19];
 
+struct flip_info{
+	brd_type index_h, mask_h;
+	brd_type index_v, mask_v;
+	brd_type index_d1, mask_d1;
+	brd_type index_d2, mask_d2;
+	brd_type mask_hvd;
+};
+
+flip_info table_flip_info[board::size2];
+
 void board::flip(cbool color,cpos_type pos){
 
 	brd_type& brd_blue = this->bget(color);
@@ -167,12 +175,11 @@ void board::flip(cbool color,cpos_type pos){
 
 	brd_type piece, temp, mask, brd_result;
 	brd_type sum_blue = 0, sum_green = 0;
-	brd_type pos_x = pos & 0x7;
-	brd_type pos_y = pos >> 3;
+	const flip_info& info = table_flip_info[pos];
 
 	//horizontal
-	mask = mask_h[pos_y];
-	piece = pos_x << 16;
+	mask = info.mask_h;
+	piece = info.index_h;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -185,8 +192,8 @@ void board::flip(cbool color,cpos_type pos){
 	sum_blue |= brd_result;
 
 	//vertical
-	mask = mask_v[pos_x];
-	piece = pos_y << 16;
+	mask = info.mask_v;
+	piece = info.index_v;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -199,8 +206,8 @@ void board::flip(cbool color,cpos_type pos){
 	sum_blue |= brd_result;
 
 	//diagonal
-	mask = mask_d1[pos_x + pos_y];
-	piece = pos_diag1[pos] << 16;
+	mask = info.mask_d1;
+	piece = info.index_d1;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -213,8 +220,8 @@ void board::flip(cbool color,cpos_type pos){
 	sum_blue |= brd_result;
 
 	//diagonal
-	mask = mask_d2[pos_y + 7 - pos_x];
-	piece = pos_diag2[pos] << 16;
+	mask = info.mask_d2;
+	piece = info.index_d2;
 	asm_pext(brd_blue,mask,temp);
 	piece |= temp << 8;
 	asm_pext(brd_green,mask,temp);
@@ -226,7 +233,7 @@ void board::flip(cbool color,cpos_type pos){
 	asm_pdep(piece,mask,brd_result);
 	sum_blue |= brd_result;
 
-	mask = mask_hvd[pos];
+	mask = info.mask_hvd;
 	brd_blue = (brd_blue & ~mask) | (sum_blue & mask);
 	brd_green = (brd_green & ~mask) | (sum_green & mask);
 }
@@ -284,16 +291,21 @@ unsigned short flip_line(cbrd_type data){
 }
 
 void board::config_flip(){
-	brd_type mask;
 	pos_type pos_x,pos_y;
+
 	for(pos_type i = 0;i != size2;++i){
+		flip_info& info = table_flip_info[i];
 		pos_x = i & 0x7;
 		pos_y = i >> 3;
-		mask = mask_h[pos_y];
-		mask |= mask_v[pos_x];
-		mask |= mask_d1[pos_x + pos_y];
-		mask |= mask_d2[pos_y + 7 - pos_x];
-		mask_hvd[i] = mask;
+		info.index_h = pos_x << 16;
+		info.mask_h = mask_h[pos_y];
+		info.index_v = pos_y << 16;
+		info.mask_v = mask_v[pos_x];
+		info.index_d1 = pos_diag1[i] << 16;
+		info.mask_d1 = mask_d1[pos_x + pos_y];
+		info.index_d2 = pos_diag2[i] << 16;
+		info.mask_d2 = mask_d2[pos_y + 7 - pos_x];
+		info.mask_hvd = info.mask_h | info.mask_v | info.mask_d1 | info.mask_d2;
 	}
 
 	for(brd_type i = 0;i != (1 << 19);++i){
