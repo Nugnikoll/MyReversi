@@ -610,7 +610,10 @@ public:
 	}
 
 	template<method mthd>
-	calc_type search(cbool color,cshort height,calc_type alpha,calc_type beta)const;
+	calc_type search(
+		cbool color,cshort height,
+		calc_type alpha = _inf,calc_type beta = inf,cbool flag_pass = false
+	)const;
 
 	calc_type search(
 		cmethod mthd,cbool color,cshort height,
