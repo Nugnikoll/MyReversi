@@ -259,6 +259,7 @@
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_pvs" variable="menu_alg_pvs" member="yes">
 						<label>Principal &amp;Variation Search</label>
+						<checked>1</checked>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>

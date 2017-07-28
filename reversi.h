@@ -625,11 +625,27 @@ public:
 		cbool color,cshort height,
 		calc_type alpha = _inf,calc_type beta = inf,cbool flag_pass = false
 	)const;
-
 	calc_type search(
 		cmethod mthd,cbool color,cshort height,
 		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0
 	)const;
+	calc_type search_end_two(
+		cbool color,cpos_type pos1,cpos_type pos2,
+		calc_type alpha,calc_type beta,cbool flag_pass
+	)const;
+	calc_type search_end_three(
+		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,
+		calc_type alpha,calc_type beta,cbool flag_pass
+	)const;
+	calc_type search_end_four(
+		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,
+		calc_type alpha,calc_type beta,cbool flag_pass
+	)const;
+	template<method mthd>
+	calc_type search_end_five(
+		cbool color,calc_type alpha,calc_type beta,cbool flag_pass
+	)const;
+
 
 	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,ccalc_type gamma = 0)const;
 
