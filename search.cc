@@ -162,7 +162,7 @@ calc_type board::search(
 	#define search_mthd(mthd) \
 		case mthd: return board::search<method(mthd)>(color,depth,alpha,beta);
 	#define search_mthd_ab(mthd) \
-		search_mthd(mthd) search_mthd(mthd | mthd_ab)
+		search_mthd(mthd | mthd_ab)
 	#define search_mthd_kill(mthd) \
 		search_mthd_ab(mthd) search_mthd_ab(mthd | mthd_kill)
 	#define search_mthd_pvs(mthd) \
@@ -175,9 +175,12 @@ calc_type board::search(
 		search_mthd_mtdf(mthd) search_mthd_mtdf(mthd | mthd_ptn)
 	#define search_mthd_mpc(mthd) \
 		search_mthd_ptn(mthd) search_mthd_ptn(mthd | mthd_mpc)
+	#define search_mthd_end(mthd) \
+		search_mthd_mpc(mthd) search_mthd_mpc(mthd | mthd_end)
 
 	switch(mthd){
-		search_mthd_mpc(mthd_rnd);
+		case mthd_rnd: return board::search<mthd_rnd>(color,depth,alpha,beta);
+		search_mthd_end(mthd_rnd);
 	default:
 		assert(false);
 		return 0;
@@ -266,7 +269,9 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 		++node_count;
 
 		if(depth == 0){
-			if(mthd & mthd_ptn)
+			if(mthd & mthd_end)
+				return this->score_end(color);
+			else if(mthd & mthd_ptn)
 				return this->score_ptn(color);
 			else
 				return this->score(color);
@@ -384,14 +389,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 		}else{
 
-			calc_type num_diff = count(color) - count(!color);
-			if(num_diff > 0){
-				result =  num_diff + mark_max;
-			}else if(num_diff < 0){
-				result = num_diff - mark_max;
-			}else{
-				result = 0;
-			}
+			result = score_end(color);
 			trans_save(result);
 			return result;
 
