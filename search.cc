@@ -192,6 +192,12 @@ calc_type board::search(
 	#pragma GCC diagnostic pop
 #endif
 
+struct brd_val{
+	pos_type pos;
+	calc_type val;
+};
+typedef const brd_val& cbrd_val;
+
 #ifdef __GNUC__
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -199,12 +205,6 @@ calc_type board::search(
 
 template<method mthd>
 calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,cbool flag_pass)const{
-
-	struct brd_val{
-		pos_type pos;
-		calc_type val;
-	};
-	typedef const brd_val& cbrd_val;
 
 	#define trans_save(data) \
 		if(flag_hash){ \
@@ -228,8 +228,9 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 	}else if((mthd & mthd_mtdf) && (depth >= depth_mtdf)){
 
 		const method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
+		const method mthd_presearch = method(mthd_de_mtdf & ~mthd_end);
 		short depth_presearch = (depth & 1) ? 5 : 4;
-		calc_type gamma = search<mthd_de_mtdf>(color,depth_presearch,alpha,beta);
+		calc_type gamma = this->template search<mthd_presearch>(color,depth_presearch,alpha,beta);
 
 		if(mthd & mthd_trans){
 			clear_search_info();
@@ -241,20 +242,20 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 		calc_type window_alpha = gamma + info.bias - window_width / 2;
 		calc_type window_beta = gamma + info.bias + window_width / 2;
 
-		calc_type result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
+		calc_type result = this->template search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
 		if(result <= window_alpha){
 			do{
 				window_width *= 2;
 				window_beta = window_alpha;
 				window_alpha = window_beta - window_width;
-				result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
+				result = this->template search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
 			}while(result <= window_alpha && result > alpha);
 		}else if(result >= window_beta){
 			do{
 				window_width *= 2;
 				window_alpha = window_beta;
 				window_beta = window_alpha + window_width;
-				result = search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
+				result = this->template search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
 			}while(result >= window_beta && result < beta);
 		}
 
@@ -264,6 +265,8 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 		return result;
 
+	}else if(mthd & mthd_end && (depth == 5)){
+		return this->template search_end_five<mthd>(color,alpha,beta,flag_pass);
 	}else{
 
 		++node_count;
@@ -415,6 +418,361 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 #ifdef __GNUC__
 	#pragma GCC diagnostic pop
 #endif
+
+calc_type board::search_end_two(
+	cbool color,cpos_type pos1,cpos_type pos2,calc_type alpha,calc_type beta,cbool flag_pass
+)const{
+
+	#ifdef DEBUG_SEARCH
+	auto fun = [&]()->calc_type{
+	#endif
+
+	++node_count;
+
+	board brd;
+	brd_type brd_blue = bget(color);
+	brd_type brd_green = bget(!color);
+	brd_type brd_save = brd_black;
+	calc_type result = _inf;
+
+	if(brd_green | mask_adj[pos1]){
+		brd = *this;
+		brd.flip(color,pos1);
+		if(brd.brd_black != brd_save){
+			if(brd_blue | mask_adj[pos2]){
+				brd_save = brd.brd_black;
+				brd.flip(!color,pos2);
+				if(brd_save == brd.brd_black && (brd_green | mask_adj[pos2])){
+					brd.flip(color,pos2);
+				}
+			}
+			result = brd.score_end(color);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(brd_green | mask_adj[pos2]){
+		brd = *this;
+		brd.flip(color,pos2);
+		if(brd.brd_black != brd_save){
+			if(brd_blue | mask_adj[pos1]){
+				brd_save = brd.brd_black;
+				brd.flip(!color,pos1);
+				if(brd_save == brd.brd_black && (brd_green | mask_adj[pos1])){
+					brd.flip(color,pos1);
+				}
+			}
+			result = brd.score_end(color);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(result != _inf){
+		return alpha;
+	}else{
+		if(!flag_pass){
+			return - this->search_end_two(!color,pos1,pos2,-beta,-alpha,true);
+		}else{
+			return score_end(color);
+		}
+	}
+
+	#ifdef DEBUG_SEARCH
+	};
+	out << "<div color=" << color
+		<< " depth=" << 2
+		<< " alpha=" << alpha
+		<< " beta=" << beta
+		<< ">\n";
+	this->print(out);
+	calc_type result = fun();
+	out << "result = " << result <<"\n"
+		<< "</div>\n";
+	return result;
+	#endif
+
+}
+
+calc_type board::search_end_three(
+	cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,calc_type alpha,calc_type beta,cbool flag_pass
+)const{
+
+	#ifdef DEBUG_SEARCH
+	auto fun = [&]()->calc_type{
+	#endif
+
+	++node_count;
+
+	board brd;
+	brd_type brd_green = bget(!color);
+	brd_type brd_save = brd_black;
+	calc_type result = _inf;
+
+	if(brd_green | mask_adj[pos1]){
+		brd = *this;
+		brd.flip(color,pos1);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_two(!color,pos2,pos3,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(brd_green | mask_adj[pos2]){
+		brd = *this;
+		brd.flip(color,pos2);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_two(!color,pos1,pos3,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(brd_green | mask_adj[pos3]){
+		brd = *this;
+		brd.flip(color,pos3);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_two(!color,pos1,pos2,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(result != _inf){
+		return alpha;
+	}else{
+		if(!flag_pass){
+			return - this->search_end_three(!color,pos1,pos2,pos3,-beta,-alpha,true);
+		}else{
+			return score_end(color);
+		}
+	}
+
+	#ifdef DEBUG_SEARCH
+	};
+	out << "<div color=" << color
+		<< " depth=" << 3
+		<< " alpha=" << alpha
+		<< " beta=" << beta
+		<< ">\n";
+	this->print(out);
+	calc_type result = fun();
+	out << "result = " << result <<"\n"
+		<< "</div>\n";
+	return result;
+	#endif
+
+}
+
+calc_type board::search_end_four(
+	cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,calc_type alpha,calc_type beta,cbool flag_pass
+)const{
+
+	#ifdef DEBUG_SEARCH
+	auto fun = [&]()->calc_type{
+	#endif
+
+	++node_count;
+
+	board brd;
+	brd_type brd_green = bget(!color);
+	brd_type brd_save = brd_black;
+	calc_type result = _inf;
+
+	if(brd_green | mask_adj[pos1]){
+		brd = *this;
+		brd.flip(color,pos1);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_three(!color,pos2,pos3,pos4,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(brd_green | mask_adj[pos2]){
+		brd = *this;
+		brd.flip(color,pos2);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_three(!color,pos1,pos3,pos4,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(brd_green | mask_adj[pos3]){
+		brd = *this;
+		brd.flip(color,pos3);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_three(!color,pos1,pos2,pos4,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(brd_green | mask_adj[pos4]){
+		brd = *this;
+		brd.flip(color,pos4);
+		if(brd.brd_black != brd_save){
+			result = - brd.search_end_three(!color,pos1,pos2,pos3,-beta,-alpha,false);
+			if(result >= beta){
+				return beta;
+			}
+			if(result > alpha){
+				alpha = result;
+			}
+		}
+	}
+
+	if(result != _inf){
+		return alpha;
+	}else{
+		if(!flag_pass){
+			return - this->search_end_four(!color,pos1,pos2,pos3,pos4,-beta,-alpha,true);
+		}else{
+			return score_end(color);
+		}
+	}
+
+	#ifdef DEBUG_SEARCH
+	};
+	out << "<div color=" << color
+		<< " depth=" << 4
+		<< " alpha=" << alpha
+		<< " beta=" << beta
+		<< ">\n";
+	this->print(out);
+	calc_type result = fun();
+	out << "result = " << result <<"\n"
+		<< "</div>\n";
+	return result;
+	#endif
+
+}
+
+template<method mthd>
+calc_type board::search_end_five(
+	cbool color,calc_type alpha,calc_type beta,cbool flag_pass
+)const{
+
+	#ifdef DEBUG_SEARCH
+	auto fun = [&]()->calc_type{
+	#endif
+
+	const bool flag_kill = (mthd & mthd_kill);
+//	bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
+//	bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
+
+	brd_type brd_blank = ~(brd_black | brd_white);
+
+	brd_val vec[32];
+	brd_val* ptr = vec;
+	board brd;
+	calc_type result = _inf;
+	calc_type* ptr_val = table_val[this->sum()];
+	brd_type brd_green = bget(false);
+	brd_type brd_save = this->brd_black;
+	brd_type pos;
+
+	trail_zero_count(brd_blank,pos);
+	while(brd_blank){
+		ptr->pos = pos;
+		if(mthd & mthd_kill){
+			ptr->val = ptr_val[pos];
+		}
+		++ptr;
+		brd_blank &= brd_blank - 1;
+		trail_zero_count(brd_blank,pos);
+	}
+
+	sort(vec,ptr,
+		[](cbrd_val b1,cbrd_val b2){
+			return b1.val > b2.val;
+		}
+	);
+
+	#define repeat_search_end_five(a,b,c,d,e) \
+		if(brd_green | mask_adj[vec[a].pos]){ \
+			brd = *this; \
+			brd.flip(color,vec[a].pos); \
+			if(brd.brd_black != brd_save){ \
+				result = - brd.search_end_four(!color,vec[b].pos,vec[c].pos,vec[d].pos,vec[e].pos,-beta,-alpha,false); \
+				if(flag_kill){ \
+					ptr_val[vec[a].pos] = result; \
+				} \
+				if(result >= beta){ \
+					return beta; \
+				} \
+				if(result > alpha){ \
+					alpha = result; \
+				} \
+			} \
+		}
+
+	repeat_search_end_five(0,1,2,3,4);
+	repeat_search_end_five(1,0,2,3,4);
+	repeat_search_end_five(2,0,1,3,4);
+	repeat_search_end_five(3,0,1,2,4);
+	repeat_search_end_five(4,0,1,2,3);
+
+	if(result != _inf){
+		return alpha;
+	}else{
+		if(!flag_pass){
+			return - this->template search_end_five<mthd>(!color,-beta,-alpha,true);
+		}else{
+			return score_end(color);
+		}
+	}
+
+	#ifdef DEBUG_SEARCH
+	};
+	out << "<div color=" << color
+		<< " depth=" << 5
+		<< " alpha=" << alpha
+		<< " beta=" << beta
+		<< ">\n";
+	this->print(out);
+	calc_type result = fun();
+	out << "result = " << result <<"\n"
+		<< "</div>\n";
+	return result;
+	#endif
+
+}
 
 vector<choice> board::get_choice(
 	cmethod mthd,cbool color,cshort height,ccalc_type gamma

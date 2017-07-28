@@ -223,6 +223,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menu_alg_ab->Check(true);
     menu_alg_pvs = new wxMenuItem(menu_alg, id_menu_alg_pvs, _("Principal &Variation Search"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_pvs);
+    menu_alg_pvs->Check(true);
     menu_alg_trans = new wxMenuItem(menu_alg, id_menu_alg_trans, _("&Transposition Table"), wxEmptyString, wxITEM_CHECK);
     menu_alg->Append(menu_alg_trans);
     menu_alg_trans->Check(true);
