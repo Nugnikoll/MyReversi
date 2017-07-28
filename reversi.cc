@@ -126,8 +126,9 @@ coordinate board::play(cmethod _mthd,cbool color,short height){
 
 	method mthd = _mthd;
 
+	short total = this->sum();
+
 	if(height == -1){
-		short total = this->sum();
 		if(total <= 7){
 			height = 9;
 		}else if(total <= 10){
@@ -137,13 +138,11 @@ coordinate board::play(cmethod _mthd,cbool color,short height){
 		}else if(total <= size2 - 15){
 			height = 8;
 		}else{
-			mthd = method(mthd | mthd_end);
-			height = size2 - total - 1;
+			height = 20;
 		}
 	}
 
 	if(height <= -2){
-		short total = this->sum();
 		if(total <= 7){
 			height = 9;
 		}else if(total <= 10){
@@ -153,9 +152,13 @@ coordinate board::play(cmethod _mthd,cbool color,short height){
 		}else if(total <= size2 - 16){
 			height = 8;
 		}else{
-			mthd = method(mthd | mthd_end);
-			height = size2 - total - 1;
+			height = 20;
 		}
+	}
+
+	if(height >= size2 - total - 1){
+		mthd = method(mthd | mthd_end);
+		height = size2 - total - 1;	
 	}
 
 	vector<choice> choices = get_choice(mthd,color,height);
