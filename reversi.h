@@ -574,6 +574,17 @@ public:
 
 	void flip(cbool color,cpos_type pos);
 
+	calc_type score_end(cbool color)const{
+		calc_type num_diff = count(color) - count(!color);
+		if(num_diff > 0){
+			return num_diff + mark_max;
+		}else if(num_diff < 0){
+			return num_diff - mark_max;
+		}else{
+			return 0;
+		}
+	}
+
 	calc_type score(cbool color)const{
 		brd_type brd_blue = bget(color);
 		brd_type brd_green = bget(!color);
