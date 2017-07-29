@@ -54,7 +54,7 @@ int main(int argc, char *argv[], char *envp[]){
 
 	grp.load("./data/pattern2.dat");
 
-	auto coord = brd.play(method(mthd_ab | mthd_kill | mthd_ptn),mycolor);
+	auto coord = brd.play(mthd_default,mycolor,-2);
 
 	// 决策结束，输出结果（你只需修改以上部分）
 
