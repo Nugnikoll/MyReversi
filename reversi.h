@@ -725,10 +725,10 @@ struct std::hash<board> : public unary_function<board, size_t>{
 };
 
 struct choice{
-	float val;
 	board brd;
-	pos_type pos;
+	float val;
 	float rnd_val;
+	pos_type pos;
 };
 
 #endif // REVERSI_H
