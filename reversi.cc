@@ -126,52 +126,60 @@ coordinate board::play(cmethod _mthd,cbool color,short height){
 
 	method mthd = _mthd;
 
-	short total = this->sum();
+	if(mthd != mthd_rnd){
+		short total = this->sum();
 
-	if(height == -1){
-		if(total <= 7){
-			height = 9;
-		}else if(total <= 10){
-			height = 8;
-		}else if(total <= size2 - 22){
-			height = 7;
-		}else if(total <= size2 - 15){
-			height = 8;
-		}else{
-			height = 20;
+		if(height == -1){
+			if(total <= 7){
+				height = 9;
+			}else if(total <= 10){
+				height = 8;
+			}else if(total <= size2 - 22){
+				height = 7;
+			}else if(total <= size2 - 15){
+				height = 8;
+			}else{
+				height = 20;
+			}
 		}
-	}
 
-	if(height <= -2){
-		if(total <= 7){
-			height = 9;
-		}else if(total <= 10){
-			height = 8;
-		}else if(total <= size2 - 22){
-			height = 8;
-		}else if(total <= size2 - 16){
-			height = 8;
-		}else{
-			height = 20;
+		if(height <= -2){
+			if(total <= 7){
+				height = 9;
+			}else if(total <= 10){
+				height = 8;
+			}else if(total <= size2 - 22){
+				height = 8;
+			}else if(total <= size2 - 16){
+				height = 8;
+			}else{
+				height = 20;
+			}
 		}
-	}
 
-	if(height >= size2 - total - 1){
-		mthd = method(mthd | mthd_end);
-		height = size2 - total - 1;	
+		if(height >= size2 - total - 1){
+			mthd = method(mthd | mthd_end);
+			height = size2 - total - 1;	
+		}
 	}
 
 	vector<choice> choices = get_choice(mthd,color,height);
 	if(choices.empty()){
 		return coordinate(-1,-1);
 	}else{
-		float variation;
-		if(mthd & mthd_ptn){
-			variation = 0.15;
+		choice best;
+		if(mthd == mthd_rnd){
+			uniform_int_distribution<int> scatter(0,choices.size() - 1);
+			best = choices[scatter(engine)];
 		}else{
-			variation = 0.75;
+			float variation;
+			if(mthd & mthd_ptn){
+				variation = 0.2;
+			}else{
+				variation = 0.75;
+			}
+			best = select_choice(choices,variation);
 		}
-		choice best = select_choice(choices,variation);
 		flip(color,best.pos);
 		return coordinate(best.pos);
 	}
