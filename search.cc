@@ -418,13 +418,13 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 				if(flag_kill){
 					ptr_val[p->pos] = temp;
 				}
-				result = max(result,temp);
-				if(result >= beta){
+				if(temp >= beta){
 					if(flag_hash){
-						table_trans[color][*this].first = result;
+						table_trans[color][*this].first = temp;
 					}
-					return result;
+					return temp;
 				}
+				result = max(result,temp);
 				alpha = max(alpha,result);
 			}
 
@@ -487,7 +487,7 @@ calc_type board::search_end_two(
 	brd_type brd_blue = bget(color);
 	brd_type brd_green = bget(!color);
 	brd_type brd_save;
-	calc_type result = _inf;
+	calc_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
 		brd = *this;
@@ -500,13 +500,12 @@ calc_type board::search_end_two(
 					brd.flip(color,pos2);
 				}
 			}
-			result = brd.score_end(color);
-			if(result >= beta){
-				return result;
+			temp = brd.score_end(color);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
@@ -521,18 +520,17 @@ calc_type board::search_end_two(
 					brd.flip(color,pos1);
 				}
 			}
-			result = brd.score_end(color);
-			if(result >= beta){
-				return result;
+			temp = brd.score_end(color);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
 	if(result != _inf){
-		return alpha;
+		return result;
 	}else{
 		if(!flag_pass){
 			return - this->search_end_two(!color,pos1,pos2,-beta,-alpha,true);
@@ -571,19 +569,18 @@ calc_type board::search_end_three(
 
 	board brd;
 	brd_type brd_green = bget(!color);
-	calc_type result = _inf;
+	calc_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
 		brd = *this;
 		brd.flip(color,pos1);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_two(!color,pos2,pos3,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_two(!color,pos2,pos3,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
@@ -591,13 +588,12 @@ calc_type board::search_end_three(
 		brd = *this;
 		brd.flip(color,pos2);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_two(!color,pos1,pos3,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_two(!color,pos1,pos3,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
@@ -605,18 +601,17 @@ calc_type board::search_end_three(
 		brd = *this;
 		brd.flip(color,pos3);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_two(!color,pos1,pos2,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_two(!color,pos1,pos2,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
 	if(result != _inf){
-		return alpha;
+		return result;
 	}else{
 		if(!flag_pass){
 			return - this->search_end_three(!color,pos1,pos2,pos3,-beta,-alpha,true);
@@ -656,19 +651,18 @@ calc_type board::search_end_four(
 
 	board brd;
 	brd_type brd_green = bget(!color);
-	calc_type result = _inf;
+	calc_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
 		brd = *this;
 		brd.flip(color,pos1);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_three(!color,pos2,pos3,pos4,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_three(!color,pos2,pos3,pos4,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
@@ -676,13 +670,12 @@ calc_type board::search_end_four(
 		brd = *this;
 		brd.flip(color,pos2);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_three(!color,pos1,pos3,pos4,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_three(!color,pos1,pos3,pos4,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
@@ -690,13 +683,12 @@ calc_type board::search_end_four(
 		brd = *this;
 		brd.flip(color,pos3);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_three(!color,pos1,pos2,pos4,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_three(!color,pos1,pos2,pos4,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
@@ -704,18 +696,17 @@ calc_type board::search_end_four(
 		brd = *this;
 		brd.flip(color,pos4);
 		if(brd.brd_black != brd_black){
-			result = - brd.search_end_three(!color,pos1,pos2,pos3,-beta,-alpha,false);
-			if(result >= beta){
-				return result;
+			temp = - brd.search_end_three(!color,pos1,pos2,pos3,-beta,-alpha,false);
+			if(temp >= beta){
+				return temp;
 			}
-			if(result > alpha){
-				alpha = result;
-			}
+			result = max(result,temp);
+			alpha = max(alpha,result);
 		}
 	}
 
 	if(result != _inf){
-		return alpha;
+		return result;
 	}else{
 		if(!flag_pass){
 			return - this->search_end_four(!color,pos1,pos2,pos3,pos4,-beta,-alpha,true);
@@ -762,7 +753,7 @@ calc_type board::search_end_five(
 	brd_val vec[32];
 	brd_val* ptr = vec;
 	board brd;
-	calc_type result = _inf;
+	calc_type result = _inf,temp;
 	calc_type* ptr_val = table_val[this->sum()];
 	brd_type brd_green = bget(false);
 	brd_type pos;
@@ -789,16 +780,15 @@ calc_type board::search_end_five(
 			brd = *this; \
 			brd.flip(color,vec[a].pos); \
 			if(brd.brd_black != brd_black){ \
-				result = - brd.search_end_four(!color,vec[b].pos,vec[c].pos,vec[d].pos,vec[e].pos,-beta,-alpha,false); \
+				temp = - brd.search_end_four(!color,vec[b].pos,vec[c].pos,vec[d].pos,vec[e].pos,-beta,-alpha,false); \
 				if(flag_kill){ \
 					ptr_val[vec[a].pos] = result; \
 				} \
-				if(result >= beta){ \
-					return result; \
+				if(temp >= beta){ \
+					return temp; \
 				} \
-				if(result > alpha){ \
-					alpha = result; \
-				} \
+				result = max(result,temp); \
+				alpha = max(alpha,result); \
 			} \
 		}
 
@@ -809,7 +799,7 @@ calc_type board::search_end_five(
 	repeat_search_end_five(4,0,1,2,3);
 
 	if(result != _inf){
-		return alpha;
+		return result;
 	}else{
 		if(!flag_pass){
 			return - this->template search_end_five<mthd>(!color,-beta,-alpha,true);
