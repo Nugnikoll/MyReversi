@@ -143,15 +143,29 @@ coordinate board::play(cmethod _mthd,cbool color,short height){
 			}
 		}
 
-		if(height <= -2){
+		if(height == -2){
 			if(total <= 7){
 				height = 9;
 			}else if(total <= 10){
-				height = 8;
-			}else if(total <= size2 - 22){
+				height = 9;
+			}else if(total <= size2 - 24){
 				height = 8;
 			}else if(total <= size2 - 16){
-				height = 8;
+				height = 9;
+			}else{
+				height = 20;
+			}
+		}
+
+		if(height <= -3){
+			if(total <= 7){
+				height = 11;
+			}else if(total <= 10){
+				height = 10;
+			}else if(total <= size2 - 22){
+				height = 10;
+			}else if(total <= size2 - 16){
+				height = 10;
 			}else{
 				height = 20;
 			}
