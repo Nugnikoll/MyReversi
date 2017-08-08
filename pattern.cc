@@ -293,7 +293,7 @@ void get_index(cbool color, cboard brd, int* const& ind){
 	ind[35] = index;
 }
 
-float board::score_ptn(cbool color,cpattern ptn)const{
+float board::score_ptn(cbool color,const pattern& ptn)const{
 	brd_type brd_blue = bget(color);
 	brd_type brd_green = bget(!color);
 	brd_type brd_v_blue = brd_blue;
