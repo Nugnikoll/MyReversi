@@ -696,7 +696,7 @@ public:
 		}
 	}
 
-	float score_ptn(cbool color)const;
+	float score_ptn(cbool color,cpattern ptn)const;
 
 protected:
 
