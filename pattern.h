@@ -87,10 +87,10 @@ public:
 	void load(const string& path);
 	void save(const string& path)const;
 	const pattern& at(const int& pos)const{
-		return vec.at(pos);
+		return vec[pos];
 	}
 	pattern& at(const int& pos){
-		return vec.at(pos);
+		return vec[pos];
 	}
 
 	static void config(const string& str){

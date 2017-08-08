@@ -2,6 +2,7 @@
 
 %include <std_string.i>
 %include <std_vector.i>
+%include <std_unordered_set.i>
 %include <cpointer.i>
 %include <carrays.i>
 
@@ -33,6 +34,7 @@
 %rename(samples) std::unordered_set<board>;
 %template(mat_i) matrix<int>;
 %template(mat_f) matrix<float>;
+%template(mat_brd) matrix<board>;
 
 %array_class(pos_type, pos_array);
 

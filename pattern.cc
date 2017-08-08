@@ -293,7 +293,7 @@ void get_index(cbool color, cboard brd, int* const& ind){
 	ind[35] = index;
 }
 
-float board::score_ptn(cbool color)const{
+float board::score_ptn(cbool color,cpattern ptn)const{
 	brd_type brd_blue = bget(color);
 	brd_type brd_green = bget(!color);
 	brd_type brd_v_blue = brd_blue;
@@ -310,7 +310,6 @@ float board::score_ptn(cbool color)const{
 	mirror_v(brd_r_green);
 	brd_type index;
 	float result;
-	const pattern& ptn = grp.vec[0];
 
 	result = 0;
 
@@ -647,6 +646,16 @@ unordered_set<board> sample_gen(cint n){
 	return brds;
 };
 
+matrix<board> sample_2mat(const unordered_set<board>& brds){
+	int i = 0;
+	matrix<board> result(brds.size(),1);
+	for(cboard brd:brds){
+		result.at(i) = brd;
+		++i;
+	}
+	return result;
+}
+
 matrix<int> sample_process(const unordered_set<board>& brds){
 	int i = 0;
 	matrix<int> result(brds.size(),pattern::size_n);
@@ -695,6 +704,15 @@ matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index){
 		for(int j = 0;j != index.getw();++j){
 			result.at(i) += ptn.at(index[i][j]);
 		}
+	}
+	return result;
+}
+
+matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds){
+	matrix<calc_type> result(brds.geth(),1);
+	
+	for(int i = 0;i != brds.geth();++i){
+		result.at(i) = brds.at(i).score_ptn(true,grp.at(0));
 	}
 	return result;
 }
