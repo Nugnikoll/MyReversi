@@ -15,7 +15,7 @@ bool board::flag_unicode = true;
 brd_type board::node_count;
 
 #ifdef USE_FLOAT
-	const calc_type board::mark_max = 100;
+	const calc_type board::mark_max = 2;
 #endif
 const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
 calc_type board::table_param[stage_num][board::pos_num] = {{12,0.5,-6,-0.2},{10,0.5,-5,0.2},{3,1,0,0}};

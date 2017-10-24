@@ -31,7 +31,7 @@
 %template(boards) std::vector<board>;
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
-%rename(samples) std::unordered_set<board>;
+//%template(samples) std::unordered_set<board>;
 %template(mat_i) matrix<int>;
 %template(mat_f) matrix<float>;
 %template(mat_brd) matrix<board>;

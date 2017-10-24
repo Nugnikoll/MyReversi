@@ -697,6 +697,7 @@ public:
 	}
 
 	float score_ptn(cbool color,const pattern& ptn)const;
+	void adjust_ptn(cbool color,pattern& ptn,cfloat value)const;
 
 protected:
 
@@ -708,7 +709,7 @@ protected:
 	#ifdef USE_FLOAT
 		static const calc_type mark_max;
 	#else
-		static const calc_type mark_max = 100;
+		static const calc_type mark_max = 2;
 	#endif
 };
 
