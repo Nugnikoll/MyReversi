@@ -286,19 +286,19 @@ public:
     int getw()const{return this->width;}
 
     const T& at(const int& h,const int& w)const{
-        assert(h <= height || w <= width);
+        assert(h < height && w < width);
         return table[h * width + w];
     }
     T& at(const int& h,const int& w){
-        assert(h <= height || w <= width);
+        assert(h < height && w < width);
         return table[h * width + w];
     }
     const T& at(const int& n)const{
-        assert(n <= height * width);
+        assert(n < height * width);
         return table[n];
     }
     T& at(const int& n){
-        assert(n <= height * width);
+        assert(n < height * width);
         return table[n];
     }
 
