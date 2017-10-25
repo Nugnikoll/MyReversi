@@ -907,7 +907,6 @@ matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort 
 matrix<calc_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
 	matrix<calc_type> result(brds.geth(),1);
 	for(int i = 0;i != brds.geth();++i){
-		cout << i << " ";
 		result.at(i) = brds.at(i).search(mthd,true,height);
 	}
 	return result;
@@ -928,7 +927,7 @@ matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds){
 	matrix<calc_type> result(brds.geth(),1);
 	
 	for(int i = 0;i != brds.geth();++i){
-		result.at(i) = brds.at(i).score_ptn(true,grp.at(0));
+		result.at(i) = brds.at(i).score_ptn(true,ptn);
 	}
 	return result;
 }

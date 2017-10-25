@@ -11,7 +11,7 @@ rv.group.config("ptn_opt.dat");
 ptn = rv.pattern();
 ptn.initial();
 
-size = 10;
+size = 100000;
 alpha = 0.004 / size;
 
 time1 = time.clock();
@@ -22,7 +22,7 @@ sample = rv.sample_2mat(sample);
 time3 = time.clock();
 print("time2",time3 - time2);
 print(sample.geth(),sample.getw());
-target = rv.evaluate(sample,rv.mthd_default,4);
+target = rv.evaluate(sample,rv.mthd_default & ~rv.mthd_ptn & ~rv.mthd_trans ,4);
 time4 = time.clock();
 print("time3",time4 - time3);
 
@@ -42,7 +42,7 @@ ptn = rv.pattern(ptn_save);
 print("alpha: ",alpha);
 print("epsilon_2: ",epsilon_2);
 
-for i in range(200):
+for i in range(2000):
 	epsilon *= alpha;
 	rv.adjust(ptn,sample,epsilon);
 
