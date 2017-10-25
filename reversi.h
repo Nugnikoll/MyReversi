@@ -126,38 +126,10 @@ public:
 	}
 
 	cbrd_type bget(cbool color)const{
-		#ifdef USE_ASM
-			const brd_type* ptr;
-			asm volatile(
-				"lea (%1,%2,8), %0"
-				:"=r"(ptr)
-				:"r"(&brd_white), "r"(brd_type(color))
-			);
-			return *ptr;
-		#else
-			if(color){
-				return brd_black;
-			}else{
-				return brd_white;
-			}
-		#endif
+		return *((brd_type*)&brd_white + color);
 	}
 	brd_type& bget(cbool color){
-		#ifdef USE_ASM
-			brd_type* ptr;
-			asm volatile(
-				"lea (%1,%2,8), %0"
-				:"=r"(ptr)
-				:"r"(&brd_white), "r"(brd_type(color))
-			);
-			return *ptr;
-		#else
-			if(color){
-				return brd_black;
-			}else{
-				return brd_white;
-			}
-		#endif
+		return *((brd_type*)&brd_white + color);
 	}
 
 	chessman get(cpos_type pos)const{
@@ -588,7 +560,7 @@ public:
 	calc_type score(cbool color)const{
 		brd_type brd_blue = bget(color);
 		brd_type brd_green = bget(!color);
-		brd_type brd_mix = brd_blue | brd_white;
+		brd_type brd_mix = brd_blue | brd_green;
 		brd_type brd_temp;
 
 		short stage;
