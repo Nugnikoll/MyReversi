@@ -293,7 +293,7 @@ void get_index(cbool color, cboard brd, int* const& ind){
 	ind[35] = index;
 }
 
-float board::score_ptn(cbool color)const{
+float board::score_ptn(cbool color,const pattern& ptn)const{
 	brd_type brd_blue = bget(color);
 	brd_type brd_green = bget(!color);
 	brd_type brd_v_blue = brd_blue;
@@ -310,7 +310,6 @@ float board::score_ptn(cbool color)const{
 	mirror_v(brd_r_green);
 	brd_type index;
 	float result;
-	const pattern& ptn = grp.vec[0];
 
 	result = 0;
 
@@ -506,6 +505,213 @@ float board::score_ptn(cbool color)const{
 	return result;
 }
 
+void board::adjust_ptn(cbool color,pattern& ptn,cfloat value)const{
+	brd_type brd_blue = bget(color);
+	brd_type brd_green = bget(!color);
+	brd_type brd_v_blue = brd_blue;
+	brd_type brd_v_green = brd_green;
+	mirror_v(brd_v_blue);
+	mirror_v(brd_v_green);
+	brd_type brd_h_blue = brd_blue;
+	brd_type brd_h_green = brd_green;
+	mirror_h(brd_h_blue);
+	mirror_h(brd_h_green);
+	brd_type brd_r_blue = brd_h_blue;
+	brd_type brd_r_green = brd_h_green;
+	mirror_v(brd_r_blue);
+	mirror_v(brd_r_green);
+	brd_type index;
+
+	//horizontal pattern
+	index = 0 << 16;
+	index |= board::extract(brd_blue,0x00000000000000ff) << 8;
+	index |= board::extract(brd_green,0x00000000000000ff);
+	ptn.table[index] += value;
+
+	index = 1 << 16;
+	index |= board::extract(brd_blue,0x000000000000ff00) << 8;
+	index |= board::extract(brd_green,0x000000000000ff00);
+	ptn.table[index] += value;
+
+	index = 2 << 16;
+	index |= board::extract(brd_blue,0x0000000000ff0000) << 8;
+	index |= board::extract(brd_green,0x0000000000ff0000);
+	ptn.table[index] += value;
+
+	index = 3 << 16;
+	index |= board::extract(brd_blue,0x00000000ff000000) << 8;
+	index |= board::extract(brd_green,0x00000000ff000000);
+	ptn.table[index] += value;
+
+	index = 3 << 16;
+	index |= board::extract(brd_blue,0x000000ff00000000) << 8;
+	index |= board::extract(brd_green,0x000000ff00000000);
+	ptn.table[index] += value;
+
+	index = 2 << 16;
+	index |= board::extract(brd_blue,0x0000ff0000000000) << 8;
+	index |= board::extract(brd_green,0x0000ff0000000000);
+	ptn.table[index] += value;
+
+	index = 1 << 16;
+	index |= board::extract(brd_blue,0x00ff000000000000) << 8;
+	index |= board::extract(brd_green,0x00ff000000000000);
+	ptn.table[index] += value;
+
+	index = 0 << 16;
+	index |= board::extract(brd_blue,0xff00000000000000) << 8;
+	index |= board::extract(brd_green,0xff00000000000000);
+	ptn.table[index] += value;
+
+	//vertical pattern
+
+	index = 0 << 16;
+	index |= board::extract(brd_blue,0x0101010101010101) << 8;
+	index |= board::extract(brd_green,0x0101010101010101);
+	ptn.table[index] += value;
+
+	index = 1 << 16;
+	index |= board::extract(brd_blue,0x0202020202020202) << 8;
+	index |= board::extract(brd_green,0x0202020202020202);
+	ptn.table[index] += value;
+
+	index = 2 << 16;
+	index |= board::extract(brd_blue,0x0404040404040404) << 8;
+	index |= board::extract(brd_green,0x0404040404040404);
+	ptn.table[index] += value;
+
+	index = 3 << 16;
+	index |= board::extract(brd_blue,0x0808080808080808) << 8;
+	index |= board::extract(brd_green,0x0808080808080808);
+	ptn.table[index] += value;
+
+	index = 3 << 16;
+	index |= board::extract(brd_blue,0x1010101010101010) << 8;
+	index |= board::extract(brd_green,0x1010101010101010);
+	ptn.table[index] += value;
+
+	index = 2 << 16;
+	index |= board::extract(brd_blue,0x2020202020202020) << 8;
+	index |= board::extract(brd_green,0x2020202020202020);
+	ptn.table[index] += value;
+
+	index = 1 << 16;
+	index |= board::extract(brd_blue,0x4040404040404040) << 8;
+	index |= board::extract(brd_green,0x4040404040404040);
+	ptn.table[index] += value;
+
+	index = 0 << 16;
+	index |= board::extract(brd_blue,0x8080808080808080) << 8;
+	index |= board::extract(brd_green,0x8080808080808080);
+	ptn.table[index] += value;
+
+	//diagnal pattern
+
+	index = 4 << 16;
+	index |= board::extract(brd_blue,0x8040201008040201) << 8;
+	index |= board::extract(brd_green,0x8040201008040201);
+	ptn.table[index] += value;
+
+	index = 5 << 16;
+	index |= board::extract(brd_blue,0x4020100804020180) << 8;
+	index |= board::extract(brd_green,0x4020100804020180);
+	ptn.table[index] += value;
+
+	index = 6 << 16;
+	index |= board::extract(brd_blue,0x2010080402018040) << 8;
+	index |= board::extract(brd_green,0x2010080402018040);
+	ptn.table[index] += value;
+
+	index = 7 << 16;
+	index |= board::extract(brd_blue,0x1008040201804020) << 8;
+	index |= board::extract(brd_green,0x1008040201804020);
+	ptn.table[index] += value;
+
+	index = 8 << 16;
+	index |= board::extract(brd_blue,0x0804020180402010) << 8;
+	index |= board::extract(brd_green,0x0804020180402010);
+	ptn.table[index] += value;
+
+	index = 7 << 16;
+	index |= board::extract(brd_r_blue,0x1008040201804020) << 8;
+	index |= board::extract(brd_r_green,0x1008040201804020);
+	ptn.table[index] += value;
+
+	index = 6 << 16;
+	index |= board::extract(brd_r_blue,0x2010080402018040) << 8;
+	index |= board::extract(brd_r_green,0x2010080402018040);
+	ptn.table[index] += value;
+
+	index = 5 << 16;
+	index |= board::extract(brd_r_blue,0x4020100804020180) << 8;
+	index |= board::extract(brd_r_green,0x4020100804020180);
+	ptn.table[index] += value;
+
+	//diagnal pattern
+
+	index = 4 << 16;
+	index |= board::extract(brd_v_blue,0x8040201008040201) << 8;
+	index |= board::extract(brd_v_green,0x8040201008040201);
+	ptn.table[index] += value;
+
+	index = 5 << 16;
+	index |= board::extract(brd_v_blue,0x4020100804020180) << 8;
+	index |= board::extract(brd_v_green,0x4020100804020180);
+	ptn.table[index] += value;
+
+	index = 6 << 16;
+	index |= board::extract(brd_v_blue,0x2010080402018040) << 8;
+	index |= board::extract(brd_v_green,0x2010080402018040);
+	ptn.table[index] += value;
+
+	index = 7 << 16;
+	index |= board::extract(brd_v_blue,0x1008040201804020) << 8;
+	index |= board::extract(brd_v_green,0x1008040201804020);
+	ptn.table[index] += value;
+
+	index = 8 << 16;
+	index |= board::extract(brd_v_blue,0x0804020180402010) << 8;
+	index |= board::extract(brd_v_green,0x0804020180402010);
+	ptn.table[index] += value;
+
+	index = 7 << 16;
+	index |= board::extract(brd_h_blue,0x1008040201804020) << 8;
+	index |= board::extract(brd_h_green,0x1008040201804020);
+	ptn.table[index] += value;
+
+	index = 6 << 16;
+	index |= board::extract(brd_h_blue,0x2010080402018040) << 8;
+	index |= board::extract(brd_h_green,0x2010080402018040);
+	ptn.table[index] += value;
+
+	index = 5 << 16;
+	index |= board::extract(brd_h_blue,0x4020100804020180) << 8;
+	index |= board::extract(brd_h_green,0x4020100804020180);
+	ptn.table[index] += value;
+
+	//corner pattern
+
+	index = 9 << 16;
+	index |= board::extract(brd_blue,0x0000000000030707) << 8;
+	index |= board::extract(brd_green,0x0000000000030707);
+	ptn.table[index] += value;
+
+	index = 9 << 16;
+	index |= board::extract(brd_h_blue,0x0000000000030707) << 8;
+	index |= board::extract(brd_h_green,0x0000000000030707);
+	ptn.table[index] += value;
+
+	index = 9 << 16;
+	index |= board::extract(brd_v_blue,0x0000000000030707) << 8;
+	index |= board::extract(brd_v_green,0x0000000000030707);
+	ptn.table[index] += value;
+
+	index = 9 << 16;
+	index |= board::extract(brd_r_blue,0x0000000000030707) << 8;
+	index |= board::extract(brd_r_green,0x0000000000030707);
+	ptn.table[index] += value;
+}
+
 void pattern::load(istream& fin){
 	#define _READ(var) fin.read((char *)(&var),sizeof(var))
 
@@ -647,6 +853,16 @@ unordered_set<board> sample_gen(cint n){
 	return brds;
 };
 
+matrix<board> sample_2mat(const unordered_set<board>& brds){
+	int i = 0;
+	matrix<board> result(brds.size(),1);
+	for(cboard brd:brds){
+		result.at(i) = brd;
+		++i;
+	}
+	return result;
+}
+
 matrix<int> sample_process(const unordered_set<board>& brds){
 	int i = 0;
 	matrix<int> result(brds.size(),pattern::size_n);
@@ -688,6 +904,14 @@ matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort 
 	return result;
 }
 
+matrix<calc_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
+	matrix<calc_type> result(brds.geth(),1);
+	for(int i = 0;i != brds.geth();++i){
+		result.at(i) = brds.at(i).search(mthd,true,height);
+	}
+	return result;
+}
+
 matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index){
 	matrix<calc_type> result(index.geth(),1);
 	for(int i = 0;i != index.geth();++i){
@@ -699,11 +923,26 @@ matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index){
 	return result;
 }
 
+matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds){
+	matrix<calc_type> result(brds.geth(),1);
+	
+	for(int i = 0;i != brds.geth();++i){
+		result.at(i) = brds.at(i).score_ptn(true,ptn);
+	}
+	return result;
+}
+
 void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& delta){
 	for(int i = 0;i != index.geth();++i){
 		for(int j = 0;j != index.getw();++j){
 			ptn.at(index[i][j]) += delta.at(i);
 		}
+	}
+}
+
+void adjust(pattern& ptn, const matrix<board>& brds, const matrix<calc_type>& delta){
+	for(int i = 0;i != brds.geth();++i){
+		brds.at(i).adjust_ptn(true,ptn,delta.at(i));
 	}
 }
 
