@@ -382,7 +382,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 				);
 			}
 
-			if(flag_kill | flag_mpc){
+			if(flag_kill){
 				make_heap(vec,ptr,
 					[](cbrd_val b1,cbrd_val b2) -> bool{
 						return b1.val < b2.val;
@@ -390,22 +390,12 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 				);
 			}
 
-			for(brd_val* p = ptr;p != vec;){
-
-				if(flag_kill | flag_mpc){
-					pop_heap(vec,p,
-						[](cbrd_val b1,cbrd_val b2){
-							return b1.val < b2.val;
-						}
-					);
-				}
-
-				--p;
+			for(brd_val* p = vec;p != ptr;++p){
 				brd = *this;
 				brd.flip(color,p->pos);
 
 				if(flag_pvs){
-					if(p + 1 != ptr){
+					if(p != vec){
 						temp = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - 1,-alpha);
 						if(temp > alpha && temp < beta)
 							temp = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
