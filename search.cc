@@ -178,20 +178,20 @@ calc_type board::search(
 	ccalc_type alpha,ccalc_type beta,ccalc_type gamma
 )const{
 
-	if(depth < 0){
-		short total = this->sum();
-		if(total <= 7){
-			depth = 9;
-		}else if(total <= 10){
-			depth = 8;
-		}else if(total <= size2 - 22){
-			depth = 7;
-		}else if(total <= size2 - 15){
-			depth = 8;
-		}else{
-			depth = 20;
-		}
-	}
+//	if(depth < 0){
+//		short total = this->sum();
+//		if(total <= 7){
+//			depth = 9;
+//		}else if(total <= 10){
+//			depth = 8;
+//		}else if(total <= size2 - 22){
+//			depth = 7;
+//		}else if(total <= size2 - 15){
+//			depth = 8;
+//		}else{
+//			depth = 20;
+//		}
+//	}
 
 	#define search_mthd(mthd) \
 		case mthd: return board::search<method(mthd)>(color,depth,alpha,beta);
@@ -301,7 +301,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 			if(mthd & mthd_end)
 				return this->score_end(color);
 			else if(mthd & mthd_ptn)
-				return this->score_ptn(color);
+				return this->score_ptn(color,grp.vec[0]);
 			else
 				return this->score(color);
 		}
@@ -382,7 +382,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 				);
 			}
 
-			if(flag_kill | flag_mpc){
+			if(flag_kill){
 				make_heap(vec,ptr,
 					[](cbrd_val b1,cbrd_val b2) -> bool{
 						return b1.val < b2.val;
@@ -390,22 +390,12 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 				);
 			}
 
-			for(brd_val* p = ptr;p != vec;){
-
-				if(flag_kill | flag_mpc){
-					pop_heap(vec,p,
-						[](cbrd_val b1,cbrd_val b2){
-							return b1.val < b2.val;
-						}
-					);
-				}
-
-				--p;
+			for(brd_val* p = vec;p != ptr;++p){
 				brd = *this;
 				brd.flip(color,p->pos);
 
 				if(flag_pvs){
-					if(p + 1 != ptr){
+					if(p != vec){
 						temp = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - 1,-alpha);
 						if(temp > alpha && temp < beta)
 							temp = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
