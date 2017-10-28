@@ -89,7 +89,7 @@ class reversi_guiFrame: public wxFrame
         static const long id_menu_alg_trans;
         static const long id_menu_alg_kill;
         static const long id_menu_alg_mtdf;
-        static const long id_menu_alg_iter;
+        static const long id_menu_alg_ids;
         static const long id_menu_alg_ptn;
         static const long id_menu_alg_mpc;
         static const long id_menu_alg;
@@ -102,6 +102,7 @@ class reversi_guiFrame: public wxFrame
         static const long id_menu_level7;
         static const long id_menu_level8;
         static const long id_menu_level9;
+        static const long id_menu_level10;
         static const long id_menu_level;
         static const long id_menu_about;
         static const long id_statusbar;
@@ -142,6 +143,7 @@ class reversi_guiFrame: public wxFrame
         wxStaticText* text_label;
         wxMenuItem* menu_alg_mpc;
         wxMenuItem* menu_level9;
+        wxMenuItem* menu_level10;
         wxMenuItem* menu_load;
         wxMenuItem* menu_clear_log;
         wxMenuItem* menu_mirror_h;
@@ -152,10 +154,10 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_black;
         wxPanel* panel_board;
         wxMenuItem* menu_level3;
-        wxMenuItem* menu_alg_iter;
         wxMenuItem* menu_level5;
         wxMenuItem* menu_level2;
         wxMenuItem* menu_rotate_r;
+        wxMenuItem* menu_alg_ids;
         wxMenuItem* menu_white;
         wxMenuItem* menu_alg_pvs;
         wxMenuItem* menu_alg_ab;
