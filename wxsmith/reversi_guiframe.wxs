@@ -281,9 +281,9 @@
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
-					<object class="wxMenuItem" name="id_menu_alg_iter" variable="menu_alg_iter" member="yes">
+					<object class="wxMenuItem" name="id_menu_alg_ids" variable="menu_alg_ids" member="yes">
 						<label>&amp;Iterative Deepening Search</label>
-						<enabled>0</enabled>
+						<enabled>1</enabled>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
@@ -344,6 +344,11 @@
 					</object>
 					<object class="wxMenuItem" name="id_menu_level9" variable="menu_level9" member="yes">
 						<label>Level 9</label>
+						<handler function="on_menu_level" entry="EVT_MENU" />
+						<checkable>1</checkable>
+					</object>
+					<object class="wxMenuItem" name="id_menu_level10" variable="menu_level10" member="yes">
+						<label>Level 10</label>
 						<handler function="on_menu_level" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
