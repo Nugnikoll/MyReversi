@@ -193,6 +193,13 @@ calc_type board::search(
 //		}
 //	}
 
+	if(mthd & mthd_ids){
+		method mthd_de_ids = method(mthd & ~mthd_ids);
+		for(short i = 0;i != depth;++i){
+			this->search(mthd_de_ids,color,depth,alpha,beta);
+		}
+	}
+
 	if(mthd & mthd_mtdf){
 		method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
 
@@ -240,7 +247,8 @@ calc_type board::search(
 	}
 
 	#define search_mthd(mthd) \
-		case mthd: return board::search<method(mthd)>(color,depth,alpha,beta);
+		case mthd: case mthd | mthd_ids:\
+			return board::search<method(mthd)>(color,depth,alpha,beta);
 	#define search_mthd_ab(mthd) \
 		search_mthd(mthd | mthd_ab)
 	#define search_mthd_kill(mthd) \
