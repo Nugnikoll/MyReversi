@@ -193,6 +193,52 @@ calc_type board::search(
 //		}
 //	}
 
+	if(mthd & mthd_mtdf){
+		method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
+
+		if(depth >= depth_mtdf){
+
+			method mthd_presearch = method(mthd_de_mtdf & ~mthd_end & ~mthd_trans);
+			short depth_presearch = table_mtdf_depth[depth];
+
+			calc_type gamma = this->search(mthd_presearch,color,depth_presearch);
+
+			mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
+
+			calc_type window_width = sqrt(info.sigma) * 2;
+			calc_type window_alpha = gamma + info.bias - window_width / 2;
+			calc_type window_beta = gamma + info.bias + window_width / 2;
+
+			calc_type result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+
+			if(result <= window_alpha && result > alpha){
+				do{
+					//window_width *= 2;
+					window_beta = result;
+					window_alpha = window_beta - window_width;
+					//window_alpha = max(window_beta - window_width,alpha);
+					result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+				}while(result <= window_alpha && result > alpha);
+			}else if(result >= window_beta && result < beta){
+				do{
+					//window_width *= 2;
+					window_alpha = result;
+					window_beta = window_alpha + window_width;
+					//window_beta = min(window_alpha + window_width,beta);
+					result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+				}while(result >= window_beta && result < beta);
+			}
+
+			if(result > alpha && result < beta){
+				info.adjust(result - gamma);
+			}
+
+			return result;
+		}else{
+			return this->search(mthd_de_mtdf,color,depth, alpha, beta);
+		}
+	}
+
 	#define search_mthd(mthd) \
 		case mthd: return board::search<method(mthd)>(color,depth,alpha,beta);
 	#define search_mthd_ab(mthd) \
@@ -203,10 +249,8 @@ calc_type board::search(
 		search_mthd_kill(mthd) search_mthd_kill(mthd | mthd_pvs)
 	#define search_mthd_trans(mthd) \
 		search_mthd_pvs(mthd) search_mthd_pvs(mthd | mthd_trans)
-	#define search_mthd_mtdf(mthd) \
-		search_mthd_trans(mthd) search_mthd_trans(mthd | mthd_mtdf)
 	#define search_mthd_ptn(mthd) \
-		search_mthd_mtdf(mthd) search_mthd_mtdf(mthd | mthd_ptn)
+		search_mthd_trans(mthd) search_mthd_trans(mthd | mthd_ptn)
 	#define search_mthd_mpc(mthd) \
 		search_mthd_ptn(mthd) search_mthd_ptn(mthd | mthd_mpc)
 	#define search_mthd_end(mthd) \
@@ -250,46 +294,6 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 	if(mthd == mthd_rnd){
 
 		return 0;
-
-	}else if((mthd & mthd_mtdf) && (depth >= depth_mtdf)){
-
-		const method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
-		const method mthd_presearch = method(mthd_de_mtdf & ~mthd_end & ~mthd_trans);
-		short depth_presearch = table_mtdf_depth[depth];
-
-		calc_type gamma = this->template search<mthd_presearch>(color,depth_presearch);
-
-		mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
-
-		calc_type window_width = sqrt(info.sigma) * 2;
-		calc_type window_alpha = gamma + info.bias - window_width / 2;
-		calc_type window_beta = gamma + info.bias + window_width / 2;
-
-		calc_type result = this->template search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
-
-		if(result <= window_alpha && result > alpha){
-			do{
-				//window_width *= 2;
-				window_beta = result;
-				window_alpha = window_beta - window_width;
-				//window_alpha = max(window_beta - window_width,alpha);
-				result = this->template search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
-			}while(result <= window_alpha && result > alpha);
-		}else if(result >= window_beta && result < beta){
-			do{
-				//window_width *= 2;
-				window_alpha = result;
-				window_beta = window_alpha + window_width;
-				//window_beta = min(window_alpha + window_width,beta);
-				result = this->template search<mthd_de_mtdf>(color,depth, window_alpha, window_beta);
-			}while(result >= window_beta && result < beta);
-		}
-
-		if(result > alpha && result < beta){
-			info.adjust(result - gamma);
-		}
-
-		return result;
 
 	}else if(mthd & mthd_end && (depth == 5)){
 		return this->template search_end_five<mthd>(color,alpha,beta,flag_pass);
