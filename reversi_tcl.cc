@@ -123,7 +123,7 @@ float score(cbool color){
 void config(){
 	pattern::config();
 	mygame.config();
-	grp.load("data/pattern3.dat");
+	grp.load("data/pattern7.dat");
 } 
 bool flip(cbool color,cint x,cint y){
 	return mygame.flip(color,x,y);
