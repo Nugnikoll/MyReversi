@@ -111,7 +111,6 @@ matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index);
 matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds);
 void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& delta);
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<calc_type>& delta);
-void optimize(pattern& ptn, const matrix<int>& index, const matrix<float>& target, cint step);
 
 bool is_prime(const long long& num);
 
