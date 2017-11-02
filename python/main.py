@@ -134,7 +134,7 @@ class reversi_app(wx.App):
 		self.process("mygame.start();");
 	def on_white(self,event):
 		self.process("mygame.start();");
-		self.process("self._print(mygame.play(reversi.mthd_default,True));");
+		self.process("_print(mygame.play(reversi.mthd_default,True));");
 	def on_undo(self,event):
 		self.process("mygame.undo();");
 	def on_redo(self, event):
@@ -180,7 +180,7 @@ class reversi_app(wx.App):
 		else:
 			y = int((pos.y - bias) / cell);
 		self.process(
-			"self._print("
+			"_print("
 				"mygame.play("
 					"reversi.coordinate(%d,%d),"
 					"reversi.mthd_default,"
