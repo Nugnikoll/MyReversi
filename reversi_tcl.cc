@@ -8,9 +8,12 @@ using namespace Tcl;
 
 game_gui mygame;
 tree book;
-
 interpreter* ptr_inter;
-bool flag_text_term = true;
+bool flag_echo = false;
+
+void game_gui::print_log(const string& str){
+	return ::print_log(str);
+}
 
 object brd2obj(cboard brd){
 	object result;
@@ -81,10 +84,6 @@ vector<object> obj2vec(const object& objs){
 
 void start(){
 	mygame.start();
-}
-
-void auto_show(cbool flag){
-	mygame.flag_print_term = flag;
 }
 
 void auto_save(cbool flag){
@@ -253,8 +252,8 @@ void process(const string& str){
 
 		inter.def("quit",::quit);
 		inter.def("exit",::quit);
-		inter.def("puts",::term_print);
-		inter.def("print",::term_print);
+		inter.def("puts",::print_term);
+		inter.def("print",::print_term);
 
 		inter.def("start",::start);
 		inter.def("config",::config);
@@ -269,7 +268,6 @@ void process(const string& str){
 		inter.def("rotate_l",::rotate_l);
 		inter.def("rotate_r",::rotate_r);
 		inter.def("reverse",::reverse);
-		inter.def("auto_show",::auto_show);
 		inter.def("auto_save",::auto_save);
 		inter.def("bget",::bget);
 		inter.def("assign",::assign);
@@ -323,21 +321,19 @@ void process(const string& str){
 		);
 	}
 
-	if(!flag_text_term){
-		term_print(string(">>") + str);
+	if(flag_echo){
+		print_term(string(">>") + str);
 	}
+
 	try{
 		chrono::system_clock::time_point time_start = chrono::system_clock::now();
 		inter.eval(str);
 		chrono::system_clock::time_point time_end = chrono::system_clock::now();
 		chrono::duration<double> time_exec = time_end - time_start;
-		ostringstream buffer;
-		buffer << "Execution time : " << time_exec.count() << " seconds";
-		status_print(buffer.str());
+		print_status(
+			"Execution time : " + to_string(time_exec.count()) + " seconds"
+		);
 	}catch(const tcl_error& err){
-		term_print(string(err.what()));
-	}
-	if(mygame.flag_log){
-		log_print(mygame.log_string);
+		print_term(string(err.what()));
 	}
 }

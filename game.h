@@ -16,8 +16,7 @@ class game{
 public:
 	game(): brd{0,0}, color(true), pos{-1,-1},
 		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
-		depth(-1), flag_print_term(true), flag_auto_save(true),
-		flag_show(false), flag_term(false), flag_log(false), flag_lock(true){}
+		depth(-1), flag_auto_save(true), flag_lock(true){}
 	virtual ~game(){}
 
 	board brd;
@@ -26,13 +25,7 @@ public:
 	method mthd;
 	short depth;
 
-	bool flag_print_term;
 	bool flag_auto_save;
-	bool flag_show;
-	string term_string;
-	bool flag_term;
-	string log_string;
-	bool flag_log;
 	bool flag_lock;
 
 	struct pack{
@@ -44,17 +37,10 @@ public:
 	vector<pack> storage;
 
 	virtual void show(){
-		if(flag_print_term){
-			ostringstream out;
-			brd.print(out);
-			term_string = out.str();
-			flag_term = true;
-		}
-		flag_show = true;
+		brd.print(cout);
 	}
-	virtual void log_print(const string& str){
-		log_string = str;
-		flag_log = true;
+	virtual void print_log(const string& str){
+		cout << str;
 	}
 
 	void set_color(cbool _color){
@@ -72,7 +58,7 @@ public:
 		pos = {-1,-1};
 		record.clear();
 		brd.initial();
-		log_print("start a new game\n");
+		print_log("start a new game\n");
 		flag_lock = false;
 		show();
 	}
@@ -80,7 +66,7 @@ public:
 	bool undo(){
 		bool result = pop();
 		if(result){
-			log_print("undo\n");
+			print_log("undo\n");
 			flag_lock = false;
 			show();
 		}
@@ -99,7 +85,7 @@ public:
 			color = temp.color;
 			pos = temp.pos;
 
-			log_print("redo\n");
+			print_log("redo\n");
 			flag_lock = false;
 
 			show();
@@ -113,13 +99,13 @@ public:
 		push();
 		brd.assign(_brd_black,_brd_white);
 		show();
-		log_print("assign new value to the board\n");
+		print_log("assign new value to the board\n");
 	}
 	void assign(cboard _brd){
 		push();
 		brd = _brd;
 		show();
-		log_print("assign new value to the board\n");
+		print_log("assign new value to the board\n");
 	}
 
 	chessman get(cpos_type x,cpos_type y){
@@ -134,14 +120,14 @@ public:
 		push();
 		brd.mirror_h();
 		pos.x = board::size - pos.x - 1;
-		log_print("mirror horizontally\n");
+		print_log("mirror horizontally\n");
 		show();
 	}
 	void mirror_v(){
 		push();
 		brd.mirror_v();
 		pos.y = board::size - pos.y - 1;
-		log_print("mirror vertically\n");
+		print_log("mirror vertically\n");
 		show();
 	}
 	void rotate_l(){
@@ -149,7 +135,7 @@ public:
 		brd.rotate_l();
 		swap(pos.x,pos.y);
 		pos.y = 7 - pos.y;
-		log_print("rotate clockwise\n");
+		print_log("rotate clockwise\n");
 		show();
 	}
 	void rotate_r(){
@@ -157,7 +143,7 @@ public:
 		brd.rotate_r();
 		swap(pos.x,pos.y);
 		pos.x = 7 - pos.x;
-		log_print("rotate counterclockwise\n");
+		print_log("rotate counterclockwise\n");
 		show();
 	}
 	void reflect(){
@@ -165,14 +151,14 @@ public:
 		brd.reflect();
 		pos.x = board::size - pos.x - 1;
 		pos.y = board::size - pos.y - 1;
-		log_print("reflect\n");
+		print_log("reflect\n");
 		show();
 	}
 	void reverse(){
 		push();
 		brd.reverse();
 		color = !color;
-		log_print("reverse\n");
+		print_log("reverse\n");
 		show();
 	}
 	void config(){
@@ -189,7 +175,7 @@ public:
 			result = (brd != brd_save);
 		}
 		if(result){
-			log_print(
+			print_log(
 				string("place a ") + (color ? "black" : "white")
 				+ " stone at " + char(x + 'A') + char(y + '1') + "\n"
 			);
@@ -203,7 +189,7 @@ public:
 			if(flag_auto_save){
 				pop();
 			}
-			log_print(
+			print_log(
 				string("cannot place a ") + (color ? "black" : "white")
 				+" stone here\n"
 			);
@@ -241,7 +227,7 @@ public:
 		push();
 		auto pos = brd.play(mthd,color,height);
 		if(pos.x >= 0){
-			log_print(
+			print_log(
 				string("place a ") + (color ? "black" : "white")
 				+ " stone at " + char(pos.x + 'A') + char(pos.y + '1') + "\n"
 			);
@@ -252,7 +238,7 @@ public:
 			this->pos = pos;
 			show();
 		}else{
-			log_print(
+			print_log(
 				string(color? ("black") : ("white"))
 				+ " is unable to move.\n"
 			);
@@ -287,19 +273,18 @@ public:
 
 		if(status & sts_end){
 			flag_lock = true;
-			ostringstream out;
-			out << brd.count(true)
-				<< " black stones and "
-				<< brd.count(false)
-				<< " white stones remain\n";
+			string str = to_string(brd.count(true))
+				+ " black stones and "
+				+ to_string(brd.count(false))
+				+ " white stones remain\n";
 			if(status == sts_bwin){
-				out << "black wins\n";
+				str += "black wins\n";
 			}else if(status == sts_wwin){
-				out << "white wins\n";
+				str += "white wins\n";
 			}else{
-				out << "a tie\n";
+				str += "a tie\n";
 			}
-			log_print(out.str());
+			print_log(str);
 		}
 		return pos;
 	}
