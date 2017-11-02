@@ -509,7 +509,7 @@ void reversi_guiFrame::on_menu_level(wxCommandEvent& event){
 	}else if(pos == 9){
 		pos = -3;
 	}
-	process((_("set h_default ") + wxString::FromDouble(pos)).ToStdString());
+	process((_("set h_default ") + to_string(pos)).ToStdString());
 }
 
 void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
@@ -522,8 +522,8 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 	int y = pos.y < bias ? -1 : (pos.y - bias) / cell;
 	process(
 		(
-			_("puts [plays ") + wxString::FromDouble(x) + " "
-			+ wxString::FromDouble(y) + _(" $mthd_default $h_default]")
+			_("puts [plays ") + to_string(x) + " "
+			+ to_string(y) + _(" $mthd_default $h_default]")
 		).ToStdString()
 	);
 }
