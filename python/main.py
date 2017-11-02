@@ -93,8 +93,6 @@ class reversi_app(wx.App):
 		self.frame.SetSize(size_suit);
 		self.frame.Show();
 		self.thrd_lock = False;
-		self.h_default = -1;
-
 		mygame.dc = wx.ClientDC(self.panel_board);
 		mygame.text_log = self.text_log;
 
@@ -109,23 +107,12 @@ class reversi_app(wx.App):
 		mygame.do_show(dc)
 	def _print(self,s):
 		self.text_term.AppendText(str(s) + "\n");
-	def refresh(self):
-		if mygame.flag_log:
-			self.text_log.AppendText(mygame.log_string);
-			mygame.flag_log = False;
-		if mygame.flag_show:
-			self.paint();
-			mygame.flag_show = False;
-		if mygame.flag_term:
-			self.text_term.AppendText(mygame.term_string);
-			mygame.flag_term = False;
 	def process(self,s):
 		if self.thrd_lock:
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
 		time_start = time.clock();
 		exec(s);
-		self.refresh();
 		time_end = time.clock();
 		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
 	def on_text_input_textenter(self,event):
@@ -260,21 +247,23 @@ class reversi_app(wx.App):
 
 	def thrd_launch(self,fun,param):
 		self.thrd_lock = True;
-		_thread.start_new_thread(fun,param);
+		try:
+			_thread.start_new_thread(self.thrd_wrap,(fun,param));
+		except:
+			self._print("fail to launch the thread!");
+			self.thrd_lock = False;
 	def thrd_catch(self,event):
-		self.refresh();
 		self.thrd_lock = False;
 	def thrd_wrap(self,fun,param):
-		result = fun(param);
-		if result != None:
-			mygame.term_string = str(result) + "\n";
-			mygame.flag_term = True;
+		try:
+			result = fun(*param);
+		except:
+			self._print("fail to launch the thread!");
+			self.thrd_lock = False;
 		wx.PostEvent(self,thrd_event(None));
 	def sleep(self,count):
 		time.sleep(count);
-		mygame.term_string = "sleep for %d seconds\n" % count;
-		mygame.flag_term = True;
-		wx.PostEvent(self, thrd_event(None));
+		self._print("sleep for %d seconds" % count);
 
 # def on_context_menu(wxContextMenuEvent& event){
 	# //wxMenu* menu = new wxMenu();
