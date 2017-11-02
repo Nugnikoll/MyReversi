@@ -76,8 +76,6 @@ enum method{
 	mthd_ptn = 0x40, // pattern
 	mthd_mpc = 0x80, // multi-probability cut
 	mthd_end = 0x100, // end game solver
-
-	mthd_default = mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn
 };
 
 #ifdef USE_REF

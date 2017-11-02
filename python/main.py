@@ -134,7 +134,7 @@ class reversi_app(wx.App):
 		self.process("mygame.start();");
 	def on_white(self,event):
 		self.process("mygame.start();");
-		self.process("_print(mygame.play(reversi.mthd_default,True));");
+		self.process("_print(mygame.play(mygame.mthd,True));");
 	def on_undo(self,event):
 		self.process("mygame.undo();");
 	def on_redo(self, event):
@@ -182,8 +182,8 @@ class reversi_app(wx.App):
 		self.process(
 			"_print("
 				"mygame.play("
-					"reversi.coordinate(%d,%d),"
-					"reversi.mthd_default,"
+					"rv.coordinate(%d,%d),"
+					"mygame.mthd,"
 					"self.h_default"
 				")"
 			");"
@@ -198,7 +198,7 @@ class reversi_app(wx.App):
 				for ptr in self.menu_alg.GetMenuItems():
 					if ptr.IsCheckable():
 						ptr.Check(False);
-				self.process("reversi.mthd_default = reversi.mthd_rnd")
+				self.process("mygame.mthd = rv.mthd_rnd")
 			self.menu_alg_rnd.Check(True);
 		else:
 			if item.IsChecked():
@@ -206,19 +206,19 @@ class reversi_app(wx.App):
 				self.menu_alg_rnd.Check(False);
 
 				if id == self.id_menu_alg_ab:
-					self.process("reversi.mthd_default |= reversi.mthd_ab");
+					self.process("mygame.mthd |= rv.mthd_ab");
 				elif id == self.id_menu_alg_kill:
-					self.process("reversi.mthd_default |= reversi.mthd_kill");
+					self.process("mygame.mthd |= rv.mthd_kill");
 				elif id == self.id_menu_alg_pvs:
-					self.process("reversi.mthd_default |= reversi.mthd_pvs");
+					self.process("mygame.mthd |= rv.mthd_pvs");
 				elif id == self.id_menu_alg_trans:
-					self.process("reversi.mthd_default |= reversi.mthd_trans");
+					self.process("mygame.mthd |= rv.mthd_trans");
 				elif id == self.id_menu_alg_mtdf:
-					self.process("reversi.mthd_default |= reversi.mthd_mtdf");
+					self.process("mygame.mthd |= rv.mthd_mtdf");
 				elif id == self.id_menu_alg_ptn:
-					self.process("reversi.mthd_default |= reversi.mthd_ptn");
+					self.process("mygame.mthd |= rv.mthd_ptn");
 				elif id == self.id_menu_alg_mpc:
-					self.process("reversi.mthd_default |= reversi.mthd_mpc");
+					self.process("mygame.mthd |= rv.mthd_mpc");
 			else:
 				flag = False;
 				for ptr in self.menu_alg.GetMenuItems():
@@ -228,19 +228,19 @@ class reversi_app(wx.App):
 					self.menu_alg_rnd.Check(True);
 
 				if id == self.id_menu_alg_ab:
-					self.process("reversi.mthd_default &= ~reversi.mthd_ab");
+					self.process("mygame.mthd &= ~rv.mthd_ab");
 				elif id == self.id_menu_alg_kill:
-					self.process("reversi.mthd_default &= ~reversi.mthd_kill");
+					self.process("mygame.mthd &= ~rv.mthd_kill");
 				elif id == self.id_menu_alg_pvs:
-					self.process("reversi.mthd_default &= ~reversi.mthd_pvs");
+					self.process("mygame.mthd &= ~rv.mthd_pvs");
 				elif id == self.id_menu_alg_trans:
-					self.process("reversi.mthd_default &= ~reversi.mthd_trans");
+					self.process("mygame.mthd &= ~rv.mthd_trans");
 				elif id == self.id_menu_alg_mtdf:
-					self.process("reversi.mthd_default &= ~reversi.mthd_mtdf");
+					self.process("mygame.mthd &= ~rv.mthd_mtdf");
 				elif id == self.id_menu_alg_ptn:
-					self.process("reversi.mthd_default &= ~reversi.mthd_ptn");
+					self.process("mygame.mthd &= ~rv.mthd_ptn");
 				elif id == self.id_menu_alg_mpc:
-					self.process("reversi.mthd_default &= ~reversi.mthd_mpc");
+					self.process("mygame.mthd &= ~rv.mthd_mpc");
 
 	def on_menu_level(self,event):
 		for item in self.menu_level.GetMenuItems():

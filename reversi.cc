@@ -5,7 +5,6 @@
 #include "reversi.h"
 #include "search.h"
 
-const pos_type board::chessman_num;
 const pos_type board::size;
 const pos_type board::size2;
 const pos_type board::pos_num;
@@ -17,7 +16,7 @@ brd_type board::node_count;
 #ifdef USE_FLOAT
 	const calc_type board::mark_max = 2;
 #endif
-const char board::chr_print[board::chessman_num] = {'.','O','#','*'};
+
 calc_type board::table_param[stage_num][board::pos_num] = {{12,0.5,-6,-0.2},{10,0.5,-5,0.2},{3,1,0,0}};
 
 unordered_map<board,board::interval> trans_black;
@@ -71,6 +70,7 @@ void board::print(ostream& out)const{
 			}
 		}
 	}else{
+		const char chr_print[4] = {'.','O','#','*'};
 		for(pos_type i = 0;i != size;++i){
 			for(pos_type j = 0;j != size;++j){
 				out << chr_print[get((i << 3) | j)];
