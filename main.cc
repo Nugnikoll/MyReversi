@@ -23,13 +23,12 @@ void quit(){
 void game_gui::show(){
 	brd.print();
 }
-void game_gui::log_print(const string& str){}
 
-void term_print(const string& str){
+void print_term(const string& str){
 	cout << str << endl;
 }
-void log_print(const string& str){}
-void status_print(const string& str){}
+void print_log(const string& str){}
+void print_status(const string& str){}
 void show_choice(const vector<choice>& choices){}
 void load_book(const string& path){}
 

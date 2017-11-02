@@ -143,10 +143,6 @@ void game_gui::show(){
 	do_show(dc);
 }
 
-void game_gui::log_print(const string& str){
-	ptr_log->AppendText(str);
-}
-
 void load_book(const string& path){
 	book.load(path);
 	ptr_book->DeleteAllItems();
@@ -173,15 +169,15 @@ void quit(){
 	ptr_frame->Destroy();
 }
 
-void term_print(const string& str){
+void print_term(const string& str){
 	ptr_term->AppendText(str + "\n");
 }
 
-void log_print(const string& str){
+void print_log(const string& str){
 	ptr_log->AppendText(str);
 }
 
-void status_print(const string& str){
+void print_status(const string& str){
 	ptr_frame->GetStatusBar()->SetStatusText(str,0);
 }
 
