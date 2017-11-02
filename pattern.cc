@@ -946,24 +946,6 @@ void adjust(pattern& ptn, const matrix<board>& brds, const matrix<calc_type>& de
 	}
 }
 
-void optimize(pattern& ptn, const matrix<int>& index, const matrix<float>& target, cint step){
-	matrix<float> corr = matrix<float>(correlate(index,index));
-	matrix<float> corr_2 = corr * corr;
-
-	matrix<calc_type> value = evaluate(ptn,index);
-	matrix<calc_type> epsilon = target - value;
-	calc_type epsilon_2 = epsilon.modulus();
-	cout << "epsilon_2 : " << epsilon_2 << endl;
-	//delta_ptn = epsilon.transpose() * 2 * pattern
-	calc_type alpha = (epsilon.transpose() * corr * epsilon).at(0) / (epsilon.transpose() * corr_2 * epsilon).at(0);
-	adjust(ptn,index,- alpha * 2 * epsilon);
-
-	value = evaluate(ptn,index);
-	epsilon = target - value;
-	epsilon_2 = epsilon.modulus();
-	cout << "epsilon_2 : " << epsilon_2 << endl;
-}
-
 bool is_prime(const long long& num){
 	if(num <= 1)
 		return false;
