@@ -184,7 +184,7 @@ class reversi_app(wx.App):
 				"mygame.play("
 					"rv.coordinate(%d,%d),"
 					"mygame.mthd,"
-					"self.h_default"
+					"mygame.depth"
 				")"
 			");"
 			% (x,y)
@@ -251,10 +251,12 @@ class reversi_app(wx.App):
 		item.Check(True);
 		if pos == 7:
 			pos = -1;
-		elif pos >= 8:
+		elif pos == 8:
 			pos = -2;
+		elif pos == 9:
+			pos = -3;
 
-		self.process("self.h_default = %d" % pos);
+		self.process("mygame.depth = %d" % pos);
 
 	def thrd_launch(self,fun,param):
 		self.thrd_lock = True;

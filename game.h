@@ -14,19 +14,27 @@ using namespace std;
 
 class game{
 public:
-	game(){
-		brd.assign(0,0);
-		color = true;
-		pos.x = pos.y = -1;
-		flag_show = false;
-		flag_term = false;
-		flag_log = false;
-	}
+	game(): brd{0,0}, color(true), pos{-1,-1},
+		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
+		depth(-1), flag_print_term(true), flag_auto_save(true),
+		flag_show(false), flag_term(false), flag_log(false), flag_lock(true){}
 	virtual ~game(){}
 
 	board brd;
 	bool color;
 	coordinate pos;
+	method mthd;
+	short depth;
+
+	bool flag_print_term;
+	bool flag_auto_save;
+	bool flag_show;
+	string term_string;
+	bool flag_term;
+	string log_string;
+	bool flag_log;
+	bool flag_lock;
+
 	struct pack{
 		board brd;
 		bool color;
@@ -34,17 +42,6 @@ public:
 	};
 	vector<pack> record;
 	vector<pack> storage;
-
-	method mthd = method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn);
-
-	bool flag_print_term = true;
-	bool flag_auto_save = true;
-	bool flag_show;
-	string term_string;
-	bool flag_term;
-	string log_string;
-	bool flag_log;
-	bool flag_lock;
 
 	virtual void show(){
 		if(flag_print_term){
@@ -65,15 +62,14 @@ public:
 		color = _color;
 		show();
 	}
-	void set_pos(cint x,cint y){
+	void set_pos(cpos_type x,cpos_type y){
 		push();
-		pos.x = x;
-		pos.y = y;
+		pos = {x,y};
 		show();
 	}
 	void start(){
 		color = true;
-		pos.x = pos.y = -1;
+		pos = {-1,-1};
 		record.clear();
 		brd.initial();
 		log_print("start a new game\n");

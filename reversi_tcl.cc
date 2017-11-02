@@ -123,7 +123,7 @@ float score(cbool color){
 void config(){
 	pattern::config();
 	mygame.config();
-	grp.load("data/pattern7.dat");
+	grp.load("data/pattern.dat");
 } 
 bool flip(cbool color,cint x,cint y){
 	return mygame.flip(color,x,y);
@@ -183,6 +183,13 @@ int get_method(){
 }
 void set_method(cint mthd){
 	mygame.mthd = method(mthd);
+}
+
+int get_depth(){
+	return mygame.depth;
+}
+void set_depth(cint depth){
+	mygame.depth = depth;
 }
 
 bool get_is_lock(){
@@ -272,6 +279,8 @@ void process(const string& str){
 		inter.def("set_color",::set_color);
 		inter.def("get_method",::get_method);
 		inter.def("set_method",::set_method);
+		inter.def("get_depth",::get_depth);
+		inter.def("set_depth",::set_depth);
 		inter.def("get_pos",::get_pos);
 		inter.def("set_pos",::set_pos);
 		inter.def("get_is_lock",::get_is_lock);
@@ -309,8 +318,6 @@ void process(const string& str){
 			"set mthd_ptn 0x40;"
 			"set mthd_mpc 0x80;"
 			"set mthd_end 0x100;"
-
-			"set h_default -1;"
 
 			"config;"
 		);

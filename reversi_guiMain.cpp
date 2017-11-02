@@ -437,7 +437,7 @@ void reversi_guiFrame::on_menu_alg(wxCommandEvent& event){
 					ptr->Check(false);
 				}
 			}
-			process("set mthd_default $mthd_rnd");
+			process("set_method $mthd_rnd");
 		}
 		menu_alg_rnd->Check(true);
 	}else{
@@ -509,7 +509,7 @@ void reversi_guiFrame::on_menu_level(wxCommandEvent& event){
 	}else if(pos == 9){
 		pos = -3;
 	}
-	process((_("set h_default ") + to_string(pos)).ToStdString());
+	process((_("set_depth ") + to_string(pos)).ToStdString());
 }
 
 void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
@@ -523,7 +523,7 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 	process(
 		(
 			_("puts [plays ") + to_string(x) + " "
-			+ to_string(y) + _(" [get_method] $h_default]")
+			+ to_string(y) + _(" [get_method] [get_depth]]")
 		).ToStdString()
 	);
 }
