@@ -190,15 +190,11 @@ public:
 			brd.flip(color,x + (y << 3));
 			result = (brd != brd_save);
 		}
-		ostringstream out;
 		if(result){
-			out << 	(color ? "black" : "white")
-				<< " place a stone at ("
-				<< x
-				<< ","
-				<< y
-				<< ")\n";
-			log_print(out.str());
+			log_print(
+				string("place a ") + (color ? "black" : "white")
+				+ " stone at " + char(x + 'A') + char(y + '1') + "\n"
+			);
 			if(brd.get_status(!color) & sts_again){
 			}else{
 				this->color = !color;
@@ -209,9 +205,10 @@ public:
 			if(flag_auto_save){
 				pop();
 			}
-			out << (color? "black" : "white")
-				<< " cannot place a stone here\n";
-			log_print(out.str());
+			log_print(
+				string("cannot place a ") + (color ? "black" : "white")
+				+" stone here\n"
+			);
 		}
 		return result;
 	}
@@ -249,14 +246,10 @@ public:
 		push();
 		auto pos = brd.play(mthd,color,height);
 		if(pos.x >= 0){
-			ostringstream out;
-			out << (color? "black" : "white")
-				<< " place a stone at ("
-				<< pos.x
-				<< ","
-				<< pos.y
-				<< ")\n";
-			log_print(out.str());
+			log_print(
+				string("place a ") + (color ? "black" : "white")
+				+ " stone at " + char(pos.x + 'A') + char(pos.y + '1') + "\n"
+			);
 			if(brd.get_status(!color) & sts_again){
 			}else{
 				this->color = !color;
