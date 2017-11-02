@@ -98,7 +98,7 @@ class game_gui(reversi.game):
 			dc.SetBrush(wx.TRANSPARENT_BRUSH);
 			dc.DrawCircle(wx.Point(cbias + cell * self.pos.x,cbias + cell * self.pos.y),radius);
 
-	def log_print(self,str):
+	def print_log(self,str):
 		self.text_log.AppendText(str);
 
 reversi.board.config();
