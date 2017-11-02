@@ -374,7 +374,7 @@ void reversi_guiFrame::on_black(wxCommandEvent& event){
 
 void reversi_guiFrame::on_white(wxCommandEvent& event){
 	process("start");
-	process("puts [play $mthd_default $true 0]");
+	process("puts [play [get_method] $true 0]");
 }
 
 void reversi_guiFrame::on_undo(wxCommandEvent& event){
@@ -446,21 +446,21 @@ void reversi_guiFrame::on_menu_alg(wxCommandEvent& event){
 			menu_alg_rnd->Check(false);
 
 			if(id == id_menu_alg_ab){
-				process("set mthd_default [expr $mthd_default | $mthd_ab]");
+				process("set_method [expr [get_method] | $mthd_ab]");
 			}else if(id == id_menu_alg_kill){
-				process("set mthd_default [expr $mthd_default | $mthd_kill]");
+				process("set_method [expr [get_method] | $mthd_kill]");
 			}else if(id == id_menu_alg_pvs){
-				process("set mthd_default [expr $mthd_default | $mthd_pvs]");
+				process("set_method [expr [get_method] | $mthd_pvs]");
 			}else if(id == id_menu_alg_trans){
-				process("set mthd_default [expr $mthd_default | $mthd_trans]");
+				process("set_method [expr [get_method] | $mthd_trans]");
 			}else if(id == id_menu_alg_mtdf){
-				process("set mthd_default [expr $mthd_default | $mthd_mtdf]");
+				process("set_method [expr [get_method] | $mthd_mtdf]");
 			}else if(id == id_menu_alg_ids){
-				process("set mthd_default [expr $mthd_default | $mthd_ids]");
+				process("set_method [expr [get_method] | $mthd_ids]");
 			}else if(id == id_menu_alg_ptn){
-				process("set mthd_default [expr $mthd_default | $mthd_ptn]");
+				process("set_method [expr [get_method] | $mthd_ptn]");
 			}else if(id == id_menu_alg_mpc){
-				process("set mthd_default [expr $mthd_default | $mthd_mpc]");
+				process("set_method [expr [get_method] | $mthd_mpc]");
 			}
 		}else{
 			bool flag = false;
@@ -474,21 +474,21 @@ void reversi_guiFrame::on_menu_alg(wxCommandEvent& event){
 			}
 
 			if(id == id_menu_alg_ab){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_ab]");
+				process("set_method [expr [get_method] & ~ $mthd_ab]");
 			}else if(id == id_menu_alg_kill){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_kill]");
+				process("set_method [expr [get_method] & ~ $mthd_kill]");
 			}else if(id == id_menu_alg_pvs){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_pvs]");
+				process("set_method [expr [get_method] & ~ $mthd_pvs]");
 			}else if(id == id_menu_alg_trans){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_trans]");
+				process("set_method [expr [get_method] & ~ $mthd_trans]");
 			}else if(id == id_menu_alg_mtdf){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_mtdf]");
+				process("set_method [expr [get_method] & ~ $mthd_mtdf]");
 			}else if(id == id_menu_alg_ids){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_ids]");
+				process("set_method [expr [get_method] & ~ $mthd_ids]");
 			}else if(id == id_menu_alg_ptn){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_ptn]");
+				process("set_method [expr [get_method] & ~ $mthd_ptn]");
 			}else if(id == id_menu_alg_mpc){
-				process("set mthd_default [expr $mthd_default & ~ $mthd_mpc]");
+				process("set_method [expr [get_method] & ~ $mthd_mpc]");
 			}
 		}
 	}
@@ -523,7 +523,7 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 	process(
 		(
 			_("puts [plays ") + to_string(x) + " "
-			+ to_string(y) + _(" $mthd_default $h_default]")
+			+ to_string(y) + _(" [get_method] $h_default]")
 		).ToStdString()
 	);
 }

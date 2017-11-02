@@ -175,7 +175,7 @@ void board::clear_search_info(){
 
 calc_type board::search(
 	cmethod mthd,cbool color,cshort depth,
-	ccalc_type alpha,ccalc_type beta,ccalc_type gamma
+	ccalc_type alpha,ccalc_type beta
 )const{
 
 //	if(depth < 0){
@@ -827,7 +827,7 @@ calc_type board::search_end_five(
 }
 
 vector<choice> board::get_choice(
-	cmethod mthd,cbool color,cshort height,ccalc_type gamma
+	cmethod mthd,cbool color,cshort height
 )const{
 
     vector<choice> choices;
@@ -880,7 +880,7 @@ vector<choice> board::get_choice(
 	}
 
 	for(choice& c:choices){
-		result = - c.brd.search(mthd,!color,height,_inf,-alpha,gamma);
+		result = - c.brd.search(mthd,!color,height,_inf,-alpha);
 		if(mthd & mthd_kill){
 			ptr_val[c.pos] = result;
 		}

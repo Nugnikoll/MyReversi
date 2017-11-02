@@ -148,7 +148,6 @@ object plays(cint x,cint y,cint mthd,cint height){
 bool undo(){
 	return mygame.undo();
 }
-
 bool redo(){
 	return mygame.redo();
 }
@@ -175,15 +174,20 @@ void reverse(){
 bool get_color(){
 	return mygame.color;
 }
-
 void set_color(cbool color){
 	mygame.set_color(color);
+}
+
+int get_method(){
+	return mygame.mthd;
+}
+void set_method(cint mthd){
+	mygame.mthd = method(mthd);
 }
 
 bool get_is_lock(){
 	return mygame.flag_lock;
 }
-
 void set_is_lock(cbool flag_lock){
 	mygame.flag_lock = flag_lock;
 }
@@ -194,7 +198,6 @@ object get_pos(){
 	result.append(*ptr_inter,object(int(mygame.pos.y)));
 	return result;
 }
-
 void set_pos(cint x,cint y){
 	mygame.set_pos(x,y);
 }
@@ -267,6 +270,8 @@ void process(const string& str){
 		inter.def("place",::set);
 		inter.def("get_color",::get_color);
 		inter.def("set_color",::set_color);
+		inter.def("get_method",::get_method);
+		inter.def("set_method",::set_method);
 		inter.def("get_pos",::get_pos);
 		inter.def("set_pos",::set_pos);
 		inter.def("get_is_lock",::get_is_lock);
@@ -304,7 +309,6 @@ void process(const string& str){
 			"set mthd_ptn 0x40;"
 			"set mthd_mpc 0x80;"
 			"set mthd_end 0x100;"
-			"set mthd_default [expr $mthd_ab | $mthd_kill | $mthd_pvs | $mthd_trans | $mthd_mtdf | $mthd_ptn];"
 
 			"set h_default -1;"
 

@@ -80,10 +80,8 @@ public:
 		return (b1.brd_black != b2.brd_black) || (b1.brd_white != b2.brd_white);
 	}
 
-	static const pos_type chessman_num = 4;
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
-	static const char chr_print[chessman_num];
 	static const pos_type pos_num = 4;
 	static const pos_type stage_num = 3;
 	static const short max_height = 20;
@@ -91,7 +89,6 @@ public:
 	static brd_type node_count;
 
 	static bool flag_unicode;
-
 
 	typedef pair<calc_type,calc_type> interval;
 
@@ -599,7 +596,7 @@ public:
 	)const;
 	calc_type search(
 		cmethod mthd,cbool color,cshort height,
-		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0
+		ccalc_type alpha = _inf,ccalc_type beta = inf
 	)const;
 	calc_type search_end_two(
 		cbool color,cpos_type pos1,cpos_type pos2,
@@ -618,11 +615,8 @@ public:
 		cbool color,calc_type alpha,calc_type beta,cbool flag_pass
 	)const;
 
-
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height,ccalc_type gamma = 0)const;
-
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort height)const;
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-
 	coordinate play(cmethod mthd,cbool color,short height = -1);
 
 	sts_type get_status(cbool color){
