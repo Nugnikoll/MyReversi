@@ -615,9 +615,9 @@ public:
 		cbool color,calc_type alpha,calc_type beta,cbool flag_pass
 	)const;
 
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height)const;
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth)const;
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-	coordinate play(cmethod mthd,cbool color,short height = -1);
+	coordinate play(cmethod mthd,cbool color,short depth = -1);
 
 	sts_type get_status(cbool color){
 		bool flag_black = (count_move(true) == 0);

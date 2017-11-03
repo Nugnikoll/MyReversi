@@ -212,20 +212,75 @@ public:
 //	float score_ptn(cbool color){
 //		return brd.score_ptn(color);
 //	}
-	calc_type search(cmethod mthd,cbool color,cshort height = -1,
-		ccalc_type alpha = _inf,ccalc_type beta = inf){
-		return brd.search(mthd,color,height,alpha,beta);
+	pair<method,short> process_method(cmethod mthd,cshort depth){
+		pair<method,short> result = {mthd,depth};
+		short total = this->brd.sum();
+
+		if(result.first == mthd_rnd){
+			return result;
+		}
+
+		if(result.second == -1){
+			if(total <= 7){
+				result.second = 9;
+			}else if(total <= 10){
+				result.second = 8;
+			}else if(total <= board::size2 - 22){
+				result.second = 7;
+			}else if(total <= board::size2 - 15){
+				result.second = 8;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second == -2){
+			if(total <= 7){
+				result.second = 9;
+			}else if(total <= 10){
+				result.second = 9;
+			}else if(total <= board::size2 - 24){
+				result.second = 8;
+			}else if(total <= board::size2 - 16){
+				result.second = 9;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second <= -3){
+			if(total <= 7){
+				result.second = 11;
+			}else if(total <= 10){
+				result.second = 10;
+			}else if(total <= board::size2 - 22){
+				result.second = 10;
+			}else if(total <= board::size2 - 16){
+				result.second = 10;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second >= board::size2 - total - 1){
+				result.first = method(mthd | mthd_end);
+			result.second = board::size2 - total - 1;	
+		}
+		return result;
 	}
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height = -1){
-		return brd.get_choice(mthd,color,height);
+	calc_type search(cmethod mthd,cbool color,cshort depth = -1,
+		ccalc_type alpha = _inf,ccalc_type beta = inf){
+		pair<method,short> p_mthd = process_method(mthd,depth);
+		return brd.search(p_mthd.first,color,p_mthd.second,alpha,beta);
+	}
+	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth = -1){
+		pair<method,short> p_mthd = process_method(mthd,depth);
+		return brd.get_choice(p_mthd.first,color,p_mthd.second);
 	}
 	choice select_choice(const vector<choice>& choices){
 		return brd.select_choice(choices);
 	}
-
-	coordinate play(cmethod mthd,cbool color,cshort height = -1){
+	coordinate play(cmethod mthd,cbool color,cshort depth = -1){
 		push();
-		auto pos = brd.play(mthd,color,height);
+		pair<method,short> p_mthd = process_method(mthd,depth);
+		auto pos = brd.play(p_mthd.first,color,p_mthd.second);
 		if(pos.x >= 0){
 			print_log(
 				string("place a ") + (color ? "black" : "white")
@@ -248,7 +303,7 @@ public:
 		}
 		return pos;
 	}
-	coordinate play(ccoordinate _pos,cmethod mthd,cshort height = -1){
+	coordinate play(ccoordinate _pos,cmethod mthd,cshort depth = -1){
 		bool color_save = color;
 		bool flag = flip(color,_pos.x,_pos.y);
 		if(!flag){
@@ -261,7 +316,7 @@ public:
 		flag_auto_save = false;
 
 		while(status & sts_again){
-			pos = play(mthd,!color_save,height);
+			pos = play(mthd,!color_save,depth);
 			status = brd.get_status(color_save);
 			if(pos.x < 0){
 				show();
