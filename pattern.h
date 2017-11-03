@@ -19,6 +19,8 @@ extern group grp;
 
 extern int table_map[65536];
 extern int table_map_inv[6561];
+extern int table_reverse[256];
+extern int table_shuffle[256];
 
 class pattern{
 public:
@@ -43,8 +45,8 @@ public:
 		memset(table,0,sizeof(table));
 	}
 	static void config(){
-		int j = 0;
-		for(int i = 0;i != length;++i){
+		brd_type j = 0;
+		for(brd_type i = 0;i != length;++i){
 			if((i & (i >> 8)) == 0){
 				table_map[i] = j;
 				table_map_inv[j] = i;
@@ -52,6 +54,18 @@ public:
 			}else{
 				table_map[i] = -1;
 			}
+		}
+
+		for(brd_type i = 0;i != 256;++i){
+			asm_pdep(i,0x0101010101010101,j);
+			asm_bswap(j);
+			asm_pext(j,0x0101010101010101,j);
+			table_reverse[i] = j;
+
+			asm_pdep(i,0x2004801002400801,j);
+			board::rotate_r(j);
+			asm_pext(j,0x0420010840021080,j);
+			table_shuffle[i] = j;
 		}
 	}
 
@@ -67,8 +81,11 @@ public:
 	ccalc_type at(cint n)const{
 		return table[n];
 	};
+
 	void load(istream& fin);
 	void save(ostream& fout)const;
+
+	void balance();
 };
 
 class group{

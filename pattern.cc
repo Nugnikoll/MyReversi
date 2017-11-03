@@ -11,6 +11,8 @@ group grp;
 
 int table_map[1 << 16];
 int table_map_inv[6561];
+int table_reverse[256];
+int table_shuffle[256];
 
 const short pattern::table_num[pattern::size_n] = {
 	0, 1, 2, 3, 3, 2, 1, 0,
@@ -820,6 +822,110 @@ void group::save(const string& path)const{
 	fout.close();
 	#undef WRITE
 }
+
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wchar-subscripts"
+#endif
+
+void pattern::balance(){
+	unsigned char index_l, index_h;
+	int index;
+	calc_type value;
+
+	#define balance_part(num) \
+		value = (table[(num << 16) | i] + table[(num << 16) | index]) / 2; \
+		table[(num << 16) | i] = value; \
+		table[(num << 16) | index] = value; \
+
+	for(int i = 0;i != length;++i){
+		if(i & (i >> 8)){}else{
+			index_l = i;
+			index_l = table_reverse[index_l];
+			index_h = i >> 8;
+			index_h = table_reverse[index_h];
+			index = index_h;
+			index <<= 8;
+			index |= index_l;
+
+			balance_part(0);
+			balance_part(1);
+			balance_part(2);
+			balance_part(3);
+			balance_part(4);
+
+			index_l = i;
+			asm_ror(index_l,1);
+			index_l = table_reverse[index_l];
+			index_h = i >> 8;
+			asm_ror(index_h,1);
+			index_h = table_reverse[index_h];
+			index = index_h;
+			index <<= 8;
+			index |= index_l;
+
+			balance_part(5);
+
+			index_l = i;
+			asm_ror(index_l,2);
+			index_l = table_reverse[index_l];
+			index_h = i >> 8;
+			asm_ror(index_h,2);
+			index_h = table_reverse[index_h];
+			index = index_h;
+			index <<= 8;
+			index |= index_l;
+
+			balance_part(6);
+
+			index_l = i;
+			asm_ror(index_l,3);
+			index_l = table_reverse[index_l];
+			index_h = i >> 8;
+			asm_ror(index_h,3);
+			index_h = table_reverse[index_h];
+			index = index_h;
+			index <<= 8;
+			index |= index_l;
+
+			balance_part(7);
+
+			index_l = i;
+			asm_ror(index_l,4);
+			index_l = table_reverse[index_l];
+			index_h = i >> 8;
+			asm_ror(index_h,4);
+			index_h = table_reverse[index_h];
+			index = index_h;
+			index <<= 8;
+			index |= index_l;
+
+			balance_part(8);
+
+			index_l = i;
+			index_h = i >> 8;
+			index = index_l;
+			index <<= 8;
+			index |= index_h;
+
+			balance_part(8);
+
+			index_l = i;
+			index_l = table_shuffle[index_l];
+			index_h = i >> 8;
+			index_h = table_shuffle[index_h];
+			index = index_h;
+			index <<= 8;
+			index |= index_l;
+
+			balance_part(9);
+		}
+	}
+}
+
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
 
 matrix<float> mat_i2f(const matrix<int>& m){
 	return m;

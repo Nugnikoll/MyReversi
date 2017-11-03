@@ -92,10 +92,6 @@ void board::print(ostream& out)const{
 
 choice board::select_choice(vector<choice> choices,const float& variation){
 
-//	if(choices.empty()){
-//		throw runtime_error("There is no choice!");
-//	}
-
 	#ifdef USE_RANDOM
 		normal_distribution<float> scatter(0,variation);
 	#else
