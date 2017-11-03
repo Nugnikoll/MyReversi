@@ -178,21 +178,6 @@ calc_type board::search(
 	ccalc_type alpha,ccalc_type beta
 )const{
 
-//	if(depth < 0){
-//		short total = this->sum();
-//		if(total <= 7){
-//			depth = 9;
-//		}else if(total <= 10){
-//			depth = 8;
-//		}else if(total <= size2 - 22){
-//			depth = 7;
-//		}else if(total <= size2 - 15){
-//			depth = 8;
-//		}else{
-//			depth = 20;
-//		}
-//	}
-
 	if(mthd & mthd_ids){
 		method mthd_de_ids = method(mthd & ~mthd_ids);
 		for(short i = 0;i != depth;++i){
