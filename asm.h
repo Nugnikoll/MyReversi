@@ -1,6 +1,20 @@
 #ifndef ASM_H
 #define ASM_H
 
+#define asm_rol(brd,val) \
+	asm volatile( \
+		"rol %1, %0;" \
+		: "+r"(brd) \
+		: "c"(char(val)) \
+	)
+
+#define asm_ror(brd,val) \
+	asm volatile( \
+		"ror %1, %0;" \
+		: "+r"(brd) \
+		: "c"(char(val)) \
+	)
+
 #define asm_bswap(brd) \
 	asm volatile( \
 		"bswap %0;" \
