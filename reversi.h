@@ -34,8 +34,16 @@ struct coordinate{
 	coordinate():x(-1),y(-1){}
 	coordinate(cpos_type _x,cpos_type _y):x(_x),y(_y){}
 	coordinate(cpos_type pos):x(pos & 7),y(pos >> 3){}
+
 	pos_type x;
 	pos_type y;
+
+	pos_type to_pos()const{
+		return (y << 3) | x;
+	}
+	bool check()const{
+		return x >= 0 && x < 8 && y >= 0 && y < 8;
+	}
 };
 typedef const coordinate& ccoordinate;
 

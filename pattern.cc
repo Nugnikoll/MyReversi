@@ -903,12 +903,12 @@ void pattern::balance(){
 			balance_part(8);
 
 			index_l = i;
+			asm_ror(index_l,4);
 			index_h = i >> 8;
-			index = index_l;
+			asm_ror(index_h,4);
+			index = index_h;
 			index <<= 8;
-			index |= index_h;
-
-			balance_part(8);
+			index |= index_l;
 
 			index_l = i;
 			index_l = table_shuffle[index_l];
