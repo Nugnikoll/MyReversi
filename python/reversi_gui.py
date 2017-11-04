@@ -80,7 +80,7 @@ class game_gui(reversi.game):
 		for i in range(num):
 			for j in range(num):
 				chssmn = self.brd.get(i + (j << 3));
-				if chssmn == reversi.black:
+				if chssmn == rv.black:
 					dc.SetBrush(wx.Brush(wx.Colour(40,40,40)));
 					dc.SetPen(wx.Pen(wx.Colour(20,20,20),thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
@@ -90,12 +90,13 @@ class game_gui(reversi.game):
 					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
 		
 		#show where is the last move
-		if mygame.pos.x >= 0:
-			if mygame.color:
-				dc.SetPen(wx.Pen(wx.Colour(210,210,70),thick));
+		if mygame.pos.check():
+			if mygame.get(mygame.pos.x,mygame.pos.y) == rv.black:
+				dc.SetBrush(wx.Brush(wx.Colour(50,50,30)));
+				dc.SetPen(wx.Pen(wx.Colour(90,90,0),thick));
 			else:
-				dc.SetPen(wx.Pen(wx.Colour(70,70,0),thick));
-			dc.SetBrush(wx.TRANSPARENT_BRUSH);
+				dc.SetBrush(wx.Brush(wx.Colour(210,210,170)));
+				dc.SetPen(wx.Pen(wx.Colour(200,200,30),thick));
 			dc.DrawCircle(wx.Point(cbias + cell * self.pos.x,cbias + cell * self.pos.y),radius);
 
 	def print_log(self,str):

@@ -91,7 +91,7 @@ void do_show(wxDC& dc){
 	}
 
 	//show where is the last move
-	if(mygame.pos.x >= 0){
+	if(mygame.pos.check()){
 		if(mygame.get(mygame.pos.x,mygame.pos.y) == black){
 			dc.SetBrush(wxBrush(wxColor(50,50,30)));
 			dc.SetPen(wxPen(wxColor(90,90,0),thick));
@@ -99,7 +99,6 @@ void do_show(wxDC& dc){
 			dc.SetBrush(wxBrush(wxColor(210,210,170)));
 			dc.SetPen(wxPen(wxColor(200,200,30),thick));
 		}
-		//dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.DrawCircle(wxPoint(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
 	}
 
