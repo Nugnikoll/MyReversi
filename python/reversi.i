@@ -2,6 +2,7 @@
 
 %include <std_string.i>
 %include <std_vector.i>
+%include <std_pair.i>
 %include <std_unordered_set.i>
 %include <cpointer.i>
 %include <carrays.i>
@@ -32,6 +33,7 @@
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
 //%template(samples) std::unordered_set<board>;
+%template(pair_method) std::pair<method,short>;
 %template(mat_i) matrix<int>;
 %template(mat_f) matrix<float>;
 %template(mat_brd) matrix<board>;

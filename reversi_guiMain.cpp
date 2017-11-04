@@ -74,6 +74,7 @@ const long reversi_guiFrame::id_menu_rotate_r = wxNewId();
 const long reversi_guiFrame::id_menu_rotate_l = wxNewId();
 const long reversi_guiFrame::id_menu_reverse = wxNewId();
 const long reversi_guiFrame::id_menu_trans = wxNewId();
+const long reversi_guiFrame::id_menu_eval = wxNewId();
 const long reversi_guiFrame::id_menu_clear_log = wxNewId();
 const long reversi_guiFrame::id_menu_clear_term = wxNewId();
 const long reversi_guiFrame::id_menu_clear = wxNewId();
@@ -176,22 +177,22 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menubar = new wxMenuBar();
     menu = new wxMenu();
     menu_new = new wxMenu();
-    menu_black = new wxMenuItem(menu_new, id_menu_black, _("Player &Black\tCtrl-B"), wxEmptyString, wxITEM_NORMAL);
+    menu_black = new wxMenuItem(menu_new, id_menu_black, _("Player &Black\tCtrl-B"), _("Human plays black."), wxITEM_NORMAL);
     menu_new->Append(menu_black);
-    menu_white = new wxMenuItem(menu_new, id_menu_white, _("Player &White\tCtrl-W"), wxEmptyString, wxITEM_NORMAL);
+    menu_white = new wxMenuItem(menu_new, id_menu_white, _("Player &White\tCtrl-W"), _("Human plays white."), wxITEM_NORMAL);
     menu_new->Append(menu_white);
-    menu->Append(id_menu_new, _("New Game"), menu_new, wxEmptyString);
-    menu_load = new wxMenuItem(menu, id_menu_load, _("&Load\tCtrl-L"), wxEmptyString, wxITEM_NORMAL);
+    menu->Append(id_menu_new, _("New Game"), menu_new, _("Start a new game."));
+    menu_load = new wxMenuItem(menu, id_menu_load, _("&Load\tCtrl-L"), _("Load and execute a script."), wxITEM_NORMAL);
     menu->Append(menu_load);
     menu_save = new wxMenuItem(menu, id_menu_save, _("&Save\tCtrl-S"), wxEmptyString, wxITEM_NORMAL);
     menu->Append(menu_save);
-    menu_quit = new wxMenuItem(menu, id_menu_quit, _("&Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
+    menu_quit = new wxMenuItem(menu, id_menu_quit, _("&Quit\tAlt-F4"), _("Quit the application."), wxITEM_NORMAL);
     menu->Append(menu_quit);
     menubar->Append(menu, _("&File"));
     menu_edit = new wxMenu();
-    menu_undo = new wxMenuItem(menu_edit, id_menu_undo, _("&Undo\tCtrl-Z"), wxEmptyString, wxITEM_NORMAL);
+    menu_undo = new wxMenuItem(menu_edit, id_menu_undo, _("&Undo\tCtrl-Z"), _("Undo the latest change."), wxITEM_NORMAL);
     menu_edit->Append(menu_undo);
-    menu_redo = new wxMenuItem(menu_edit, id_menu_redo, _("&Redo\tCtrl-Y"), wxEmptyString, wxITEM_NORMAL);
+    menu_redo = new wxMenuItem(menu_edit, id_menu_redo, _("&Redo\tCtrl-Y"), _("Redo the latest change."), wxITEM_NORMAL);
     menu_edit->Append(menu_redo);
     menu_trans = new wxMenu();
     menu_mirror_h = new wxMenuItem(menu_trans, id_menu_mirror_h, _("Mirror &Horizontally\tAlt+H"), wxEmptyString, wxITEM_NORMAL);
@@ -207,6 +208,8 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menu_reverse = new wxMenuItem(menu_trans, id_menu_reverse, _("Reverse\tAlt+S"), wxEmptyString, wxITEM_NORMAL);
     menu_trans->Append(menu_reverse);
     menu_edit->Append(id_menu_trans, _("&Transform"), menu_trans, wxEmptyString);
+    menu_eval = new wxMenuItem(menu_edit, id_menu_eval, _("&Evaluate\tCtrl+E"), wxEmptyString, wxITEM_NORMAL);
+    menu_edit->Append(menu_eval);
     menu_clear = new wxMenu();
     menu_clear_log = new wxMenuItem(menu_clear, id_menu_clear_log, _("&Log"), wxEmptyString, wxITEM_NORMAL);
     menu_clear->Append(menu_clear_log);
@@ -267,7 +270,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     menu_set->Append(id_menu_level, _("&Level"), menu_level, wxEmptyString);
     menubar->Append(menu_set, _("&Settings"));
     Menu2 = new wxMenu();
-    menu_about = new wxMenuItem(Menu2, id_menu_about, _("&About\tF1"), _("Show info about this application"), wxITEM_NORMAL);
+    menu_about = new wxMenuItem(Menu2, id_menu_about, _("&About\tF1"), _("Show info about this application."), wxITEM_NORMAL);
     Menu2->Append(menu_about);
     menubar->Append(Menu2, _("&Help"));
     SetMenuBar(menubar);
@@ -296,6 +299,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     Connect(id_menu_rotate_r,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
     Connect(id_menu_rotate_l,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
     Connect(id_menu_reverse,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
+    Connect(id_menu_eval,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_eval);
     Connect(id_menu_clear_log,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_log);
     Connect(id_menu_clear_term,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_term);
     Connect(id_menu_clear,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_all);
@@ -411,6 +415,14 @@ void reversi_guiFrame::on_transform(wxCommandEvent& event){
 	}else if(id == id_menu_reverse){
 		process("reverse");
 	}
+}
+
+void reversi_guiFrame::on_eval(wxCommandEvent& event){
+	process(
+		(
+			_("puts [get_choice [get_method] [get_color] [get_depth]]")
+		).ToStdString()
+	);
 }
 
 void reversi_guiFrame::on_clear_log(wxCommandEvent& event){

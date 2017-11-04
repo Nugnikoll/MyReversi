@@ -156,20 +156,24 @@
 				<label>&amp;File</label>
 				<object class="wxMenu" name="id_menu_new" variable="menu_new" member="yes">
 					<label>New Game</label>
+					<help>Start a new game.</help>
 					<object class="wxMenuItem" name="id_menu_black" variable="menu_black" member="yes">
 						<label>Player &amp;Black</label>
 						<accel>Ctrl-B</accel>
+						<help>Human plays black.</help>
 						<handler function="on_black" entry="EVT_MENU" />
 					</object>
 					<object class="wxMenuItem" name="id_menu_white" variable="menu_white" member="yes">
 						<label>Player &amp;White</label>
 						<accel>Ctrl-W</accel>
+						<help>Human plays white.</help>
 						<handler function="on_white" entry="EVT_MENU" />
 					</object>
 				</object>
 				<object class="wxMenuItem" name="id_menu_load" variable="menu_load" member="yes">
 					<label>&amp;Load</label>
 					<accel>Ctrl-L</accel>
+					<help>Load and execute a script.</help>
 					<handler function="on_load" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="id_menu_save" variable="menu_save" member="yes">
@@ -179,7 +183,7 @@
 				<object class="wxMenuItem" name="id_menu_quit" variable="menu_quit" member="no">
 					<label>&amp;Quit</label>
 					<accel>Alt-F4</accel>
-					<help>Quit the application</help>
+					<help>Quit the application.</help>
 					<handler function="OnQuit" entry="EVT_MENU" />
 				</object>
 			</object>
@@ -188,11 +192,13 @@
 				<object class="wxMenuItem" name="id_menu_undo" variable="menu_undo" member="yes">
 					<label>&amp;Undo</label>
 					<accel>Ctrl-Z</accel>
+					<help>Undo the latest change.</help>
 					<handler function="on_undo" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenuItem" name="id_menu_redo" variable="menu_redo" member="yes">
 					<label>&amp;Redo</label>
 					<accel>Ctrl-Y</accel>
+					<help>Redo the latest change.</help>
 					<handler function="on_redo" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenu" name="id_menu_trans" variable="menu_trans" member="yes">
@@ -227,6 +233,11 @@
 						<accel>Alt+S</accel>
 						<handler function="on_transform" entry="EVT_MENU" />
 					</object>
+				</object>
+				<object class="wxMenuItem" name="id_menu_eval" variable="menu_eval" member="yes">
+					<label>&amp;Evaluate</label>
+					<accel>Ctrl+E</accel>
+					<handler function="on_eval" entry="EVT_MENU" />
 				</object>
 				<object class="wxMenu" name="id_menu_clear" variable="menu_clear" member="yes">
 					<label>&amp;Clear</label>
@@ -283,7 +294,6 @@
 					</object>
 					<object class="wxMenuItem" name="id_menu_alg_ids" variable="menu_alg_ids" member="yes">
 						<label>&amp;Iterative Deepening Search</label>
-						<enabled>1</enabled>
 						<handler function="on_menu_alg" entry="EVT_MENU" />
 						<checkable>1</checkable>
 					</object>
@@ -359,7 +369,7 @@
 				<object class="wxMenuItem" name="id_menu_about" variable="menu_about" member="no">
 					<label>&amp;About</label>
 					<accel>F1</accel>
-					<help>Show info about this application</help>
+					<help>Show info about this application.</help>
 					<handler function="OnAbout" entry="EVT_MENU" />
 				</object>
 			</object>

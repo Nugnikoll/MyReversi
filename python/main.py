@@ -69,6 +69,7 @@ class reversi_app(wx.App):
 		self.Bind(wx.EVT_MENU,self.on_undo,id = xrc.XRCID("id_menu_undo"));
 		self.Bind(wx.EVT_MENU,self.on_redo,id = xrc.XRCID("id_menu_redo"));
 		self.Bind(wx.EVT_MENU,self.on_load,id = xrc.XRCID("id_menu_load"));
+		self.Bind(wx.EVT_MENU,self.on_eval,id = xrc.XRCID("id_menu_eval"));
 		self.Bind(wx.EVT_MENU,self.on_clear_log,id = xrc.XRCID("id_menu_clear_log"));
 		self.Bind(wx.EVT_MENU,self.on_clear_term,id = xrc.XRCID("id_menu_clear_term"));
 		self.Bind(wx.EVT_MENU,self.on_clear_all,id = xrc.XRCID("id_menu_clear"));
@@ -147,6 +148,8 @@ class reversi_app(wx.App):
 			self.process("mygame.rotate_l();");
 		if id == self.id_menu_trans_reverse:
 			self.process("mygame.reverse();");
+	def on_eval(self,event):
+		self.process("_print(mygame.get_choice(mygame.mthd,mygame.color,mygame.depth));");
 	def on_clear_log(self, event):
 		self.process("self.text_log.Clear();");
 	def on_clear_term(self, event):
