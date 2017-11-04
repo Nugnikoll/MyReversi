@@ -9,10 +9,10 @@ wxTreeCtrl* ptr_book;
 
 void show_choice(const vector<choice>& choices){
 	wxClientDC dc(ptr_panel);
-	dc.SetTextForeground(wxColor(255,0,200));
+	dc.SetTextForeground(wxColor(255,30,30));
 	dc.SetFont(
 		wxFont(
-			8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,
+			9,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,
 			wxFONTWEIGHT_BOLD,false,_T("Consolas"),
 			wxFONTENCODING_DEFAULT
 		)
@@ -22,8 +22,8 @@ void show_choice(const vector<choice>& choices){
 	for(const choice& c:choices){
 		x = c.pos & 7;
 		y = c.pos >> 3;
-		str = wxString::FromDouble(c.val,4);
-		dc.DrawText(str,bias + cell * x  + cell / 2 - 3.2 * str.size(),bias + cell * y + cell / 2 - 8);
+		str = wxString::FromDouble(c.val,3);
+		dc.DrawText(str,bias + cell * x  + cell / 2 - 3.5 * str.size(),bias + cell * y + cell / 2 - 8);
 	}
 }
 

@@ -103,10 +103,10 @@ class game_gui(reversi.game):
 		p_mthd = rv.game.process_method(self,mthd,depth);
 		choices = self.brd.get_choice(p_mthd.first,color,p_mthd.second);
 
-		self.dc.SetTextForeground(wx.Colour(255,0,200));
+		self.dc.SetTextForeground(wx.Colour(255,30,30));
 		self.dc.SetFont(
 			wx.Font(
-				8,wx.FONTFAMILY_SWISS,wx.FONTSTYLE_NORMAL,
+				9,wx.FONTFAMILY_SWISS,wx.FONTSTYLE_NORMAL,
 				wx.FONTWEIGHT_BOLD,False,"Consolas",
 				wx.FONTENCODING_DEFAULT
 			)
@@ -114,10 +114,10 @@ class game_gui(reversi.game):
 		for c in choices:
 			x = c.pos & 7;
 			y = c.pos >> 3;
-			str = "%.4f" % c.val;
+			str = "%.3f" % c.val;
 			self.dc.DrawText(
 				str,
-				bias + cell * x  + cell / 2 - 3.2 * len(str),
+				bias + cell * x  + cell / 2 - 3.5 * len(str),
 				bias + cell * y + cell / 2 - 8
 			);
 
