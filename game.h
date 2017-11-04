@@ -270,7 +270,7 @@ public:
 		pair<method,short> p_mthd = process_method(mthd,depth);
 		return brd.search(p_mthd.first,color,p_mthd.second,alpha,beta);
 	}
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth = -1){
+	virtual vector<choice> get_choice(cmethod mthd,cbool color,cshort depth = -1){
 		pair<method,short> p_mthd = process_method(mthd,depth);
 		return brd.get_choice(p_mthd.first,color,p_mthd.second);
 	}

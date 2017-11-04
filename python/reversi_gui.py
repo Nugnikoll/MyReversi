@@ -90,14 +90,38 @@ class game_gui(reversi.game):
 					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
 		
 		#show where is the last move
-		if mygame.pos.check():
-			if mygame.get(mygame.pos.x,mygame.pos.y) == rv.black:
+		if self.pos.check():
+			if self.get(self.pos.x,self.pos.y) == rv.black:
 				dc.SetBrush(wx.Brush(wx.Colour(50,50,30)));
 				dc.SetPen(wx.Pen(wx.Colour(90,90,0),thick));
 			else:
 				dc.SetBrush(wx.Brush(wx.Colour(210,210,170)));
 				dc.SetPen(wx.Pen(wx.Colour(200,200,30),thick));
 			dc.DrawCircle(wx.Point(cbias + cell * self.pos.x,cbias + cell * self.pos.y),radius);
+
+	def get_choice(self,mthd,color,depth):
+		p_mthd = rv.game.process_method(self,mthd,depth);
+		choices = self.brd.get_choice(p_mthd.first,color,p_mthd.second);
+
+		self.dc.SetTextForeground(wx.Colour(255,0,200));
+		self.dc.SetFont(
+			wx.Font(
+				8,wx.FONTFAMILY_SWISS,wx.FONTSTYLE_NORMAL,
+				wx.FONTWEIGHT_BOLD,False,"Consolas",
+				wx.FONTENCODING_DEFAULT
+			)
+		);
+		for c in choices:
+			x = c.pos & 7;
+			y = c.pos >> 3;
+			str = "%.4f" % c.val;
+			self.dc.DrawText(
+				str,
+				bias + cell * x  + cell / 2 - 3.2 * len(str),
+				bias + cell * y + cell / 2 - 8
+			);
+
+		return choices;
 
 	def print_log(self,str):
 		self.text_log.AppendText(str);

@@ -51,10 +51,11 @@ class reversi_guiFrame: public wxFrame
 		void on_clear_term(wxCommandEvent& event);
 		void on_clear_all(wxCommandEvent& event);
 		void on_transform(wxCommandEvent& event);
-		void on_context_menu(wxContextMenuEvent& event);
-		void on_tree_item_select(wxTreeEvent& event);
+		void on_eval(wxCommandEvent& event);
 		void on_menu_alg(wxCommandEvent& event);
 		void on_menu_level(wxCommandEvent& event);
+		void on_context_menu(wxContextMenuEvent& event);
+		void on_tree_item_select(wxTreeEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;
@@ -80,6 +81,7 @@ class reversi_guiFrame: public wxFrame
         static const long id_menu_rotate_l;
         static const long id_menu_reverse;
         static const long id_menu_trans;
+        static const long id_menu_eval;
         static const long id_menu_clear_log;
         static const long id_menu_clear_term;
         static const long id_menu_clear;
@@ -153,6 +155,7 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_level7;
         wxMenuItem* menu_black;
         wxPanel* panel_board;
+        wxMenuItem* menu_eval;
         wxMenuItem* menu_level3;
         wxMenuItem* menu_level5;
         wxMenuItem* menu_level2;
