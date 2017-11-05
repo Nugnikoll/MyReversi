@@ -18,11 +18,11 @@
 #include <wx/menu.h>
 #include <wx/textctrl.h>
 #include <wx/panel.h>
-#include <wx/filedlg.h>
 #include <wx/frame.h>
 #include <wx/statusbr.h>
 //*)
 #include <wx/treectrl.h>
+#include <wx/filedlg.h>
 
 class reversi_guiFrame: public wxFrame
 {
@@ -124,7 +124,6 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_reverse;
         wxTextCtrl* text_term;
         wxMenu* menu_clear;
-        wxFileDialog* dialog_load;
         wxMenu* menu_trans;
         wxNotebook* notebook;
         wxMenu* menu_alg;
