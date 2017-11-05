@@ -326,7 +326,7 @@ public:
 
 		flag_auto_save = flag_auto;
 
-		if(status & sts_end){
+		if((status & sts_turn) == sts_null){
 			flag_lock = true;
 			string str = to_string(brd.count(true))
 				+ " black stones and "

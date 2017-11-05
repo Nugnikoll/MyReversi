@@ -90,15 +90,14 @@ enum sts_type{
 	sts_white = 0x2,
 	sts_turn = 0x4,
 	sts_again = 0x8,
-	sts_end = 0x10,
 
-	sts_bwin = sts_black | sts_end,
-	sts_wwin = sts_white | sts_end,
-	sts_tie = sts_end,
+	sts_bwin = sts_black,
+	sts_wwin = sts_white,
+	sts_tie = sts_null,
 	sts_bturn = sts_black | sts_turn,
 	sts_wturn = sts_white | sts_turn,
-	sts_bagain = sts_black | sts_again,
-	sts_wagain = sts_white | sts_again
+	sts_bagain = sts_black | sts_turn | sts_again,
+	sts_wagain = sts_white | sts_turn | sts_again
 };
 
 #ifdef USE_RANDOM
