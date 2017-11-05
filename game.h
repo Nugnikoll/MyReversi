@@ -290,7 +290,7 @@ public:
 	choice select_choice(const vector<choice>& choices){
 		return brd.select_choice(choices);
 	}
-	coordinate play(cmethod mthd,cbool color,cshort depth = -1){
+	coordinate play_ai(cmethod mthd,cbool color,cshort depth = -1){
 		push();
 		pair<method,short> p_mthd = process_method(mthd,depth);
 		auto pos = brd.play(p_mthd.first,color,p_mthd.second);
@@ -315,6 +315,21 @@ public:
 			}
 		}
 		return pos;
+	}
+	virtual coordinate play_other(cmethod mthd,cbool color,cshort depth = -1){
+		return coordinate(-1,-1);
+	}
+	coordinate play(cmethod mthd,cbool color,cshort depth = -1){
+		switch(ply[color].p_type){
+		case ply_human:
+			return coordinate(-1,-1);
+		case ply_ai:
+			return play_ai(mthd,color,depth);
+		case ply_other:
+			return play_other(mthd,color,depth);
+		default:
+			return coordinate(-1,-1);
+		}
 	}
 	coordinate play(ccoordinate _pos,cmethod mthd,cshort depth = -1){
 		bool color_save = color;
@@ -356,22 +371,14 @@ public:
 		}
 		return pos;
 	}
-	virtual coordinate play_other(cmethod mthd,cbool color,cshort depth = -1){
-		return coordinate(-1,-1);
-	}
 	coordinate play(ccoordinate pos){
-		switch(ply[color].p_type){
-		case ply_human:
-			//return play(pos,mthd,depth);
-			flip(color,pos.x,pos.y);
-			return pos;
-		case ply_ai:
-			return play(mthd,color,depth);
-		case ply_other:
-			return play_other(mthd,color,depth);
-		default:
-			return coordinate(-1,-1);
-		}
+//		switch(ply[color].p_type){
+//		case ply_human:
+//			flip(color,pos.x,pos.y);
+//			return pos;
+//		default:
+			return play(pos,mthd,depth);
+//		}
 	}
 
 protected:
