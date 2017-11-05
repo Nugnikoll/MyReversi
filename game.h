@@ -12,11 +12,20 @@
 
 using namespace std;
 
+enum player_type{
+	ply_human,ply_ai,ply_other
+};
+struct player{
+	player_type p_type;
+	string path;
+};
+
 class game{
 public:
 	game(): brd{0,0}, color(true), pos{-1,-1},
 		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
-		depth(-1), flag_auto_save(true), flag_lock(true){}
+		depth(-1), flag_auto_save(true), flag_lock(true),
+		ply{{ply_human,""},{ply_human,""}} {}
 	virtual ~game(){}
 
 	board brd;
@@ -27,6 +36,8 @@ public:
 
 	bool flag_auto_save;
 	bool flag_lock;
+
+	player ply[2];
 
 	struct pack{
 		board brd;
@@ -56,6 +67,8 @@ public:
 	void start(){
 		color = true;
 		pos = {-1,-1};
+		ply[0].p_type = ply_other;
+		ply[1].p_type = ply_human;
 		record.clear();
 		brd.initial();
 		print_log("start a new game\n");
@@ -342,6 +355,23 @@ public:
 			print_log(str);
 		}
 		return pos;
+	}
+	virtual coordinate play_other(cmethod mthd,cbool color,cshort depth = -1){
+		return coordinate(-1,-1);
+	}
+	coordinate play(ccoordinate pos){
+		switch(ply[color].p_type){
+		case ply_human:
+			//return play(pos,mthd,depth);
+			flip(color,pos.x,pos.y);
+			return pos;
+		case ply_ai:
+			return play(mthd,color,depth);
+		case ply_other:
+			return play_other(mthd,color,depth);
+		default:
+			return coordinate(-1,-1);
+		}
 	}
 
 protected:

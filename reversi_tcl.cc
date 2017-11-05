@@ -55,31 +55,31 @@ choice obj2choice(const object& obj){
 
 template<typename T>
 object vec2obj(const vector<T>& vec){
-		object result;
-		for(const T& i:vec){
-			result.append(*ptr_inter,object(i));
-		}
-		return result;
+	object result;
+	for(const T& i:vec){
+		result.append(*ptr_inter,object(i));
+	}
+	return result;
 }
 
 template<>
 object vec2obj(const vector<object>& vec){
-		object result;
-		for(const object& i:vec){
-			result.append(*ptr_inter,i);
-		}
-		return result;
+	object result;
+	for(const object& i:vec){
+		result.append(*ptr_inter,i);
+	}
+	return result;
 }
 
 vector<object> obj2vec(const object& objs){
-		vector<object> result;
-		object obj;
-		int num = objs.length(*ptr_inter);
-		for(int i = 0;i != num;++i){
-			obj = objs.at(*ptr_inter,i);
-			result.push_back(obj);
-		}
-		return result;
+	vector<object> result;
+	object obj;
+	int num = objs.length(*ptr_inter);
+	for(int i = 0;i != num;++i){
+		obj = objs.at(*ptr_inter,i);
+		result.push_back(obj);
+	}
+	return result;
 }
 
 void start(){
@@ -123,7 +123,16 @@ void config(){
 	pattern::config();
 	mygame.config();
 	grp.load("data/pattern.dat");
-} 
+}
+
+void set_player(cbool color,cint p_type){
+	mygame.ply[color].p_type = player_type(p_type);
+}
+
+void set_player_path(cbool color,const string& str){
+	mygame.ply[color].path = str;
+}
+
 bool flip(cbool color,cint x,cint y){
 	return mygame.flip(color,x,y);
 }
@@ -137,7 +146,7 @@ object play(cint mthd,cbool color,cint height){
 }
 
 object plays(cint x,cint y,cint mthd,cint height){
-	auto pos = mygame.play(coordinate(x,y),method(mthd),height);
+	auto pos = mygame.play(coordinate(x,y));
 	object result;
 	result.append(*ptr_inter,object(int(pos.x)));
 	result.append(*ptr_inter,object(int(pos.y)));
@@ -281,6 +290,8 @@ void process(const string& str){
 		inter.def("set_depth",::set_depth);
 		inter.def("get_pos",::get_pos);
 		inter.def("set_pos",::set_pos);
+		inter.def("set_player",::set_player);
+		inter.def("set_player_path",::set_player_path);
 		inter.def("get_is_lock",::get_is_lock);
 		inter.def("set_is_lock",::set_is_lock);
 		inter.def("get_choice",::get_choice);
@@ -318,6 +329,9 @@ void process(const string& str){
 			"set mthd_end 0x100;"
 
 			"config;"
+
+			"set_player 0 2;"
+			"set_player_path 0 \"Irius\";"
 		);
 	}
 

@@ -197,3 +197,50 @@ void load_script(const string& path){
 		ptr_term->AppendText(_("cannot find the file \"") + path + "\"\n");
 	}
 }
+
+#include "jsoncpp/json.h"
+
+string path[2];
+long pid[2];
+wxProcess proc[2];
+
+coordinate game_gui::play_other(cmethod mthd,cbool color,cshort depth){
+	if(path[color] == ply[color].path){
+		if(pid[color] == 0){
+			proc[color].Redirect();
+			pid[color] = wxExecute(path[color],wxEXEC_ASYNC,&proc[color]);
+		}
+	}else{
+		path[color] = ply[color].path;
+		if(pid[color]){
+			wxProcess::Kill(pid[color]);
+		}
+
+		proc[color].Redirect();
+		pid[color] = wxExecute(path[color],wxEXEC_ASYNC,&proc[color]);
+	}
+
+	Json::Reader reader;
+	Json::Value request, response;
+	Json::FastWriter writer;
+	wxString str;
+	wxTextInputStream proc_in(*proc[color].GetInputStream());
+	wxTextOutputStream proc_out(*proc[color].GetOutputStream());
+	coordinate result;
+
+	request["request"]["color"] = color;
+	request["request"]["board"]["black"] = brd.bget(true);
+	request["request"]["board"]["white"] = brd.bget(false);
+
+	str = writer.write(request);
+	proc_out << str;
+	str = proc_in.ReadLine();
+	ptr_term->AppendText(str + "\n");
+	reader.parse(str.ToStdString(),response);
+	result.y = response["response"]["x"].asInt();
+	result.x = response["response"]["y"].asInt();
+
+	flip(color,result.x,result.y);
+
+	return result;
+}

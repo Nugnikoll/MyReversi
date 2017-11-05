@@ -9,6 +9,7 @@ class game_gui:public game{
 public:
 	virtual void show();
 	virtual void print_log(const string&);
+	virtual coordinate play_other(cmethod mthd,cbool color,cshort depth = -1);
 };
 
 //export
