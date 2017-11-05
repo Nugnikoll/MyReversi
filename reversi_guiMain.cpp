@@ -280,7 +280,6 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     statusbar->SetFieldsCount(1,__wxStatusBarWidths_1);
     statusbar->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(statusbar);
-    dialog_load = new wxFileDialog(this, _("Select file"), wxEmptyString, wxEmptyString, _("*.tcl"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("wxFileDialog"));
     BoxSizer1->Fit(this);
     BoxSizer1->SetSizeHints(this);
 
@@ -390,6 +389,12 @@ void reversi_guiFrame::on_redo(wxCommandEvent& event){
 }
 
 void reversi_guiFrame::on_load(wxCommandEvent& event){
+	wxFileDialog* dialog_load = new wxFileDialog(
+		this, _("Select file"), wxEmptyString, wxEmptyString,
+		_("*.tcl"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
+		wxDefaultSize, _T("wxFileDialog")
+	);
+
 	if(dialog_load->ShowModal() == wxID_OK){
 		string path = dialog_load->GetPath().ToStdString();
 		string::size_type pos = 0;
