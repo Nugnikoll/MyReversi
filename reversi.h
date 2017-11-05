@@ -628,46 +628,27 @@ public:
 	coordinate play(cmethod mthd,cbool color,short depth = -1);
 
 	sts_type get_status(cbool color){
-		bool flag_black = (count_move(true) == 0);
-		bool flag_white = (count_move(false) == 0);
+		const sts_type table_status[32] = {
+			sts_wturn,sts_wturn,sts_wturn,sts_wturn,
+			sts_bagain,sts_bagain,sts_bagain,sts_bagain,
+			sts_wturn,sts_wturn,sts_wturn,sts_wturn,
+			sts_tie,sts_tie,sts_wwin,sts_bwin,
+			sts_bturn,sts_bturn,sts_bturn,sts_bturn,
+			sts_bturn,sts_bturn,sts_bturn,sts_bturn,
+			sts_wagain,sts_wagain,sts_wagain,sts_wagain,
+			sts_tie,sts_tie,sts_wwin,sts_bwin
+		};
+
 		int num_diff = count(true) - count(false);
-		if(color){
-			if(flag_black){
-				if(flag_white){
-					if(num_diff){
-						if(num_diff > 0){
-							return sts_bwin;
-						}else{
-							return sts_wwin;
-						}
-					}else{
-						return sts_tie;
-					}
-				}else{
-					return sts_wagain;
-				}
-			}else{
-				return sts_bturn;
-			}
-		}else{
-			if(flag_white){
-				if(flag_black){
-					if(num_diff){
-						if(num_diff > 0){
-							return sts_bwin;
-						}else{
-							return sts_wwin;
-						}
-					}else{
-						return sts_tie;
-					}
-				}else{
-					return sts_bagain;
-				}
-			}else{
-				return sts_wturn;
-			}
-		}
+		short index =
+			(color << 4)
+			| ((count_move(true) == 0) << 3)
+			| ((count_move(false) == 0) << 2)
+			| ((num_diff != 0) << 1)
+			| ((num_diff > 0) << 0)
+		;
+
+		return table_status[index];
 	}
 
 	float score_ptn(cbool color,const pattern& ptn)const;
