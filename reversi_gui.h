@@ -11,6 +11,8 @@
 #include <wx/menu.h>
 #include <wx/textfile.h>
 #include <wx/treectrl.h>
+#include <wx/process.h>
+#include <wx/txtstrm.h>
 
 #include "reversi_tcl.h"
 
