@@ -234,8 +234,11 @@ coordinate game_gui::play_other(cmethod mthd,cbool color,cshort depth){
 
 	str = writer.write(request);
 	proc_out << str;
+	ptr_log->AppendText("send a request to process \"" + path[color] + "\"\n");
+	ptr_log->AppendText(str + "\n");
 	str = proc_in.ReadLine();
-	ptr_term->AppendText(str + "\n");
+	ptr_log->AppendText("receive a response from process \"" + path[color] + "\"\n");
+	ptr_log->AppendText(str + "\n");
 	reader.parse(str.ToStdString(),response);
 	result.y = response["response"]["x"].asInt();
 	result.x = response["response"]["y"].asInt();

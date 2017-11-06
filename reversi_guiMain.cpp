@@ -198,6 +198,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     BoxSizer7->Add(button_start, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     panel_note->SetSizer(box_sizer_note);
+    Layout();
     text_term = new wxTextCtrl(notebook, id_text_term, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY, wxDefaultValidator, _T("id_text_term"));
     text_term->SetForegroundColour(wxColour(200,200,200));
     text_term->SetBackgroundColour(wxColour(32,32,32));
@@ -341,6 +342,8 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 
     panel_board->Connect(wxEVT_PAINT,(wxObjectEventFunction)&reversi_guiFrame::on_panel_board_paint,0,this);
     panel_board->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&reversi_guiFrame::on_panel_board_leftdown,0,this);
+    Connect(id_choice_black,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_choice_player);
+    Connect(id_choice_white,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_choice_player);
     Connect(id_text_input,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&reversi_guiFrame::on_text_input_textenter);
     Connect(id_menu_black,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_black);
     Connect(id_menu_white,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_white);
@@ -643,4 +646,11 @@ void reversi_guiFrame::on_tree_item_select(wxTreeEvent& event){
 	}
 	mygame.brd = brd;
 	mygame.show();
+}
+void reversi_guiFrame::on_choice_player(wxCommandEvent& event){
+	if(event.GetId() == id_choice_black){
+		process("set_player 1 " + to_string(choice_black->GetCurrentSelection()));
+	}else if(event.GetId() == id_choice_white){
+		process("set_player 0 " + to_string(choice_white->GetCurrentSelection()));
+	}
 }
