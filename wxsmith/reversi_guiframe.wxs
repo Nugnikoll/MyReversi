@@ -105,6 +105,7 @@
 																		<family>swiss</family>
 																		<face>Consolas</face>
 																	</font>
+																	<handler function="on_choice_player" entry="EVT_CHOICE" />
 																</object>
 																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																<border>5</border>
@@ -153,6 +154,7 @@
 																		<family>swiss</family>
 																		<face>Consolas</face>
 																	</font>
+																	<handler function="on_choice_player" entry="EVT_CHOICE" />
 																</object>
 																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 																<border>5</border>

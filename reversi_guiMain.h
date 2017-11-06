@@ -43,6 +43,7 @@ class reversi_guiFrame: public wxFrame
         void on_panel_board_paint(wxPaintEvent& event);
         void on_panel_board_leftdown(wxMouseEvent& event);
         void on_text_input_textenter(wxCommandEvent& event);
+        void Onchoice_blackSelect(wxCommandEvent& event);
         //*)
 		void on_black(wxCommandEvent& event);
 		void on_white(wxCommandEvent& event);
@@ -58,6 +59,7 @@ class reversi_guiFrame: public wxFrame
 		void on_menu_level(wxCommandEvent& event);
 		void on_context_menu(wxContextMenuEvent& event);
 		void on_tree_item_select(wxTreeEvent& event);
+		void on_choice_player(wxCommandEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;
