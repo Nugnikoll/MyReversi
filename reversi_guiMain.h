@@ -18,6 +18,8 @@
 #include <wx/menu.h>
 #include <wx/textctrl.h>
 #include <wx/panel.h>
+#include <wx/choice.h>
+#include <wx/button.h>
 #include <wx/frame.h>
 #include <wx/statusbr.h>
 //*)
@@ -60,6 +62,12 @@ class reversi_guiFrame: public wxFrame
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;
         static const long id_text_label;
+        static const long id_label_black;
+        static const long id_choice_black;
+        static const long id_label_white;
+        static const long id_choice_white;
+        static const long id_button_start;
+        static const long id_panel_note;
         static const long id_text_term;
         static const long id_text_log;
         static const long id_book_tree;
@@ -122,12 +130,14 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_rotate_l;
         wxPanel* panel_base;
         wxMenuItem* menu_reverse;
+        wxButton* button_start;
         wxTextCtrl* text_term;
         wxMenu* menu_clear;
         wxMenu* menu_trans;
         wxNotebook* notebook;
         wxMenu* menu_alg;
         wxMenuItem* menu_alg_kill;
+        wxChoice* choice_white;
         wxTextCtrl* text_input;
         wxMenuItem* menu_undo;
         wxMenu* menu_new;
@@ -144,6 +154,7 @@ class reversi_guiFrame: public wxFrame
         wxStaticText* text_label;
         wxMenuItem* menu_alg_mpc;
         wxMenuItem* menu_level9;
+        wxPanel* panel_note;
         wxMenuItem* menu_level10;
         wxMenuItem* menu_load;
         wxMenuItem* menu_clear_log;
@@ -157,10 +168,13 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_eval;
         wxMenuItem* menu_level3;
         wxMenuItem* menu_level5;
+        wxStaticText* label_black;
         wxMenuItem* menu_level2;
+        wxChoice* choice_black;
         wxMenuItem* menu_rotate_r;
         wxMenuItem* menu_alg_ids;
         wxMenuItem* menu_white;
+        wxStaticText* label_white;
         wxMenuItem* menu_alg_pvs;
         wxMenuItem* menu_alg_ab;
         //*)
