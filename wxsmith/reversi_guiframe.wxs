@@ -60,6 +60,139 @@
 											<face>Consolas</face>
 										</font>
 										<object class="notebookpage">
+											<object class="wxPanel" name="id_panel_note" variable="panel_note" member="yes">
+												<size>424,424</size>
+												<fg>#C8C8C8</fg>
+												<bg>#202020</bg>
+												<style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
+												<object class="wxBoxSizer" variable="box_sizer_note" member="no">
+													<orient>wxVERTICAL</orient>
+													<object class="sizeritem">
+														<object class="wxBoxSizer" variable="BoxSizer5" member="no">
+															<object class="sizeritem">
+																<object class="wxStaticText" name="id_label_black" variable="label_black" member="yes">
+																	<label>Black Player:</label>
+																	<size>163,22</size>
+																	<fg>#C8C8C8</fg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxChoice" name="id_choice_black" variable="choice_black" member="yes">
+																	<content>
+																		<item>Human</item>
+																		<item>Computer</item>
+																		<item>Other Program</item>
+																	</content>
+																	<selection>0</selection>
+																	<fg>#202020</fg>
+																	<bg>#C8C8C8</bg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxBoxSizer" variable="BoxSizer6" member="no">
+															<object class="sizeritem">
+																<object class="wxStaticText" name="id_label_white" variable="label_white" member="yes">
+																	<label>White Player:</label>
+																	<size>163,22</size>
+																	<fg>#C8C8C8</fg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxChoice" name="id_choice_white" variable="choice_white" member="yes">
+																	<content>
+																		<item>Human</item>
+																		<item>Computer</item>
+																		<item>Other Program</item>
+																	</content>
+																	<selection>0</selection>
+																	<fg>#202020</fg>
+																	<bg>#C8C8C8</bg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxBoxSizer" variable="BoxSizer7" member="no">
+															<object class="sizeritem">
+																<object class="wxButton" name="id_button_start" variable="button_start" member="yes">
+																	<label>Start a New Game</label>
+																	<fg>#202020</fg>
+																	<bg>#C8C8C8</bg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+												</object>
+											</object>
+											<label>interaction</label>
+										</object>
+										<object class="notebookpage">
 											<object class="wxTextCtrl" name="id_text_term" variable="text_term" member="yes">
 												<fg>#C8C8C8</fg>
 												<bg>#202020</bg>
