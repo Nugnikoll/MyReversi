@@ -142,6 +142,7 @@ void do_show(wxDC& dc){
 void game_gui::show(){
 	wxClientDC dc(ptr_panel);
 	do_show(dc);
+	wxYield();
 }
 
 void load_book(const string& path){
