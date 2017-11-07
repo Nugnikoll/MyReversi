@@ -25,7 +25,7 @@ public:
 	game(): brd{0,0}, color(true), pos{-1,-1},
 		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
 		depth(-1), flag_auto_save(true), flag_lock(true),
-		ply{{ply_human,""},{ply_human,""}} {}
+		ply{{ply_ai,"Irius"},{ply_human,"Irius"}} {}
 	virtual ~game(){}
 
 	board brd;
@@ -67,13 +67,14 @@ public:
 	void start(){
 		color = true;
 		pos = {-1,-1};
-		ply[0].p_type = ply_other;
-		ply[1].p_type = ply_human;
 		record.clear();
 		brd.initial();
 		print_log("start a new game\n");
 		flag_lock = false;
 		show();
+		while((ply[color].p_type != ply_human) && (brd.get_status(color) & sts_turn)){
+			play(mthd,color,depth);
+		}
 	}
 
 	bool undo(){
@@ -372,13 +373,11 @@ public:
 		return pos;
 	}
 	coordinate play(ccoordinate pos){
-//		switch(ply[color].p_type){
-//		case ply_human:
-//			flip(color,pos.x,pos.y);
-//			return pos;
-//		default:
-			return play(pos,mthd,depth);
-//		}
+		coordinate result = play(pos,mthd,depth);
+		while((ply[color].p_type != ply_human) && (brd.get_status(color) & sts_turn)){
+			result = play(mthd,color,depth);
+		}
+		return result;
 	}
 
 protected:

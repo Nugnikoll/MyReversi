@@ -235,13 +235,13 @@ coordinate game_gui::play_other(cmethod mthd,cbool color,cshort depth){
 	str = writer.write(request);
 	proc_out << str;
 	ptr_log->AppendText("send a request to process \"" + path[color] + "\"\n");
-	ptr_log->AppendText(str + "\n");
+	ptr_log->AppendText(str);
 	str = proc_in.ReadLine();
 	ptr_log->AppendText("receive a response from process \"" + path[color] + "\"\n");
 	ptr_log->AppendText(str + "\n");
 	reader.parse(str.ToStdString(),response);
-	result.y = response["response"]["x"].asInt();
-	result.x = response["response"]["y"].asInt();
+	result.x = response["response"]["x"].asInt();
+	result.y = response["response"]["y"].asInt();
 
 	flip(color,result.x,result.y);
 

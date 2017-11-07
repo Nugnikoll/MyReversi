@@ -65,8 +65,6 @@ const long reversi_guiFrame::id_book_tree = wxNewId();
 const long reversi_guiFrame::id_notebook = wxNewId();
 const long reversi_guiFrame::id_text_input = wxNewId();
 const long reversi_guiFrame::id_panel_base = wxNewId();
-const long reversi_guiFrame::id_menu_black = wxNewId();
-const long reversi_guiFrame::id_menu_white = wxNewId();
 const long reversi_guiFrame::id_menu_new = wxNewId();
 const long reversi_guiFrame::id_menu_load = wxNewId();
 const long reversi_guiFrame::id_menu_save = wxNewId();
@@ -180,8 +178,8 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     label_white->SetFont(label_whiteFont);
     BoxSizer6->Add(label_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     choice_white = new wxChoice(panel_note, id_choice_white, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("id_choice_white"));
-    choice_white->SetSelection( choice_white->Append(_("Human")) );
-    choice_white->Append(_("Computer"));
+    choice_white->Append(_("Human"));
+    choice_white->SetSelection( choice_white->Append(_("Computer")) );
     choice_white->Append(_("Other Program"));
     choice_white->SetForegroundColour(wxColour(32,32,32));
     choice_white->SetBackgroundColour(wxColour(200,200,200));
@@ -233,12 +231,8 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     SetSizer(BoxSizer1);
     menubar = new wxMenuBar();
     menu = new wxMenu();
-    menu_new = new wxMenu();
-    menu_black = new wxMenuItem(menu_new, id_menu_black, _("Player &Black\tCtrl-B"), _("Human plays black."), wxITEM_NORMAL);
-    menu_new->Append(menu_black);
-    menu_white = new wxMenuItem(menu_new, id_menu_white, _("Player &White\tCtrl-W"), _("Human plays white."), wxITEM_NORMAL);
-    menu_new->Append(menu_white);
-    menu->Append(id_menu_new, _("New Game"), menu_new, _("Start a new game."));
+    menu_new = new wxMenuItem(menu, id_menu_new, _("&New Game"), _("Start a new game."), wxITEM_NORMAL);
+    menu->Append(menu_new);
     menu_load = new wxMenuItem(menu, id_menu_load, _("&Load\tCtrl-L"), _("Load and execute a script."), wxITEM_NORMAL);
     menu->Append(menu_load);
     menu_save = new wxMenuItem(menu, id_menu_save, _("&Save\tCtrl-S"), wxEmptyString, wxITEM_NORMAL);
@@ -344,9 +338,9 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     panel_board->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&reversi_guiFrame::on_panel_board_leftdown,0,this);
     Connect(id_choice_black,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_choice_player);
     Connect(id_choice_white,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_choice_player);
+    Connect(id_button_start,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&reversi_guiFrame::on_start);
     Connect(id_text_input,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&reversi_guiFrame::on_text_input_textenter);
-    Connect(id_menu_black,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_black);
-    Connect(id_menu_white,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_white);
+    Connect(id_menu_new,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_start);
     Connect(id_menu_load,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_load);
     Connect(id_menu_quit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::OnQuit);
     Connect(id_menu_undo,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_undo);
@@ -430,13 +424,8 @@ void reversi_guiFrame::on_panel_board_paint(wxPaintEvent& event)
 	do_show(dc);
 }
 
-void reversi_guiFrame::on_black(wxCommandEvent& event){
+void reversi_guiFrame::on_start(wxCommandEvent& event){
 	process("start");
-}
-
-void reversi_guiFrame::on_white(wxCommandEvent& event){
-	process("start");
-	process("puts [play [get_method] $true 0]");
 }
 
 void reversi_guiFrame::on_undo(wxCommandEvent& event){
@@ -599,7 +588,7 @@ void reversi_guiFrame::on_panel_board_leftdown(wxMouseEvent& event)
 	process(
 		(
 			_("puts [plays ") + to_string(x) + " "
-			+ to_string(y) + _(" [get_method] [get_depth]]")
+			+ to_string(y) + _("]")
 		).ToStdString()
 	);
 }
@@ -647,10 +636,45 @@ void reversi_guiFrame::on_tree_item_select(wxTreeEvent& event){
 	mygame.brd = brd;
 	mygame.show();
 }
+
 void reversi_guiFrame::on_choice_player(wxCommandEvent& event){
 	if(event.GetId() == id_choice_black){
 		process("set_player 1 " + to_string(choice_black->GetCurrentSelection()));
+
+		if(choice_black->GetCurrentSelection() == ply_other){
+			wxFileDialog* dialog_choice_player = new wxFileDialog(
+				this, _("Select file"), wxEmptyString, wxEmptyString,
+				_("*.exe"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
+				wxDefaultSize, _T("wxFileDialog")
+			);
+
+			if(dialog_choice_player->ShowModal() == wxID_OK){
+				string path = dialog_choice_player->GetPath().ToStdString();
+				string::size_type pos = 0;
+				while((pos = path.find("\\",pos + 2)) != path.npos){
+					path.replace(pos,1,"\\\\");
+				}
+				process(string("set_player_path 1 ") + path);
+			}
+		}
 	}else if(event.GetId() == id_choice_white){
 		process("set_player 0 " + to_string(choice_white->GetCurrentSelection()));
+
+		if(choice_white->GetCurrentSelection() == ply_other){
+			wxFileDialog* dialog_choice_player = new wxFileDialog(
+				this, _("Select file"), wxEmptyString, wxEmptyString,
+				_("*.exe"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
+				wxDefaultSize, _T("wxFileDialog")
+			);
+
+			if(dialog_choice_player->ShowModal() == wxID_OK){
+				string path = dialog_choice_player->GetPath().ToStdString();
+				string::size_type pos = 0;
+				while((pos = path.find("\\",pos + 2)) != path.npos){
+					path.replace(pos,1,"\\\\");
+				}
+				process(string("set_player_path 0 ") + path);
+			}
+		}
 	}
 }
