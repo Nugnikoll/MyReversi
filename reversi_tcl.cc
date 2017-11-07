@@ -145,7 +145,7 @@ object play(cint mthd,cbool color,cint height){
 	return result;
 }
 
-object plays(cint x,cint y,cint mthd,cint height){
+object plays(cint x,cint y){
 	auto pos = mygame.play(coordinate(x,y));
 	object result;
 	result.append(*ptr_inter,object(int(pos.x)));
@@ -329,9 +329,6 @@ void process(const string& str){
 			"set mthd_end 0x100;"
 
 			"config;"
-
-			"set_player 0 2;"
-			"set_player_path 0 \"Irius\";"
 		);
 	}
 

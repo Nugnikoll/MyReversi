@@ -43,10 +43,9 @@ class reversi_guiFrame: public wxFrame
         void on_panel_board_paint(wxPaintEvent& event);
         void on_panel_board_leftdown(wxMouseEvent& event);
         void on_text_input_textenter(wxCommandEvent& event);
-        void Onchoice_blackSelect(wxCommandEvent& event);
+        void Onbutton_startClick(wxCommandEvent& event);
         //*)
-		void on_black(wxCommandEvent& event);
-		void on_white(wxCommandEvent& event);
+		void on_start(wxCommandEvent& event);
 		void on_undo(wxCommandEvent& event);
 		void on_redo(wxCommandEvent& event);
 		void on_load(wxCommandEvent& event);
@@ -76,8 +75,6 @@ class reversi_guiFrame: public wxFrame
         static const long id_notebook;
         static const long id_text_input;
         static const long id_panel_base;
-        static const long id_menu_black;
-        static const long id_menu_white;
         static const long id_menu_new;
         static const long id_menu_load;
         static const long id_menu_save;
@@ -130,6 +127,7 @@ class reversi_guiFrame: public wxFrame
         wxMenuItem* menu_redo;
         wxMenuItem* menu_clear_term;
         wxMenuItem* menu_rotate_l;
+        wxMenuItem* menu_new;
         wxPanel* panel_base;
         wxMenuItem* menu_reverse;
         wxButton* button_start;
@@ -142,7 +140,6 @@ class reversi_guiFrame: public wxFrame
         wxChoice* choice_white;
         wxTextCtrl* text_input;
         wxMenuItem* menu_undo;
-        wxMenu* menu_new;
         wxMenuItem* menu_level4;
         wxMenuItem* menu_level8;
         wxMenuItem* menu_reflect;
@@ -165,7 +162,6 @@ class reversi_guiFrame: public wxFrame
         wxBoxSizer* BoxSizer1;
         wxTextCtrl* text_log;
         wxMenuItem* menu_level7;
-        wxMenuItem* menu_black;
         wxPanel* panel_board;
         wxMenuItem* menu_eval;
         wxMenuItem* menu_level3;
@@ -175,7 +171,6 @@ class reversi_guiFrame: public wxFrame
         wxChoice* choice_black;
         wxMenuItem* menu_rotate_r;
         wxMenuItem* menu_alg_ids;
-        wxMenuItem* menu_white;
         wxStaticText* label_white;
         wxMenuItem* menu_alg_pvs;
         wxMenuItem* menu_alg_ab;
