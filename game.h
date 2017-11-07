@@ -341,9 +341,6 @@ public:
 		sts_type status = sts_again;
 		coordinate pos;
 
-		bool flag_auto = flag_auto_save;
-		flag_auto_save = false;
-
 		while(status & sts_again){
 			pos = play(mthd,!color_save,depth);
 			status = brd.get_status(color_save);
@@ -352,8 +349,6 @@ public:
 				break;
 			}
 		}
-
-		flag_auto_save = flag_auto;
 
 		if((status & sts_turn) == sts_null){
 			flag_lock = true;
