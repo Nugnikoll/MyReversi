@@ -36,6 +36,9 @@ class reversi_app(wx.App):
 		self.text_input = xrc.XRCCTRL(self.frame, "id_text_input");
 		self.text_term = xrc.XRCCTRL(self.frame, "id_text_term");
 		self.text_log = xrc.XRCCTRL(self.frame, "id_text_log");
+		self.choice_black = xrc.XRCCTRL(self.frame, "id_choice_black");
+		self.choice_white = xrc.XRCCTRL(self.frame, "id_choice_white");
+		self.button_start = xrc.XRCCTRL(self.frame, "id_button_start");
 		self.menubar = self.frame.GetMenuBar();
 		self.menu_trans = self.menubar.FindItemById(xrc.XRCID("id_menu_trans")).GetSubMenu()
 		self.menu_alg = self.menubar.FindItemById(xrc.XRCID("id_menu_alg")).GetSubMenu();
@@ -62,10 +65,14 @@ class reversi_app(wx.App):
 		self.panel_board.Bind(wx.EVT_PAINT,self.on_panel_board_paint);
 		self.panel_board.Bind(wx.EVT_LEFT_DOWN,self.on_panel_board_leftdown);
 		self.text_input.Bind(wx.EVT_TEXT_ENTER,self.on_text_input_textenter);
+		self.choice_black.Bind(wx.EVT_CHOICE,self.on_choice_player);
+		self.choice_white.Bind(wx.EVT_CHOICE,self.on_choice_player);
+		self.button_start.Bind(wx.EVT_BUTTON,self.on_start);
+		# self.Bind(wx.EVT_CHOICE,self.on_choice_player,id = xrc.XRCID("id_choice_black"));
+		# self.Bind(wx.EVT_CHOICE,self.on_choice_player,id = xrc.XRCID("id_choice_white"));
 		self.Bind(wx.EVT_MENU,self.on_quit,id = xrc.XRCID("id_menu_quit"));
 		self.Bind(wx.EVT_MENU,self.on_about,id = xrc.XRCID("id_menu_about"));
-		self.Bind(wx.EVT_MENU,self.on_black,id = xrc.XRCID("id_menu_black"));
-		self.Bind(wx.EVT_MENU,self.on_white,id = xrc.XRCID("id_menu_white"));
+		self.Bind(wx.EVT_MENU,self.on_start,id = xrc.XRCID("id_menu_new"));
 		self.Bind(wx.EVT_MENU,self.on_undo,id = xrc.XRCID("id_menu_undo"));
 		self.Bind(wx.EVT_MENU,self.on_redo,id = xrc.XRCID("id_menu_redo"));
 		self.Bind(wx.EVT_MENU,self.on_load,id = xrc.XRCID("id_menu_load"));
@@ -118,11 +125,53 @@ class reversi_app(wx.App):
 		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
 	def on_text_input_textenter(self,event):
 		self.process(self.text_input.GetValue());
-	def on_black(self,event):
+	def on_choice_player(self,event):
+		if event.GetId() == self.choice_black.GetId():
+			self.process(
+				"mygame.get_ply(True).p_type = "
+				+ str(self.choice_black.GetCurrentSelection())
+				+ ";"
+			);
+
+			if self.choice_black.GetCurrentSelection() == rv.ply_other:
+				dialog_choice_player = wx.FileDialog(
+					self.frame, "Select file", wx.EmptyString, wx.EmptyString,
+					"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
+					wx.DefaultSize, "wxFileDialog"
+				);
+
+				if dialog_choice_player.ShowModal() == wx.ID_OK:
+					path = dialog_choice_player.GetPath();
+					path = path.replace("\\","\\\\");
+					self.process(
+						"mygame.get_ply(True).path = \""
+						+ path
+						+ "\";"
+					);
+		elif event.GetId() == self.choice_white.GetId():
+			self.process(
+				"mygame.get_ply(False).p_type = "
+				+ str(self.choice_white.GetCurrentSelection())
+				+ ";"
+			);
+
+			if self.choice_white.GetCurrentSelection() == rv.ply_other:
+				dialog_choice_player = wx.FileDialog(
+					self.frame, "Select file", wx.EmptyString, wx.EmptyString,
+					"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
+					wx.DefaultSize, "wxFileDialog"
+				);
+
+				if dialog_choice_player.ShowModal() == wx.ID_OK:
+					path = dialog_choice_player.GetPath();
+					path = path.replace("\\","\\\\");
+					self.process(
+						"mygame.get_ply(False).path = \""
+						+ path
+						+ "\";"
+					);
+	def on_start(self,event):
 		self.process("mygame.start();");
-	def on_white(self,event):
-		self.process("mygame.start();");
-		self.process("_print(mygame.play(mygame.mthd,True));");
 	def on_undo(self,event):
 		self.process("mygame.undo();");
 	def on_redo(self, event):
@@ -172,9 +221,7 @@ class reversi_app(wx.App):
 		self.process(
 			"_print("
 				"mygame.play("
-					"rv.coordinate(%d,%d),"
-					"mygame.mthd,"
-					"mygame.depth"
+					"rv.coordinate(%d,%d)"
 				")"
 			");"
 			% (x,y)

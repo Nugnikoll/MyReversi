@@ -126,11 +126,11 @@ void config(){
 }
 
 void set_player(cbool color,cint p_type){
-	mygame.ply[color].p_type = player_type(p_type);
+	mygame.get_ply(color).p_type = player_type(p_type);
 }
 
 void set_player_path(cbool color,const string& str){
-	mygame.ply[color].path = str;
+	mygame.get_ply(color).path = str;
 }
 
 bool flip(cbool color,cint x,cint y){
