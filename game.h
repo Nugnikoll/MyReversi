@@ -25,7 +25,7 @@ public:
 	game(): brd{0,0}, color(true), pos{-1,-1},
 		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
 		depth(-1), flag_auto_save(true), flag_lock(true),
-		ply{{ply_ai,"Irius"},{ply_human,"Irius"}} {}
+		ply_white{ply_ai,"Irius"},ply_black{ply_human,"Irius"} {}
 	virtual ~game(){}
 
 	board brd;
@@ -37,7 +37,14 @@ public:
 	bool flag_auto_save;
 	bool flag_lock;
 
-	player ply[2];
+	player ply_white, ply_black;
+
+	player& get_ply(bool color){
+		return *((player*)(&ply_white) + color);
+	}
+	const player& get_ply(bool color)const{
+		return *((player*)(&ply_white) + color);
+	}
 
 	struct pack{
 		board brd;
@@ -72,7 +79,7 @@ public:
 		print_log("start a new game\n");
 		flag_lock = false;
 		show();
-		while((ply[color].p_type != ply_human) && (brd.get_status(color) & sts_turn)){
+		while((get_ply(color).p_type != ply_human) && (brd.get_status(color) & sts_turn)){
 			play(mthd,color,depth);
 		}
 	}
@@ -321,7 +328,7 @@ public:
 		return coordinate(-1,-1);
 	}
 	coordinate play(cmethod mthd,cbool color,cshort depth = -1){
-		switch(ply[color].p_type){
+		switch(get_ply(color).p_type){
 		case ply_human:
 			return coordinate(-1,-1);
 		case ply_ai:
@@ -369,7 +376,7 @@ public:
 	}
 	coordinate play(ccoordinate pos){
 		coordinate result = play(pos,mthd,depth);
-		while((ply[color].p_type != ply_human) && (brd.get_status(color) & sts_turn)){
+		while((get_ply(color).p_type != ply_human) && (brd.get_status(color) & sts_turn)){
 			result = play(mthd,color,depth);
 		}
 		return result;

@@ -3,6 +3,8 @@
 import wx
 import reversi
 import reversi as rv
+import json
+import subprocess as sp
 
 bias = 34;
 num = 8;
@@ -125,6 +127,47 @@ class game_gui(reversi.game):
 
 	def print_log(self,str):
 		self.text_log.AppendText(str);
+
+	def play_other(self,mthd,color,depth):
+
+		p = sp.Popen(self.get_ply(color).path,stdin=sp.PIPE,stdout=sp.PIPE);
+
+		s = "";
+		result = rv.coordinate();
+		request = {
+			"request":{
+				"color":color,
+				"board":{
+					"black":self.brd.bget(True),
+					"white":self.brd.bget(False)
+				}
+			}
+		};
+
+		s = json.dumps(request);
+
+		self.text_log.AppendText(
+			"send a request to process \""
+			+ self.get_ply(color).path
+			+ "\"\n"
+		);
+
+		self.text_log.AppendText(s + "\n");
+		[s,str_err] = p.communicate(s.encode());
+		self.text_log.AppendText(
+			"receive a response from process \""
+			+ self.get_ply(color).path
+			+ "\"\n"
+		);
+		self.text_log.AppendText(s.decode());
+		response = json.loads(s.decode());
+
+		result.x = response["response"]["x"];
+		result.y = response["response"]["y"];
+
+		self.flip(color,result.x,result.y);
+
+		return result;
 
 reversi.board.config();
 mygame = game_gui();

@@ -206,13 +206,13 @@ long pid[2];
 wxProcess proc[2];
 
 coordinate game_gui::play_other(cmethod mthd,cbool color,cshort depth){
-	if(path[color] == ply[color].path){
+	if(path[color] == get_ply(color).path){
 		if(pid[color] == 0){
 			proc[color].Redirect();
 			pid[color] = wxExecute(path[color],wxEXEC_ASYNC,&proc[color]);
 		}
 	}else{
-		path[color] = ply[color].path;
+		path[color] = get_ply(color).path;
 		if(pid[color]){
 			wxProcess::Kill(pid[color]);
 		}
