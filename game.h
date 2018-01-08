@@ -79,9 +79,7 @@ public:
 		print_log("start a new game\n");
 		flag_lock = false;
 		show();
-		while((get_ply(color).p_type != ply_human) && (brd.get_status(color) & sts_turn)){
-			play(mthd,color,depth);
-		}
+		play();
 	}
 
 	bool undo(){
@@ -200,8 +198,7 @@ public:
 				string("place a ") + (color ? "black" : "white")
 				+ " stone at " + char(x + 'A') + char(y + '1') + "\n"
 			);
-			if(brd.get_status(!color) & sts_again){
-			}else{
+			if(!(brd.get_status(!color) & sts_again)){
 				this->color = !color;
 			}
 			this->pos = coordinate(x,y);
@@ -307,8 +304,7 @@ public:
 				string("place a ") + (color ? "black" : "white")
 				+ " stone at " + char(pos.x + 'A') + char(pos.y + '1') + "\n"
 			);
-			if(brd.get_status(!color) & sts_again){
-			}else{
+			if(!(brd.get_status(!color) & sts_again)){
 				this->color = !color;
 			}
 			this->pos = pos;
@@ -339,47 +335,48 @@ public:
 			return coordinate(-1,-1);
 		}
 	}
-	coordinate play(ccoordinate _pos,cmethod mthd,cshort depth = -1){
-		bool color_save = color;
-		bool flag = flip(color,_pos.x,_pos.y);
-		if(!flag){
+	coordinate play(){
+		sts_type status;
+
+		while((status = brd.get_status(color)) & sts_turn){
+			if(get_ply(color).p_type == ply_human){
+				return coordinate(-1,-1);
+			}
+
+			play(mthd,color,depth);
+		}
+
+		flag_lock = true;
+		string str = to_string(brd.count(true))
+			+ " black stones and "
+			+ to_string(brd.count(false))
+			+ " white stones remain\n";
+		if(status == sts_bwin){
+			str += "black wins\n";
+		}else if(status == sts_wwin){
+			str += "white wins\n";
+		}else{
+			str += "a tie\n";
+		}
+		print_log(str);
+
+		return coordinate(-1,-1);
+	}
+
+	coordinate play(ccoordinate pos){
+		sts_type status = brd.get_status(color);
+
+		if(!(status & sts_turn)){
 			return coordinate(-1,-1);
 		}
-		sts_type status = sts_again;
-		coordinate pos;
 
-		while(status & sts_again){
-			pos = play(mthd,!color_save,depth);
-			status = brd.get_status(color_save);
-			if(pos.x < 0){
-				show();
-				break;
-			}
+		if(get_ply(color).p_type == ply_human){
+			flip(color,pos.x,pos.y);
 		}
+		play(mthd,color,depth);
 
-		if((status & sts_turn) == sts_null){
-			flag_lock = true;
-			string str = to_string(brd.count(true))
-				+ " black stones and "
-				+ to_string(brd.count(false))
-				+ " white stones remain\n";
-			if(status == sts_bwin){
-				str += "black wins\n";
-			}else if(status == sts_wwin){
-				str += "white wins\n";
-			}else{
-				str += "a tie\n";
-			}
-			print_log(str);
-		}
-		return pos;
-	}
-	coordinate play(ccoordinate pos){
-		coordinate result = play(pos,mthd,depth);
-		while((get_ply(color).p_type != ply_human) && (brd.get_status(color) & sts_turn)){
-			result = play(mthd,color,depth);
-		}
-		return result;
+		play();
+		return coordinate(-1,-1);
 	}
 
 protected:
