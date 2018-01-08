@@ -40,10 +40,10 @@ public:
 	player ply_white, ply_black;
 
 	player& get_ply(bool color){
-		return *((player*)(&ply_white) + color);
+		return *(&ply_white + color);
 	}
 	const player& get_ply(bool color)const{
-		return *((player*)(&ply_white) + color);
+		return *(&ply_white + color);
 	}
 
 	struct pack{
