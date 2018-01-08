@@ -131,10 +131,10 @@ public:
 	}
 
 	cbrd_type bget(cbool color)const{
-		return *((brd_type*)&brd_white + color);
+		return *(&brd_white + color);
 	}
 	brd_type& bget(cbool color){
-		return *((brd_type*)&brd_white + color);
+		return *(&brd_white + color);
 	}
 
 	chessman get(cpos_type pos)const{
