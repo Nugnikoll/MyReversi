@@ -1,6 +1,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <random>
+#include <chrono>
 
 #include "reversi.h"
 #include "search.h"
@@ -17,7 +19,11 @@ brd_type board::node_count;
 	const calc_type board::mark_max = 2;
 #endif
 
-calc_type board::table_param[stage_num][board::pos_num] = {{12,0.5,-6,-0.2},{10,0.5,-5,0.2},{3,1,0,0}};
+calc_type board::table_param[stage_num][board::pos_num] = {
+	{12,0.5,-6,-0.2},
+	{10,0.5,-5,0.2},
+	{3,1,0,0}
+};
 
 unordered_map<board,board::interval> trans_black;
 unordered_map<board,board::interval> trans_white;
@@ -80,34 +86,12 @@ void board::print(ostream& out)const{
 	}
 }
 
-#define USE_RANDOM
-
-#ifdef USE_RANDOM
-	#include <random>
-	#include <chrono>
-#else
-	#include <cstdlib>
-	#include <ctime>
-#endif //USE_RANDOM
-
 choice board::select_choice(vector<choice> choices,const float& variation){
 
-	#ifdef USE_RANDOM
-		normal_distribution<float> scatter(0,variation);
-	#else
-		//cout << "time : " << time(NULL) << endl;
-		srand(time(NULL));
-		float f;
-	#endif //USE_RANDOM
+	normal_distribution<float> scatter(0,variation);
 
 	for(choice& c:choices){
-		#ifdef USE_RANDOM
-			c.rnd_val = c.val + scatter(engine);
-		#else
-			f = (float(rand()) / RAND_MAX - 0.5);
-			f *= f * f * 6;
-			c.rnd_val = c.val + f;
-		#endif //USE_RANDOM
+		c.rnd_val = c.val + scatter(engine);
 	}
 
 	return *max_element(

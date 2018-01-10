@@ -7,7 +7,7 @@ using namespace std;
 
 //#define USE_REF
 #define USE_FLOAT
-#define USE_RANDOM
+
 #if defined(__GNUC__) || defined(__clang__)
 	#if defined(__x86_64__) || defined(__ppc64__)
 		#define USE_ASM
@@ -100,11 +100,9 @@ enum sts_type{
 	sts_wagain = sts_white | sts_turn | sts_again
 };
 
-#ifdef USE_RANDOM
-	#include <random>
-	#include <chrono>
-	extern default_random_engine engine;
-#endif //USE_RANDOM
+#include <random>
+#include <chrono>
+extern default_random_engine engine;
 
 #ifdef DEBUG_SEARCH
 	#include <fstream>
