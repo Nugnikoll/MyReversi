@@ -119,6 +119,43 @@
 													<object class="sizeritem">
 														<object class="wxBoxSizer" variable="BoxSizer6" member="no">
 															<object class="sizeritem">
+																<object class="wxTextCtrl" name="id_text_path_black" variable="text_path_black" member="yes">
+																	<value>Irius</value>
+																	<size>332,30</size>
+																	<bg>#C8C8C8</bg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																	<style>wxTE_PROCESS_ENTER</style>
+																	<handler function="on_text_path_enter" entry="EVT_TEXT_ENTER" />
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxBitmapButton" name="id_button_folder_black" variable="button_folder_black" member="yes">
+																	<bitmap>E:\LLK\ComputerSci\Cplusplus\reversi\image\folder_small.png</bitmap>
+																	<size>32,29</size>
+																	<bg>wxSYS_COLOUR_BACKGROUND</bg>
+																	<handler function="on_button_folder_click" entry="EVT_BUTTON" />
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxBoxSizer" variable="BoxSizer7" member="no">
+															<object class="sizeritem">
 																<object class="wxStaticText" name="id_label_white" variable="label_white" member="yes">
 																	<label>White Player:</label>
 																	<size>163,22</size>
@@ -166,7 +203,44 @@
 														<option>1</option>
 													</object>
 													<object class="sizeritem">
-														<object class="wxBoxSizer" variable="BoxSizer7" member="no">
+														<object class="wxBoxSizer" variable="BoxSizer8" member="no">
+															<object class="sizeritem">
+																<object class="wxTextCtrl" name="id_text_path_white" variable="text_path_white" member="yes">
+																	<value>Irius</value>
+																	<size>332,30</size>
+																	<bg>#C8C8C8</bg>
+																	<font>
+																		<size>14</size>
+																		<style>normal</style>
+																		<weight>bold</weight>
+																		<underlined>0</underlined>
+																		<family>swiss</family>
+																		<face>Consolas</face>
+																	</font>
+																	<style>wxTE_PROCESS_ENTER</style>
+																	<handler function="on_text_path_enter" entry="EVT_TEXT_ENTER" />
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+																<option>1</option>
+															</object>
+															<object class="sizeritem">
+																<object class="wxBitmapButton" name="id_button_folder_white" variable="button_folder_white" member="yes">
+																	<bitmap>E:\LLK\ComputerSci\Cplusplus\reversi\image\folder_small.png</bitmap>
+																	<size>32,29</size>
+																	<bg>wxSYS_COLOUR_BACKGROUND</bg>
+																	<handler function="on_button_folder_click" entry="EVT_BUTTON" />
+																</object>
+																<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+																<border>5</border>
+															</object>
+														</object>
+														<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+														<border>5</border>
+														<option>1</option>
+													</object>
+													<object class="sizeritem">
+														<object class="wxBoxSizer" variable="BoxSizer9" member="no">
 															<object class="sizeritem">
 																<object class="wxButton" name="id_button_start" variable="button_start" member="yes">
 																	<label>Start a New Game</label>
@@ -369,7 +443,6 @@
 					<handler function="on_clear_all" entry="EVT_MENU" />
 					<object class="wxMenuItem" name="id_menu_clear_log" variable="menu_clear_log" member="yes">
 						<label>&amp;Log</label>
-						<handler function="on_clear_log" entry="EVT_MENU" />
 					</object>
 					<object class="wxMenuItem" name="id_menu_clear_term" variable="menu_clear_term" member="yes">
 						<label>&amp;Terminal</label>

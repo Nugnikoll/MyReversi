@@ -11,17 +11,18 @@
 #define REVERSI_GUIMAIN_H
 
 //(*Headers(reversi_guiFrame)
-#include <wx/treectrl.h>
+#include <wx/bmpbuttn.h>
+#include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/frame.h>
+#include <wx/menu.h>
 #include <wx/notebook.h>
+#include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
-#include <wx/menu.h>
-#include <wx/textctrl.h>
-#include <wx/panel.h>
-#include <wx/choice.h>
-#include <wx/button.h>
-#include <wx/frame.h>
 #include <wx/statusbr.h>
+#include <wx/textctrl.h>
+#include <wx/treectrl.h>
 //*)
 #include <wx/treectrl.h>
 #include <wx/filedlg.h>
@@ -43,9 +44,11 @@ class reversi_guiFrame: public wxFrame
         void on_panel_board_paint(wxPaintEvent& event);
         void on_panel_board_leftdown(wxMouseEvent& event);
         void on_text_input_textenter(wxCommandEvent& event);
-        void Onbutton_startClick(wxCommandEvent& event);
+        void on_text_path_enter(wxCommandEvent& event);
+        void on_start(wxCommandEvent& event);
+        void on_button_folder_click(wxCommandEvent& event);
+        void on_choice_player(wxCommandEvent& event);
         //*)
-		void on_start(wxCommandEvent& event);
 		void on_undo(wxCommandEvent& event);
 		void on_redo(wxCommandEvent& event);
 		void on_load(wxCommandEvent& event);
@@ -58,15 +61,18 @@ class reversi_guiFrame: public wxFrame
 		void on_menu_level(wxCommandEvent& event);
 		void on_context_menu(wxContextMenuEvent& event);
 		void on_tree_item_select(wxTreeEvent& event);
-		void on_choice_player(wxCommandEvent& event);
 
         //(*Identifiers(reversi_guiFrame)
         static const long id_panel_board;
         static const long id_text_label;
         static const long id_label_black;
         static const long id_choice_black;
+        static const long id_text_path_black;
+        static const long id_button_folder_black;
         static const long id_label_white;
         static const long id_choice_white;
+        static const long id_text_path_white;
+        static const long id_button_folder_white;
         static const long id_button_start;
         static const long id_panel_note;
         static const long id_text_term;
@@ -118,62 +124,66 @@ class reversi_guiFrame: public wxFrame
         //*)
 
         //(*Declarations(reversi_guiFrame)
-        wxMenuItem* menu_level1;
-        wxMenuItem* menu_level6;
-        wxMenu* menu_set;
-        wxMenuItem* menu_alg_mtdf;
-        wxMenuItem* menu_save;
-        wxStatusBar* statusbar;
-        wxMenuItem* menu_redo;
-        wxMenuItem* menu_clear_term;
-        wxMenuItem* menu_rotate_l;
-        wxMenuItem* menu_new;
-        wxPanel* panel_base;
-        wxMenuItem* menu_reverse;
-        wxButton* button_start;
-        wxTextCtrl* text_term;
-        wxMenu* menu_clear;
-        wxMenu* menu_trans;
-        wxNotebook* notebook;
-        wxMenu* menu_alg;
-        wxMenuItem* menu_alg_kill;
-        wxChoice* choice_white;
-        wxTextCtrl* text_input;
-        wxMenuItem* menu_undo;
-        wxMenuItem* menu_level4;
-        wxMenuItem* menu_level8;
-        wxMenuItem* menu_reflect;
-        wxMenuItem* menu_alg_ptn;
+        wxBitmapButton* button_folder_black;
+        wxBitmapButton* button_folder_white;
+        wxBoxSizer* BoxSizer1;
         wxBoxSizer* BoxSizer2;
-        wxTreeCtrl* book_tree;
-        wxMenuItem* menu_mirror_v;
-        wxMenuItem* menu_alg_trans;
+        wxButton* button_start;
+        wxChoice* choice_black;
+        wxChoice* choice_white;
+        wxMenu* menu_alg;
+        wxMenu* menu_clear;
         wxMenu* menu_edit;
         wxMenu* menu_level;
-        wxStaticText* text_label;
-        wxMenuItem* menu_alg_mpc;
-        wxMenuItem* menu_level9;
-        wxPanel* panel_note;
-        wxMenuItem* menu_level10;
-        wxMenuItem* menu_load;
-        wxMenuItem* menu_clear_log;
-        wxMenuItem* menu_mirror_h;
-        wxMenuItem* menu_alg_rnd;
-        wxBoxSizer* BoxSizer1;
-        wxTextCtrl* text_log;
-        wxMenuItem* menu_level7;
-        wxPanel* panel_board;
-        wxMenuItem* menu_eval;
-        wxMenuItem* menu_level3;
-        wxMenuItem* menu_level5;
-        wxStaticText* label_black;
-        wxMenuItem* menu_level2;
-        wxChoice* choice_black;
-        wxMenuItem* menu_rotate_r;
-        wxMenuItem* menu_alg_ids;
-        wxStaticText* label_white;
-        wxMenuItem* menu_alg_pvs;
+        wxMenu* menu_set;
+        wxMenu* menu_trans;
         wxMenuItem* menu_alg_ab;
+        wxMenuItem* menu_alg_ids;
+        wxMenuItem* menu_alg_kill;
+        wxMenuItem* menu_alg_mpc;
+        wxMenuItem* menu_alg_mtdf;
+        wxMenuItem* menu_alg_ptn;
+        wxMenuItem* menu_alg_pvs;
+        wxMenuItem* menu_alg_rnd;
+        wxMenuItem* menu_alg_trans;
+        wxMenuItem* menu_clear_log;
+        wxMenuItem* menu_clear_term;
+        wxMenuItem* menu_eval;
+        wxMenuItem* menu_level10;
+        wxMenuItem* menu_level1;
+        wxMenuItem* menu_level2;
+        wxMenuItem* menu_level3;
+        wxMenuItem* menu_level4;
+        wxMenuItem* menu_level5;
+        wxMenuItem* menu_level6;
+        wxMenuItem* menu_level7;
+        wxMenuItem* menu_level8;
+        wxMenuItem* menu_level9;
+        wxMenuItem* menu_load;
+        wxMenuItem* menu_mirror_h;
+        wxMenuItem* menu_mirror_v;
+        wxMenuItem* menu_new;
+        wxMenuItem* menu_redo;
+        wxMenuItem* menu_reflect;
+        wxMenuItem* menu_reverse;
+        wxMenuItem* menu_rotate_l;
+        wxMenuItem* menu_rotate_r;
+        wxMenuItem* menu_save;
+        wxMenuItem* menu_undo;
+        wxNotebook* notebook;
+        wxPanel* panel_base;
+        wxPanel* panel_board;
+        wxPanel* panel_note;
+        wxStaticText* label_black;
+        wxStaticText* label_white;
+        wxStaticText* text_label;
+        wxStatusBar* statusbar;
+        wxTextCtrl* text_input;
+        wxTextCtrl* text_log;
+        wxTextCtrl* text_path_black;
+        wxTextCtrl* text_path_white;
+        wxTextCtrl* text_term;
+        wxTreeCtrl* book_tree;
         //*)
 
         DECLARE_EVENT_TABLE()

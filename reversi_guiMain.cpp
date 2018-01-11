@@ -14,11 +14,11 @@
 
 //(*InternalHeaders(reversi_guiFrame)
 #include <wx/bitmap.h>
-#include <wx/icon.h>
-#include <wx/settings.h>
 #include <wx/font.h>
-#include <wx/intl.h>
+#include <wx/icon.h>
 #include <wx/image.h>
+#include <wx/intl.h>
+#include <wx/settings.h>
 #include <wx/string.h>
 //*)
 
@@ -55,8 +55,12 @@ const long reversi_guiFrame::id_panel_board = wxNewId();
 const long reversi_guiFrame::id_text_label = wxNewId();
 const long reversi_guiFrame::id_label_black = wxNewId();
 const long reversi_guiFrame::id_choice_black = wxNewId();
+const long reversi_guiFrame::id_text_path_black = wxNewId();
+const long reversi_guiFrame::id_button_folder_black = wxNewId();
 const long reversi_guiFrame::id_label_white = wxNewId();
 const long reversi_guiFrame::id_choice_white = wxNewId();
+const long reversi_guiFrame::id_text_path_white = wxNewId();
+const long reversi_guiFrame::id_button_folder_white = wxNewId();
 const long reversi_guiFrame::id_button_start = wxNewId();
 const long reversi_guiFrame::id_panel_note = wxNewId();
 const long reversi_guiFrame::id_text_term = wxNewId();
@@ -115,16 +119,18 @@ END_EVENT_TABLE()
 reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 {
     //(*Initialize(reversi_guiFrame)
-    wxBoxSizer* BoxSizer4;
-    wxBoxSizer* BoxSizer6;
-    wxMenuItem* menu_about;
-    wxBoxSizer* BoxSizer5;
-    wxBoxSizer* BoxSizer7;
-    wxMenuBar* menubar;
-    wxBoxSizer* box_sizer_note;
     wxBoxSizer* BoxSizer3;
+    wxBoxSizer* BoxSizer4;
+    wxBoxSizer* BoxSizer5;
+    wxBoxSizer* BoxSizer6;
+    wxBoxSizer* BoxSizer7;
+    wxBoxSizer* BoxSizer8;
+    wxBoxSizer* BoxSizer9;
+    wxBoxSizer* box_sizer_note;
     wxMenu* Menu2;
     wxMenu* menu;
+    wxMenuBar* menubar;
+    wxMenuItem* menu_about;
     wxMenuItem* menu_quit;
 
     Create(parent, wxID_ANY, _("Reversi"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
@@ -172,11 +178,21 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     BoxSizer5->Add(choice_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer6 = new wxBoxSizer(wxHORIZONTAL);
+    text_path_black = new wxTextCtrl(panel_note, id_text_path_black, _("Irius"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_black"));
+    text_path_black->SetBackgroundColour(wxColour(200,200,200));
+    wxFont text_path_blackFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    text_path_black->SetFont(text_path_blackFont);
+    BoxSizer6->Add(text_path_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    button_folder_black = new wxBitmapButton(panel_note, id_button_folder_black, wxBitmap(wxImage(_T("E:\\LLK\\ComputerSci\\Cplusplus\\reversi\\image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_black"));
+    button_folder_black->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
+    BoxSizer6->Add(button_folder_black, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    box_sizer_note->Add(BoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
     label_white = new wxStaticText(panel_note, id_label_white, _("White Player:"), wxDefaultPosition, wxSize(163,22), 0, _T("id_label_white"));
     label_white->SetForegroundColour(wxColour(200,200,200));
     wxFont label_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     label_white->SetFont(label_whiteFont);
-    BoxSizer6->Add(label_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer7->Add(label_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     choice_white = new wxChoice(panel_note, id_choice_white, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("id_choice_white"));
     choice_white->Append(_("Human"));
     choice_white->SetSelection( choice_white->Append(_("Computer")) );
@@ -185,16 +201,26 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     choice_white->SetBackgroundColour(wxColour(200,200,200));
     wxFont choice_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     choice_white->SetFont(choice_whiteFont);
-    BoxSizer6->Add(choice_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    box_sizer_note->Add(BoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
+    BoxSizer7->Add(choice_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    box_sizer_note->Add(BoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
+    text_path_white = new wxTextCtrl(panel_note, id_text_path_white, _("Irius"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_white"));
+    text_path_white->SetBackgroundColour(wxColour(200,200,200));
+    wxFont text_path_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    text_path_white->SetFont(text_path_whiteFont);
+    BoxSizer8->Add(text_path_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    button_folder_white = new wxBitmapButton(panel_note, id_button_folder_white, wxBitmap(wxImage(_T("E:\\LLK\\ComputerSci\\Cplusplus\\reversi\\image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_white"));
+    button_folder_white->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
+    BoxSizer8->Add(button_folder_white, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    box_sizer_note->Add(BoxSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer9 = new wxBoxSizer(wxHORIZONTAL);
     button_start = new wxButton(panel_note, id_button_start, _("Start a New Game"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("id_button_start"));
     button_start->SetForegroundColour(wxColour(32,32,32));
     button_start->SetBackgroundColour(wxColour(200,200,200));
     wxFont button_startFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     button_start->SetFont(button_startFont);
-    BoxSizer7->Add(button_start, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    box_sizer_note->Add(BoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer9->Add(button_start, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    box_sizer_note->Add(BoxSizer9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     panel_note->SetSizer(box_sizer_note);
     Layout();
     text_term = new wxTextCtrl(notebook, id_text_term, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY, wxDefaultValidator, _T("id_text_term"));
@@ -337,7 +363,11 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     panel_board->Connect(wxEVT_PAINT,(wxObjectEventFunction)&reversi_guiFrame::on_panel_board_paint,0,this);
     panel_board->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&reversi_guiFrame::on_panel_board_leftdown,0,this);
     Connect(id_choice_black,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_choice_player);
+    Connect(id_text_path_black,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&reversi_guiFrame::on_text_path_enter);
+    Connect(id_button_folder_black,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&reversi_guiFrame::on_button_folder_click);
     Connect(id_choice_white,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_choice_player);
+    Connect(id_text_path_white,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&reversi_guiFrame::on_text_path_enter);
+    Connect(id_button_folder_white,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&reversi_guiFrame::on_button_folder_click);
     Connect(id_button_start,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&reversi_guiFrame::on_start);
     Connect(id_text_input,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&reversi_guiFrame::on_text_input_textenter);
     Connect(id_menu_new,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_start);
@@ -352,7 +382,6 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     Connect(id_menu_rotate_l,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
     Connect(id_menu_reverse,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_transform);
     Connect(id_menu_eval,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_eval);
-    Connect(id_menu_clear_log,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_log);
     Connect(id_menu_clear_term,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_term);
     Connect(id_menu_clear,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_clear_all);
     Connect(id_menu_alg_rnd,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&reversi_guiFrame::on_menu_alg);
@@ -388,6 +417,11 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	ptr_book = book_tree;
 	mygame.flag_lock = true;
 	flag_echo = true;
+
+	text_path_black->Hide();
+	button_folder_black->Hide();
+	text_path_white->Hide();
+	button_folder_white->Hide();
 
 	#ifdef DEBUG_SEARCH
 		out.open("out.html");
@@ -642,39 +676,67 @@ void reversi_guiFrame::on_choice_player(wxCommandEvent& event){
 		process("set_player 1 " + to_string(choice_black->GetCurrentSelection()));
 
 		if(choice_black->GetCurrentSelection() == ply_other){
-			wxFileDialog* dialog_choice_player = new wxFileDialog(
-				this, _("Select file"), wxEmptyString, wxEmptyString,
-				_("*.exe"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
-				wxDefaultSize, _T("wxFileDialog")
-			);
-
-			if(dialog_choice_player->ShowModal() == wxID_OK){
-				string path = dialog_choice_player->GetPath().ToStdString();
-				string::size_type pos = 0;
-				while((pos = path.find("\\",pos + 2)) != path.npos){
-					path.replace(pos,1,"\\\\");
-				}
-				process(string("set_player_path 1 ") + path);
-			}
+			text_path_black->Show();
+			button_folder_black->Show();
+		}else{
+			text_path_black->Hide();
+			button_folder_black->Hide();
 		}
 	}else if(event.GetId() == id_choice_white){
 		process("set_player 0 " + to_string(choice_white->GetCurrentSelection()));
 
 		if(choice_white->GetCurrentSelection() == ply_other){
-			wxFileDialog* dialog_choice_player = new wxFileDialog(
-				this, _("Select file"), wxEmptyString, wxEmptyString,
-				_("*.exe"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
-				wxDefaultSize, _T("wxFileDialog")
-			);
+			text_path_white->Show();
+			button_folder_white->Show();
+		}else{
+			text_path_white->Hide();
+			button_folder_white->Hide();
+		}
+	}
+}
 
-			if(dialog_choice_player->ShowModal() == wxID_OK){
-				string path = dialog_choice_player->GetPath().ToStdString();
-				string::size_type pos = 0;
-				while((pos = path.find("\\",pos + 2)) != path.npos){
-					path.replace(pos,1,"\\\\");
-				}
-				process(string("set_player_path 0 ") + path);
+void reversi_guiFrame::on_text_path_enter(wxCommandEvent& event)
+{
+	if(event.GetId() == id_text_path_black){
+		process(string("set_player_path 1 ") + text_path_black->GetValue().ToStdString());
+	}else if(event.GetId() == id_text_path_white){
+		process(string("set_player_path 0 ") + text_path_white->GetValue().ToStdString());
+	}
+}
+
+void reversi_guiFrame::on_button_folder_click(wxCommandEvent& event)
+{
+	if(event.GetId() == id_button_folder_black){
+		wxFileDialog* dialog_choice_player = new wxFileDialog(
+			this, _("Select file"), wxEmptyString, wxEmptyString,
+			_("*.exe"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
+			wxDefaultSize, _T("wxFileDialog")
+		);
+
+		if(dialog_choice_player->ShowModal() == wxID_OK){
+			string path = dialog_choice_player->GetPath().ToStdString();
+			string::size_type pos = 0;
+			while((pos = path.find("\\",pos + 2)) != path.npos){
+				path.replace(pos,1,"\\\\");
 			}
+			text_path_black->SetValue(path);
+			process(string("set_player_path 1 ") + path);
+		}
+	}else if(event.GetId() == id_button_folder_white){
+		wxFileDialog* dialog_choice_player = new wxFileDialog(
+			this, _("Select file"), wxEmptyString, wxEmptyString,
+			_("*.exe"), wxFD_DEFAULT_STYLE, wxDefaultPosition,
+			wxDefaultSize, _T("wxFileDialog")
+		);
+
+		if(dialog_choice_player->ShowModal() == wxID_OK){
+			string path = dialog_choice_player->GetPath().ToStdString();
+			string::size_type pos = 0;
+			while((pos = path.find("\\",pos + 2)) != path.npos){
+				path.replace(pos,1,"\\\\");
+			}
+			text_path_white->SetValue(path);
+			process(string("set_player_path 0 ") + path);
 		}
 	}
 }
