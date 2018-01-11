@@ -1,3 +1,7 @@
+/** @file type.h
+ * @brief This file includes some basic types.
+ */
+
 #ifndef TYPE_H
 #define TYPE_H
 
@@ -8,6 +12,7 @@ using namespace std;
 //#define USE_REF
 #define USE_FLOAT
 
+// check whether the complier support 64-bit AT&T inline assembly
 #if defined(__GNUC__) || defined(__clang__)
 	#if defined(__x86_64__) || defined(__ppc64__)
 		#define USE_ASM
