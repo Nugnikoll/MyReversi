@@ -9,7 +9,7 @@
  */
 
 /** @file reversi.h
- * @brief This head file is an essential part of the program
+ * @brief This head file is an essential part of reversi
  * where the most important class board is defined.
  * Many basic functions are declared here.
  */
@@ -328,6 +328,10 @@ public:
 		return result;
 	}
 
+	/** @fn static brd_type get_edge_stable(cbrd_type brd)
+	 *	@brief It's a function used to estimate which stones are stable.
+	 *	@param brd the 64-bit board
+	*/
 	static brd_type get_edge_stable(cbrd_type brd){
 		brd_type brd_ul,brd_ur,brd_dl,brd_dr;
 
@@ -358,6 +362,10 @@ public:
 		return brd_ul | brd_ur | brd_dl | brd_dr;
 	}
 
+	/** @fn static brd_type get_edge_stable(cbrd_type brd)
+	 *	@brief It's a function used to estimate which stones are stable.
+	 *	@param brd the 64-bit board
+	*/
 	static brd_type get_stable(cbrd_type brd){
 		brd_type brd_l,brd_r,brd_u,brd_d,brd_ul,brd_ur,brd_dl,brd_dr;
 
@@ -405,6 +413,10 @@ public:
 			& (brd_ul | brd_dr) & (brd_ur | brd_dl);
 	}
 
+	/** @fn static brd_type get_front(cbrd_type brd)
+	 *	@brief It's a function used to calculate the frontier.
+	 *	@param brd the 64-bit board
+	*/
 	static brd_type get_front(cbrd_type brd){
 		brd_type brd_reverse, brd_front;
 
@@ -444,12 +456,25 @@ public:
 		reflect(brd_white);
 	}
 
+	/** @fn short count(cbool color)const
+	 *	@brief Count the number of black stones or white stones.
+	 *	@param color Whether the color is black.
+	*/
 	short count(cbool color)const{
 		return count(bget(color));
 	}
+
+	/** @fn pos_type sum()const
+	 *	@brief Count the number of stones.
+	*/
 	pos_type sum()const{
 		return count(brd_black | brd_white);
 	}
+
+	/** @fn brd_type get_move(cbool color)const
+	 *	@brief Calculate possible moves.
+	 *	@param color Whether it is black's turn.
+	*/
 	brd_type get_move(cbool color)const{
 		// This part of code is brought from Zebra.
 		// I rewrite it in 64-bit style.
@@ -538,6 +563,11 @@ public:
 		moves &= ~(brd_blue | brd_green);
 		return moves;
 	}
+
+	/** @fn short count_move(cbool color)const
+	 *	@brief Count possible moves.
+	 *	@param color Whether it is black's turn.
+	*/
 	short count_move(cbool color)const{
 		return count(get_move(color));
 	}

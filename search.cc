@@ -1,3 +1,7 @@
+/** @file search.cc
+ * @brief This file includes implementation of search function.
+ */
+
 #include <algorithm>
 #include <cmath>
 

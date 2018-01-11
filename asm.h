@@ -1,3 +1,7 @@
+/** @file asm.h
+ * @brief This file includes some macros for inline assembly.
+ */
+
 #ifndef ASM_H
 #define ASM_H
 
