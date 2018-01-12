@@ -57,7 +57,6 @@
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-DwxUSE_UNICODE" />
 			<Add directory="F:/Program/wxWidgets/include" />
-			<Add directory="F:/Program/cpptcl-1.1.3" />
 			<Add directory="F:/Program/Tcl/include" />
 		</Compiler>
 		<ResourceCompiler>
