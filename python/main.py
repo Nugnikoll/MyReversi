@@ -37,7 +37,11 @@ class reversi_app(wx.App):
 		self.text_term = xrc.XRCCTRL(self.frame, "id_text_term");
 		self.text_log = xrc.XRCCTRL(self.frame, "id_text_log");
 		self.choice_black = xrc.XRCCTRL(self.frame, "id_choice_black");
+		self.text_path_black = xrc.XRCCTRL(self.frame, "id_text_path_black");
+		self.button_folder_black = xrc.XRCCTRL(self.frame, "id_button_folder_black");
 		self.choice_white = xrc.XRCCTRL(self.frame, "id_choice_white");
+		self.text_path_white = xrc.XRCCTRL(self.frame, "id_text_path_white");
+		self.button_folder_white = xrc.XRCCTRL(self.frame, "id_button_folder_white");
 		self.button_start = xrc.XRCCTRL(self.frame, "id_button_start");
 		self.menubar = self.frame.GetMenuBar();
 		self.menu_trans = self.menubar.FindItemById(xrc.XRCID("id_menu_trans")).GetSubMenu()
@@ -66,10 +70,12 @@ class reversi_app(wx.App):
 		self.panel_board.Bind(wx.EVT_LEFT_DOWN,self.on_panel_board_leftdown);
 		self.text_input.Bind(wx.EVT_TEXT_ENTER,self.on_text_input_textenter);
 		self.choice_black.Bind(wx.EVT_CHOICE,self.on_choice_player);
+		self.text_path_black.Bind(wx.EVT_TEXT_ENTER,self.on_text_path_enter);
+		self.button_folder_black.Bind(wx.EVT_BUTTON,self.on_button_folder_click);
 		self.choice_white.Bind(wx.EVT_CHOICE,self.on_choice_player);
+		self.text_path_white.Bind(wx.EVT_TEXT_ENTER,self.on_text_path_enter);
+		self.button_folder_white.Bind(wx.EVT_BUTTON,self.on_button_folder_click);
 		self.button_start.Bind(wx.EVT_BUTTON,self.on_start);
-		# self.Bind(wx.EVT_CHOICE,self.on_choice_player,id = xrc.XRCID("id_choice_black"));
-		# self.Bind(wx.EVT_CHOICE,self.on_choice_player,id = xrc.XRCID("id_choice_white"));
 		self.Bind(wx.EVT_MENU,self.on_quit,id = xrc.XRCID("id_menu_quit"));
 		self.Bind(wx.EVT_MENU,self.on_about,id = xrc.XRCID("id_menu_about"));
 		self.Bind(wx.EVT_MENU,self.on_start,id = xrc.XRCID("id_menu_new"));
@@ -104,6 +110,11 @@ class reversi_app(wx.App):
 		mygame.dc = wx.ClientDC(self.panel_board);
 		mygame.text_log = self.text_log;
 
+		self.text_path_black.Hide();
+		self.button_folder_black.Hide();
+		self.text_path_white.Hide();
+		self.button_folder_white.Hide();
+
 	def on_quit(self,event):
 		self.Close();
 	def on_about(self,event):
@@ -134,20 +145,12 @@ class reversi_app(wx.App):
 			);
 
 			if self.choice_black.GetCurrentSelection() == rv.ply_other:
-				dialog_choice_player = wx.FileDialog(
-					self.frame, "Select file", wx.EmptyString, wx.EmptyString,
-					"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
-					wx.DefaultSize, "wxFileDialog"
-				);
+				self.text_path_black.Show();
+				self.button_folder_black.Show();
+			else:
+				self.text_path_black.Hide();
+				self.button_folder_black.Hide();
 
-				if dialog_choice_player.ShowModal() == wx.ID_OK:
-					path = dialog_choice_player.GetPath();
-					path = path.replace("\\","\\\\");
-					self.process(
-						"mygame.get_ply(True).path = \""
-						+ path
-						+ "\";"
-					);
 		elif event.GetId() == self.choice_white.GetId():
 			self.process(
 				"mygame.get_ply(False).p_type = "
@@ -156,20 +159,58 @@ class reversi_app(wx.App):
 			);
 
 			if self.choice_white.GetCurrentSelection() == rv.ply_other:
-				dialog_choice_player = wx.FileDialog(
-					self.frame, "Select file", wx.EmptyString, wx.EmptyString,
-					"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
-					wx.DefaultSize, "wxFileDialog"
-				);
+				self.text_path_white.Show();
+				self.button_folder_white.Show();
+			else:
+				self.text_path_white.Hide();
+				self.button_folder_white.Hide();
 
-				if dialog_choice_player.ShowModal() == wx.ID_OK:
-					path = dialog_choice_player.GetPath();
-					path = path.replace("\\","\\\\");
-					self.process(
-						"mygame.get_ply(False).path = \""
-						+ path
-						+ "\";"
-					);
+	def on_text_path_enter(self,event):
+		if event.GetId() == self.text_path_black.GetId():
+			self.process(
+				"mygame.get_ply(True).path = \""
+				+ self.text_path_black.GetValue()
+				+ "\";"
+			);
+		elif event.GetId() == self.text_path_white.GetId():
+			self.process(
+				"mygame.get_ply(False).path = \""
+				+ self.text_path_white.GetValue()
+				+ "\";"
+			);
+	def on_button_folder_click(self,event):
+		if event.GetId() == self.button_folder_black.GetId():
+			dialog_choice_player = wx.FileDialog(
+				self.frame, "Select file", wx.EmptyString, wx.EmptyString,
+				"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
+				wx.DefaultSize, "wxFileDialog"
+			);
+
+			if dialog_choice_player.ShowModal() == wx.ID_OK:
+				path = dialog_choice_player.GetPath();
+				path = path.replace("\\","\\\\");
+				self.text_path_black.SetValue(path);
+				self.process(
+					"mygame.get_ply(True).path = \""
+					+ path
+					+ "\";"
+				);
+		elif event.GetId() == self.button_folder_white.GetId():
+			dialog_choice_player = wx.FileDialog(
+				self.frame, "Select file", wx.EmptyString, wx.EmptyString,
+				"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
+				wx.DefaultSize, "wxFileDialog"
+			);
+
+			if dialog_choice_player.ShowModal() == wx.ID_OK:
+				path = dialog_choice_player.GetPath();
+				path = path.replace("\\","\\\\");
+				self.text_path_white.SetValue(path);
+				self.process(
+					"mygame.get_ply(False).path = \""
+					+ path
+					+ "\";"
+				);
 	def on_start(self,event):
 		self.process("mygame.start();");
 	def on_undo(self,event):

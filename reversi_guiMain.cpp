@@ -698,9 +698,9 @@ void reversi_guiFrame::on_choice_player(wxCommandEvent& event){
 void reversi_guiFrame::on_text_path_enter(wxCommandEvent& event)
 {
 	if(event.GetId() == id_text_path_black){
-		process(string("set_player_path 1 ") + text_path_black->GetValue().ToStdString());
+		process(string("set_player_path 1 \"") + text_path_black->GetValue().ToStdString() + "\"");
 	}else if(event.GetId() == id_text_path_white){
-		process(string("set_player_path 0 ") + text_path_white->GetValue().ToStdString());
+		process(string("set_player_path 0 \"") + text_path_white->GetValue().ToStdString() + "\"");
 	}
 }
 
@@ -720,7 +720,7 @@ void reversi_guiFrame::on_button_folder_click(wxCommandEvent& event)
 				path.replace(pos,1,"\\\\");
 			}
 			text_path_black->SetValue(path);
-			process(string("set_player_path 1 ") + path);
+			process(string("set_player_path 1 \"") + path + "\"");
 		}
 	}else if(event.GetId() == id_button_folder_white){
 		wxFileDialog* dialog_choice_player = new wxFileDialog(
@@ -736,7 +736,7 @@ void reversi_guiFrame::on_button_folder_click(wxCommandEvent& event)
 				path.replace(pos,1,"\\\\");
 			}
 			text_path_white->SetValue(path);
-			process(string("set_player_path 0 ") + path);
+			process(string("set_player_path 0 \"") + path + "\"");
 		}
 	}
 }
