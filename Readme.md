@@ -17,14 +17,12 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 	- Optional
 		- CodeBlocks or Cbp2make (if you want to utilize the .cbp codeblocks project file to build this project)
 		- TCL (if you want to embed tool command language)
-		- cpptcl (if you want to embed tool command language)
-		- Boost (required by cpptcl)
 		- wxWidgets (required by the GUI version written in C++)
 		- python (required by the GUI version written in Python and some simple scripts)
 		- swig (required by the GUI version written in Python)
 		- wxPython (required by the GUI version written in Python)
 
-Personally, I've only built the project on 64-bit windows and cygwin but I believe it can migrates to other platforms.
+Personally, I've only built the project on 64-bit windows and cygwin but I believe it can migrate to other platforms.
 
 - Build reversi with only basic functions
 	2. Create a C++ project.
