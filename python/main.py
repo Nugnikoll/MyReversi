@@ -43,6 +43,7 @@ class reversi_app(wx.App):
 		self.text_path_white = xrc.XRCCTRL(self.frame, "id_text_path_white");
 		self.button_folder_white = xrc.XRCCTRL(self.frame, "id_button_folder_white");
 		self.button_start = xrc.XRCCTRL(self.frame, "id_button_start");
+		self.box_sizer_note = xrc.XRCCTRL(self.frame, "id_panel_note").GetSizer();
 		self.menubar = self.frame.GetMenuBar();
 		self.menu_trans = self.menubar.FindItemById(xrc.XRCID("id_menu_trans")).GetSubMenu()
 		self.menu_alg = self.menubar.FindItemById(xrc.XRCID("id_menu_alg")).GetSubMenu();
@@ -114,6 +115,7 @@ class reversi_app(wx.App):
 		self.button_folder_black.Hide();
 		self.text_path_white.Hide();
 		self.button_folder_white.Hide();
+		self.box_sizer_note.Layout();
 
 	def on_quit(self,event):
 		self.Close();
@@ -151,6 +153,8 @@ class reversi_app(wx.App):
 				self.text_path_black.Hide();
 				self.button_folder_black.Hide();
 
+			self.box_sizer_note.Layout();
+
 		elif event.GetId() == self.choice_white.GetId():
 			self.process(
 				"mygame.get_ply(False).p_type = "
@@ -164,6 +168,8 @@ class reversi_app(wx.App):
 			else:
 				self.text_path_white.Hide();
 				self.button_folder_white.Hide();
+
+			self.box_sizer_note.Layout();
 
 	def on_text_path_enter(self,event):
 		if event.GetId() == self.text_path_black.GetId():

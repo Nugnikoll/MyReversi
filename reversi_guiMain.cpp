@@ -126,7 +126,6 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     wxBoxSizer* BoxSizer7;
     wxBoxSizer* BoxSizer8;
     wxBoxSizer* BoxSizer9;
-    wxBoxSizer* box_sizer_note;
     wxMenu* Menu2;
     wxMenu* menu;
     wxMenuBar* menubar;
@@ -422,6 +421,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 	button_folder_black->Hide();
 	text_path_white->Hide();
 	button_folder_white->Hide();
+	box_sizer_note->Layout();
 
 	#ifdef DEBUG_SEARCH
 		out.open("out.html");
@@ -682,6 +682,7 @@ void reversi_guiFrame::on_choice_player(wxCommandEvent& event){
 			text_path_black->Hide();
 			button_folder_black->Hide();
 		}
+		box_sizer_note->Layout();
 	}else if(event.GetId() == id_choice_white){
 		process("set_player 0 " + to_string(choice_white->GetCurrentSelection()));
 
@@ -692,6 +693,7 @@ void reversi_guiFrame::on_choice_player(wxCommandEvent& event){
 			text_path_white->Hide();
 			button_folder_white->Hide();
 		}
+		box_sizer_note->Layout();
 	}
 }
 
