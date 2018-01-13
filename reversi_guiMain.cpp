@@ -177,7 +177,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     BoxSizer5->Add(choice_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer6 = new wxBoxSizer(wxHORIZONTAL);
-    text_path_black = new wxTextCtrl(panel_note, id_text_path_black, _("Irius"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_black"));
+    text_path_black = new wxTextCtrl(panel_note, id_text_path_black, _("Irius offline"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_black"));
     text_path_black->SetBackgroundColour(wxColour(200,200,200));
     wxFont text_path_blackFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_path_black->SetFont(text_path_blackFont);
@@ -203,12 +203,12 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     BoxSizer7->Add(choice_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
-    text_path_white = new wxTextCtrl(panel_note, id_text_path_white, _("Irius"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_white"));
+    text_path_white = new wxTextCtrl(panel_note, id_text_path_white, _("Irius offline"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_white"));
     text_path_white->SetBackgroundColour(wxColour(200,200,200));
     wxFont text_path_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_path_white->SetFont(text_path_whiteFont);
     BoxSizer8->Add(text_path_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    button_folder_white = new wxBitmapButton(panel_note, id_button_folder_white, wxBitmap(wxImage(_T("E:\\LLK\\ComputerSci\\Cplusplus\\reversi\\image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_white"));
+    button_folder_white = new wxBitmapButton(panel_note, id_button_folder_white, wxBitmap(wxImage(_T("image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_white"));
     button_folder_white->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
     BoxSizer8->Add(button_folder_white, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);

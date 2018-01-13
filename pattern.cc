@@ -910,6 +910,8 @@ void pattern::balance(){
 			index <<= 8;
 			index |= index_l;
 
+			balance_part(8);
+
 			index_l = i;
 			index_l = table_shuffle[index_l];
 			index_h = i >> 8;

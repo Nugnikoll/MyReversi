@@ -120,7 +120,7 @@
 														<object class="wxBoxSizer" variable="BoxSizer6" member="no">
 															<object class="sizeritem">
 																<object class="wxTextCtrl" name="id_text_path_black" variable="text_path_black" member="yes">
-																	<value>Irius</value>
+																	<value>Irius offline</value>
 																	<size>332,30</size>
 																	<bg>#C8C8C8</bg>
 																	<font>
@@ -206,7 +206,7 @@
 														<object class="wxBoxSizer" variable="BoxSizer8" member="no">
 															<object class="sizeritem">
 																<object class="wxTextCtrl" name="id_text_path_white" variable="text_path_white" member="yes">
-																	<value>Irius</value>
+																	<value>Irius offline</value>
 																	<size>332,30</size>
 																	<bg>#C8C8C8</bg>
 																	<font>
@@ -226,7 +226,7 @@
 															</object>
 															<object class="sizeritem">
 																<object class="wxBitmapButton" name="id_button_folder_white" variable="button_folder_white" member="yes">
-																	<bitmap>E:\LLK\ComputerSci\Cplusplus\reversi\image\folder_small.png</bitmap>
+																	<bitmap>image\folder_small.png</bitmap>
 																	<size>32,29</size>
 																	<bg>wxSYS_COLOUR_BACKGROUND</bg>
 																	<handler function="on_button_folder_click" entry="EVT_BUTTON" />
