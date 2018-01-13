@@ -135,7 +135,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     Create(parent, wxID_ANY, _("Reversi"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     {
     wxIcon FrameIcon;
-    FrameIcon.CopyFromBitmap(wxBitmap(wxImage(_T("E:\\LLK\\ComputerSci\\Cplusplus\\reversi\\image\\Reversi.bmp"))));
+    FrameIcon.CopyFromBitmap(wxBitmap(wxImage(_T("image\\Reversi.bmp"))));
     SetIcon(FrameIcon);
     }
     BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
@@ -182,7 +182,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     wxFont text_path_blackFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_path_black->SetFont(text_path_blackFont);
     BoxSizer6->Add(text_path_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    button_folder_black = new wxBitmapButton(panel_note, id_button_folder_black, wxBitmap(wxImage(_T("E:\\LLK\\ComputerSci\\Cplusplus\\reversi\\image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_black"));
+    button_folder_black = new wxBitmapButton(panel_note, id_button_folder_black, wxBitmap(wxImage(_T("image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_black"));
     button_folder_black->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
     BoxSizer6->Add(button_folder_black, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
