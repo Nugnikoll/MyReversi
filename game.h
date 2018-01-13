@@ -25,7 +25,7 @@ public:
 	game(): brd{0,0}, color(true), pos{-1,-1},
 		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
 		depth(-1), flag_auto_save(true), flag_lock(true),
-		ply_white{ply_ai,"Irius"},ply_black{ply_human,"Irius"} {}
+		ply_white{ply_ai,"Irius offline"},ply_black{ply_human,"Irius offline"} {}
 	virtual ~game(){}
 
 	board brd;

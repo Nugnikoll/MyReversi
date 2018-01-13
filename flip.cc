@@ -292,10 +292,6 @@ void board::config_flip(){
 		brd_type& green = ptr->bget(!color); \
 		brd_type mask = brd_type(1) << _pos;\
  \
-		if((blue | green) & mask){ \
-			return false; \
-		} \
- \
 		brd_type pos = mask; \
  \
 		kernel \
@@ -385,7 +381,6 @@ flip_fun(flip_dr,
 )
 
 void flip_n(board* const&,cbool color,cpos_type pos){
-	return false;
 }
 
 void (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =

@@ -57,14 +57,14 @@ public:
 		}
 
 		for(brd_type i = 0;i != 256;++i){
-			asm_pdep(i,0x0101010101010101,j);
+			j = board::deposit(i,0x0101010101010101);
 			asm_bswap(j);
-			asm_pext(j,0x0101010101010101,j);
+			j = board::extract(j,0x0101010101010101);
 			table_reverse[i] = j;
 
-			asm_pdep(i,0x2004801002400801,j);
+			j = board::deposit(i,0x2004801002400801);
 			board::rotate_r(j);
-			asm_pext(j,0x0420010840021080,j);
+			j = board::extract(j,0x0420010840021080);
 			table_shuffle[i] = j;
 		}
 	}
