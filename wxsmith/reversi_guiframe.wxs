@@ -2,7 +2,7 @@
 <wxsmith>
 	<object class="wxFrame" name="reversi_guiFrame">
 		<title>Reversi</title>
-		<icon>E:\LLK\ComputerSci\Cplusplus\reversi\image\Reversi.bmp</icon>
+		<icon>image\Reversi.bmp</icon>
 		<id_arg>0</id_arg>
 		<object class="wxBoxSizer" variable="BoxSizer1" member="yes">
 			<object class="sizeritem">
@@ -65,7 +65,7 @@
 												<fg>#C8C8C8</fg>
 												<bg>#202020</bg>
 												<style>wxSUNKEN_BORDER|wxTAB_TRAVERSAL</style>
-												<object class="wxBoxSizer" variable="box_sizer_note" member="no">
+												<object class="wxBoxSizer" variable="box_sizer_note" member="yes">
 													<orient>wxVERTICAL</orient>
 													<object class="sizeritem">
 														<object class="wxBoxSizer" variable="BoxSizer5" member="no">
@@ -140,7 +140,7 @@
 															</object>
 															<object class="sizeritem">
 																<object class="wxBitmapButton" name="id_button_folder_black" variable="button_folder_black" member="yes">
-																	<bitmap>E:\LLK\ComputerSci\Cplusplus\reversi\image\folder_small.png</bitmap>
+																	<bitmap>image\folder_small.png</bitmap>
 																	<size>32,29</size>
 																	<bg>wxSYS_COLOUR_BACKGROUND</bg>
 																	<handler function="on_button_folder_click" entry="EVT_BUTTON" />
