@@ -128,6 +128,7 @@ class reversi_guiFrame: public wxFrame
         wxBitmapButton* button_folder_white;
         wxBoxSizer* BoxSizer1;
         wxBoxSizer* BoxSizer2;
+        wxBoxSizer* box_sizer_note;
         wxButton* button_start;
         wxChoice* choice_black;
         wxChoice* choice_white;
