@@ -16,6 +16,9 @@
 *.log
 *.stackdump
 
+bin/*
+obj/*
+
 out*
 *temp*
 
@@ -33,6 +36,7 @@ single/*.cc
 
 python/reversi.py
 python/*wrap.*
+python/image/*
 
 wxsmith/*.xrc
 

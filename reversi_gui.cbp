@@ -17,15 +17,7 @@
 					<Add option="-g" />
 					<Add option="-Og" />
 					<Add option="-D__WXDEBUG__" />
-					<Add directory="F:/Program/wxWidgets/lib/gcc_dll/mswud" />
 				</Compiler>
-				<ResourceCompiler>
-					<Add directory="F:/Program/wxWidgets/lib/gcc_dll/mswud" />
-				</ResourceCompiler>
-				<Linker>
-					<Add library="libwxmsw30ud.a" />
-					<Add directory="F:/Program/wxWidgets/lib/gcc_dll" />
-				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/reversi_gui" prefix_auto="1" extension_auto="1" />
@@ -35,36 +27,24 @@
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="F:/Program/wxWidgets/lib/gcc_dll/mswu" />
 				</Compiler>
-				<ResourceCompiler>
-					<Add directory="F:/Program/wxWidgets/lib/gcc_dll/mswu" />
-				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libwxmsw30u.a" />
-					<Add directory="F:/Program/wxWidgets/lib/gcc_dll" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-std=gnu++11" />
-			<Add option="-pipe" />
-			<Add option="-mthreads" />
-			<Add option="-D__GNUWIN32__" />
-			<Add option="-D__WXMSW__" />
-			<Add option="-DWXUSINGDLL" />
-			<Add option="-DwxUSE_UNICODE" />
-			<Add directory="F:/Program/wxWidgets/include" />
-			<Add directory="F:/Program/Tcl/include" />
+			<Add option="`wx-config --cxxflags` `wx-config --libs`" />
+			<Add directory="/usr/include/tcl" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="F:/Program/wxWidgets/include" />
 		</ResourceCompiler>
 		<Linker>
-			<Add option="-mthreads -ltcl86" />
-			<Add directory="F:/Program/Tcl/lib" />
+			<Add option="-ltcl8.6" />
+			<Add option="`wx-config --cxxflags` `wx-config --libs`" />
 		</Linker>
 		<Unit filename="asm.h" />
 		<Unit filename="cpptcl.cc" />

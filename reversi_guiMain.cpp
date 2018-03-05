@@ -13,13 +13,13 @@
 #include <wx/msgdlg.h>
 
 //(*InternalHeaders(reversi_guiFrame)
-#include <wx/bitmap.h>
-#include <wx/font.h>
-#include <wx/icon.h>
-#include <wx/image.h>
-#include <wx/intl.h>
 #include <wx/settings.h>
 #include <wx/string.h>
+#include <wx/intl.h>
+#include <wx/font.h>
+#include <wx/bitmap.h>
+#include <wx/icon.h>
+#include <wx/image.h>
 //*)
 
 #include "reversi_gui.h"
@@ -120,41 +120,41 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
 {
     //(*Initialize(reversi_guiFrame)
     wxBoxSizer* BoxSizer3;
-    wxBoxSizer* BoxSizer4;
-    wxBoxSizer* BoxSizer5;
-    wxBoxSizer* BoxSizer6;
+    wxMenuBar* menubar;
     wxBoxSizer* BoxSizer7;
-    wxBoxSizer* BoxSizer8;
     wxBoxSizer* BoxSizer9;
+    wxMenuItem* menu_quit;
+    wxBoxSizer* BoxSizer4;
+    wxBoxSizer* BoxSizer8;
     wxMenu* Menu2;
     wxMenu* menu;
-    wxMenuBar* menubar;
     wxMenuItem* menu_about;
-    wxMenuItem* menu_quit;
+    wxBoxSizer* BoxSizer6;
+    wxBoxSizer* BoxSizer5;
 
     Create(parent, wxID_ANY, _("Reversi"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     {
-    wxIcon FrameIcon;
-    FrameIcon.CopyFromBitmap(wxBitmap(wxImage(_T("image\\Reversi.bmp"))));
-    SetIcon(FrameIcon);
+    	wxIcon FrameIcon;
+    	FrameIcon.CopyFromBitmap(wxBitmap(wxImage(_T("image/Reversi.bmp"))));
+    	SetIcon(FrameIcon);
     }
     BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
     panel_base = new wxPanel(this, id_panel_base, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("id_panel_base"));
-    panel_base->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
+    panel_base->SetBackgroundColour(wxColour(0,0,0));
     BoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
     BoxSizer3 = new wxBoxSizer(wxVERTICAL);
     panel_board = new wxPanel(panel_base, id_panel_board, wxDefaultPosition, wxSize(424,424), wxSUNKEN_BORDER|wxTAB_TRAVERSAL, _T("id_panel_board"));
     panel_board->SetBackgroundColour(wxColour(43,155,0));
-    BoxSizer3->Add(panel_board, 1, wxALL, 5);
+    BoxSizer3->Add(panel_board, 1, wxALL|wxALIGN_LEFT|wxALIGN_TOP, 5);
     BoxSizer2->Add(BoxSizer3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer4 = new wxBoxSizer(wxVERTICAL);
     text_label = new wxStaticText(panel_base, id_text_label, _("Reversi"), wxDefaultPosition, wxSize(154,51), 0, _T("id_text_label"));
     text_label->SetForegroundColour(wxColour(200,200,200));
-    wxFont text_labelFont(26,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Segoe Script"),wxFONTENCODING_DEFAULT);
+    wxFont text_labelFont(26,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Segoe Script"),wxFONTENCODING_DEFAULT);
     text_label->SetFont(text_labelFont);
     BoxSizer4->Add(text_label, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     notebook = new wxNotebook(panel_base, id_notebook, wxDefaultPosition, wxSize(448,296), 0, _T("id_notebook"));
-    wxFont notebookFont(12,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont notebookFont(12,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     notebook->SetFont(notebookFont);
     panel_note = new wxPanel(notebook, id_panel_note, wxDefaultPosition, wxSize(424,424), wxSUNKEN_BORDER|wxTAB_TRAVERSAL, _T("id_panel_note"));
     panel_note->SetForegroundColour(wxColour(200,200,200));
@@ -163,7 +163,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     BoxSizer5 = new wxBoxSizer(wxHORIZONTAL);
     label_black = new wxStaticText(panel_note, id_label_black, _("Black Player:"), wxDefaultPosition, wxSize(163,22), 0, _T("id_label_black"));
     label_black->SetForegroundColour(wxColour(200,200,200));
-    wxFont label_blackFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont label_blackFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     label_black->SetFont(label_blackFont);
     BoxSizer5->Add(label_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     choice_black = new wxChoice(panel_note, id_choice_black, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("id_choice_black"));
@@ -172,24 +172,24 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     choice_black->Append(_("Other Program"));
     choice_black->SetForegroundColour(wxColour(32,32,32));
     choice_black->SetBackgroundColour(wxColour(200,200,200));
-    wxFont choice_blackFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont choice_blackFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     choice_black->SetFont(choice_blackFont);
     BoxSizer5->Add(choice_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer6 = new wxBoxSizer(wxHORIZONTAL);
     text_path_black = new wxTextCtrl(panel_note, id_text_path_black, _("Irius offline"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_black"));
     text_path_black->SetBackgroundColour(wxColour(200,200,200));
-    wxFont text_path_blackFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont text_path_blackFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_path_black->SetFont(text_path_blackFont);
     BoxSizer6->Add(text_path_black, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    button_folder_black = new wxBitmapButton(panel_note, id_button_folder_black, wxBitmap(wxImage(_T("image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_black"));
+    button_folder_black = new wxBitmapButton(panel_note, id_button_folder_black, wxBitmap(wxImage(_T("image/folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_black"));
     button_folder_black->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
     BoxSizer6->Add(button_folder_black, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
     label_white = new wxStaticText(panel_note, id_label_white, _("White Player:"), wxDefaultPosition, wxSize(163,22), 0, _T("id_label_white"));
     label_white->SetForegroundColour(wxColour(200,200,200));
-    wxFont label_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont label_whiteFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     label_white->SetFont(label_whiteFont);
     BoxSizer7->Add(label_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     choice_white = new wxChoice(panel_note, id_choice_white, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("id_choice_white"));
@@ -198,17 +198,17 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     choice_white->Append(_("Other Program"));
     choice_white->SetForegroundColour(wxColour(32,32,32));
     choice_white->SetBackgroundColour(wxColour(200,200,200));
-    wxFont choice_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont choice_whiteFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     choice_white->SetFont(choice_whiteFont);
     BoxSizer7->Add(choice_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
     text_path_white = new wxTextCtrl(panel_note, id_text_path_white, _("Irius offline"), wxDefaultPosition, wxSize(332,30), wxTE_PROCESS_ENTER, wxDefaultValidator, _T("id_text_path_white"));
     text_path_white->SetBackgroundColour(wxColour(200,200,200));
-    wxFont text_path_whiteFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont text_path_whiteFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_path_white->SetFont(text_path_whiteFont);
     BoxSizer8->Add(text_path_white, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    button_folder_white = new wxBitmapButton(panel_note, id_button_folder_white, wxBitmap(wxImage(_T("image\\folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_white"));
+    button_folder_white = new wxBitmapButton(panel_note, id_button_folder_white, wxBitmap(wxImage(_T("image/folder_small.png"))), wxDefaultPosition, wxSize(32,29), wxBU_AUTODRAW, wxDefaultValidator, _T("id_button_folder_white"));
     button_folder_white->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BACKGROUND));
     BoxSizer8->Add(button_folder_white, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -216,7 +216,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     button_start = new wxButton(panel_note, id_button_start, _("Start a New Game"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("id_button_start"));
     button_start->SetForegroundColour(wxColour(32,32,32));
     button_start->SetBackgroundColour(wxColour(200,200,200));
-    wxFont button_startFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont button_startFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     button_start->SetFont(button_startFont);
     BoxSizer9->Add(button_start, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     box_sizer_note->Add(BoxSizer9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -225,34 +225,34 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     text_term = new wxTextCtrl(notebook, id_text_term, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY, wxDefaultValidator, _T("id_text_term"));
     text_term->SetForegroundColour(wxColour(200,200,200));
     text_term->SetBackgroundColour(wxColour(32,32,32));
-    wxFont text_termFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont text_termFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_term->SetFont(text_termFont);
     text_log = new wxTextCtrl(notebook, id_text_log, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY, wxDefaultValidator, _T("id_text_log"));
     text_log->SetForegroundColour(wxColour(200,200,200));
     text_log->SetBackgroundColour(wxColour(32,32,32));
-    wxFont text_logFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont text_logFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_log->SetFont(text_logFont);
     book_tree = new wxTreeCtrl(notebook, id_book_tree, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("id_book_tree"));
     book_tree->SetForegroundColour(wxColour(200,200,200));
     book_tree->SetBackgroundColour(wxColour(32,32,32));
-    wxFont book_treeFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont book_treeFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     book_tree->SetFont(book_treeFont);
     notebook->AddPage(panel_note, _("interaction"), false);
     notebook->AddPage(text_term, _("terminal"), false);
     notebook->AddPage(text_log, _("log"), false);
     notebook->AddPage(book_tree, _("book"), false);
-    BoxSizer4->Add(notebook, 1, wxALL|wxEXPAND, 5);
+    BoxSizer4->Add(notebook, 1, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP, 5);
     text_input = new wxTextCtrl(panel_base, id_text_input, wxEmptyString, wxDefaultPosition, wxSize(266,30), wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB, wxDefaultValidator, _T("id_text_input"));
     text_input->SetForegroundColour(wxColour(200,200,200));
     text_input->SetBackgroundColour(wxColour(32,32,32));
-    wxFont text_inputFont(14,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
+    wxFont text_inputFont(14,wxSWISS,wxFONTSTYLE_NORMAL,wxBOLD,false,_T("Consolas"),wxFONTENCODING_DEFAULT);
     text_input->SetFont(text_inputFont);
-    BoxSizer4->Add(text_input, 0, wxALL|wxEXPAND, 5);
-    BoxSizer2->Add(BoxSizer4, 1, wxALL|wxEXPAND, 5);
+    BoxSizer4->Add(text_input, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP, 5);
+    BoxSizer2->Add(BoxSizer4, 1, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP, 5);
     panel_base->SetSizer(BoxSizer2);
     BoxSizer2->Fit(panel_base);
     BoxSizer2->SetSizeHints(panel_base);
-    BoxSizer1->Add(panel_base, 1, wxALL|wxEXPAND, 5);
+    BoxSizer1->Add(panel_base, 1, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP, 5);
     SetSizer(BoxSizer1);
     menubar = new wxMenuBar();
     menu = new wxMenu();
@@ -406,7 +406,7 @@ reversi_guiFrame::reversi_guiFrame(wxWindow* parent,wxWindowID id)
     //*)
 
 	Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
-	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
+	panel_board->Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this);
 
 	ptr_frame = this;
 	ptr_panel = panel_board;
@@ -635,16 +635,16 @@ void reversi_guiFrame::on_text_input_textenter(wxCommandEvent& event)
 void reversi_guiFrame::on_context_menu(wxContextMenuEvent& event){
 	//wxMenu* menu = new wxMenu();
 
-	//menu->Append(id_undo, _("&Undo"));  
-//	menu->Append(wxID_REDO, _("&Redo"));  
-//	menu->AppendSeparator();  
-//	menu->Append(wxID_CUT, _("Cu&t"));  
-//	menu->Append(wxID_COPY, _("&Copy"));  
-//	menu->Append(wxID_PASTE, _("&Paste"));  
-//	menu->Append(wxID_CLEAR, _("&Delete"));  
-//	menu->AppendSeparator();  
-//	menu->Append(wxID_SELECTALL, _("Select &All"));  
-//  
+	//menu->Append(id_undo, _("&Undo"));
+//	menu->Append(wxID_REDO, _("&Redo"));
+//	menu->AppendSeparator();
+//	menu->Append(wxID_CUT, _("Cu&t"));
+//	menu->Append(wxID_COPY, _("&Copy"));
+//	menu->Append(wxID_PASTE, _("&Paste"));
+//	menu->Append(wxID_CLEAR, _("&Delete"));
+//	menu->AppendSeparator();
+//	menu->Append(wxID_SELECTALL, _("Select &All"));
+//
 	//PopupMenu(menu);
 }
 

@@ -58,7 +58,7 @@ public:
 
 		for(brd_type i = 0;i != 256;++i){
 			j = board::deposit(i,0x0101010101010101);
-			asm_bswap(j);
+			board::mirror_v(j);
 			j = board::extract(j,0x0101010101010101);
 			table_reverse[i] = j;
 
