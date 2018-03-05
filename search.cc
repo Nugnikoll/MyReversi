@@ -816,13 +816,13 @@ calc_type board::search_end_five(
 }
 
 vector<choice> board::get_choice(
-	cmethod mthd,cbool color,cshort height
+	cmethod mthd,cbool color,cshort depth
 )const{
 
     vector<choice> choices;
-	calc_type result;
+	calc_type result,best;
     choice temp;
-	calc_type alpha = _inf;
+	calc_type alpha = _inf, beta = inf;
 	calc_type threshold = (mthd & mthd_ptn) ? 3 : 5;
 	calc_type* ptr_val = table_val[this->sum()];
 
@@ -868,14 +868,86 @@ vector<choice> board::get_choice(
 		);
 	}
 
+	if(mthd & mthd_mtdf){
+		method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
+
+		if(depth + 1 >= depth_mtdf){
+
+			method mthd_presearch = method(mthd_de_mtdf & ~mthd_end);
+			short depth_presearch = table_mtdf_depth[depth + 1];
+
+			calc_type gamma = this->search(mthd_presearch,color,depth_presearch);
+
+			mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
+
+			calc_type window_width = sqrt(info.sigma) * 2;
+			calc_type window_alpha = gamma + info.bias - window_width / 2;
+			calc_type window_beta = gamma + info.bias + window_width / 2;
+
+			clear_search_info();
+
+			best = _inf;
+			for(choice& c:choices){
+				result = - c.brd.search(mthd_de_mtdf,!color,depth,-window_beta,-window_alpha);
+				c.val = result;
+				best = max(best,result);
+			}
+
+			if(best <= window_alpha && best > alpha){
+				do{
+					//window_width *= 2;
+					window_beta = best;
+					window_alpha = window_beta - window_width;
+					//window_alpha = max(window_beta - window_width,alpha);
+					best = _inf;
+					for(choice& c:choices){
+						result = - c.brd.search(mthd_de_mtdf,!color,depth,-window_beta,-window_alpha);
+						c.val = result;
+						best = max(best,result);
+					}
+				}while(best <= window_alpha && best > alpha);
+			}else if(best >= window_beta && best < beta){
+				do{
+					//window_width *= 2;
+					window_alpha = best;
+					window_beta = window_alpha + window_width;
+					//window_beta = min(window_alpha + window_width,beta);
+					best = _inf;
+					for(choice& c:choices){
+						result = - c.brd.search(mthd_de_mtdf,!color,depth,-window_beta,-window_alpha);
+						c.val = result;
+						best = max(best,result);
+					}
+				}while(best >= window_beta && best < beta);
+			}
+
+			if(best > alpha && best < beta){
+				info.adjust(best - gamma);
+			}
+
+		}else{
+			best = _inf;
+			for(choice& c:choices){
+				result = - c.brd.search(mthd_de_mtdf,!color,depth,_inf,-alpha);
+				if(mthd & mthd_kill){
+					ptr_val[c.pos] = result;
+				}
+				best = max(best,result);
+				alpha = best - threshold;
+				c.val = result;
+			}
+		}
+		return choices;
+	}
+
+	best = _inf;
 	for(choice& c:choices){
-		result = - c.brd.search(mthd,!color,height,_inf,-alpha);
+		result = - c.brd.search(mthd,!color,depth,_inf,-alpha);
 		if(mthd & mthd_kill){
 			ptr_val[c.pos] = result;
 		}
-		if(result - threshold > alpha){
-			alpha = result - threshold;
-		}
+		best = max(best,result);
+		alpha = best - threshold;
 		c.val = result;
 	}
 

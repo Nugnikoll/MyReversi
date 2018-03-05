@@ -2,12 +2,12 @@
 <wxsmith>
 	<object class="wxFrame" name="reversi_guiFrame">
 		<title>Reversi</title>
-		<icon>image\Reversi.bmp</icon>
+		<icon>image/Reversi.bmp</icon>
 		<id_arg>0</id_arg>
 		<object class="wxBoxSizer" variable="BoxSizer1" member="yes">
 			<object class="sizeritem">
 				<object class="wxPanel" name="id_panel_base" variable="panel_base" member="yes">
-					<bg>wxSYS_COLOUR_BACKGROUND</bg>
+					<bg>#000000</bg>
 					<object class="wxBoxSizer" variable="BoxSizer2" member="yes">
 						<object class="sizeritem">
 							<object class="wxBoxSizer" variable="BoxSizer3" member="no">
@@ -20,7 +20,7 @@
 										<handler function="on_panel_board_paint" entry="EVT_PAINT" />
 										<handler function="on_panel_board_leftdown" entry="EVT_LEFT_DOWN" />
 									</object>
-									<flag>wxALL</flag>
+									<flag>wxALL|wxALIGN_LEFT|wxALIGN_TOP</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -140,7 +140,7 @@
 															</object>
 															<object class="sizeritem">
 																<object class="wxBitmapButton" name="id_button_folder_black" variable="button_folder_black" member="yes">
-																	<bitmap>image\folder_small.png</bitmap>
+																	<bitmap>image/folder_small.png</bitmap>
 																	<size>32,29</size>
 																	<bg>wxSYS_COLOUR_BACKGROUND</bg>
 																	<handler function="on_button_folder_click" entry="EVT_BUTTON" />
@@ -226,7 +226,7 @@
 															</object>
 															<object class="sizeritem">
 																<object class="wxBitmapButton" name="id_button_folder_white" variable="button_folder_white" member="yes">
-																	<bitmap>image\folder_small.png</bitmap>
+																	<bitmap>image/folder_small.png</bitmap>
 																	<size>32,29</size>
 																	<bg>wxSYS_COLOUR_BACKGROUND</bg>
 																	<handler function="on_button_folder_click" entry="EVT_BUTTON" />
@@ -326,7 +326,7 @@
 											<label>book</label>
 										</object>
 									</object>
-									<flag>wxALL|wxEXPAND</flag>
+									<flag>wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -346,17 +346,17 @@
 										<style>wxTE_PROCESS_ENTER|wxTE_PROCESS_TAB</style>
 										<handler function="on_text_input_textenter" entry="EVT_TEXT_ENTER" />
 									</object>
-									<flag>wxALL|wxEXPAND</flag>
+									<flag>wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP</flag>
 									<border>5</border>
 								</object>
 							</object>
-							<flag>wxALL|wxEXPAND</flag>
+							<flag>wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP</flag>
 							<border>5</border>
 							<option>1</option>
 						</object>
 					</object>
 				</object>
-				<flag>wxALL|wxEXPAND</flag>
+				<flag>wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_TOP</flag>
 				<border>5</border>
 				<option>1</option>
 			</object>
