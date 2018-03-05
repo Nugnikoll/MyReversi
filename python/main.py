@@ -13,7 +13,7 @@ xrcfile = "../wxsmith/reversi_guiframe.xrc";
 wxs2xrc(wxsfile,xrcfile);
 
 rv.pattern.config();
-rv.group.config("ptn_opt.dat")
+rv.group.config("data/pattern.dat")
 
 evt_thrd_id = wx.NewId();
 class thrd_event(wx.PyEvent):

@@ -3,6 +3,7 @@
 *.obj
 *.out
 *.a
+*.so
 *.res
 *.lib
 *.dll
