@@ -78,14 +78,15 @@ public:
 		To initial the object, please use the function initial() .
 	*/
 	board() = default;
+	board(const board& brd) = default;
 	board(cbrd_type _brd_black,cbrd_type _brd_white)
 		:brd_white(_brd_white),brd_black(_brd_black){}
 
 	friend bool operator==(const board& b1,const board& b2){
-		return (b1.brd_black == b2.brd_black) && (b1.brd_white == b2.brd_white);
+		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
 	}
 	friend bool operator!=(const board& b1,const board& b2){
-		return (b1.brd_black != b2.brd_black) || (b1.brd_white != b2.brd_white);
+		return b1.brd_black != b2.brd_black || b1.brd_white != b2.brd_white;
 	}
 
 	static const pos_type size = 8;

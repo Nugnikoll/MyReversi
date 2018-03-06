@@ -16,7 +16,9 @@ rv.pattern.config();
 rv.group.config("data/pattern.dat")
 
 evt_thrd_id = wx.NewId();
+
 class thrd_event(wx.PyEvent):
+
 	def __init__(self,data):
 		wx.PyEvent.__init__(self);
 		self.SetEventType(evt_thrd_id);
@@ -100,7 +102,6 @@ class reversi_app(wx.App):
 		self.Connect(-1,-1,evt_thrd_id,self.thrd_catch);
 
 		# Connect(id_book_tree,wxEVT_COMMAND_TREE_ITEM_ACTIVATED,(wxObjectEventFunction)&reversi_guiFrame::on_tree_item_select);
-		
 		# self.panel_board.Connect(wxEVT_CONTEXT_MENU,wxContextMenuEventHandler(reversi_guiFrame::on_context_menu),NULL,this); 
 
 		size_suit = self.frame.GetBestSize();
@@ -108,6 +109,7 @@ class reversi_app(wx.App):
 		self.frame.SetSize(size_suit);
 		self.frame.Show();
 		self.thrd_lock = False;
+		mygame.panel_board = self.panel_board;
 		mygame.dc = wx.ClientDC(self.panel_board);
 		mygame.text_log = self.text_log;
 
@@ -119,15 +121,20 @@ class reversi_app(wx.App):
 
 	def on_quit(self,event):
 		self.Close();
+
 	def on_about(self,event):
 		wx.MessageBox("Reversi Game\nBy Rick\n1300012743@pku.edu.cn","About");
+
 	def on_panel_board_paint(self, event):
 		self.paint();
+
 	def paint(self):
 		dc = wx.ClientDC(self.panel_board);
 		mygame.do_show(dc)
+
 	def _print(self,s):
 		self.text_term.AppendText(str(s) + "\n");
+
 	def process(self,s):
 		if self.thrd_lock:
 			return;
@@ -136,12 +143,14 @@ class reversi_app(wx.App):
 		exec(s);
 		time_end = time.clock();
 		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
+
 	def on_text_input_textenter(self,event):
 		self.process(self.text_input.GetValue());
+
 	def on_choice_player(self,event):
 		if event.GetId() == self.choice_black.GetId():
 			self.process(
-				"mygame.get_ply(True).p_type = "
+				"mygame.ply[True].type = "
 				+ str(self.choice_black.GetCurrentSelection())
 				+ ";"
 			);
@@ -157,7 +166,7 @@ class reversi_app(wx.App):
 
 		elif event.GetId() == self.choice_white.GetId():
 			self.process(
-				"mygame.get_ply(False).p_type = "
+				"mygame.ply[False].type = "
 				+ str(self.choice_white.GetCurrentSelection())
 				+ ";"
 			);
@@ -174,16 +183,17 @@ class reversi_app(wx.App):
 	def on_text_path_enter(self,event):
 		if event.GetId() == self.text_path_black.GetId():
 			self.process(
-				"mygame.get_ply(True).path = \""
+				"mygame.ply[True].path = \""
 				+ self.text_path_black.GetValue()
 				+ "\";"
 			);
 		elif event.GetId() == self.text_path_white.GetId():
 			self.process(
-				"mygame.get_ply(False).path = \""
+				"mygame.ply[False].path = \""
 				+ self.text_path_white.GetValue()
 				+ "\";"
 			);
+
 	def on_button_folder_click(self,event):
 		if event.GetId() == self.button_folder_black.GetId():
 			dialog_choice_player = wx.FileDialog(
@@ -197,7 +207,7 @@ class reversi_app(wx.App):
 				path = path.replace("\\","\\\\");
 				self.text_path_black.SetValue(path);
 				self.process(
-					"mygame.get_ply(True).path = \""
+					"mygame.ply[True].path = \""
 					+ path
 					+ "\";"
 				);
@@ -213,16 +223,20 @@ class reversi_app(wx.App):
 				path = path.replace("\\","\\\\");
 				self.text_path_white.SetValue(path);
 				self.process(
-					"mygame.get_ply(False).path = \""
+					"mygame.ply[False].path = \""
 					+ path
 					+ "\";"
 				);
+
 	def on_start(self,event):
 		self.process("mygame.start();");
+
 	def on_undo(self,event):
 		self.process("mygame.undo();");
+
 	def on_redo(self, event):
 		self.process("mygame.redo();");
+
 	def on_load(self, event):
 		pass;
 		# if self.dialog_load.ShowModal() == wxID_OK:
@@ -230,6 +244,7 @@ class reversi_app(wx.App):
 			# pos = 0;
 			# path = path.replace("\\","\\\\");
 			# self.process("load " + path);
+
 	def on_menu_trans(self, event):
 		id = event.GetId();
 		if id == self.id_menu_trans_mirror_h:
@@ -244,15 +259,20 @@ class reversi_app(wx.App):
 			self.process("mygame.rotate_l();");
 		if id == self.id_menu_trans_reverse:
 			self.process("mygame.reverse();");
+
 	def on_eval(self,event):
 		self.process("_print(mygame.get_choice(mygame.mthd,mygame.color,mygame.depth));");
+
 	def on_clear_log(self, event):
 		self.process("self.text_log.Clear();");
+
 	def on_clear_term(self, event):
 		self.process("self.text_term.Clear();");
+
 	def on_clear_all(self, event):
 		self.process("self.text_log.Clear();");
 		self.process("self.text_term.Clear();");
+
 	def on_panel_board_leftdown(self,event):
 		# if mygame.is_lock:
 			# return;
@@ -265,14 +285,8 @@ class reversi_app(wx.App):
 			y = -1;
 		else:
 			y = int((pos.y - bias) / cell);
-		self.process(
-			"_print("
-				"mygame.play("
-					"rv.coordinate(%d,%d)"
-				")"
-			");"
-			% (x,y)
-		);
+		self.process("mygame.click((%d,%d));" % (x,y));
+
 	def on_menu_alg(self,event):
 		id = event.GetId();
 		item = self.menu_alg.FindItemById(id);
@@ -282,7 +296,7 @@ class reversi_app(wx.App):
 				for ptr in self.menu_alg.GetMenuItems():
 					if ptr.IsCheckable():
 						ptr.Check(False);
-				self.process("mygame.mthd = rv.mthd_rnd")
+				self.process("mygame.mthd = rv.mthd_rnd;")
 			self.menu_alg_rnd.Check(True);
 		else:
 			if item.IsChecked():
@@ -290,19 +304,19 @@ class reversi_app(wx.App):
 				self.menu_alg_rnd.Check(False);
 
 				if id == self.id_menu_alg_ab:
-					self.process("mygame.mthd |= rv.mthd_ab");
+					self.process("mygame.mthd |= rv.mthd_ab;");
 				elif id == self.id_menu_alg_kill:
-					self.process("mygame.mthd |= rv.mthd_kill");
+					self.process("mygame.mthd |= rv.mthd_kill;");
 				elif id == self.id_menu_alg_pvs:
-					self.process("mygame.mthd |= rv.mthd_pvs");
+					self.process("mygame.mthd |= rv.mthd_pvs;");
 				elif id == self.id_menu_alg_trans:
-					self.process("mygame.mthd |= rv.mthd_trans");
+					self.process("mygame.mthd |= rv.mthd_trans;");
 				elif id == self.id_menu_alg_mtdf:
-					self.process("mygame.mthd |= rv.mthd_mtdf");
+					self.process("mygame.mthd |= rv.mthd_mtdf;");
 				elif id == self.id_menu_alg_ptn:
-					self.process("mygame.mthd |= rv.mthd_ptn");
+					self.process("mygame.mthd |= rv.mthd_ptn;");
 				elif id == self.id_menu_alg_mpc:
-					self.process("mygame.mthd |= rv.mthd_mpc");
+					self.process("mygame.mthd |= rv.mthd_mpc;");
 			else:
 				flag = False;
 				for ptr in self.menu_alg.GetMenuItems():
@@ -312,19 +326,19 @@ class reversi_app(wx.App):
 					self.menu_alg_rnd.Check(True);
 
 				if id == self.id_menu_alg_ab:
-					self.process("mygame.mthd &= ~rv.mthd_ab");
+					self.process("mygame.mthd &= ~rv.mthd_ab;");
 				elif id == self.id_menu_alg_kill:
-					self.process("mygame.mthd &= ~rv.mthd_kill");
+					self.process("mygame.mthd &= ~rv.mthd_kill;");
 				elif id == self.id_menu_alg_pvs:
-					self.process("mygame.mthd &= ~rv.mthd_pvs");
+					self.process("mygame.mthd &= ~rv.mthd_pvs;");
 				elif id == self.id_menu_alg_trans:
-					self.process("mygame.mthd &= ~rv.mthd_trans");
+					self.process("mygame.mthd &= ~rv.mthd_trans;");
 				elif id == self.id_menu_alg_mtdf:
-					self.process("mygame.mthd &= ~rv.mthd_mtdf");
+					self.process("mygame.mthd &= ~rv.mthd_mtdf;");
 				elif id == self.id_menu_alg_ptn:
-					self.process("mygame.mthd &= ~rv.mthd_ptn");
+					self.process("mygame.mthd &= ~rv.mthd_ptn;");
 				elif id == self.id_menu_alg_mpc:
-					self.process("mygame.mthd &= ~rv.mthd_mpc");
+					self.process("mygame.mthd &= ~rv.mthd_mpc;");
 
 	def on_menu_level(self,event):
 		for item in self.menu_level.GetMenuItems():
@@ -349,8 +363,10 @@ class reversi_app(wx.App):
 		except:
 			self._print("fail to launch the thread!");
 			self.thrd_lock = False;
+
 	def thrd_catch(self,event):
 		self.thrd_lock = False;
+
 	def thrd_wrap(self,fun,param):
 		try:
 			result = fun(*param);
@@ -358,6 +374,7 @@ class reversi_app(wx.App):
 			self._print("fail to launch the thread!");
 			self.thrd_lock = False;
 		wx.PostEvent(self,thrd_event(None));
+
 	def sleep(self,count):
 		time.sleep(count);
 		self._print("sleep for %d seconds" % count);
