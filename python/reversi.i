@@ -41,4 +41,5 @@
 %array_class(pos_type, pos_array);
 
 %rename(__eq__) board::operator==;
+%rename(__neq__) board::operator!=;
 %ignore board::operator<<(ostream& out,const board& brd);

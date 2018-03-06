@@ -278,7 +278,7 @@ public:
 			}
 		}
 		if(result.second >= board::size2 - total - 1){
-				result.first = method(mthd | mthd_end);
+			result.first = method(mthd | mthd_end);
 			result.second = board::size2 - total - 1;	
 		}
 		return result;

@@ -868,6 +868,8 @@ vector<choice> board::get_choice(
 		);
 	}
 
+
+	/*
 	if(mthd & mthd_mtdf){
 		method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
 
@@ -928,7 +930,7 @@ vector<choice> board::get_choice(
 		}else{
 			best = _inf;
 			for(choice& c:choices){
-				result = - c.brd.search(mthd_de_mtdf,!color,depth,_inf,-alpha);
+				result = - c.brd.search(mthd_de_mtdf, !color, depth, beta, -alpha);
 				if(mthd & mthd_kill){
 					ptr_val[c.pos] = result;
 				}
@@ -939,10 +941,11 @@ vector<choice> board::get_choice(
 		}
 		return choices;
 	}
+	*/
 
 	best = _inf;
 	for(choice& c:choices){
-		result = - c.brd.search(mthd,!color,depth,_inf,-alpha);
+		result = - c.brd.search(mthd, !color, depth, beta, -alpha);
 		if(mthd & mthd_kill){
 			ptr_val[c.pos] = result;
 		}

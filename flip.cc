@@ -286,7 +286,7 @@ void board::config_flip(){
 #define flip_part_dr flip_part(drbound,dright,uleft)
 
 #define flip_fun(name,kernel) \
-\
+ \
 	void name(board* const& ptr,cbool color,cpos_type _pos){ \
 		brd_type& blue = ptr->bget(color), blue_save = blue; \
 		brd_type& green = ptr->bget(!color); \
