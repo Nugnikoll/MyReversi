@@ -17,8 +17,7 @@
 *.log
 *.stackdump
 
-bin/*
-obj/*
+*reversi
 
 out*
 *temp*
@@ -27,13 +26,9 @@ data/data.cc
 !data/pattern.dat
 
 *.dot
-optimize/*.png
-optimize/*/*.png
+profile/*.png
 
-single/*.cc
-
-!optimize/*.exe
-!optimize/*/*.exe
+*merge.cc
 
 python/reversi.py
 python/*wrap.*
