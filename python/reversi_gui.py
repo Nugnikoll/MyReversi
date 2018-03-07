@@ -53,9 +53,9 @@ class game:
 
 	def __init__(self):
 		self.ply[False].type = rv.ply_ai;
-		self.ply[False].path = "Irius offline"
+		self.ply[False].path = "Bot/Irius -offline"
 		self.ply[True].type = rv.ply_human;
-		self.ply[True].path = "Irius offline"
+		self.ply[True].path = "Bot/Irius -offline"
 
 	def show(self):
 		self.do_show(self.dc);
@@ -283,7 +283,7 @@ class game:
 		else:
 			brd_save = rv.board(self.brd);
 			self.brd.flip(color, x + (y << 3));
-			result = (self.brd != brd_save);
+			result = (self.brd.bget(True) != brd_save.bget(True));
 
 		if result:
 			self.print_log(
