@@ -5,14 +5,15 @@
 
 #include "jsoncpp/json.h"
 
-#include "reversi.h"
-#include "pattern.h"
+#include "../cpp/reversi.h"
+#include "../cpp/pattern.h"
 
 using namespace std;
  
 int main(int argc, char *argv[], char *envp[]){
 	int x,y;
 	bool mycolor;
+	const method mthd_default = method(mthd_ab | mthd_pvs | mthd_kill | mthd_mtdf | mthd_ptn | mthd_trans);
 
 	board brd;
 	board::config();

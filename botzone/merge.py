@@ -2,15 +2,11 @@ import re;
 import os;
 import codecs
 
-src_dir = "../";
-# src = ["type.h","reversi.h","game.h","pattern.h","tree.h",
-	# "type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc"];
-# src = [src_dir + x for x in src];
-# src += ["main.cc"];
+src_dir = "../cpp/";
 
-src = ["type.h","asm.h","reversi.h","search.h","game.h","matrix.h","pattern.h","tree.h",
-	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc","tree.cc","main_json.cc"];
-src = [src_dir + x for x in src];
+src = ["type.h","asm.h","reversi.h","search.h","matrix.h","pattern.h",
+	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc"];
+src = [src_dir + x for x in src] + ["main.cc"];
 
 lines = [];
 for filename in src:

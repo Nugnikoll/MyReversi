@@ -10,21 +10,21 @@
 %feature("director") game;
 
 %{
-#include "../type.h"
-#include "../asm.h"
-#include "../reversi.h"
-#include "../game.h"
-#include "../matrix.h"
-#include "../pattern.h"
-#include "../tree.h"
+#include "../cpp/type.h"
+#include "../cpp/asm.h"
+#include "../cpp/reversi.h"
+#include "../cpp/game.h"
+#include "../cpp/matrix.h"
+#include "../cpp/pattern.h"
+#include "../cpp/tree.h"
 %}
 
-%include "../type.h"
-%include "../reversi.h"
-%include "../matrix.h"
-%include "../pattern.h"
-%include "../game.h"
-%include "../tree.h"
+%include "../cpp/type.h"
+%include "../cpp/reversi.h"
+%include "../cpp/matrix.h"
+%include "../cpp/pattern.h"
+%include "../cpp/game.h"
+%include "../cpp/tree.h"
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;
