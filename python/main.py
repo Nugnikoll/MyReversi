@@ -103,7 +103,7 @@ class reversi_app(wx.App):
 		self.sizer_note.Add(self.sizer_note_path_black, 1, wx.ALL | wx.ALIGN_CENTER, 5);
 
 		self.text_path_black = wx.TextCtrl(
-			panel_note, value = "Bot/Irius -offline",
+			panel_note, value = "bot/Irius",
 			size = (332,30), style = wx.TE_PROCESS_ENTER
 		);
 		self.text_path_black.SetBackgroundColour(wx.Colour(200,200,200));
@@ -137,7 +137,7 @@ class reversi_app(wx.App):
 		self.sizer_note.Add(self.sizer_note_path_white, 1, wx.ALL | wx.ALIGN_CENTER, 5);
 
 		self.text_path_white = wx.TextCtrl(
-			panel_note, value = "Bot/Irius -offline",
+			panel_note, value = "bot/Irius",
 			size = (332,30), style = wx.TE_PROCESS_ENTER
 		);
 		self.text_path_white.SetBackgroundColour(wx.Colour(200,200,200));
@@ -409,9 +409,9 @@ class reversi_app(wx.App):
 		if self.thrd_lock:
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
-		time_start = time.clock();
+		time_start = time.time();
 		exec(s);
-		time_end = time.clock();
+		time_end = time.time();
 		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
 
 	def on_text_input_textenter(self,event):
@@ -454,13 +454,13 @@ class reversi_app(wx.App):
 		if event.GetId() == self.text_path_black.GetId():
 			self.process(
 				"mygame.ply[True].path = \""
-				+ self.text_path_black.GetValue()
+				+ self.text_path_black.GetValue().replace("\\","\\\\")
 				+ "\";"
 			);
 		elif event.GetId() == self.text_path_white.GetId():
 			self.process(
 				"mygame.ply[False].path = \""
-				+ self.text_path_white.GetValue()
+				+ self.text_path_white.GetValue().replace("\\","\\\\")
 				+ "\";"
 			);
 
@@ -474,8 +474,8 @@ class reversi_app(wx.App):
 
 			if dialog_choice_player.ShowModal() == wx.ID_OK:
 				path = dialog_choice_player.GetPath();
-				path = path.replace("\\","\\\\");
 				self.text_path_black.SetValue(path);
+				path = path.replace("\\","\\\\");
 				self.process(
 					"mygame.ply[True].path = \""
 					+ path
@@ -490,8 +490,8 @@ class reversi_app(wx.App):
 
 			if dialog_choice_player.ShowModal() == wx.ID_OK:
 				path = dialog_choice_player.GetPath();
-				path = path.replace("\\","\\\\");
 				self.text_path_white.SetValue(path);
+				path = path.replace("\\","\\\\");
 				self.process(
 					"mygame.ply[False].path = \""
 					+ path
