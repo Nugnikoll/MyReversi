@@ -53,9 +53,9 @@ class game:
 
 	def __init__(self):
 		self.ply[False].type = rv.ply_ai;
-		self.ply[False].path = "Bot/Irius -offline"
+		self.ply[False].path = "bot/Irius"
 		self.ply[True].type = rv.ply_human;
-		self.ply[True].path = "Bot/Irius -offline"
+		self.ply[True].path = "bot/Irius"
 
 	def show(self):
 		self.do_show(self.dc);
@@ -418,7 +418,6 @@ class game:
 
 		p = sp.Popen(self.ply[color].path, stdin = sp.PIPE, stdout = sp.PIPE);
 
-		s = "";
 		result = rv.coordinate();
 		request = {
 			"request":{
@@ -434,17 +433,18 @@ class game:
 
 		self.text_log.AppendText(
 			"send a request to process \""
-			+ self.get_ply(color).path
+			+ self.ply[color].path
 			+ "\"\n"
 		);
 
 		self.text_log.AppendText(s + "\n");
-		[s,str_err] = p.communicate(s.encode());
+		[s, str_err] = p.communicate(s.encode());
 		self.text_log.AppendText(
 			"receive a response from process \""
-			+ self.get_ply(color).path
+			+ self.ply[color].path
 			+ "\"\n"
 		);
+
 		self.text_log.AppendText(s.decode());
 		response = json.loads(s.decode());
 
