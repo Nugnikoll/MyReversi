@@ -355,16 +355,16 @@ class reversi_app(wx.App):
 		self.text_path_white.Bind(wx.EVT_TEXT_ENTER, self.on_text_path_enter);
 		self.button_folder_white.Bind(wx.EVT_BUTTON, self.on_button_folder_click);
 		self.button_start.Bind(wx.EVT_BUTTON, self.on_start);
-		self.Bind(wx.EVT_MENU, self.on_quit, id = menu_quit.GetId());
-		self.Bind(wx.EVT_MENU, self.on_about, id = menu_about.GetId());
 		self.Bind(wx.EVT_MENU, self.on_start, id = menu_new.GetId());
+		self.Bind(wx.EVT_MENU, self.on_load, id = menu_load.GetId());
+		self.Bind(wx.EVT_MENU, self.on_export, id = menu_export.GetId());
+		self.Bind(wx.EVT_MENU, self.on_quit, id = menu_quit.GetId());
 		self.Bind(wx.EVT_MENU, self.on_undo, id = menu_undo.GetId());
 		self.Bind(wx.EVT_MENU, self.on_redo, id = menu_redo.GetId());
-		self.Bind(wx.EVT_MENU, self.on_load, id = menu_load.GetId());
 		self.Bind(wx.EVT_MENU, self.on_eval, id = menu_eval.GetId());
 		self.Bind(wx.EVT_MENU, self.on_clear_log, id = menu_clear_log.GetId());
 		self.Bind(wx.EVT_MENU, self.on_clear_term, id = menu_clear_term.GetId());
-		#self.Bind(wx.EVT_MENU, self.on_clear_all, menu_clear.GetId());
+		self.Bind(wx.EVT_MENU, self.on_about, id = menu_about.GetId());
 
 		for i in menu_transform.GetMenuItems():
 			self.Bind(wx.EVT_MENU, self.on_menu_trans, i);
@@ -400,12 +400,37 @@ class reversi_app(wx.App):
 
 	def paint(self):
 		dc = wx.ClientDC(self.panel_board);
-		mygame.do_show(dc)
+		mygame.do_show(dc);
 
-	def _print(self,s):
-		self.text_term.AppendText(str(s) + "\n");
+	#export image
+	def on_export(self, event):
+		dialog_export = wx.FileDialog(self.frame, message = "Export image", wildcard = "*.png", style = wx.FD_SAVE);
 
-	def process(self,s):
+		if dialog_export.ShowModal() == wx.ID_OK:
+			path = dialog_export.GetPath();
+			path = path.replace("\\","\\\\");
+			self.process("mygame.export(\"" + path + "\", img_type = wx.BITMAP_TYPE_PNG);\n");
+
+	#load and execute a script
+	def load_script(self, s):
+		fobj = open(s);
+		lines = fobj.readlines();
+		fobj.close();
+		lines = "\n".join(lines);
+		exec(lines);
+		return True;
+
+	#load and execute a script
+	def on_load(self, event):
+		dialog_load = wx.FileDialog(self.frame, message = "Load a python script", wildcard = "*.py", style = wx.FD_OPEN);
+
+		if dialog_load.ShowModal() == wx.ID_OK:
+			path = dialog_load.GetPath();
+			path = path.replace("\\","\\\\");
+			self.process("self.load_script(\"" + path + "\");\n");
+
+	#process command
+	def process(self, s):
 		if self.thrd_lock:
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
@@ -414,10 +439,11 @@ class reversi_app(wx.App):
 		time_end = time.time();
 		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
 
-	def on_text_input_textenter(self,event):
+	#input command
+	def on_text_input_textenter(self, event):
 		self.process(self.text_input.GetValue());
 
-	def on_choice_player(self,event):
+	def on_choice_player(self, event):
 		if event.GetId() == self.choice_black.GetId():
 			self.process(
 				"mygame.ply[True].type = "
@@ -507,14 +533,6 @@ class reversi_app(wx.App):
 	def on_redo(self, event):
 		self.process("mygame.redo();");
 
-	def on_load(self, event):
-		pass;
-		# if self.dialog_load.ShowModal() == wxID_OK:
-			# path = self.dialog_load.GetPath();
-			# pos = 0;
-			# path = path.replace("\\","\\\\");
-			# self.process("load " + path);
-
 	def on_menu_trans(self, event):
 		id = event.GetId();
 		if id == self.id_menu_trans_mirror_h:
@@ -585,6 +603,7 @@ class reversi_app(wx.App):
 	def on_menu_level(self,event):
 		pos = 0;
 		(item, pos) = self.menu_level.FindChildItem(event.GetId());
+		item.Check(True);
 		if pos >= 7:
 			pos = 6 - pos;
 
@@ -595,7 +614,7 @@ class reversi_app(wx.App):
 		try:
 			_thread.start_new_thread(self.thrd_wrap,(fun,param));
 		except:
-			self._print("fail to launch the thread!");
+			_print("fail to launch the thread!");
 			self.thrd_lock = False;
 
 	def thrd_catch(self,event):
@@ -605,13 +624,13 @@ class reversi_app(wx.App):
 		try:
 			result = fun(*param);
 		except:
-			self._print("fail to launch the thread!");
+			_print("fail to launch the thread!");
 			self.thrd_lock = False;
 		wx.PostEvent(self,thrd_event(None));
 
 	def sleep(self,count):
 		time.sleep(count);
-		self._print("sleep for %d seconds" % count);
+		_print("sleep for %d seconds" % count);
 
 # def on_context_menu(wxContextMenuEvent& event){
 	# //wxMenu* menu = new wxMenu();
@@ -654,6 +673,4 @@ class reversi_app(wx.App):
 
 if __name__ == "__main__":
 	app = reversi_app(False);
-	def _print(s):
-		return app._print(s);
 	app.MainLoop();
