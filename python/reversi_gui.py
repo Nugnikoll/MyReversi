@@ -150,8 +150,16 @@ class game:
 		evt = wx.PaintEvent(self.panel_board.GetId());
 		self.panel_board.GetEventHandler().ProcessEvent(evt);
 
-	def print_log(self, str):
-		self.text_log.AppendText(str);
+	def print_log(self, s):
+		self.text_log.AppendText(s);
+
+	def export(self, path, img_type = wx.BITMAP_TYPE_PNG):
+		img = wx.Bitmap(424,424);
+		memdc = wx.MemoryDC();
+		memdc.SelectObject(img);
+		memdc.SetBackground(wx.Brush(wx.Colour(43,155,0)));
+		self.do_show(memdc);
+		img.SaveFile(path, img_type);
 
 	def push(self):
 		if self.flag_auto_save:
@@ -350,7 +358,7 @@ class game:
 			elif total <= 10:
 				result[1] = 10;
 			elif total <= rv.board.size2 - 22:
-				result[1] = 10;
+				result[1] = 9;
 			elif total <= rv.board.size2 - 16:
 				result[1] = 10;
 			else:
