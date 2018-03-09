@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import wx
-from reversi_gui import *
+import sys
+import os
 import _thread
 import time
 import pdb
+from reversi_gui import *
 
 rv.pattern.config();
 rv.group.config("data/pattern.dat")
@@ -322,7 +324,7 @@ class reversi_app(wx.App):
 				wx.MenuItem(
 					self.menu_level, id = wx.NewId(),
 					text = "Level %d" % (i + 1),
-					kind = wx.ITEM_RADIO
+					kind = wx.ITEM_CHECK
 				)
 			);
 		self.menu_level.GetMenuItems()[7].Check(True);
@@ -389,18 +391,53 @@ class reversi_app(wx.App):
 		mygame.dc = wx.ClientDC(self.panel_board);
 		mygame.text_log = self.text_log;
 
+	#process command
+	def process(self, s):
+		if self.thrd_lock:
+			return;
+		self.text_term.AppendText(">>" + s + "\n");
+		time_start = time.time();
+		try:
+			exec(s);
+		except:
+			self.info = sys.exc_info();
+			_print(sys.exc_info()[1]);
+		time_end = time.time();
+		self.statusbar.SetStatusText("Wall time : %f seconds" % (time_end - time_start), 2);
+
+	#input command
+	def on_text_input_textenter(self, event):
+		self.process(self.text_input.GetValue());
+
 	def on_quit(self,event):
 		self.frame.Close();
 
 	def on_about(self,event):
 		wx.MessageBox("Reversi Game\nBy Rick", "About");
 
+	#paint on panel_board
 	def on_panel_board_paint(self, event):
 		self.paint();
 
+	#paint on panel_board
 	def paint(self):
 		dc = wx.ClientDC(self.panel_board);
 		mygame.do_show(dc);
+
+	#click on the panel board
+	def on_panel_board_leftdown(self,event):
+		# if mygame.is_lock:
+			# return;
+		pos = event.GetPosition();
+		if pos.x < bias:
+			x = -1;
+		else:
+			x = int((pos.x - bias) / cell);
+		if pos.y < bias:
+			y = -1;
+		else:
+			y = int((pos.y - bias) / cell);
+		self.process("mygame.click((%d,%d));" % (x,y));
 
 	#export image
 	def on_export(self, event):
@@ -428,20 +465,6 @@ class reversi_app(wx.App):
 			path = dialog_load.GetPath();
 			path = path.replace("\\","\\\\");
 			self.process("self.load_script(\"" + path + "\");\n");
-
-	#process command
-	def process(self, s):
-		if self.thrd_lock:
-			return;
-		self.text_term.AppendText(">>" + s + "\n");
-		time_start = time.time();
-		exec(s);
-		time_end = time.time();
-		self.statusbar.SetStatusText("Execution time : %f seconds" % (time_end - time_start),0);
-
-	#input command
-	def on_text_input_textenter(self, event):
-		self.process(self.text_input.GetValue());
 
 	def on_choice_player(self, event):
 		if event.GetId() == self.choice_black.GetId():
@@ -524,6 +547,7 @@ class reversi_app(wx.App):
 					+ "\";"
 				);
 
+	#start a new game
 	def on_start(self,event):
 		self.process("mygame.start();");
 
@@ -561,20 +585,6 @@ class reversi_app(wx.App):
 		self.process("self.text_log.Clear();");
 		self.process("self.text_term.Clear();");
 
-	def on_panel_board_leftdown(self,event):
-		# if mygame.is_lock:
-			# return;
-		pos = event.GetPosition();
-		if pos.x < bias:
-			x = -1;
-		else:
-			x = int((pos.x - bias) / cell);
-		if pos.y < bias:
-			y = -1;
-		else:
-			y = int((pos.y - bias) / cell);
-		self.process("mygame.click((%d,%d));" % (x,y));
-
 	def on_menu_alg(self,event):
 		id = event.GetId();
 		item = self.menu_algorithm.FindItemById(id);
@@ -602,6 +612,8 @@ class reversi_app(wx.App):
 
 	def on_menu_level(self,event):
 		pos = 0;
+		for i in self.menu_level.GetMenuItems():
+			i.Check(False);
 		(item, pos) = self.menu_level.FindChildItem(event.GetId());
 		item.Check(True);
 		if pos >= 7:
