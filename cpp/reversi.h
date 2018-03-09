@@ -580,6 +580,60 @@ public:
 
 	static void clear_search_info();
 
+	pair<method, short> process_method(cmethod mthd, cshort depth){
+		pair<method, short> result = {mthd, depth};
+		short total = this->sum();
+
+		if(result.first == mthd_rnd){
+			return result;
+		}
+
+		if(result.second == -1){
+			if(total <= 7){
+				result.second = 9;
+			}else if(total <= 10){
+				result.second = 8;
+			}else if(total <= size2 - 22){
+				result.second = 7;
+			}else if(total <= size2 - 15){
+				result.second = 8;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second == -2){
+			if(total <= 7){
+				result.second = 9;
+			}else if(total <= 10){
+				result.second = 9;
+			}else if(total <= size2 - 24){
+				result.second = 8;
+			}else if(total <= size2 - 16){
+				result.second = 9;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second <= -3){
+			if(total <= 7){
+				result.second = 11;
+			}else if(total <= 10){
+				result.second = 10;
+			}else if(total <= size2 - 22){
+				result.second = 10;
+			}else if(total <= size2 - 16){
+				result.second = 10;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second >= size2 - total - 1){
+				result.first = method(mthd | mthd_end);
+			result.second = size2 - total - 1;	
+		}
+		return result;
+	}
+
 	void flip(cbool color,cpos_type pos);
 
 	calc_type score_end(cbool color)const{

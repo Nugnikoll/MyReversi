@@ -13,7 +13,6 @@ using namespace std;
 int main(int argc, char *argv[], char *envp[]){
 	int x,y;
 	bool mycolor;
-	const method mthd_default = method(mthd_ab | mthd_pvs | mthd_kill | mthd_mtdf | mthd_ptn | mthd_trans);
 
 	board brd;
 	board::config();
@@ -55,7 +54,12 @@ int main(int argc, char *argv[], char *envp[]){
 
 	grp.load("./data/pattern2.dat");
 
-	auto coord = brd.play(mthd_default,mycolor,7);
+	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_mtdf | mthd_ptn | mthd_trans);
+	short depth = -2;
+	auto p_mthd = brd.process_method(mthd, depth);
+	mthd = p_mthd.first;
+	depth = p_mthd.second;
+	auto coord = brd.play(mthd, mycolor, depth);
 
 	// 决策结束，输出结果（你只需修改以上部分）
 
