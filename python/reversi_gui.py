@@ -236,14 +236,14 @@ class game:
 	def mirror_h(self):
 		self.push();
 		self.brd.mirror_h();
-		self.pos[0] = 7 - self.pos[0];
+		self.pos = (7 - self.pos[0], self.pos[1]);
 		self.print_log("mirror horizontally\n");
 		self.paint();
 
 	def mirror_v(self):
 		self.push();
 		self.brd.mirror_v();
-		self.pos[1] = 7 - self.pos[1];
+		self.pos = (self.pos[0], 7 - self.pos[1]);
 		self.print_log("mirror vertically\n");
 		self.paint();
 

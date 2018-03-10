@@ -249,26 +249,37 @@ class reversi_app(wx.App):
 			menu_transform, id = wx.NewId(),
 			text = "Mirror &Horrizontally\tAlt+H"
 		);
+		menu_mirror_h.num = 0;
 		menu_transform.Append(menu_mirror_h);
 		menu_mirror_v = wx.MenuItem(
 			menu_transform, id = wx.NewId(),
 			text = "Mirror &Vertically\tAlt+V"
 		);
+		menu_mirror_v.num = 1;
 		menu_transform.Append(menu_mirror_v);
+		menu_reflect = wx.MenuItem(
+			menu_transform, id = wx.NewId(),
+			text = "&Reflect\tAlt+R"
+		);
+		menu_reflect.num = 2;
+		menu_transform.Append(menu_reflect);
 		menu_rotate_r = wx.MenuItem(
 			menu_transform, id = wx.NewId(),
 			text = "Rotate &Clockwise\tAlt+C"
 		);
+		menu_rotate_r.num = 3;
 		menu_transform.Append(menu_rotate_r);
 		menu_rotate_l = wx.MenuItem(
 			menu_transform, id = wx.NewId(),
 			text = "Rotate Coun&terclockwise\tAlt+T"
 		);
+		menu_rotate_l.num = 4;
 		menu_transform.Append(menu_rotate_l);
 		menu_reverse = wx.MenuItem(
 			menu_transform, id = wx.NewId(),
 			text = "Rever&se\tAlt+S"
 		);
+		menu_reverse.num = 5;
 		menu_transform.Append(menu_reverse);
 
 		#add items to menu_clear
@@ -397,11 +408,11 @@ class reversi_app(wx.App):
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
 		time_start = time.time();
-		try:
-			exec(s);
-		except:
-			self.info = sys.exc_info();
-			_print(sys.exc_info()[1]);
+		#try:
+		exec(s);
+		#except:
+		#	self.info = sys.exc_info();
+		#	_print(sys.exc_info()[1]);
 		time_end = time.time();
 		self.statusbar.SetStatusText("Wall time : %f seconds" % (time_end - time_start), 2);
 
@@ -558,18 +569,18 @@ class reversi_app(wx.App):
 		self.process("mygame.redo();");
 
 	def on_menu_trans(self, event):
-		id = event.GetId();
-		if id == self.id_menu_trans_mirror_h:
+		num = self.menubar.FindItemById(event.GetId()).num;
+		if num == 0:
 			self.process("mygame.mirror_h();");
-		if id == self.id_menu_trans_mirror_v:
+		elif num == 1:
 			self.process("mygame.mirror_v();");
-		if id == self.id_menu_trans_reflect:
+		elif num == 2:
 			self.process("mygame.reflect();");
-		if id == self.id_menu_trans_rotate_r:
+		elif num == 3:
 			self.process("mygame.rotate_r();");
-		if id == self.id_menu_trans_rotate_l:
+		elif num == 4:
 			self.process("mygame.rotate_l();");
-		if id == self.id_menu_trans_reverse:
+		elif num == 5:
 			self.process("mygame.reverse();");
 
 	def on_eval(self,event):
