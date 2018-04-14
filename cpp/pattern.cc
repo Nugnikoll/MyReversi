@@ -936,6 +936,7 @@ float mat_2f(const matrix<float>& m){
 	return m.at(0);
 }
 
+/*
 unordered_set<board> sample_gen(cint n){
 	unordered_set<board> brds;
 	board brd,brd_save;
@@ -961,6 +962,7 @@ unordered_set<board> sample_gen(cint n){
 	return brds;
 };
 
+
 matrix<board> sample_2mat(const unordered_set<board>& brds){
 	int i = 0;
 	matrix<board> result(brds.size(),1);
@@ -980,6 +982,7 @@ matrix<int> sample_process(const unordered_set<board>& brds){
 	}
 	return result;
 }
+*/
 
 matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
 	int h = index1.geth(), w = index2.geth();
@@ -1002,6 +1005,7 @@ matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
 	return result;
 }
 
+/*
 matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height){
 	int i = 0;
 	matrix<calc_type> result(brds.size(),1);
@@ -1011,6 +1015,7 @@ matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort 
 	}
 	return result;
 }
+*/
 
 matrix<calc_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
 	matrix<calc_type> result(brds.geth(),1);
@@ -1052,43 +1057,4 @@ void adjust(pattern& ptn, const matrix<board>& brds, const matrix<calc_type>& de
 	for(int i = 0;i != brds.geth();++i){
 		brds.at(i).adjust_ptn(true,ptn,delta.at(i));
 	}
-}
-
-bool is_prime(const long long& num){
-	if(num <= 1)
-		return false;
-	int factor = 2;
-	int bound = sqrt(num);
-	for (;factor != 11 && factor <= bound;++factor){
-		if (num % factor == 0)
-			return false;
-	}
-	factor = 11;
-	while(factor <= bound){
-		if (num % factor == 0)
-			return false;
-		factor += 2;
-		if (num % factor == 0)
-			return false;
-		factor += 4;
-		if (num % factor == 0)
-			return false;
-		factor += 2;
-		if (num % factor == 0)
-			return false;
-		factor += 4;
-		if (num % factor == 0)
-			return false;
-		factor += 6;
-		if (num % factor == 0)
-			return false;
-		factor += 2;
-		if (num % factor == 0)
-			return false;
-		factor += 6;
-		if (num % factor == 0)
-			return false;
-		factor += 4;
-	}
-	return true;
 }

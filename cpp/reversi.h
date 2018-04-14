@@ -23,7 +23,6 @@
 #include <utility>
 #include <tuple>
 #include <vector>
-#include <unordered_map>
 
 using namespace std;
 
@@ -67,7 +66,6 @@ namespace std{
  */
 
 class board{
-	friend struct hash<board>;
 public:
 
 	/** @fn board()
@@ -94,8 +92,6 @@ public:
 	static const pos_type pos_num = 4;
 	static const pos_type stage_num = 3;
 	static const short max_height = 20;
-
-	static brd_type node_count;
 
 	static bool flag_unicode;
 
@@ -211,37 +207,13 @@ public:
 
 	static brd_type extract(cbrd_type brd,cbrd_type mask){
 		brd_type result;
-
-		#ifdef USE_ASM_BMI
-			asm_pext(brd,mask,result);
-		#else
-			brd_type msk = mask;
-			result = 0;
-			for(brd_type i = 1;msk;i <<= 1){
-				if(brd & msk & -msk){
-					result |= i;
-				}
-				msk &= msk - 1;
-			}
-		#endif
-
+		fun_pext(brd,mask,result);
 		return result;
 	}
 
 	static brd_type deposit(cbrd_type brd,cbrd_type mask){
 		brd_type result;
-		#ifdef USE_ASM_BMI
-			asm_pdep(brd,mask,result);
-		#else
-			brd_type msk = mask;
-			result = 0;
-			for(pos_type i = 1;msk;i <<= 1){
-				if(brd & i){
-					result |= msk & -msk;
-				}
-				msk &= msk - 1;
-			}
-		#endif
+		fun_pdep(brd,mask,result);
 		return result;
 	}
 
@@ -472,6 +444,17 @@ public:
 		return count(brd_black | brd_white);
 	}
 
+	ull get_key(cbool color)const{
+		ull result = (brd_black * 0xe2abbb5e6688fdcf) ^ (brd_white * 0x34df417f070da53d);
+		fun_rol(result, 20);
+		result += color;
+		return result;
+	}
+
+	static ull get_count();
+	static void clear_count();
+	static void clear_hash();
+
 	/** @fn brd_type get_move(cbool color)const
 	 *	@brief Calculate possible moves.
 	 *	@param color Whether it is black's turn.
@@ -578,8 +561,6 @@ public:
 		config_search();
 	}
 
-	static void clear_search_info();
-
 	pair<method, short> process_method(cmethod mthd, cshort depth){
 		pair<method, short> result = {mthd, depth};
 		short total = this->sum();
@@ -638,10 +619,11 @@ public:
 
 	calc_type score_end(cbool color)const{
 		calc_type num_diff = count(color) - count(!color);
+
 		if(num_diff > 0){
-			return num_diff + mark_max;
+			return num_diff + 2;
 		}else if(num_diff < 0){
-			return num_diff - mark_max;
+			return num_diff - 2;
 		}else{
 			return 0;
 		}
@@ -710,7 +692,7 @@ public:
 
 	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth)const;
 	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-	coordinate play(cmethod mthd,cbool color,short depth = -1);
+	coordinate play(cmethod mthd,cbool color,cshort depth = -1);
 
 	sts_type get_status(cbool color){
 		const sts_type table_status[32] = {
@@ -745,24 +727,6 @@ protected:
 
 	static void config_flip();
 	static void config_search();
-
-	#ifdef USE_FLOAT
-		static const calc_type mark_max;
-	#else
-		static const calc_type mark_max = 2;
-	#endif
-};
-
-template <>
-struct std::hash<board> : public unary_function<board, size_t>{
-	size_t operator()(const board& brd) const{
-		return (
-			size_t(brd.brd_black)
-			+ size_t(brd.brd_black >> 32) * 1867970917
-			+ size_t(brd.brd_white) * 1009562269
-			+ size_t(brd.brd_white >> 32) * 739351663
-		);
-	}
 };
 
 struct choice{

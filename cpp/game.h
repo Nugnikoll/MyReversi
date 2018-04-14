@@ -12,9 +12,6 @@
 
 using namespace std;
 
-enum player_type{
-	ply_human,ply_ai,ply_other
-};
 struct player{
 	player_type p_type;
 	string path;
