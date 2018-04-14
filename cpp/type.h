@@ -24,42 +24,32 @@ using namespace std;
 #endif
 //#define DEBUG_SEARCH
 
-#ifdef USE_REF
-	typedef const bool& cbool;
-	typedef const short& cshort;
-	typedef const int& cint;
-	typedef const float& cfloat;
-#else
-	typedef bool cbool;
-	typedef short cshort;
-	typedef int cint;
-	typedef float cfloat;
-#endif //USE_REF
+typedef const bool& cbool;
+typedef const short& cshort;
+typedef const int& cint;
+typedef const float& cfloat;
+typedef long long ll;
+typedef const ll& cll;
+typedef unsigned long long ull;
+typedef const ull& cull;
 
 typedef unsigned long long brd_type;
+typedef const brd_type& cbrd_type;
 typedef unsigned char line_type;
+typedef const line_type& cline_type;
 typedef short pos_type;
+typedef const pos_type& cpos_type;
 
 #ifdef USE_FLOAT
 	typedef float calc_type;
 #else
 	typedef short calc_type;
 #endif
+typedef float val_type;
+typedef const val_type& cval_type;
+typedef const calc_type& ccalc_type;
 
-#ifdef USE_REF
-	typedef const brd_type& cbrd_type;
-	typedef const line_type& cline_type;
-	typedef const pos_type& cpos_type;
-	typedef const calc_type& ccalc_type;
-#else
-	typedef brd_type cbrd_type;
-	typedef line_type cline_type;
-	typedef pos_type cpos_type;
-	typedef calc_type ccalc_type;
-#endif //USE_REF
-
-enum chessman{blank,white,black,null};
-
+enum chessman{blank, white, black, null};
 #ifdef USE_REF
 	typedef const chessman& cchessman;
 #else
@@ -130,5 +120,9 @@ class group;
 	typedef pattern cpattern;
 	typedef group cgroup;
 #endif //USE_REF
+
+enum player_type{
+	ply_human,ply_ai,ply_other
+};
 
 #endif //TYPE_H

@@ -8,14 +8,7 @@
 #include "reversi.h"
 #include "search.h"
 #include "pattern.h"
-
-#ifdef USE_ASM
-	#define trail_zero_count(brd,result) \
-		asm_tzcnt(brd,result)
-#else
-	#define trail_zero_count(brd,result) \
-		result = count(~brd & (brd - 1))
-#endif
+#include "hash.h"
 
 const short depth_kill = 2;
 const short depth_pvs = 2;
@@ -24,18 +17,20 @@ const short depth_mtdf = 4;
 const short depth_mpc = 3;
 
 calc_type table_val[board::size2 + 1][board::size2];
-trans_type table_trans[2];
+ull node_count;
 
-const calc_type table_val_init[board::size2] = {
-	0.0010,0.0003,0.0007,0.0008,0.0008,0.0007,0.0003,0.0010,
-	0.0003,0.0002,0.0004,0.0005,0.0005,0.0004,0.0002,0.0003,
-	0.0007,0.0004,0.0009,0.0006,0.0006,0.0009,0.0004,0.0007,
-	0.0008,0.0005,0.0006,0.0001,0.0001,0.0006,0.0005,0.0008,
-	0.0008,0.0005,0.0006,0.0001,0.0001,0.0006,0.0005,0.0008,
-	0.0007,0.0004,0.0009,0.0006,0.0006,0.0009,0.0004,0.0007,
-	0.0003,0.0002,0.0004,0.0005,0.0005,0.0004,0.0002,0.0003,
-	0.0010,0.0003,0.0007,0.0008,0.0008,0.0007,0.0003,0.0010
-};
+bucket bkt;
+void board::clear_hash(){
+	bkt.clear();
+}
+
+ull board::get_count(){
+	return node_count;
+}
+
+void board::clear_count(){
+	node_count = 0;
+}
 
 const brd_type mask_adj[board::size2] = {
 	0x0000000000000302,
@@ -165,12 +160,6 @@ calc_type table_mpc_threshold[board::size2] = {
 };
 
 void board::config_search(){}
-
-void board::clear_search_info(){
-	node_count = 0;
-	table_trans[0].clear();
-	table_trans[1].clear();
-}
 
 #ifdef __GNUC__
 	#pragma GCC diagnostic push
@@ -309,37 +298,34 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 		bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
 
-		calc_type alpha_save;
+		ull key = get_key(color);
+		slot* slt;
+		brd_type pos;
+		brd_type best_pos = -1;
 
 		if(flag_hash){
-			trans_type::iterator trans_ptr = table_trans[color].find(*this);
-			if(trans_ptr != table_trans[color].end()){
-				auto& trans_interval = trans_ptr->second;
-				if(trans_interval.first >= beta){
-					return trans_interval.first;
+			slt = &bkt.probe(key);
+			if(key == slt->key){
+				if(depth == slt->depth){
+					if(alpha >= slt->beta){
+						return alpha;
+					}
+					if(beta <= slt->alpha){
+						return beta;
+					}
+					alpha = max(alpha, slt->alpha);
+					beta = min(beta, slt->beta);
+					if(alpha == beta){
+						return alpha;
+					}
+					assert(alpha < beta);
 				}
-				if(trans_interval.second <= alpha){
-					return trans_interval.second;
-				}
-				if(trans_interval.first > alpha){
-					alpha = trans_interval.first;
-				}
-				if(trans_interval.second < beta){
-					beta = trans_interval.second;
-				}
-				if(alpha == beta){
-					return alpha;
-				}
-				assert(alpha <= beta);
-			}else{
-				table_trans[color][*this] = interval(_inf,inf);
+				pos = slt->pos;
 			}
-			alpha_save = alpha;
 		}
 
 		bool flag_kill = (mthd & mthd_kill) && depth >= depth_kill;
 		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
-		bool flag_mpc = (mthd & mthd_mpc) && depth >= depth_mpc;
 
 		brd_val vec[32];
 		brd_val* ptr = vec;
@@ -348,40 +334,19 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 		calc_type* ptr_val = table_val[this->sum()];
 		const method mthd_de_pvs = method(mthd & ~mthd_pvs);
 		brd_type brd_move = this->get_move(color);
-		brd_type pos;
 
-		trail_zero_count(brd_move,pos);
+		fun_tzcnt(brd_move, pos);
 		while(brd_move){
 			ptr->pos = pos;
-			if(flag_mpc){
-				const method mthd_presearch = method(mthd & ~mthd_end & ~mthd_trans);
-				board brd = *this;
-				brd.flip(color,pos);
-				ptr->val = - brd.search<mthd_presearch>(!color,table_mpc_depth[depth]);
-			}else if(flag_kill){
+			if(flag_kill){
 				ptr->val = ptr_val[pos];
 			}
 			++ptr;
 			brd_move &= brd_move - 1;
-			trail_zero_count(brd_move,pos);
+			fun_tzcnt(brd_move, pos);
 		}
 
 		if(ptr != vec){
-
-			if(flag_mpc){
-				calc_type best = max_element(
-					vec,ptr,
-					[](cbrd_val b1,cbrd_val b2) -> bool{
-						return b1.val < b2.val;
-					}
-				)->val;
-				calc_type mpc_threshold = table_mpc_threshold[this->sum()];
-				ptr = remove_if(vec,ptr,
-					[&mpc_threshold,&best](cbrd_val b) -> bool{
-						return b.val < best - mpc_threshold;
-					}
-				);
-			}
 
 			if(flag_kill){
 				make_heap(vec,ptr,
@@ -411,19 +376,24 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 				}
 				if(temp >= beta){
 					if(flag_hash){
-						table_trans[color][*this].first = temp;
+						slt->save(slot{key, temp, inf, depth, (short)p->pos});
 					}
 					return temp;
 				}
-				result = max(result,temp);
+				if(temp > result){
+					result = temp;
+					if(flag_hash){
+						best_pos = pos;
+					}
+				}
 				alpha = max(alpha,result);
 			}
 
 			if(flag_hash){
-				if(result > alpha_save){
-					table_trans[color][*this] = {result,result};
+				if(result >= alpha){
+					slt->save(slot{key, result, result, depth, short(best_pos)});
 				}else{
-					table_trans[color][*this].second = result;
+					slt->save(slot{key, _inf, result, depth, short(best_pos)});
 				}
 			}
 
@@ -431,13 +401,13 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 		}else if(!flag_pass){
 
-			return - this->template search<mthd>(!color,depth,-beta,-alpha,true);
+			return - this->template search<mthd>(!color, depth, -beta, -alpha, true);
 
 		}else{
 
 			result = score_end(color);
 			if(flag_hash){
-				table_trans[color][*this] = {result,result};
+				slt->save(slot{key, result, result, depth, -1});
 			}
 			return result;
 
@@ -749,7 +719,7 @@ calc_type board::search_end_five(
 	brd_type brd_green = bget(false);
 	brd_type pos;
 
-	trail_zero_count(brd_blank,pos);
+	fun_tzcnt(brd_blank, pos);
 	while(brd_blank){
 		ptr->pos = pos;
 		if(mthd & mthd_kill){
@@ -757,7 +727,7 @@ calc_type board::search_end_five(
 		}
 		++ptr;
 		brd_blank &= brd_blank - 1;
-		trail_zero_count(brd_blank,pos);
+		fun_tzcnt(brd_blank, pos);
 	}
 
 	sort(vec,ptr,
@@ -826,34 +796,22 @@ vector<choice> board::get_choice(
 	calc_type threshold = (mthd & mthd_ptn) ? 3 : 5;
 	calc_type* ptr_val = table_val[this->sum()];
 
-	clear_search_info();
-
-//	if(mthd & mthd_kill){
-//		for(int i = this->sum();i != size2;++i){
-//			for(int j = 0;j != size2;++j){
-//				if(table_val[i][j] == 0){
-//					table_val[i][j] = table_val_init[j];
-//				}
-//			}
-//		}
-//	}
-
 	choices.reserve(30);
 
 	brd_type brd_move = this->get_move(color);
 	brd_type pos;
 
-	trail_zero_count(brd_move,pos);
+	fun_tzcnt(brd_move, pos);
 	while(brd_move){
 		temp.brd = *this;
 		temp.pos = pos;
-		temp.brd.flip(color,pos);
+		temp.brd.flip(color, pos);
 		if(mthd & mthd_kill){
 			temp.rnd_val = ptr_val[pos];
 		}
 		choices.push_back(temp);
 		brd_move &= brd_move - 1;
-		trail_zero_count(brd_move,pos);
+		fun_tzcnt(brd_move, pos);
 	}
 
 	if(mthd == mthd_rnd){

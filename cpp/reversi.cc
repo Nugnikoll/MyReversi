@@ -13,20 +13,12 @@ const pos_type board::pos_num;
 const pos_type board::stage_num;
 const short board::max_height;
 bool board::flag_unicode = true;
-brd_type board::node_count;
-
-#ifdef USE_FLOAT
-	const calc_type board::mark_max = 2;
-#endif
 
 calc_type board::table_param[stage_num][board::pos_num] = {
 	{12,0.5,-6,-0.2},
 	{10,0.5,-5,0.2},
 	{3,1,0,0}
 };
-
-unordered_map<board,board::interval> trans_black;
-unordered_map<board,board::interval> trans_white;
 
 void board::print(ostream& out)const{
 	if(flag_unicode){
