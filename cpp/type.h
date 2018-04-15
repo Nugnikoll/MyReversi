@@ -22,7 +22,7 @@ using namespace std;
 #ifndef USE_ASM
 	#undef USE_ASM_BMI
 #endif
-//#define DEBUG_SEARCH
+#define DEBUG_SEARCH
 
 typedef const bool& cbool;
 typedef const short& cshort;
@@ -98,11 +98,6 @@ enum sts_type{
 #include <random>
 #include <chrono>
 extern default_random_engine engine;
-
-#ifdef DEBUG_SEARCH
-	#include <fstream>
-	extern ofstream out;
-#endif
 
 class board;
 struct choice;

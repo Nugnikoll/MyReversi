@@ -18,6 +18,7 @@
 #define REVERSI_H
 
 #include <iostream>
+#include <string>
 #include <limits>
 #include <cassert>
 #include <utility>
@@ -721,6 +722,13 @@ public:
 	float score_ptn(cbool color,const pattern& ptn)const;
 	void adjust_ptn(cbool color,pattern& ptn,cfloat value)const;
 
+	#ifdef DEBUG_SEARCH
+		static void enable_log();
+		static void disable_log();
+		static void clear_log();
+		static void save_log(const string& filename);
+	#endif //DEBUG_SEARCH
+
 protected:
 
 	brd_type brd_white,brd_black;
@@ -735,5 +743,7 @@ struct choice{
 	float rnd_val;
 	pos_type pos;
 };
+
+float int2float(unsigned int n);
 
 #endif // REVERSI_H

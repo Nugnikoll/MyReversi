@@ -10,6 +10,10 @@
 #include "pattern.h"
 #include "hash.h"
 
+#ifdef DEBUG_SEARCH
+	#include "log.h"
+#endif //DEBUG_SEARCH
+
 const short depth_kill = 2;
 const short depth_pvs = 2;
 const short depth_hash = 3;
@@ -18,19 +22,35 @@ const short depth_mpc = 3;
 
 calc_type table_val[board::size2 + 1][board::size2];
 ull node_count;
-
 bucket bkt;
-void board::clear_hash(){
-	bkt.clear();
-}
 
 ull board::get_count(){
 	return node_count;
 }
-
 void board::clear_count(){
 	node_count = 0;
 }
+
+void board::clear_hash(){
+	bkt.clear();
+}
+
+#ifdef DEBUG_SEARCH
+	log_record search_log;
+
+	void board::enable_log(){
+		search_log.enable();
+	}
+	void board::disable_log(){
+		search_log.disable();
+	}
+	void board::clear_log(){
+		search_log.clear();
+	}
+	void board::save_log(const string& filename){
+		search_log.save(filename);
+	}
+#endif //DEBUG_SEARCH
 
 const brd_type mask_adj[board::size2] = {
 	0x0000000000000302,
@@ -273,6 +293,8 @@ typedef const brd_val& cbrd_val;
 template<method mthd>
 calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,cbool flag_pass)const{
 
+	calc_type _alpha = alpha;
+	calc_type _beta = beta;
 	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
@@ -302,6 +324,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 		slot* slt;
 		brd_type pos;
 		brd_type best_pos = -1;
+		calc_type alpha_save = alpha;
 
 		if(flag_hash){
 			slt = &bkt.probe(key);
@@ -390,7 +413,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 			}
 
 			if(flag_hash){
-				if(result >= alpha){
+				if(result > alpha_save){
 					slt->save(slot{key, result, result, depth, short(best_pos)});
 				}else{
 					slt->save(slot{key, _inf, result, depth, short(best_pos)});
@@ -417,15 +440,8 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 	#ifdef DEBUG_SEARCH
 	};
-	out << "<div color=" << color
-		<< " depth=" << depth
-		<< " alpha=" << alpha
-		<< " beta=" << beta
-		<< ">\n";
-	this->print(out);
 	calc_type result = fun();
-	out << "result = " << result << "\n"
-		<< "</div>\n";
+	search_log.insert(node{*this, color, depth, _alpha, _beta, result});
 	return result;
 	#endif
 }
@@ -439,6 +455,8 @@ calc_type board::search_end_two(
 )const{
 
 	#ifdef DEBUG_SEARCH
+	calc_type _alpha = alpha;
+	calc_type _beta = beta;
 	auto fun = [&]()->calc_type{
 	#endif
 
@@ -502,17 +520,8 @@ calc_type board::search_end_two(
 
 	#ifdef DEBUG_SEARCH
 	};
-	out << "<div color=" << color
-		<< " depth=" << 2
-		<< " alpha=" << alpha
-		<< " beta=" << beta
-		<< " pos1=" << pos1
-		<< " pos2=" << pos2
-		<< ">\n";
-	this->print(out);
 	calc_type result = fun();
-	out << "result = " << result << "\n"
-		<< "</div>\n";
+	search_log.insert(node{*this, color, 2, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -523,6 +532,8 @@ calc_type board::search_end_three(
 )const{
 
 	#ifdef DEBUG_SEARCH
+	calc_type _alpha = alpha;
+	calc_type _beta = beta;
 	auto fun = [&]()->calc_type{
 	#endif
 
@@ -583,18 +594,8 @@ calc_type board::search_end_three(
 
 	#ifdef DEBUG_SEARCH
 	};
-	out << "<div color=" << color
-		<< " depth=" << 3
-		<< " alpha=" << alpha
-		<< " beta=" << beta
-		<< " pos1=" << pos1
-		<< " pos2=" << pos2
-		<< " pos3=" << pos3
-		<< ">\n";
-	this->print(out);
 	calc_type result = fun();
-	out << "result = " << result << "\n"
-		<< "</div>\n";
+	search_log.insert(node{*this, color, 3, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -605,6 +606,8 @@ calc_type board::search_end_four(
 )const{
 
 	#ifdef DEBUG_SEARCH
+	calc_type _alpha = alpha;
+	calc_type _beta = beta;
 	auto fun = [&]()->calc_type{
 	#endif
 
@@ -678,19 +681,8 @@ calc_type board::search_end_four(
 
 	#ifdef DEBUG_SEARCH
 	};
-	out << "<div color=" << color
-		<< " depth=" << 4
-		<< " alpha=" << alpha
-		<< " beta=" << beta
-		<< " pos1=" << pos1
-		<< " pos2=" << pos2
-		<< " pos3=" << pos3
-		<< " pos4=" << pos4
-		<< ">\n";
-	this->print(out);
 	calc_type result = fun();
-	out << "result = " << result << "\n"
-		<< "</div>\n";
+	search_log.insert(node{*this, color, 4, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -702,6 +694,8 @@ calc_type board::search_end_five(
 )const{
 
 	#ifdef DEBUG_SEARCH
+	calc_type _alpha = alpha;
+	calc_type _beta = beta;
 	auto fun = [&]()->calc_type{
 	#endif
 
@@ -771,15 +765,8 @@ calc_type board::search_end_five(
 
 	#ifdef DEBUG_SEARCH
 	};
-	out << "<div color=" << color
-		<< " depth=" << 5
-		<< " alpha=" << alpha
-		<< " beta=" << beta
-		<< ">\n";
-	this->print(out);
 	calc_type result = fun();
-	out << "result = " << result << "\n"
-		<< "</div>\n";
+	search_log.insert(node{*this, color, 5, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -788,6 +775,10 @@ calc_type board::search_end_five(
 vector<choice> board::get_choice(
 	cmethod mthd,cbool color,cshort depth
 )const{
+
+	#ifdef DEBUG_SEARCH
+	auto fun = [&]()->vector<choice>{
+	#endif
 
     vector<choice> choices;
 	calc_type result,best;
@@ -913,4 +904,17 @@ vector<choice> board::get_choice(
 	}
 
     return choices;
+
+	#ifdef DEBUG_SEARCH
+	};
+	vector<choice> result = fun();
+	calc_type best = max_element(
+		result.begin(), result.end(),
+		[](const choice& c1,const choice& c2) -> bool{
+			return c1.rnd_val < c2.rnd_val;
+		}
+	)->val;
+	search_log.insert(node{*this, color, short(depth + 1), _inf, inf, best});
+	return result;
+	#endif
 }

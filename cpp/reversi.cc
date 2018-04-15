@@ -7,6 +7,10 @@
 #include "reversi.h"
 #include "search.h"
 
+default_random_engine engine(
+	chrono::system_clock::now().time_since_epoch().count()
+);
+
 const pos_type board::size;
 const pos_type board::size2;
 const pos_type board::pos_num;
@@ -116,4 +120,8 @@ coordinate board::play(cmethod mthd,cbool color,cshort depth){
 		flip(color,best.pos);
 		return coordinate(best.pos);
 	}
+}
+
+float int2float(unsigned int n){
+	return *(float*)&n;
 }

@@ -14,12 +14,14 @@
 #include "../cpp/reversi.h"
 #include "../cpp/matrix.h"
 #include "../cpp/pattern.h"
+#include "../cpp/log.h"
 %}
 
 %include "../cpp/type.h"
 %include "../cpp/reversi.h"
 %include "../cpp/matrix.h"
 %include "../cpp/pattern.h"
+%include "../cpp/log.h"
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;
