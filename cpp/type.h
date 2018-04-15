@@ -22,7 +22,7 @@ using namespace std;
 #ifndef USE_ASM
 	#undef USE_ASM_BMI
 #endif
-#define DEBUG_SEARCH
+//#define DEBUG_SEARCH
 
 typedef const bool& cbool;
 typedef const short& cshort;

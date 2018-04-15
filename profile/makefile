@@ -53,9 +53,6 @@ before:
 $(OUT): before $(OBJ)
 	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
 
-$(OBJDIR)type.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)type.cc | gawk -f parse.awk))
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
 $(OBJDIR)reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)reversi.cc | gawk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
@@ -66,9 +63,6 @@ $(OBJDIR)search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)search.c
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)pattern.cc | gawk -f parse.awk))
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJDIR)tree.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)tree.cc | gawk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 main.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM main.cc | gawk -f parse.awk))

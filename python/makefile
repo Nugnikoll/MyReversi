@@ -39,22 +39,16 @@ clean:
 $(OUT): $(OBJ)
 	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
 
-$(OBJDIR)type.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)type.cc | gawk -f parse.awk))
+$(OBJDIR)reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)reversi.cc | awk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)reversi.cc | gawk -f parse.awk))
+$(OBJDIR)flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)flip.cc | awk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)flip.cc | gawk -f parse.awk))
+$(OBJDIR)search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)search.cc | awk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)search.cc | gawk -f parse.awk))
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJDIR)pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)pattern.cc | gawk -f parse.awk))
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(OBJDIR)tree.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)tree.cc | gawk -f parse.awk))
+$(OBJDIR)pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)pattern.cc | awk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OUTDIR)reversi_wrap.cxx: $(OUTDIR)reversi.i $(HEAD)
