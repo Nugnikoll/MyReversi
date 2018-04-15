@@ -78,7 +78,7 @@ public:
 	*/
 	board() = default;
 	board(const board& brd) = default;
-	board(cbrd_type _brd_black,cbrd_type _brd_white)
+	board(cull _brd_black,cull _brd_white)
 		:brd_white(_brd_white),brd_black(_brd_black){}
 
 	friend bool operator==(const board& b1,const board& b2){
@@ -96,9 +96,9 @@ public:
 
 	static bool flag_unicode;
 
-	typedef pair<calc_type,calc_type> interval;
+	typedef pair<val_type,val_type> interval;
 
-	static calc_type table_param[stage_num][pos_num];
+	static val_type table_param[stage_num][pos_num];
 
 	friend ostream& operator<<(ostream& out,const board& brd){
 		brd.print(out);
@@ -111,12 +111,12 @@ public:
 	*/
 	void print(ostream& out = cout)const;
 
-	/** @fn board& assign(cbrd_type _brd_black,cbrd_type _brd_white)
+	/** @fn board& assign(cull _brd_black,cull _brd_white)
 	 *	@brief Assign the board to some specific value.
 	 *	@param _brd_black the value of the 64-bit board of black stones
 	 *	@param _brd_black the value of the 64-bit board of white stones
 	*/
-	void assign(cbrd_type _brd_black,cbrd_type _brd_white){
+	void assign(cull _brd_black,cull _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
 	}
@@ -128,10 +128,10 @@ public:
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
 
-	cbrd_type bget(cbool color)const{
+	cull bget(cbool color)const{
 		return *(&brd_white + color);
 	}
-	brd_type& bget(cbool color){
+	ull& bget(cbool color){
 		return *(&brd_white + color);
 	}
 
@@ -148,12 +148,12 @@ public:
 				"bt %4, %3;"
 				"cmovc %1, %0;"
 				:"=&r"(result), "=&r"(temp)
-				:"r"(brd_black), "r"(brd_white), "r"(brd_type(pos)),
+				:"r"(brd_black), "r"(brd_white), "r"(ull(pos)),
 					"g"(black), "g"(white)
 			);
 			return result;
 		#else
-			brd_type mask = brd_type(1) << pos;
+			ull mask = ull(1) << pos;
 			if(mask & brd_black){
 				if(mask & brd_white){
 					return null;
@@ -172,7 +172,7 @@ public:
 
 	void set(cpos_type pos, cchessman chsm){
 		#ifdef USE_ASM
-			brd_type temp;
+			ull temp;
 			asm volatile(
 				"mov %0, %1;"
 				"btr %2, %0;"
@@ -180,7 +180,7 @@ public:
 				"test %4, %3;"
 				"cmovnz %1, %0;"
 				:"+r"(brd_black), "=&r"(temp)
-				:"r"(brd_type(pos)), "r"(chsm), "g"(black)
+				:"r"(ull(pos)), "r"(chsm), "g"(black)
 			);
 			asm volatile(
 				"mov %0, %1;"
@@ -189,10 +189,10 @@ public:
 				"test %4, %3;"
 				"cmovnz %1, %0;"
 				:"+r"(brd_white), "=&r"(temp)
-				:"r"(brd_type(pos)), "r"(chsm), "g"(white)
+				:"r"(ull(pos)), "r"(chsm), "g"(white)
 			);
 		#else
-			brd_type mask = brd_type(1) << pos;
+			ull mask = ull(1) << pos;
 			if(chsm & white){
 				brd_white |= mask;
 			}else{
@@ -206,14 +206,14 @@ public:
 		#endif
 	}
 
-	static brd_type extract(cbrd_type brd,cbrd_type mask){
-		brd_type result;
+	static ull extract(cull brd,cull mask){
+		ull result;
 		fun_pext(brd,mask,result);
 		return result;
 	}
 
-	static brd_type deposit(cbrd_type brd,cbrd_type mask){
-		brd_type result;
+	static ull deposit(cull brd,cull mask){
+		ull result;
 		fun_pdep(brd,mask,result);
 		return result;
 	}
@@ -222,21 +222,21 @@ public:
 		swap(brd_black,brd_white);
 	}
 
-	/** @fn static void mirror_h(brd_type& brd)
+	/** @fn static void mirror_h(ull& brd)
 	 *	@brief It's a function used to mirror a 64-bit board horizontally.
 	 *	@param brd the 64-bit board
 	*/
-	static void mirror_h(brd_type& brd){
+	static void mirror_h(ull& brd){
 		brd = (brd & 0xaaaaaaaaaaaaaaaa) >> 1  | (brd & 0x5555555555555555) << 1;
 		brd = (brd & 0xcccccccccccccccc) >> 2  | (brd & 0x3333333333333333) << 2;
 		brd = (brd & 0xf0f0f0f0f0f0f0f0) >> 4  | (brd & 0x0f0f0f0f0f0f0f0f) << 4;
 	}
 
-	/** @fn static void mirror_v(brd_type& brd)
+	/** @fn static void mirror_v(ull& brd)
 	 *	@brief It's a function used to mirror a 64-bit board vertically.
 	 *	@param brd the 64-bit board
 	*/
-	static void mirror_v(brd_type& brd){
+	static void mirror_v(ull& brd){
 		#ifdef USE_ASM
 			asm_bswap(brd);
 		#else
@@ -246,20 +246,20 @@ public:
 		#endif
 	}
 
-	/** @fn static void reflect(brd_type& brd)
+	/** @fn static void reflect(ull& brd)
 	 *	@brief It's a function used to reflect a 64-bit board.
 	 *	@param brd the 64-bit board
 	*/
-	static void reflect(brd_type& brd){
+	static void reflect(ull& brd){
 		mirror_h(brd);
 		mirror_v(brd);
 	}
 
-	/** @fn static void rotate_r(brd_type& brd)
+	/** @fn static void rotate_r(ull& brd)
 	 *	@brief It's a function used to rotate a 64-bit board clockwise.
 	 *	@param brd the 64-bit board
 	*/
-	static void rotate_r(brd_type& brd){
+	static void rotate_r(ull& brd){
 		brd = (brd & 0xf0f0f0f000000000) >> 4  | (brd & 0x0f0f0f0f00000000) >> 32
 			| (brd & 0x00000000f0f0f0f0) << 32 | (brd & 0x000000000f0f0f0f) << 4;
 		brd = (brd & 0xcccc0000cccc0000) >> 2  | (brd & 0x3333000033330000) >> 16
@@ -268,11 +268,11 @@ public:
 			| (brd & 0x00aa00aa00aa00aa) << 8  | (brd & 0x0055005500550055) << 1;
 	}
 
-	/** @fn static void rotate_l(brd_type& brd)
+	/** @fn static void rotate_l(ull& brd)
 	 *	@brief It's a function used to rotate a 64-bit board counter-clockwise.
 	 *	@param brd the 64-bit board
 	*/
-	static void rotate_l(brd_type& brd){
+	static void rotate_l(ull& brd){
 		brd = (brd & 0xf0f0f0f000000000) >> 32 | (brd & 0x0f0f0f0f00000000) << 4
 			| (brd & 0x00000000f0f0f0f0) >> 4  | (brd & 0x000000000f0f0f0f) << 32;
 		brd = (brd & 0xcccc0000cccc0000) >> 16 | (brd & 0x3333000033330000) << 2
@@ -281,13 +281,13 @@ public:
 			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
 	}
 
-	/** @fn static void count(brd_type& brd)
+	/** @fn static void count(ull& brd)
 	 *	@brief It's a function used to count the number of bit
 	 *	which are set in a 64-bit board.
 	 *	@param brd the 64-bit board
 	*/
-	static pos_type count(cbrd_type brd){
-		brd_type result;
+	static pos_type count(cull brd){
+		ull result;
 
 		#ifdef USE_ASM
 			asm_popcnt(brd,result);
@@ -302,12 +302,12 @@ public:
 		return result;
 	}
 
-	/** @fn static brd_type get_edge_stable(cbrd_type brd)
+	/** @fn static ull get_edge_stable(cull brd)
 	 *	@brief It's a function used to estimate which stones are stable.
 	 *	@param brd the 64-bit board
 	*/
-	static brd_type get_edge_stable(cbrd_type brd){
-		brd_type brd_ul,brd_ur,brd_dl,brd_dr;
+	static ull get_edge_stable(cull brd){
+		ull brd_ul,brd_ur,brd_dl,brd_dr;
 
 		brd_ul = brd;
 		brd_ul &= (brd_ul >>  1) | 0x8080808080808080;
@@ -336,12 +336,12 @@ public:
 		return brd_ul | brd_ur | brd_dl | brd_dr;
 	}
 
-	/** @fn static brd_type get_edge_stable(cbrd_type brd)
+	/** @fn static ull get_edge_stable(cull brd)
 	 *	@brief It's a function used to estimate which stones are stable.
 	 *	@param brd the 64-bit board
 	*/
-	static brd_type get_stable(cbrd_type brd){
-		brd_type brd_l,brd_r,brd_u,brd_d,brd_ul,brd_ur,brd_dl,brd_dr;
+	static ull get_stable(cull brd){
+		ull brd_l,brd_r,brd_u,brd_d,brd_ul,brd_ur,brd_dl,brd_dr;
 
 		brd_l  = brd;
 		brd_l  &= (brd_l  >>  1) | 0x8080808080808080;
@@ -387,12 +387,12 @@ public:
 			& (brd_ul | brd_dr) & (brd_ur | brd_dl);
 	}
 
-	/** @fn static brd_type get_front(cbrd_type brd)
+	/** @fn static ull get_front(cull brd)
 	 *	@brief It's a function used to calculate the frontier.
 	 *	@param brd the 64-bit board
 	*/
-	static brd_type get_front(cbrd_type brd){
-		brd_type brd_reverse, brd_front;
+	static ull get_front(cull brd){
+		ull brd_reverse, brd_front;
 
 		brd_reverse = ~brd;
 		brd_front = 0;
@@ -456,20 +456,20 @@ public:
 	static void clear_count();
 	static void clear_hash();
 
-	/** @fn brd_type get_move(cbool color)const
+	/** @fn ull get_move(cbool color)const
 	 *	@brief Calculate possible moves.
 	 *	@param color Whether it is black's turn.
 	*/
-	brd_type get_move(cbool color)const{
+	ull get_move(cbool color)const{
 		// This part of code is brought from Zebra.
 		// I rewrite it in 64-bit style.
 
-		const brd_type& brd_blue = bget(color);
-		const brd_type& brd_green = bget(!color);
-		brd_type moves;
-		brd_type brd_green_inner;
-		brd_type brd_flip;
-		brd_type brd_green_adj;
+		const ull& brd_blue = bget(color);
+		const ull& brd_green = bget(!color);
+		ull moves;
+		ull brd_green_inner;
+		ull brd_flip;
+		ull brd_green_adj;
 
 		brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
 
@@ -618,8 +618,8 @@ public:
 
 	void flip(cbool color,cpos_type pos);
 
-	calc_type score_end(cbool color)const{
-		calc_type num_diff = count(color) - count(!color);
+	val_type score_end(cbool color)const{
+		val_type num_diff = count(color) - count(!color);
 
 		if(num_diff > 0){
 			return num_diff + 2;
@@ -630,11 +630,11 @@ public:
 		}
 	}
 
-	calc_type score(cbool color)const{
-		brd_type brd_blue = bget(color);
-		brd_type brd_green = bget(!color);
-		brd_type brd_mix = brd_blue | brd_green;
-		brd_type brd_temp;
+	val_type score(cbool color)const{
+		ull brd_blue = bget(color);
+		ull brd_green = bget(!color);
+		ull brd_mix = brd_blue | brd_green;
+		ull brd_temp;
 
 		short stage;
 		short total = count(brd_mix);
@@ -646,7 +646,7 @@ public:
 			stage = 2;
 		}
 
-		calc_type result = 0;
+		val_type result = 0;
 		result += count_move(color) - count_move(!color);
 		brd_temp = get_stable(brd_mix);
 		result += count(brd_blue & brd_temp) - count(brd_green & brd_temp);
@@ -666,29 +666,29 @@ public:
 	}
 
 	template<method mthd>
-	calc_type search(
+	val_type search(
 		cbool color,cshort height,
-		calc_type alpha = _inf,calc_type beta = inf,cbool flag_pass = false
+		val_type alpha = _inf,val_type beta = inf,cbool flag_pass = false
 	)const;
-	calc_type search(
+	val_type search(
 		cmethod mthd,cbool color,cshort height,
-		ccalc_type alpha = _inf,ccalc_type beta = inf
+		cval_type alpha = _inf,cval_type beta = inf
 	)const;
-	calc_type search_end_two(
+	val_type search_end_two(
 		cbool color,cpos_type pos1,cpos_type pos2,
-		calc_type alpha,calc_type beta,cbool flag_pass
+		val_type alpha,val_type beta,cbool flag_pass
 	)const;
-	calc_type search_end_three(
+	val_type search_end_three(
 		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,
-		calc_type alpha,calc_type beta,cbool flag_pass
+		val_type alpha,val_type beta,cbool flag_pass
 	)const;
-	calc_type search_end_four(
+	val_type search_end_four(
 		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,
-		calc_type alpha,calc_type beta,cbool flag_pass
+		val_type alpha,val_type beta,cbool flag_pass
 	)const;
 	template<method mthd>
-	calc_type search_end_five(
-		cbool color,calc_type alpha,calc_type beta,cbool flag_pass
+	val_type search_end_five(
+		cbool color,val_type alpha,val_type beta,cbool flag_pass
 	)const;
 
 	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth)const;
@@ -731,7 +731,7 @@ public:
 
 protected:
 
-	brd_type brd_white,brd_black;
+	ull brd_white,brd_black;
 
 	static void config_flip();
 	static void config_search();

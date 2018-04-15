@@ -18,7 +18,7 @@ const pos_type board::stage_num;
 const short board::max_height;
 bool board::flag_unicode = true;
 
-calc_type board::table_param[stage_num][board::pos_num] = {
+val_type board::table_param[stage_num][board::pos_num] = {
 	{12,0.5,-6,-0.2},
 	{10,0.5,-5,0.2},
 	{3,1,0,0}

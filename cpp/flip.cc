@@ -24,7 +24,7 @@ const pos_type pos_diag2[board::size2] = {
 	0,1,2,3,4,5,6,7
 };
 
-const brd_type mask_h[board::size] = {
+const ull mask_h[board::size] = {
 	0x00000000000000ff,
 	0x000000000000ff00,
 	0x0000000000ff0000,
@@ -35,7 +35,7 @@ const brd_type mask_h[board::size] = {
 	0xff00000000000000
 };
 
-const brd_type mask_v[board::size] = {
+const ull mask_v[board::size] = {
 	0x0101010101010101,
 	0x0202020202020202,
 	0x0404040404040404,
@@ -46,7 +46,7 @@ const brd_type mask_v[board::size] = {
 	0x8080808080808080
 };
 
-const brd_type mask_d1[board::size * 2 - 1] = {
+const ull mask_d1[board::size * 2 - 1] = {
 	0x0000000000000001,
 	0x0000000000000102,
 	0x0000000000010204,
@@ -64,7 +64,7 @@ const brd_type mask_d1[board::size * 2 - 1] = {
 	0x8000000000000000
 };
 
-const brd_type mask_d2[board::size * 2 - 1] = {
+const ull mask_d2[board::size * 2 - 1] = {
 	0x0000000000000080,
 	0x0000000000008040,
 	0x0000000000804020,
@@ -85,22 +85,22 @@ const brd_type mask_d2[board::size * 2 - 1] = {
 unsigned short table_flip[1 << 19];
 
 struct flip_info{
-	brd_type index_h, mask_h;
-	brd_type index_v, mask_v;
-	brd_type index_d1, mask_d1;
-	brd_type index_d2, mask_d2;
-	brd_type mask_hvd;
+	ull index_h, mask_h;
+	ull index_v, mask_v;
+	ull index_d1, mask_d1;
+	ull index_d2, mask_d2;
+	ull mask_hvd;
 };
 
 flip_info table_flip_info[board::size2];
 
 void board::flip(cbool color,cpos_type pos){
 
-	brd_type& brd_blue = this->bget(color);
-	brd_type& brd_green = this->bget(!color);
+	ull& brd_blue = this->bget(color);
+	ull& brd_green = this->bget(!color);
 
-	brd_type piece, temp, mask, brd_result;
-	brd_type sum_blue = 0, sum_green = 0;
+	ull piece, temp, mask, brd_result;
+	ull sum_blue = 0, sum_green = 0;
 	const flip_info& info = table_flip_info[pos];
 
 	//horizontal
@@ -164,14 +164,14 @@ void board::flip(cbool color,cpos_type pos){
 	brd_green = (brd_green & ~mask) | (sum_green & mask);
 }
 
-unsigned short flip_line(cbrd_type data){
+unsigned short flip_line(cull data){
 
 	unsigned short brd_blue = (data >> 8) & 0xff;
 	unsigned short brd_blue_save = brd_blue;
 	unsigned short brd_green = data & 0xff;
 	unsigned short mask = 1 << (data >> 16);
 	unsigned short result = 0;
-	brd_type pos = mask;
+	ull pos = mask;
 
 	if((brd_blue | brd_green) & mask){
 		goto label_end;
@@ -234,7 +234,7 @@ void board::config_flip(){
 		info.mask_hvd = info.mask_h | info.mask_v | info.mask_d1 | info.mask_d2;
 	}
 
-	for(brd_type i = 0;i != (1 << 19);++i){
+	for(ull i = 0;i != (1 << 19);++i){
 		if((i >> 8) & i & 0xff){}else{
 			table_flip[i] = flip_line(i);
 		}
@@ -288,11 +288,11 @@ void board::config_flip(){
 #define flip_fun(name,kernel) \
  \
 	void name(board* const& ptr,cbool color,cpos_type _pos){ \
-		brd_type& blue = ptr->bget(color), blue_save = blue; \
-		brd_type& green = ptr->bget(!color); \
-		brd_type mask = brd_type(1) << _pos;\
+		ull& blue = ptr->bget(color), blue_save = blue; \
+		ull& green = ptr->bget(!color); \
+		ull mask = ull(1) << _pos;\
  \
-		brd_type pos = mask; \
+		ull pos = mask; \
  \
 		kernel \
  \
