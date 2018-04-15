@@ -293,9 +293,9 @@ typedef const brd_val& cbrd_val;
 template<method mthd>
 calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,cbool flag_pass)const{
 
+	#ifdef DEBUG_SEARCH
 	calc_type _alpha = alpha;
 	calc_type _beta = beta;
-	#ifdef DEBUG_SEARCH
 	auto fun = [&]()->calc_type{
 	#endif
 

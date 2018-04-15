@@ -4,8 +4,8 @@ import codecs
 
 src_dir = "../cpp/";
 
-src = ["type.h","asm.h","reversi.h","search.h","matrix.h","pattern.h",
-	"type.cc","reversi.cc","flip.cc","search.cc","pattern.cc"];
+src = ["type.h","asm.h","reversi.h", "hash.h","matrix.h","pattern.h",
+	"reversi.cc","flip.cc","search.cc","pattern.cc"];
 src = [src_dir + x for x in src] + ["main.cc"];
 
 lines = [];
