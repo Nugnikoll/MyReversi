@@ -90,15 +90,8 @@ public:
 
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
-	static const pos_type pos_num = 4;
-	static const pos_type stage_num = 3;
-	static const short max_height = 20;
 
-	static bool flag_unicode;
-
-	typedef pair<val_type,val_type> interval;
-
-	static val_type table_param[stage_num][pos_num];
+	static val_type table_param[3][4];
 
 	friend ostream& operator<<(ostream& out,const board& brd){
 		brd.print(out);

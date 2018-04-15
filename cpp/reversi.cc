@@ -13,71 +13,57 @@ default_random_engine engine(
 
 const pos_type board::size;
 const pos_type board::size2;
-const pos_type board::pos_num;
-const pos_type board::stage_num;
-const short board::max_height;
-bool board::flag_unicode = true;
 
-val_type board::table_param[stage_num][board::pos_num] = {
+val_type board::table_param[3][4] = {
 	{12,0.5,-6,-0.2},
 	{10,0.5,-5,0.2},
 	{3,1,0,0}
 };
 
 void board::print(ostream& out)const{
-	if(flag_unicode){
-		string s =
-			"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
-			"║ │ │ │ │ │ │ │ ║\n"
-			"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
-		;
+	string s =
+		"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╟─┼─┼─┼─┼─┼─┼─┼─╢\n"
+		"║ │ │ │ │ │ │ │ ║\n"
+		"╚═╧═╧═╧═╧═╧═╧═╧═╝\n"
+	;
 
-		pos_type pos = 0;
-		for(char& chr:s){
-			if(chr == ' '){
-				switch(get(pos)){
-				case blank:
-					out << " ";
-					break;
-				case black:
-					out << "●";
-					break;
-				case white:
-					out << "○";
-					break;
-				case null:
-					out << "╳";
-					break;
-				default:
-					out << "╳";
-					break;
-				}
-				++pos;
-			}else{
-				out << chr;
+	pos_type pos = 0;
+	for(char& chr:s){
+		if(chr == ' '){
+			switch(get(pos)){
+			case blank:
+				out << " ";
+				break;
+			case black:
+				out << "●";
+				break;
+			case white:
+				out << "○";
+				break;
+			case null:
+				out << "╳";
+				break;
+			default:
+				out << "╳";
+				break;
 			}
-		}
-	}else{
-		const char chr_print[4] = {'.','O','#','*'};
-		for(pos_type i = 0;i != size;++i){
-			for(pos_type j = 0;j != size;++j){
-				out << chr_print[get((i << 3) | j)];
-			}
-			out << '\n';
+			++pos;
+		}else{
+			out << chr;
 		}
 	}
 }
