@@ -14,12 +14,6 @@ default_random_engine engine(
 const pos_type board::size;
 const pos_type board::size2;
 
-val_type board::table_param[3][4] = {
-	{12,0.5,-6,-0.2},
-	{10,0.5,-5,0.2},
-	{3,1,0,0}
-};
-
 void board::print(ostream& out)const{
 	string s =
 		"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"

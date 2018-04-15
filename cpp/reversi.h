@@ -91,8 +91,6 @@ public:
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
 
-	static val_type table_param[3][4];
-
 	friend ostream& operator<<(ostream& out,const board& brd){
 		brd.print(out);
 		return out;
@@ -628,6 +626,11 @@ public:
 		ull brd_green = bget(!color);
 		ull brd_mix = brd_blue | brd_green;
 		ull brd_temp;
+		const val_type table_param[3][4] = {
+			{12,0.5,-6,-0.2},
+			{10,0.5,-5,0.2},
+			{3,1,0,0}
+		};
 
 		short stage;
 		short total = count(brd_mix);

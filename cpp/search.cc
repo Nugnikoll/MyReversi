@@ -218,18 +218,14 @@ val_type board::search(
 
 			if(result <= window_alpha && result > alpha){
 				do{
-					//window_width *= 2;
 					window_beta = result;
 					window_alpha = window_beta - window_width;
-					//window_alpha = max(window_beta - window_width,alpha);
 					result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
 				}while(result <= window_alpha && result > alpha);
 			}else if(result >= window_beta && result < beta){
 				do{
-					//window_width *= 2;
 					window_alpha = result;
 					window_beta = window_alpha + window_width;
-					//window_beta = min(window_alpha + window_width,beta);
 					result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
 				}while(result >= window_beta && result < beta);
 			}
