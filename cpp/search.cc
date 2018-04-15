@@ -314,6 +314,8 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 				return this->score(color);
 		}
 
+		bool flag_kill = (mthd & mthd_kill) && depth >= depth_kill;
+		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
 		bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
 
 		ull key = get_key(color);
@@ -321,6 +323,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		ull pos;
 		ull best_pos = -1;
 		val_type alpha_save = alpha;
+		val_type* ptr_val = table_val[this->sum()];
 
 		if(flag_hash){
 			slt = &bkt.probe(key);
@@ -339,18 +342,16 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 					}
 					assert(alpha < beta);
 				}
-				pos = slt->pos;
+				if(flag_kill){
+					ptr_val[slt->pos] += 10;
+				}
 			}
 		}
-
-		bool flag_kill = (mthd & mthd_kill) && depth >= depth_kill;
-		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
 
 		brd_val vec[32];
 		brd_val* ptr = vec;
 		board brd;
 		val_type temp, result = _inf;
-		val_type* ptr_val = table_val[this->sum()];
 		const method mthd_de_pvs = method(mthd & ~mthd_pvs);
 		ull brd_move = this->get_move(color);
 
