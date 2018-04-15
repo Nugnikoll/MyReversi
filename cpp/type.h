@@ -10,7 +10,6 @@
 using namespace std;
 
 //#define USE_REF
-#define USE_FLOAT
 
 // check whether the complier support 64-bit AT&T inline assembly
 #if defined(__GNUC__) || defined(__clang__)
@@ -33,21 +32,13 @@ typedef const ll& cll;
 typedef unsigned long long ull;
 typedef const ull& cull;
 
-typedef unsigned long long brd_type;
-typedef const brd_type& cbrd_type;
 typedef unsigned char line_type;
 typedef const line_type& cline_type;
 typedef short pos_type;
 typedef const pos_type& cpos_type;
 
-#ifdef USE_FLOAT
-	typedef float calc_type;
-#else
-	typedef short calc_type;
-#endif
 typedef float val_type;
 typedef const val_type& cval_type;
-typedef const calc_type& ccalc_type;
 
 enum chessman{blank, white, black, null};
 #ifdef USE_REF
@@ -56,8 +47,8 @@ enum chessman{blank, white, black, null};
 	typedef chessman cchessman;
 #endif //USE_REF
 
-const calc_type inf = numeric_limits<short>::max();
-const calc_type _inf = - inf;
+const val_type inf = numeric_limits<short>::max();
+const val_type _inf = - inf;
 
 enum method{
 
@@ -100,24 +91,22 @@ enum sts_type{
 extern default_random_engine engine;
 
 class board;
+typedef const board& cboard;
 struct choice;
+typedef const choice& cchoice;
 class pattern;
+typedef const pattern& cpattern;
 class group;
-
-#ifdef USE_REF
-	typedef const board& cboard;
-	typedef const choice& cchoice;
-	typedef const pattern& cpattern;
-	typedef const group& cgroup;
-#else
-	typedef board cboard;
-	typedef choice cchoice;
-	typedef pattern cpattern;
-	typedef group cgroup;
-#endif //USE_REF
+typedef const group& cgroup;
 
 enum player_type{
 	ply_human,ply_ai,ply_other
 };
+#ifdef USE_REF
+	typedef const player_type& cplayer_type;
+#else
+	typedef player_type cplayer_type;
+#endif //USE_REF
+
 
 #endif //TYPE_H

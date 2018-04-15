@@ -11,8 +11,8 @@ struct node{
 	board brd;
 	bool color;
 	short depth;
-	calc_type alpha, beta;
-	calc_type value;
+	val_type alpha, beta;
+	val_type value;
 };
 typedef const node& cnode;
 

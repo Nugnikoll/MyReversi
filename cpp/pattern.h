@@ -36,16 +36,16 @@ public:
 	static const short table_num[size_n];
 	static const short table_num_size[size];
 	static const short table_num_convert[size][4];
-	static const brd_type table_mask[size_n];
+	static const ull table_mask[size_n];
 
-	calc_type table[size * length];
+	val_type table[size * length];
 
 	void initial(){
 		memset(table,0,sizeof(table));
 	}
 	static void config(){
-		brd_type j = 0;
-		for(brd_type i = 0;i != length;++i){
+		ull j = 0;
+		for(ull i = 0;i != length;++i){
 			if((i & (i >> 8)) == 0){
 				table_map[i] = j;
 				table_map_inv[j] = i;
@@ -55,7 +55,7 @@ public:
 			}
 		}
 
-		for(brd_type i = 0;i != 256;++i){
+		for(ull i = 0;i != 256;++i){
 			j = board::deposit(i,0x0101010101010101);
 			board::mirror_v(j);
 			j = board::extract(j,0x0101010101010101);
@@ -68,16 +68,16 @@ public:
 		}
 	}
 
-	calc_type& at(cint n,cint pos){
+	val_type& at(cint n,cint pos){
 		return table[(n << 16) + pos];
 	};
-	ccalc_type at(cint n,cint pos)const{
+	cval_type at(cint n,cint pos)const{
 		return table[(n << 16) + pos];
 	};
-	calc_type& at(cint n){
+	val_type& at(cint n){
 		return table[n];
 	};
-	ccalc_type at(cint n)const{
+	cval_type at(cint n)const{
 		return table[n];
 	};
 
@@ -121,11 +121,11 @@ float mat_2f(const matrix<float>& m);
 //unordered_set<board> sample_gen(cint n);
 //matrix<int> sample_process(const unordered_set<board>& brds);
 matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2);
-//matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height);
-matrix<calc_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
-matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index);
-matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds);
-void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& delta);
-void adjust(pattern& ptn, const matrix<board>& brds, const matrix<calc_type>& delta);
+//matrix<val_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height);
+matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
+matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index);
+matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
+void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta);
+void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
 
 #endif //PATTERN_H

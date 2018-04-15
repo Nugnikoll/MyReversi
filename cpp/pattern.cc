@@ -40,7 +40,7 @@ const short pattern::table_num_convert[pattern::size][4] = {
 	{32, 33, 34, 35}
 };
 
-const brd_type pattern::table_mask[pattern::size_n] = {
+const ull pattern::table_mask[pattern::size_n] = {
 	// horizontal pattern
 	0x00000000000000ff,
 	0x000000000000ff00,
@@ -89,21 +89,21 @@ const brd_type pattern::table_mask[pattern::size_n] = {
 
 void get_index(cbool color, cboard brd, int* const& ind){
 	
-	brd_type brd_blue = brd.bget(color);
-	brd_type brd_green = brd.bget(!color);
-	brd_type brd_v_blue = brd_blue;
-	brd_type brd_v_green = brd_green;
+	ull brd_blue = brd.bget(color);
+	ull brd_green = brd.bget(!color);
+	ull brd_v_blue = brd_blue;
+	ull brd_v_green = brd_green;
 	board::mirror_v(brd_v_blue);
 	board::mirror_v(brd_v_green);
-	brd_type brd_h_blue = brd_blue;
-	brd_type brd_h_green = brd_green;
+	ull brd_h_blue = brd_blue;
+	ull brd_h_green = brd_green;
 	board::mirror_h(brd_h_blue);
 	board::mirror_h(brd_h_green);
-	brd_type brd_r_blue = brd_h_blue;
-	brd_type brd_r_green = brd_h_green;
+	ull brd_r_blue = brd_h_blue;
+	ull brd_r_green = brd_h_green;
 	board::mirror_v(brd_r_blue);
 	board::mirror_v(brd_r_green);
-	brd_type index;
+	ull index;
 
 	//horizontal pattern
 	index = 0 << 16;
@@ -296,21 +296,21 @@ void get_index(cbool color, cboard brd, int* const& ind){
 }
 
 float board::score_ptn(cbool color,const pattern& ptn)const{
-	brd_type brd_blue = bget(color);
-	brd_type brd_green = bget(!color);
-	brd_type brd_v_blue = brd_blue;
-	brd_type brd_v_green = brd_green;
+	ull brd_blue = bget(color);
+	ull brd_green = bget(!color);
+	ull brd_v_blue = brd_blue;
+	ull brd_v_green = brd_green;
 	mirror_v(brd_v_blue);
 	mirror_v(brd_v_green);
-	brd_type brd_h_blue = brd_blue;
-	brd_type brd_h_green = brd_green;
+	ull brd_h_blue = brd_blue;
+	ull brd_h_green = brd_green;
 	mirror_h(brd_h_blue);
 	mirror_h(brd_h_green);
-	brd_type brd_r_blue = brd_h_blue;
-	brd_type brd_r_green = brd_h_green;
+	ull brd_r_blue = brd_h_blue;
+	ull brd_r_green = brd_h_green;
 	mirror_v(brd_r_blue);
 	mirror_v(brd_r_green);
-	brd_type index;
+	ull index;
 	float result;
 
 	result = 0;
@@ -508,21 +508,21 @@ float board::score_ptn(cbool color,const pattern& ptn)const{
 }
 
 void board::adjust_ptn(cbool color,pattern& ptn,cfloat value)const{
-	brd_type brd_blue = bget(color);
-	brd_type brd_green = bget(!color);
-	brd_type brd_v_blue = brd_blue;
-	brd_type brd_v_green = brd_green;
+	ull brd_blue = bget(color);
+	ull brd_green = bget(!color);
+	ull brd_v_blue = brd_blue;
+	ull brd_v_green = brd_green;
 	mirror_v(brd_v_blue);
 	mirror_v(brd_v_green);
-	brd_type brd_h_blue = brd_blue;
-	brd_type brd_h_green = brd_green;
+	ull brd_h_blue = brd_blue;
+	ull brd_h_green = brd_green;
 	mirror_h(brd_h_blue);
 	mirror_h(brd_h_green);
-	brd_type brd_r_blue = brd_h_blue;
-	brd_type brd_r_green = brd_h_green;
+	ull brd_r_blue = brd_h_blue;
+	ull brd_r_green = brd_h_green;
 	mirror_v(brd_r_blue);
 	mirror_v(brd_r_green);
-	brd_type index;
+	ull index;
 
 	//horizontal pattern
 	index = 0 << 16;
@@ -746,7 +746,7 @@ void group::load(istream& fin){
 	_READ(ptn_size);
 	_READ(group_size);
 
-	if(calc_size != sizeof(calc_type)){
+	if(calc_size != sizeof(val_type)){
 		cout << "Error: The size of element does not match." << endl;
 		return;
 	}
@@ -781,7 +781,7 @@ void group::load(const string& path){
 	_READ(ptn_size);
 	_READ(group_size);
 
-	if(calc_size != sizeof(calc_type)){
+	if(calc_size != sizeof(val_type)){
 		fin.close();
 		cout << "Error: The size of element does not match." << endl;
 		return;
@@ -807,7 +807,7 @@ void group::save(const string& path)const{
 	#define WRITE(var) fout.write((const char *)(&var),sizeof(var))
 	ofstream fout(path,ios::out | ios::binary);
 
-	size_t calc_size = sizeof(calc_type);
+	size_t calc_size = sizeof(val_type);
 	size_t ptn_size = sizeof(pattern);
 	size_t group_size = vec.size();
 
@@ -831,7 +831,7 @@ void group::save(const string& path)const{
 void pattern::balance(){
 	unsigned char index_l, index_h;
 	int index;
-	calc_type value;
+	val_type value;
 
 	#define balance_part(num) \
 		value = (table[(num << 16) | i] + table[(num << 16) | index]) / 2; \
@@ -1006,9 +1006,9 @@ matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
 }
 
 /*
-matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height){
+matrix<val_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height){
 	int i = 0;
-	matrix<calc_type> result(brds.size(),1);
+	matrix<val_type> result(brds.size(),1);
 	for(cboard brd:brds){
 		result.at(i) = brd.search(mthd,true,height);
 		++i;
@@ -1017,16 +1017,16 @@ matrix<calc_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort 
 }
 */
 
-matrix<calc_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
-	matrix<calc_type> result(brds.geth(),1);
+matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
+	matrix<val_type> result(brds.geth(),1);
 	for(int i = 0;i != brds.geth();++i){
 		result.at(i) = brds.at(i).search(mthd,true,height);
 	}
 	return result;
 }
 
-matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index){
-	matrix<calc_type> result(index.geth(),1);
+matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index){
+	matrix<val_type> result(index.geth(),1);
 	for(int i = 0;i != index.geth();++i){
 		result.at(i) = 0;
 		for(int j = 0;j != index.getw();++j){
@@ -1036,8 +1036,8 @@ matrix<calc_type> evaluate(const pattern& ptn, const matrix<int>& index){
 	return result;
 }
 
-matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds){
-	matrix<calc_type> result(brds.geth(),1);
+matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
+	matrix<val_type> result(brds.geth(),1);
 	
 	for(int i = 0;i != brds.geth();++i){
 		result.at(i) = brds.at(i).score_ptn(true,ptn);
@@ -1045,7 +1045,7 @@ matrix<calc_type> evaluate(const pattern& ptn, const matrix<board>& brds){
 	return result;
 }
 
-void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& delta){
+void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta){
 	for(int i = 0;i != index.geth();++i){
 		for(int j = 0;j != index.getw();++j){
 			ptn.at(index[i][j]) += delta.at(i);
@@ -1053,7 +1053,7 @@ void adjust(pattern& ptn, const matrix<int>& index, const matrix<calc_type>& del
 	}
 }
 
-void adjust(pattern& ptn, const matrix<board>& brds, const matrix<calc_type>& delta){
+void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta){
 	for(int i = 0;i != brds.geth();++i){
 		brds.at(i).adjust_ptn(true,ptn,delta.at(i));
 	}

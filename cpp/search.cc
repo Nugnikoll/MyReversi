@@ -20,7 +20,7 @@ const short depth_hash = 3;
 const short depth_mtdf = 4;
 const short depth_mpc = 3;
 
-calc_type table_val[board::size2 + 1][board::size2];
+val_type table_val[board::size2 + 1][board::size2];
 ull node_count;
 bucket bkt;
 
@@ -52,7 +52,7 @@ void board::clear_hash(){
 	}
 #endif //DEBUG_SEARCH
 
-const brd_type mask_adj[board::size2] = {
+const ull mask_adj[board::size2] = {
 	0x0000000000000302,
 	0x0000000000000705,
 	0x0000000000000e0a,
@@ -130,10 +130,10 @@ struct mtdf_info{
 	mtdf_info():num(1),bias(0),sigma(1){}
 
 	int num;
-	calc_type bias;
-	calc_type sigma;
+	val_type bias;
+	val_type sigma;
 
-	void adjust(ccalc_type diff){
+	void adjust(cval_type diff){
 		bias *= num;
 		sigma *= num;
 		bias += diff;
@@ -168,7 +168,7 @@ short table_mpc_depth[board::size2] = {
 	6,6,6,6,6,6,6,6
 };
 
-calc_type table_mpc_threshold[board::size2] = {
+val_type table_mpc_threshold[board::size2] = {
 	2.50,2.57,2.65,2.73,2.81,2.90,2.99,3.08,
 	3.18,3.28,3.39,3.50,3.61,3.73,3.85,3.98,
 	4.11,4.24,4.38,4.52,4.66,4.81,4.96,5.12,
@@ -186,9 +186,9 @@ void board::config_search(){}
 	#pragma GCC diagnostic ignored "-Wswitch"
 #endif
 
-calc_type board::search(
+val_type board::search(
 	cmethod mthd,cbool color,cshort depth,
-	ccalc_type alpha,ccalc_type beta
+	cval_type alpha,cval_type beta
 )const{
 
 	if(mthd & mthd_ids){
@@ -206,15 +206,15 @@ calc_type board::search(
 			method mthd_presearch = method(mthd_de_mtdf & ~mthd_end & ~mthd_trans);
 			short depth_presearch = table_mtdf_depth[depth];
 
-			calc_type gamma = this->search(mthd_presearch,color,depth_presearch);
+			val_type gamma = this->search(mthd_presearch,color,depth_presearch);
 
 			mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
 
-			calc_type window_width = sqrt(info.sigma) * 2;
-			calc_type window_alpha = gamma + info.bias - window_width / 2;
-			calc_type window_beta = gamma + info.bias + window_width / 2;
+			val_type window_width = sqrt(info.sigma) * 2;
+			val_type window_alpha = gamma + info.bias - window_width / 2;
+			val_type window_beta = gamma + info.bias + window_width / 2;
 
-			calc_type result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+			val_type result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
 
 			if(result <= window_alpha && result > alpha){
 				do{
@@ -278,7 +278,7 @@ calc_type board::search(
 
 struct brd_val{
 	pos_type pos;
-	calc_type val;
+	val_type val;
 	friend bool operator<(const brd_val& b1,const brd_val& b2){
 		return b1.val < b2.val;
 	}
@@ -291,12 +291,12 @@ typedef const brd_val& cbrd_val;
 #endif
 
 template<method mthd>
-calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,cbool flag_pass)const{
+val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbool flag_pass)const{
 
 	#ifdef DEBUG_SEARCH
-	calc_type _alpha = alpha;
-	calc_type _beta = beta;
-	auto fun = [&]()->calc_type{
+	val_type _alpha = alpha;
+	val_type _beta = beta;
+	auto fun = [&]()->val_type{
 	#endif
 
 	if(mthd == mthd_rnd){
@@ -322,9 +322,9 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 		ull key = get_key(color);
 		slot* slt;
-		brd_type pos;
-		brd_type best_pos = -1;
-		calc_type alpha_save = alpha;
+		ull pos;
+		ull best_pos = -1;
+		val_type alpha_save = alpha;
 
 		if(flag_hash){
 			slt = &bkt.probe(key);
@@ -353,10 +353,10 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 		brd_val vec[32];
 		brd_val* ptr = vec;
 		board brd;
-		calc_type temp, result = _inf;
-		calc_type* ptr_val = table_val[this->sum()];
+		val_type temp, result = _inf;
+		val_type* ptr_val = table_val[this->sum()];
 		const method mthd_de_pvs = method(mthd & ~mthd_pvs);
-		brd_type brd_move = this->get_move(color);
+		ull brd_move = this->get_move(color);
 
 		fun_tzcnt(brd_move, pos);
 		while(brd_move){
@@ -440,7 +440,7 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 
 	#ifdef DEBUG_SEARCH
 	};
-	calc_type result = fun();
+	val_type result = fun();
 	search_log.insert(node{*this, color, depth, _alpha, _beta, result});
 	return result;
 	#endif
@@ -450,23 +450,23 @@ calc_type board::search(cbool color,cshort depth,calc_type alpha,calc_type beta,
 	#pragma GCC diagnostic pop
 #endif
 
-calc_type board::search_end_two(
-	cbool color,cpos_type pos1,cpos_type pos2,calc_type alpha,calc_type beta,cbool flag_pass
+val_type board::search_end_two(
+	cbool color,cpos_type pos1,cpos_type pos2,val_type alpha,val_type beta,cbool flag_pass
 )const{
 
 	#ifdef DEBUG_SEARCH
-	calc_type _alpha = alpha;
-	calc_type _beta = beta;
-	auto fun = [&]()->calc_type{
+	val_type _alpha = alpha;
+	val_type _beta = beta;
+	auto fun = [&]()->val_type{
 	#endif
 
 	++node_count;
 
 	board brd;
-	brd_type brd_blue = bget(color);
-	brd_type brd_green = bget(!color);
-	brd_type brd_save;
-	calc_type result = _inf,temp;
+	ull brd_blue = bget(color);
+	ull brd_green = bget(!color);
+	ull brd_save;
+	val_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
 		brd = *this;
@@ -520,28 +520,28 @@ calc_type board::search_end_two(
 
 	#ifdef DEBUG_SEARCH
 	};
-	calc_type result = fun();
+	val_type result = fun();
 	search_log.insert(node{*this, color, 2, _alpha, _beta, result});
 	return result;
 	#endif
 
 }
 
-calc_type board::search_end_three(
-	cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,calc_type alpha,calc_type beta,cbool flag_pass
+val_type board::search_end_three(
+	cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,val_type alpha,val_type beta,cbool flag_pass
 )const{
 
 	#ifdef DEBUG_SEARCH
-	calc_type _alpha = alpha;
-	calc_type _beta = beta;
-	auto fun = [&]()->calc_type{
+	val_type _alpha = alpha;
+	val_type _beta = beta;
+	auto fun = [&]()->val_type{
 	#endif
 
 	++node_count;
 
 	board brd;
-	brd_type brd_green = bget(!color);
-	calc_type result = _inf,temp;
+	ull brd_green = bget(!color);
+	val_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
 		brd = *this;
@@ -594,28 +594,28 @@ calc_type board::search_end_three(
 
 	#ifdef DEBUG_SEARCH
 	};
-	calc_type result = fun();
+	val_type result = fun();
 	search_log.insert(node{*this, color, 3, _alpha, _beta, result});
 	return result;
 	#endif
 
 }
 
-calc_type board::search_end_four(
-	cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,calc_type alpha,calc_type beta,cbool flag_pass
+val_type board::search_end_four(
+	cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,val_type alpha,val_type beta,cbool flag_pass
 )const{
 
 	#ifdef DEBUG_SEARCH
-	calc_type _alpha = alpha;
-	calc_type _beta = beta;
-	auto fun = [&]()->calc_type{
+	val_type _alpha = alpha;
+	val_type _beta = beta;
+	auto fun = [&]()->val_type{
 	#endif
 
 	++node_count;
 
 	board brd;
-	brd_type brd_green = bget(!color);
-	calc_type result = _inf,temp;
+	ull brd_green = bget(!color);
+	val_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
 		brd = *this;
@@ -681,7 +681,7 @@ calc_type board::search_end_four(
 
 	#ifdef DEBUG_SEARCH
 	};
-	calc_type result = fun();
+	val_type result = fun();
 	search_log.insert(node{*this, color, 4, _alpha, _beta, result});
 	return result;
 	#endif
@@ -689,29 +689,29 @@ calc_type board::search_end_four(
 }
 
 template<method mthd>
-calc_type board::search_end_five(
-	cbool color,calc_type alpha,calc_type beta,cbool flag_pass
+val_type board::search_end_five(
+	cbool color,val_type alpha,val_type beta,cbool flag_pass
 )const{
 
 	#ifdef DEBUG_SEARCH
-	calc_type _alpha = alpha;
-	calc_type _beta = beta;
-	auto fun = [&]()->calc_type{
+	val_type _alpha = alpha;
+	val_type _beta = beta;
+	auto fun = [&]()->val_type{
 	#endif
 
 	const bool flag_kill = (mthd & mthd_kill);
 //	bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
 //	bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
 
-	brd_type brd_blank = ~(brd_black | brd_white);
+	ull brd_blank = ~(brd_black | brd_white);
 
 	brd_val vec[32];
 	brd_val* ptr = vec;
 	board brd;
-	calc_type result = _inf,temp;
-	calc_type* ptr_val = table_val[this->sum()];
-	brd_type brd_green = bget(false);
-	brd_type pos;
+	val_type result = _inf,temp;
+	val_type* ptr_val = table_val[this->sum()];
+	ull brd_green = bget(false);
+	ull pos;
 
 	fun_tzcnt(brd_blank, pos);
 	while(brd_blank){
@@ -765,7 +765,7 @@ calc_type board::search_end_five(
 
 	#ifdef DEBUG_SEARCH
 	};
-	calc_type result = fun();
+	val_type result = fun();
 	search_log.insert(node{*this, color, 5, _alpha, _beta, result});
 	return result;
 	#endif
@@ -781,16 +781,16 @@ vector<choice> board::get_choice(
 	#endif
 
     vector<choice> choices;
-	calc_type result,best;
+	val_type result,best;
     choice temp;
-	calc_type alpha = _inf, beta = inf;
-	calc_type threshold = (mthd & mthd_ptn) ? 3 : 5;
-	calc_type* ptr_val = table_val[this->sum()];
+	val_type alpha = _inf, beta = inf;
+	val_type threshold = (mthd & mthd_ptn) ? 3 : 5;
+	val_type* ptr_val = table_val[this->sum()];
 
 	choices.reserve(30);
 
-	brd_type brd_move = this->get_move(color);
-	brd_type pos;
+	ull brd_move = this->get_move(color);
+	ull pos;
 
 	fun_tzcnt(brd_move, pos);
 	while(brd_move){
@@ -827,13 +827,13 @@ vector<choice> board::get_choice(
 			method mthd_presearch = method(mthd_de_mtdf & ~mthd_end);
 			short depth_presearch = table_mtdf_depth[depth + 1];
 
-			calc_type gamma = this->search(mthd_presearch,color,depth_presearch);
+			val_type gamma = this->search(mthd_presearch,color,depth_presearch);
 
 			mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
 
-			calc_type window_width = sqrt(info.sigma) * 2;
-			calc_type window_alpha = gamma + info.bias - window_width / 2;
-			calc_type window_beta = gamma + info.bias + window_width / 2;
+			val_type window_width = sqrt(info.sigma) * 2;
+			val_type window_alpha = gamma + info.bias - window_width / 2;
+			val_type window_beta = gamma + info.bias + window_width / 2;
 
 			clear_search_info();
 
@@ -908,7 +908,7 @@ vector<choice> board::get_choice(
 	#ifdef DEBUG_SEARCH
 	};
 	vector<choice> result = fun();
-	calc_type best = max_element(
+	val_type best = max_element(
 		result.begin(), result.end(),
 		[](const choice& c1,const choice& c2) -> bool{
 			return c1.rnd_val < c2.rnd_val;
