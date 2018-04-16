@@ -50,6 +50,9 @@ void board::clear_hash(){
 	void board::save_log(const string& filename){
 		search_log.save(filename);
 	}
+
+	short height = 0;
+
 #endif //DEBUG_SEARCH
 
 const ull mask_adj[board::size2] = {
@@ -318,7 +321,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
 		bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
 
-		ull key = get_key(color);
+		ull key = get_key();
 		slot* slt;
 		ull pos;
 		ull best_pos = -1;
@@ -327,7 +330,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 
 		if(flag_hash){
 			slt = &bkt.probe(key);
-			if(key == slt->key){
+			if(*this == slt->brd){
 				if(depth == slt->depth){
 					if(alpha >= slt->beta){
 						return alpha;
@@ -340,7 +343,16 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 					if(alpha == beta){
 						return alpha;
 					}
-					assert(alpha < beta);
+					if(alpha >= beta){
+						cout << depth << " " << slt->alpha << " " << slt->beta << " " << endl;
+					};
+					#ifdef DEBUG_SEARCH
+						if(alpha >= beta){
+							throw 1;
+						};
+					#else
+						assert(alpha < beta);
+					#endif
 				}
 				if(flag_kill){
 					ptr_val[slt->pos] += 10;
@@ -396,7 +408,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 				}
 				if(temp >= beta){
 					if(flag_hash){
-						slt->save(slot{key, temp, inf, depth, (short)p->pos});
+						slt->save(slot{*this, temp, inf, depth, (short)p->pos});
 					}
 					return temp;
 				}
@@ -411,9 +423,9 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 
 			if(flag_hash){
 				if(result > alpha_save){
-					slt->save(slot{key, result, result, depth, short(best_pos)});
+					slt->save(slot{*this, result, result, depth, short(best_pos)});
 				}else{
-					slt->save(slot{key, _inf, result, depth, short(best_pos)});
+					slt->save(slot{*this, _inf, result, depth, short(best_pos)});
 				}
 			}
 
@@ -427,7 +439,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 
 			result = score_end(color);
 			if(flag_hash){
-				slt->save(slot{key, result, result, depth, -1});
+				slt->save(slot{*this, result, result, depth, -1});
 			}
 			return result;
 
@@ -437,8 +449,20 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 
 	#ifdef DEBUG_SEARCH
 	};
-	val_type result = fun();
-	search_log.insert(node{*this, color, depth, _alpha, _beta, result});
+	val_type result;
+	try{
+		++height;
+		result = fun();
+		--height;
+	}catch(int n){
+		--height;
+		search_log.insert(node{*this, color, height, depth, _alpha, _beta, result});
+		if(height == 0){
+			save_log("except.dat");
+		}
+		throw n;
+	}
+	search_log.insert(node{*this, color, height, depth, _alpha, _beta, result});
 	return result;
 	#endif
 }
@@ -517,8 +541,10 @@ val_type board::search_end_two(
 
 	#ifdef DEBUG_SEARCH
 	};
+	++height;
 	val_type result = fun();
-	search_log.insert(node{*this, color, 2, _alpha, _beta, result});
+	--height;
+	search_log.insert(node{*this, color, height, 2, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -591,8 +617,10 @@ val_type board::search_end_three(
 
 	#ifdef DEBUG_SEARCH
 	};
+	++height;
 	val_type result = fun();
-	search_log.insert(node{*this, color, 3, _alpha, _beta, result});
+	--height;
+	search_log.insert(node{*this, color, height, 3, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -678,8 +706,10 @@ val_type board::search_end_four(
 
 	#ifdef DEBUG_SEARCH
 	};
+	++height;
 	val_type result = fun();
-	search_log.insert(node{*this, color, 4, _alpha, _beta, result});
+	--height;
+	search_log.insert(node{*this, color, height, 4, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -762,8 +792,10 @@ val_type board::search_end_five(
 
 	#ifdef DEBUG_SEARCH
 	};
+	++height;
 	val_type result = fun();
-	search_log.insert(node{*this, color, 5, _alpha, _beta, result});
+	--height;
+	search_log.insert(node{*this, color, height, 5, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -904,14 +936,16 @@ vector<choice> board::get_choice(
 
 	#ifdef DEBUG_SEARCH
 	};
+	++height;
 	vector<choice> result = fun();
+	--height;
 	val_type best = max_element(
 		result.begin(), result.end(),
 		[](const choice& c1,const choice& c2) -> bool{
 			return c1.rnd_val < c2.rnd_val;
 		}
 	)->val;
-	search_log.insert(node{*this, color, short(depth + 1), _inf, inf, best});
+	search_log.insert(node{*this, color, height, short(depth + 1), _inf, inf, best});
 	return result;
 	#endif
 }
