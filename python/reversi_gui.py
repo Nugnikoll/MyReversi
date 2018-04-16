@@ -332,40 +332,40 @@ class game:
 
 		if result[1] == -1:
 			if total <= 7:
-				result[1] = 9;
+				result[1] = 10;
 			elif total <= 10:
-				result[1] = 8;
+				result[1] = 9;
 			elif total <= rv.board.size2 - 22:
-				result[1] = 7;
-			elif total <= rv.board.size2 - 15:
 				result[1] = 8;
+			elif total <= rv.board.size2 - 15:
+				result[1] = 9;
 			else:
 				result[1] = 20;
 		elif result[1] == -2:
 			if total <= 7:
-				result[1] = 9;
+				result[1] = 10;
 			elif total <= 10:
-				result[1] = 9;
+				result[1] = 10;
 			elif total <= rv.board.size2 - 24:
-				result[1] = 8;
-			elif total <= rv.board.size2 - 16:
 				result[1] = 9;
+			elif total <= rv.board.size2 - 16:
+				result[1] = 10;
 			else:
 				result[1] = 20;
 		elif result[1] <= -3:
 			if total <= 7:
 				result[1] = 11;
 			elif total <= 10:
-				result[1] = 10;
+				result[1] = 11;
 			elif total <= rv.board.size2 - 22:
-				result[1] = 9;
-			elif total <= rv.board.size2 - 16:
 				result[1] = 10;
+			elif total <= rv.board.size2 - 16:
+				result[1] = 11;
 			else:
 				result[1] = 20;
-		elif result[1] >= rv.board.size2 - total - 1:
+		if result[1] >= rv.board.size2 - total:
 			result[0] |= rv.mthd_end;
-			result[1] = rv.board.size2 - total - 1;
+			result[1] = rv.board.size2 - total;
 
 		return result;
 

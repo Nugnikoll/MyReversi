@@ -629,6 +629,8 @@ class reversi_app(wx.App):
 		item.Check(True);
 		if pos >= 7:
 			pos = 6 - pos;
+		else:
+			pos = pos + 1;
 
 		self.process("mygame.depth = %d" % pos);
 
