@@ -436,10 +436,9 @@ public:
 		return count(brd_black | brd_white);
 	}
 
-	ull get_key(cbool color)const{
+	ull get_key()const{
 		ull result = (brd_black * 0xe2abbb5e6688fdcf) ^ (brd_white * 0x34df417f070da53d);
 		fun_rol(result, 20);
-		result += color;
 		return result;
 	}
 

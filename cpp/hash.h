@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "type.h"
+#include "reversi.h"
 
 struct slot;
 class bucket;
@@ -12,7 +13,7 @@ typedef const slot& cslot;
 typedef const bucket& cbucket;
 
 struct slot{
-	ull key;
+	board brd;
 	val_type alpha;
 	val_type beta;
 	short depth;
@@ -24,7 +25,7 @@ struct slot{
 	#endif
 
 	void save(cslot slt){
-		if(slt.key != key || slt.depth > depth){
+		if(slt.brd != brd || slt.depth > depth){
 			*this = slt;
 		}else if(slt.depth == depth){
 			alpha = max(alpha, slt.alpha);
@@ -56,15 +57,9 @@ public:
 		return table[key & mask];
 	}
 
-	void save(cslot slt){
-		slot& slt_old = table[slt.key & mask];
-		if(slt.key != slt_old.key || slt.depth > slt_old.depth){
-			slt_old = slt;
-		}else if(slt.depth == slt_old.depth){
-			slt_old.alpha = max(slt_old.alpha, slt.alpha);
-			slt_old.beta = min(slt_old.beta, slt.beta);
-			slt_old.pos = slt.pos;
-		}
+	void save(cslot slt, cull key){
+		slot& slt_old = table[key & mask];
+		slt_old.save(slt);
 	}
 };
 

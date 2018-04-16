@@ -10,7 +10,7 @@ using namespace std;
 struct node{
 	board brd;
 	bool color;
-	short depth;
+	short height, depth;
 	val_type alpha, beta;
 	val_type value;
 };
