@@ -436,9 +436,10 @@ public:
 		return count(brd_black | brd_white);
 	}
 
-	ull get_key()const{
+	ull get_key(cbool color)const{
 		ull result = (brd_black * 0xe2abbb5e6688fdcf) ^ (brd_white * 0x34df417f070da53d);
 		fun_rol(result, 20);
+		result += color;
 		return result;
 	}
 
@@ -562,46 +563,44 @@ public:
 
 		if(result.second == -1){
 			if(total <= 7){
-				result.second = 9;
+				result.second = 10;
 			}else if(total <= 10){
-				result.second = 8;
+				result.second = 9;
 			}else if(total <= size2 - 22){
-				result.second = 7;
+				result.second = 8;
 			}else if(total <= size2 - 15){
-				result.second = 8;
+				result.second = 9;
 			}else{
 				result.second = 20;
 			}
-		}
-		if(result.second == -2){
+		}else if(result.second == -2){
 			if(total <= 7){
-				result.second = 9;
+				result.second = 10;
 			}else if(total <= 10){
-				result.second = 9;
+				result.second = 10;
 			}else if(total <= size2 - 24){
-				result.second = 8;
-			}else if(total <= size2 - 16){
 				result.second = 9;
+			}else if(total <= size2 - 16){
+				result.second = 10;
 			}else{
 				result.second = 20;
 			}
-		}
-		if(result.second <= -3){
+		}else if(result.second <= -3){
 			if(total <= 7){
 				result.second = 11;
 			}else if(total <= 10){
-				result.second = 10;
+				result.second = 11;
 			}else if(total <= size2 - 22){
 				result.second = 10;
 			}else if(total <= size2 - 16){
-				result.second = 10;
+				result.second = 11;
 			}else{
 				result.second = 20;
 			}
 		}
-		if(result.second >= size2 - total - 1){
+		if(result.second >= size2 - total){
 				result.first = method(mthd | mthd_end);
-			result.second = size2 - total - 1;	
+			result.second = size2 - total;	
 		}
 		return result;
 	}

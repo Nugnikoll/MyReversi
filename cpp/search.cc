@@ -321,7 +321,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
 		bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
 
-		ull key = get_key();
+		ull key = get_key(color);
 		slot* slt;
 		ull pos;
 		ull best_pos = -1;
@@ -343,9 +343,6 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 					if(alpha == beta){
 						return alpha;
 					}
-					if(alpha >= beta){
-						cout << depth << " " << slt->alpha << " " << slt->beta << " " << endl;
-					};
 					#ifdef DEBUG_SEARCH
 						if(alpha >= beta){
 							throw 1;
@@ -851,10 +848,10 @@ vector<choice> board::get_choice(
 	if(mthd & mthd_mtdf){
 		method mthd_de_mtdf = method(mthd & ~mthd_mtdf);
 
-		if(depth + 1 >= depth_mtdf){
+		if(depth >= depth_mtdf){
 
 			method mthd_presearch = method(mthd_de_mtdf & ~mthd_end);
-			short depth_presearch = table_mtdf_depth[depth + 1];
+			short depth_presearch = table_mtdf_depth[depth];
 
 			val_type gamma = this->search(mthd_presearch,color,depth_presearch);
 
@@ -868,7 +865,7 @@ vector<choice> board::get_choice(
 
 			best = _inf;
 			for(choice& c:choices){
-				result = - c.brd.search(mthd_de_mtdf,!color,depth,-window_beta,-window_alpha);
+				result = - c.brd.search(mthd_de_mtdf,!color,depth - 1,-window_beta,-window_alpha);
 				c.val = result;
 				best = max(best,result);
 			}
@@ -881,7 +878,7 @@ vector<choice> board::get_choice(
 					//window_alpha = max(window_beta - window_width,alpha);
 					best = _inf;
 					for(choice& c:choices){
-						result = - c.brd.search(mthd_de_mtdf,!color,depth,-window_beta,-window_alpha);
+						result = - c.brd.search(mthd_de_mtdf,!color,depth - 1,-window_beta,-window_alpha);
 						c.val = result;
 						best = max(best,result);
 					}
@@ -894,7 +891,7 @@ vector<choice> board::get_choice(
 					//window_beta = min(window_alpha + window_width,beta);
 					best = _inf;
 					for(choice& c:choices){
-						result = - c.brd.search(mthd_de_mtdf,!color,depth,-window_beta,-window_alpha);
+						result = - c.brd.search(mthd_de_mtdf,!color,depth - 1,-window_beta,-window_alpha);
 						c.val = result;
 						best = max(best,result);
 					}
@@ -908,7 +905,7 @@ vector<choice> board::get_choice(
 		}else{
 			best = _inf;
 			for(choice& c:choices){
-				result = - c.brd.search(mthd_de_mtdf, !color, depth, -beta, -alpha);
+				result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -beta, -alpha);
 				if(mthd & mthd_kill){
 					ptr_val[c.pos] = result;
 				}
@@ -923,7 +920,7 @@ vector<choice> board::get_choice(
 
 	best = _inf;
 	for(choice& c:choices){
-		result = - c.brd.search(mthd, !color, depth, -beta, -alpha);
+		result = - c.brd.search(mthd, !color, depth - 1, -beta, -alpha);
 		if(mthd & mthd_kill){
 			ptr_val[c.pos] = result;
 		}
@@ -945,7 +942,7 @@ vector<choice> board::get_choice(
 			return c1.rnd_val < c2.rnd_val;
 		}
 	)->val;
-	search_log.insert(node{*this, color, height, short(depth + 1), _inf, inf, best});
+	search_log.insert(node{*this, color, height, depth, _inf, inf, best});
 	return result;
 	#endif
 }
