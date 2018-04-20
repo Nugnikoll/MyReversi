@@ -23,6 +23,7 @@ const short depth_mpc = 3;
 val_type table_val[board::size2 + 1][board::size2];
 ull node_count;
 bucket bkt;
+double table_predict[65][32][32][4];
 
 ull board::get_count(){
 	return node_count;
@@ -160,29 +161,12 @@ short table_mtdf_depth[board::size2] = {
 	6,5,6,5,6,5,6,5,
 };
 
-short table_mpc_depth[board::size2] = {
-	0,0,0,0,0,1,2,3,
-	4,4,4,5,5,5,5,5,
-	6,6,6,6,6,6,6,6,
-	6,6,6,6,6,6,6,6,
-	6,6,6,6,6,6,6,6,
-	6,6,6,6,6,6,6,6,
-	6,6,6,6,6,6,6,6,
-	6,6,6,6,6,6,6,6
-};
-
-val_type table_mpc_threshold[board::size2] = {
-	2.50,2.57,2.65,2.73,2.81,2.90,2.99,3.08,
-	3.18,3.28,3.39,3.50,3.61,3.73,3.85,3.98,
-	4.11,4.24,4.38,4.52,4.66,4.81,4.96,5.12,
-	5.27,5.44,5.60,5.78,5.95,6.13,6.31,6.50,
-	6.69,6.88,7.08,7.28,7.48,7.69,7.90,8.12,
-	8.34,8.56,8.79,9.02,9.26,9.50,9.74,9.99,
-	10.24,10.49,10.75,11.01,11.28,11.55,11.82,12.10,
-	12.38,12.66,12.95,13.24,13.54,13.84,14.14,14.45
-};
-
-void board::config_search(){}
+void board::config_search(){
+	ifstream in("data/reversi_table_predict.dat", ios::binary | ios::in);
+	in.seekg(0xa2);
+	in.read((char*)table_predict, sizeof(table_predict));
+	in.close();
+}
 
 #ifdef __GNUC__
 	#pragma GCC diagnostic push
@@ -320,6 +304,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		bool flag_kill = (mthd & mthd_kill) && depth >= depth_kill;
 		bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
 		bool flag_hash = (mthd & mthd_trans) && depth >= depth_hash;
+		bool flag_mpc = (mthd & mthd_mpc) && depth >= depth_mpc;
 
 		ull key = get_key(color);
 		slot* slt;
@@ -357,10 +342,54 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 			}
 		}
 
+		const method mthd_presearch = method(mthd & ~mthd_pvs & ~mthd_mtdf & ~mthd_end);
+		short cnt = sum();
+		val_type temp;
+
+		if(flag_mpc && (table_predict[cnt][0][depth][0] > 5)){
+			const val_type mpc_alpha = -0.5;
+			const val_type mpc_beta = 2.5;
+			short depth_start = depth & 1;
+
+			temp = this->template search<mthd_presearch>(color, depth_start);
+			val_type bias = table_predict[cnt][depth_start][depth][1];
+			val_type sigma = table_predict[cnt][depth_start][depth][2];
+		
+			if(temp + bias + sigma * mpc_beta < alpha){
+				return temp + bias;
+			}else if(temp + bias - sigma * mpc_beta > beta){
+				return temp + bias;
+			}
+			if(temp + bias + sigma * mpc_alpha < alpha){
+				val_type bound;
+				for(int i = depth_start + 2; i < min(depth, short(10)); i += 2){
+					bias = table_predict[cnt][i][depth][1];
+					sigma = table_predict[cnt][i][depth][2];
+					bound = alpha - sigma * mpc_beta - bias;
+					temp = this->template search<mthd_presearch>(color, i, bound - 0.001, bound);
+					if(temp < bound){
+						return temp + bias;
+					}
+				}
+			}
+			if(temp + bias - sigma * mpc_alpha > beta){
+				val_type bound;
+				for(int i = depth_start + 2; i < min(depth, short(10)); i += 2){
+					bias = table_predict[cnt][i][depth][1];
+					sigma = table_predict[cnt][i][depth][2];
+					bound = beta + sigma * mpc_beta - bias;
+					temp = this->template search<mthd_presearch>(color, i, bound, bound + 0.001);
+					if(temp > bound){
+						return temp + bias;
+					}
+				}
+			}
+		}
+
 		brd_val vec[32];
 		brd_val* ptr = vec;
 		board brd;
-		val_type temp, result = _inf;
+		val_type result = _inf;
 		const method mthd_de_pvs = method(mthd & ~mthd_pvs);
 		ull brd_move = this->get_move(color);
 

@@ -357,7 +357,7 @@ class game:
 				result[1] = 11;
 			elif total <= 10:
 				result[1] = 11;
-			elif total <= rv.board.size2 - 22:
+			elif total <= rv.board.size2 - 24:
 				result[1] = 10;
 			elif total <= rv.board.size2 - 16:
 				result[1] = 11;
