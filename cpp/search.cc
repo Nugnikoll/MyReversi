@@ -346,9 +346,9 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		short cnt = sum();
 		val_type temp;
 
-		if(flag_mpc && (table_predict[cnt][0][depth][0] > 5)){
+		if(flag_mpc && (table_predict[cnt][0][depth][0] >= 40)){
 			const val_type mpc_alpha = -0.5;
-			const val_type mpc_beta = 2.5;
+			const val_type mpc_beta = 2.0;
 			short depth_start = depth & 1;
 
 			temp = this->template search<mthd_presearch>(color, depth_start);
