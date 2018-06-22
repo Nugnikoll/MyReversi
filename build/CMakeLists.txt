@@ -24,6 +24,7 @@ endif ()
 set (CMAKE_CXX_FLAGS_DEBUG "-Og -g -DEBUG")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3 -NDEBUG")
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
+set (CMAKE_STATIC_LIBRARY_PREFIX "")
 
 include_directories ("${PYTHON_INCLUDE_DIRS}")
 
@@ -58,6 +59,12 @@ set_property(TARGET _reversi PROPERTY CXX_STANDARD 11)
 set_property(TARGET _reversi PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries (_reversi ${PYTHON_LIBRARIES})
 
-add_custom_command(TARGET _reversi POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/
-)
+if (WIN32)
+	add_custom_command(TARGET _reversi POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/_reversi.pyd
+	)
+else ()
+	add_custom_command(TARGET _reversi POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/
+	)
+endif ()
