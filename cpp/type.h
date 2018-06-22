@@ -104,7 +104,7 @@ class group;
 typedef const group& cgroup;
 
 enum player_type{
-	ply_human,ply_ai,ply_other
+	ply_human, ply_ai, ply_other
 };
 #ifdef USE_REF
 	typedef const player_type& cplayer_type;
