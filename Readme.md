@@ -38,17 +38,17 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 - File Structure  
 
-	cpp/reversi.h: class board
-	│	cpp/flip.cc board::flip()
-	│	cpp/reversi.cc
-	│	cpp/search.cc board::search()
-	│	...
-	│
-	└───python/game.py: class game
-	│		│
-	│		└───python/main.py (python GUI project)
-	│
-	└───botzone/main.cc (Botzone online project)
+		cpp/reversi.h: class board
+		│	cpp/flip.cc board::flip()
+		│	cpp/reversi.cc
+		│	cpp/search.cc board::search()
+		│	...
+		│
+		└───python/game.py: class game
+		│		│
+		│		└───python/main.py (python GUI project)
+		│
+		└───botzone/main.cc (Botzone online project)
 
 - Profile (only available on UNIX-like systems)
 	- Prerequisites
