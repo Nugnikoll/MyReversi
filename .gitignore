@@ -34,6 +34,7 @@ python/reversi.py
 python/*wrap.*
 python/image/*
 
-wxsmith/*.xrc
-
 doc/*
+
+build/*
+!build/CMakeLists.txt
