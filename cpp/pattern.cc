@@ -855,10 +855,10 @@ void pattern::balance(){
 			balance_part(4);
 
 			index_l = i;
-			asm_ror(index_l,1);
+			fun_ror(index_l,1);
 			index_l = table_reverse[index_l];
 			index_h = i >> 8;
-			asm_ror(index_h,1);
+			fun_ror(index_h,1);
 			index_h = table_reverse[index_h];
 			index = index_h;
 			index <<= 8;
@@ -867,10 +867,10 @@ void pattern::balance(){
 			balance_part(5);
 
 			index_l = i;
-			asm_ror(index_l,2);
+			fun_ror(index_l,2);
 			index_l = table_reverse[index_l];
 			index_h = i >> 8;
-			asm_ror(index_h,2);
+			fun_ror(index_h,2);
 			index_h = table_reverse[index_h];
 			index = index_h;
 			index <<= 8;
@@ -879,10 +879,10 @@ void pattern::balance(){
 			balance_part(6);
 
 			index_l = i;
-			asm_ror(index_l,3);
+			fun_ror(index_l,3);
 			index_l = table_reverse[index_l];
 			index_h = i >> 8;
-			asm_ror(index_h,3);
+			fun_ror(index_h,3);
 			index_h = table_reverse[index_h];
 			index = index_h;
 			index <<= 8;
@@ -891,10 +891,10 @@ void pattern::balance(){
 			balance_part(7);
 
 			index_l = i;
-			asm_ror(index_l,4);
+			fun_ror(index_l,4);
 			index_l = table_reverse[index_l];
 			index_h = i >> 8;
-			asm_ror(index_h,4);
+			fun_ror(index_h,4);
 			index_h = table_reverse[index_h];
 			index = index_h;
 			index <<= 8;
@@ -903,9 +903,9 @@ void pattern::balance(){
 			balance_part(8);
 
 			index_l = i;
-			asm_ror(index_l,4);
+			fun_ror(index_l,4);
 			index_h = i >> 8;
-			asm_ror(index_h,4);
+			fun_ror(index_h,4);
 			index = index_h;
 			index <<= 8;
 			index |= index_l;

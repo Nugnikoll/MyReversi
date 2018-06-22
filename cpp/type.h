@@ -15,12 +15,16 @@ using namespace std;
 #if defined(__GNUC__) || defined(__clang__)
 	#if defined(__x86_64__) || defined(__ppc64__)
 		#define USE_ASM
-		//#define USE_ASM_BMI
+		//#define USE_ASM_BMI2
 	#endif
 #endif
 #ifndef USE_ASM
-	#undef USE_ASM_BMI
+	#undef USE_ASM_BMI2
 #endif
+#ifdef _BOTZONE_ONLINE
+	#define USE_ASM
+	#define USE_ASM_BMI2
+#endif //_BOTZONE_ONLINE
 //#define DEBUG_SEARCH
 
 typedef const bool& cbool;

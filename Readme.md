@@ -21,7 +21,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 - Build reversi with GUI
 	1. Compile the source code and generate dynamic link library _reversi.so  
 		`cd build`
-		`cmake .`
+		`cmake .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles" .`)
 		`make`
 		`cd ..`
 	2. Execute the project

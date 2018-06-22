@@ -63,6 +63,9 @@
 		: "c"(char(val)) \
 	)
 
+inline void equ_rol(unsigned char& brd, char val){
+	brd = (brd << val) | (brd >> (8 - val));
+}
 inline void equ_rol(ull& brd, char val){
 	brd = (brd << val) | (brd >> (64 - val));
 }
@@ -80,7 +83,9 @@ inline void equ_rol(ull& brd, char val){
 		: "c"(char(val)) \
 	)
 
-
+inline void equ_ror(unsigned char& brd, char val){
+	brd = (brd >> val) | (brd << (8 - val));
+}
 inline void equ_ror(ull& brd, char val){
 	brd = (brd >> val) | (brd << (64 - val));
 }
