@@ -8,31 +8,43 @@ Reversi (also called Othello) is a kind of strategy board game which involves pl
 
 This reversi project is my simple work. The kernel is written in C++11 whith a bit inline assembly. The GUI is witten in python. The sources of this project can be merged in to a single file and submitted to [Botzone](https://botzone.org) which is a online platform for competition of differnt bots made by students and other programming learners.
 
+### Download
+Here are prebuilt binaries. Download and extract one to the subdirectory python/ .  
+	[library for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/_reversi.pyd.zip)  
+	[library for Ubuntu 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/_reversi.so.gz)
+
 ### Build
 
 - Prerequisites
 	- A decent C++ compiler  
 		C++11 must be supported by this compiler. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
-	- [Python3](https://www.python.org/) (required by the GUI written in Python and some simple scripts)
-	- [swig](http://swig.org/) (required by the GUI written in Python)
-	- [wxPython](https://www.wxpython.org/) (required by the GUI written in Python)
+	- [Python3](https://www.python.org/)
+	- [swig](http://swig.org/)
+	- [wxPython](https://www.wxpython.org/)
 	- [CMake](https://cmake.org/)
 
-- Build reversi with GUI
-	1. Compile the source code and generate dynamic link library _reversi.so  
-		`cd build`  
-		`cmake .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles" .`)  
-		`make`  
-		`cd ..`  
-	2. Execute the project  
-		`cd python`  
-		`python3 main.py`  
+- Build the library for reversi  
+	Compile the source code and generate dynamic link library (_reversi.so or _reversi.dll)  
+	`cd build`  
+	`cmake .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles" .`)  
+	`make`  
+	`cd ..`  
 
-- Build reversi for [Botzone](https://botzone.org)
+- Generate source file for [Botzone](https://botzone.org)
 	1. Enter the directory botzone/  
 		`cd botzone`
 	2. Merge sources into a single file "main_merge.cc"  
 		`python3 merge.py`
+
+### Usage
+- Prerequisites
+	- [Python3](https://www.python.org/)
+	- [wxPython](https://www.wxpython.org/)
+	- library (_reversi.so or _reversi.dll)
+
+- Execute the main program
+	`cd python`  
+	`python3 main.py` 
 
 ### Development
 
