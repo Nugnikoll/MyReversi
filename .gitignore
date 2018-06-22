@@ -3,6 +3,7 @@
 *.obj
 *.out
 *.a
+*.so
 *.res
 *.lib
 *.dll
@@ -16,6 +17,8 @@
 *.log
 *.stackdump
 
+*reversi
+
 out*
 *temp*
 
@@ -23,17 +26,15 @@ data/data.cc
 !data/pattern.dat
 
 *.dot
-optimize/*.png
-optimize/*/*.png
+profile/*.png
 
-single/*.cc
-
-!optimize/*.exe
-!optimize/*/*.exe
+*merge.cc
 
 python/reversi.py
 python/*wrap.*
-
-wxsmith/*.xrc
+python/image/*
 
 doc/*
+
+build/*
+!build/CMakeLists.txt
