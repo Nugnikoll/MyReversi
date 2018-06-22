@@ -20,18 +20,18 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 - Build reversi with GUI
 	1. Compile the source code and generate dynamic link library _reversi.so  
-		`cd build`
-		`cmake .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles" .`)
-		`make`
-		`cd ..`
-	2. Execute the project
-		`cd python`
-		`python3 main.py`
+		`cd build`  
+		`cmake .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles" .`)  
+		`make`  
+		`cd ..`  
+	2. Execute the project  
+		`cd python`  
+		`python3 main.py`  
 
 - Build reversi for [Botzone](https://botzone.org)
-	1. Enter the directory botzone/
+	1. Enter the directory botzone/  
 		`cd botzone`
-	2. Merge sources into a single file "main_merge.cc"
+	2. Merge sources into a single file "main_merge.cc"  
 		`python3 merge.py`
 
 ### Development
@@ -55,7 +55,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 		- [graphiz](https://www.graphviz.org/)
 		- [gprof2dot](https://github.com/jrfonseca/gprof2dot)
 
-	1. Enter the directory profile/
+	1. Enter the directory profile/  
 		`cd profile`
-	2. Compile the source code and generate files "prof.log" "test.png"
+	2. Compile the source code and generate files "prof.log" "test.png"  
 		`make`
