@@ -1,3 +1,7 @@
+/** @file type.h
+ * @brief This file includes some basic types.
+ */
+
 #ifndef TYPE_H
 #define TYPE_H
 
@@ -7,7 +11,17 @@ using namespace std;
 
 //#define USE_REF
 #define USE_FLOAT
-#define USE_RANDOM
+
+// check whether the complier support 64-bit AT&T inline assembly
+#if defined(__GNUC__) || defined(__clang__)
+	#if defined(__x86_64__) || defined(__ppc64__)
+		#define USE_ASM
+		#define USE_ASM_BMI
+	#endif
+#endif
+#ifndef USE_ASM
+	#undef USE_ASM_BMI
+#endif
 //#define DEBUG_SEARCH
 
 #ifdef USE_REF
@@ -64,9 +78,9 @@ enum method{
 	mthd_trans = 0x8, // transition table
 	mthd_mtdf = 0x10, // memory-enhanced test driver with node n and value f
 	mthd_ids = 0x20, // iterative deepening search
-	mthd_ptn = 0x40,
-
-	mthd_default = mthd_kill | mthd_ab
+	mthd_ptn = 0x40, // pattern
+	mthd_mpc = 0x80, // multi-probability cut
+	mthd_end = 0x100, // end game solver
 };
 
 #ifdef USE_REF
@@ -81,22 +95,19 @@ enum sts_type{
 	sts_white = 0x2,
 	sts_turn = 0x4,
 	sts_again = 0x8,
-	sts_end = 0x10,
 
-	sts_bwin = sts_black | sts_end,
-	sts_wwin = sts_white | sts_end,
-	sts_tie = sts_end,
+	sts_bwin = sts_black,
+	sts_wwin = sts_white,
+	sts_tie = sts_null,
 	sts_bturn = sts_black | sts_turn,
 	sts_wturn = sts_white | sts_turn,
-	sts_bagain = sts_black | sts_again,
-	sts_wagain = sts_white | sts_again
+	sts_bagain = sts_black | sts_turn | sts_again,
+	sts_wagain = sts_white | sts_turn | sts_again
 };
 
-#ifdef USE_RANDOM
-	#include <random>
-	#include <chrono>
-	extern default_random_engine engine;
-#endif //USE_RANDOM
+#include <random>
+#include <chrono>
+extern default_random_engine engine;
 
 #ifdef DEBUG_SEARCH
 	#include <fstream>
@@ -105,13 +116,19 @@ enum sts_type{
 
 class board;
 struct choice;
+class pattern;
+class group;
 
 #ifdef USE_REF
 	typedef const board& cboard;
 	typedef const choice& cchoice;
+	typedef const pattern& cpattern;
+	typedef const group& cgroup;
 #else
 	typedef board cboard;
 	typedef choice cchoice;
+	typedef pattern cpattern;
+	typedef group cgroup;
 #endif //USE_REF
 
 #endif //TYPE_H

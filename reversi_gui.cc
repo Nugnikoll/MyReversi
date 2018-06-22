@@ -9,12 +9,12 @@ wxTreeCtrl* ptr_book;
 
 void show_choice(const vector<choice>& choices){
 	wxClientDC dc(ptr_panel);
-	dc.SetTextForeground(wxColor(255,0,150));
+	dc.SetTextForeground(wxColor(255,30,30));
 	dc.SetFont(
 		wxFont(
-			8,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,
-			wxFONTWEIGHT_BOLD,false,_T("Consolas")
-			,wxFONTENCODING_DEFAULT
+			9,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,
+			wxFONTWEIGHT_BOLD,false,_T("Consolas"),
+			wxFONTENCODING_DEFAULT
 		)
 	);
 	wxString str;
@@ -22,8 +22,8 @@ void show_choice(const vector<choice>& choices){
 	for(const choice& c:choices){
 		x = c.pos & 7;
 		y = c.pos >> 3;
-		str = wxString::FromDouble(c.val);
-		dc.DrawText(str,bias + cell * x  + cell / 2 - 4 * str.size(),bias + cell * y + cell / 2 - 8);
+		str = wxString::FromDouble(c.val,3);
+		dc.DrawText(str,bias + cell * x  + cell / 2 - 3.5 * str.size(),bias + cell * y + cell / 2 - 8);
 	}
 }
 
@@ -91,24 +91,58 @@ void do_show(wxDC& dc){
 	}
 
 	//show where is the last move
-	if(mygame.pos.x >= 0){
-		if(mygame.color){
-			dc.SetPen(wxPen(wxColor(210,210,70),thick));
+	if(mygame.pos.check()){
+		if(mygame.get(mygame.pos.x,mygame.pos.y) == black){
+			dc.SetBrush(wxBrush(wxColor(50,50,30)));
+			dc.SetPen(wxPen(wxColor(90,90,0),thick));
 		}else{
-			dc.SetPen(wxPen(wxColor(70,70,0),thick));
+			dc.SetBrush(wxBrush(wxColor(210,210,170)));
+			dc.SetPen(wxPen(wxColor(200,200,30),thick));
 		}
-		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.DrawCircle(wxPoint(cbias + cell * mygame.pos.x,cbias + cell * mygame.pos.y),radius);
 	}
+
+//	int shrink = 14;
+//
+//	//draw frontier
+//	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+//	dc.SetPen(wxPen(wxColor(210,0,0),thick));
+//	brd_type brd_front = board::get_front(mygame.bget(true) | mygame.bget(false));
+//	for(int i = 0;i != board::size2;++i){
+//		if(brd_front & (1ull << i)){
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + cell - shrink
+//			);
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + cell - shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + shrink
+//			);
+//		}
+//	}
+//
+//	//draw stable stones
+//	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+//	dc.SetPen(wxPen(wxColor(0,0,210),thick));
+//	brd_type brd_stable = board::get_stable(mygame.bget(true) | mygame.bget(false));
+//	for(int i = 0;i != board::size2;++i){
+//		if(brd_stable & (1ull << i)){
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + cell - shrink
+//			);
+//			dc.DrawLine(
+//				bias + cell * (i & 7) + shrink, bias + cell * (i >> 3) + cell - shrink,
+//				bias + cell * (i & 7) + cell - shrink, bias + cell * (i >> 3) + shrink
+//			);
+//		}
+//	}
 }
 
 void game_gui::show(){
 	wxClientDC dc(ptr_panel);
 	do_show(dc);
-}
-
-void game_gui::log_print(const string& str){
-	ptr_log->AppendText(str);
+	wxYield();
 }
 
 void load_book(const string& path){
@@ -137,12 +171,16 @@ void quit(){
 	ptr_frame->Destroy();
 }
 
-void term_print(const string& str){
+void print_term(const string& str){
 	ptr_term->AppendText(str + "\n");
 }
 
-void log_print(const string& str){
+void print_log(const string& str){
 	ptr_log->AppendText(str);
+}
+
+void print_status(const string& str){
+	ptr_frame->GetStatusBar()->SetStatusText(str,0);
 }
 
 void load_script(const string& path){
@@ -159,4 +197,54 @@ void load_script(const string& path){
 	}else{
 		ptr_term->AppendText(_("cannot find the file \"") + path + "\"\n");
 	}
+}
+
+#include "jsoncpp/json.h"
+
+string path[2];
+long pid[2];
+wxProcess proc[2];
+
+coordinate game_gui::play_other(cmethod mthd,cbool color,cshort depth){
+	if(path[color] == get_ply(color).path){
+		if(pid[color] == 0){
+			proc[color].Redirect();
+			pid[color] = wxExecute(path[color],wxEXEC_ASYNC,&proc[color]);
+		}
+	}else{
+		path[color] = get_ply(color).path;
+		if(pid[color]){
+			wxProcess::Kill(pid[color]);
+		}
+
+		proc[color].Redirect();
+		pid[color] = wxExecute(path[color],wxEXEC_ASYNC,&proc[color]);
+	}
+
+	Json::Reader reader;
+	Json::Value request, response;
+	Json::FastWriter writer;
+	wxString str;
+	wxTextInputStream proc_in(*proc[color].GetInputStream());
+	wxTextOutputStream proc_out(*proc[color].GetOutputStream());
+	coordinate result;
+
+	request["request"]["color"] = color;
+	request["request"]["board"]["black"] = brd.bget(true);
+	request["request"]["board"]["white"] = brd.bget(false);
+
+	str = writer.write(request);
+	proc_out << str;
+	ptr_log->AppendText("send a request to process \"" + path[color] + "\"\n");
+	ptr_log->AppendText(str);
+	str = proc_in.ReadLine();
+	ptr_log->AppendText("receive a response from process \"" + path[color] + "\"\n");
+	ptr_log->AppendText(str + "\n");
+	reader.parse(str.ToStdString(),response);
+	result.x = response["response"]["x"].asInt();
+	result.y = response["response"]["y"].asInt();
+
+	flip(color,result.x,result.y);
+
+	return result;
 }

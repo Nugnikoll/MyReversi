@@ -3,6 +3,8 @@
 import wx
 import reversi
 import reversi as rv
+import json
+import subprocess as sp
 
 bias = 34;
 num = 8;
@@ -80,7 +82,7 @@ class game_gui(reversi.game):
 		for i in range(num):
 			for j in range(num):
 				chssmn = self.brd.get(i + (j << 3));
-				if chssmn == reversi.black:
+				if chssmn == rv.black:
 					dc.SetBrush(wx.Brush(wx.Colour(40,40,40)));
 					dc.SetPen(wx.Pen(wx.Colour(20,20,20),thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
@@ -90,16 +92,82 @@ class game_gui(reversi.game):
 					dc.DrawCircle(wx.Point(cbias + cell * i,cbias + cell * j),radius);
 		
 		#show where is the last move
-		if mygame.pos.x >= 0:
-			if mygame.color:
-				dc.SetPen(wx.Pen(wx.Colour(210,210,70),thick));
+		if self.pos.check():
+			if self.get(self.pos.x,self.pos.y) == rv.black:
+				dc.SetBrush(wx.Brush(wx.Colour(50,50,30)));
+				dc.SetPen(wx.Pen(wx.Colour(90,90,0),thick));
 			else:
-				dc.SetPen(wx.Pen(wx.Colour(70,70,0),thick));
-			dc.SetBrush(wx.TRANSPARENT_BRUSH);
+				dc.SetBrush(wx.Brush(wx.Colour(210,210,170)));
+				dc.SetPen(wx.Pen(wx.Colour(200,200,30),thick));
 			dc.DrawCircle(wx.Point(cbias + cell * self.pos.x,cbias + cell * self.pos.y),radius);
 
-	def log_print(self,str):
+	def get_choice(self,mthd,color,depth):
+		p_mthd = rv.game.process_method(self,mthd,depth);
+		choices = self.brd.get_choice(p_mthd.first,color,p_mthd.second);
+
+		self.dc.SetTextForeground(wx.Colour(255,30,30));
+		self.dc.SetFont(
+			wx.Font(
+				9,wx.FONTFAMILY_SWISS,wx.FONTSTYLE_NORMAL,
+				wx.FONTWEIGHT_BOLD,False,"Consolas",
+				wx.FONTENCODING_DEFAULT
+			)
+		);
+		for c in choices:
+			x = c.pos & 7;
+			y = c.pos >> 3;
+			str = "%.3f" % c.val;
+			self.dc.DrawText(
+				str,
+				bias + cell * x  + cell / 2 - 3.5 * len(str),
+				bias + cell * y + cell / 2 - 8
+			);
+
+		return choices;
+
+	def print_log(self,str):
 		self.text_log.AppendText(str);
+
+	def play_other(self,mthd,color,depth):
+
+		p = sp.Popen(self.get_ply(color).path,stdin=sp.PIPE,stdout=sp.PIPE);
+
+		s = "";
+		result = rv.coordinate();
+		request = {
+			"request":{
+				"color":color,
+				"board":{
+					"black":self.brd.bget(True),
+					"white":self.brd.bget(False)
+				}
+			}
+		};
+
+		s = json.dumps(request);
+
+		self.text_log.AppendText(
+			"send a request to process \""
+			+ self.get_ply(color).path
+			+ "\"\n"
+		);
+
+		self.text_log.AppendText(s + "\n");
+		[s,str_err] = p.communicate(s.encode());
+		self.text_log.AppendText(
+			"receive a response from process \""
+			+ self.get_ply(color).path
+			+ "\"\n"
+		);
+		self.text_log.AppendText(s.decode());
+		response = json.loads(s.decode());
+
+		result.x = response["response"]["x"];
+		result.y = response["response"]["y"];
+
+		self.flip(color,result.x,result.y);
+
+		return result;
 
 reversi.board.config();
 mygame = game_gui();

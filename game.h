@@ -1,3 +1,6 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -9,21 +12,40 @@
 
 using namespace std;
 
+enum player_type{
+	ply_human,ply_ai,ply_other
+};
+struct player{
+	player_type p_type;
+	string path;
+};
+
 class game{
 public:
-	game(){
-		brd.assign(0,0);
-		color = true;
-		pos.x = pos.y = -1;
-		flag_show = false;
-		flag_term = false;
-		flag_log = false;
-	}
-	~game(){}
+	game(): brd{0,0}, color(true), pos{-1,-1},
+		mthd(method(mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn)),
+		depth(-1), flag_auto_save(true), flag_lock(true),
+		ply_white{ply_ai,"Irius offline"},ply_black{ply_human,"Irius offline"} {}
+	virtual ~game(){}
 
 	board brd;
 	bool color;
 	coordinate pos;
+	method mthd;
+	short depth;
+
+	bool flag_auto_save;
+	bool flag_lock;
+
+	player ply_white, ply_black;
+
+	player& get_ply(bool color){
+		return *(&ply_white + color);
+	}
+	const player& get_ply(bool color)const{
+		return *(&ply_white + color);
+	}
+
 	struct pack{
 		board brd;
 		bool color;
@@ -32,27 +54,11 @@ public:
 	vector<pack> record;
 	vector<pack> storage;
 
-	bool flag_print_term = true;
-	bool flag_auto_save = true;
-	bool flag_show;
-	string term_string;
-	bool flag_term;
-	string log_string;
-	bool flag_log;
-	bool flag_lock;
-
 	virtual void show(){
-		if(flag_print_term){
-			ostringstream out;
-			brd.print(out);
-			term_string = out.str();
-			flag_term = true;
-		}
-		flag_show = true;
+		brd.print(cout);
 	}
-	virtual void log_print(const string& str){
-		log_string = str;
-		flag_log = true;
+	virtual void print_log(const string& str){
+		cout << str;
 	}
 
 	void set_color(cbool _color){
@@ -60,26 +66,26 @@ public:
 		color = _color;
 		show();
 	}
-	void set_pos(cint x,cint y){
+	void set_pos(cpos_type x,cpos_type y){
 		push();
-		pos.x = x;
-		pos.y = y;
+		pos = {x,y};
 		show();
 	}
 	void start(){
 		color = true;
-		pos.x = pos.y = -1;
+		pos = {-1,-1};
 		record.clear();
 		brd.initial();
-		log_print("start a new game\n");
+		print_log("start a new game\n");
 		flag_lock = false;
 		show();
+		play();
 	}
 
 	bool undo(){
 		bool result = pop();
 		if(result){
-			log_print("undo\n");
+			print_log("undo\n");
 			flag_lock = false;
 			show();
 		}
@@ -98,7 +104,7 @@ public:
 			color = temp.color;
 			pos = temp.pos;
 
-			log_print("redo\n");
+			print_log("redo\n");
 			flag_lock = false;
 
 			show();
@@ -112,13 +118,13 @@ public:
 		push();
 		brd.assign(_brd_black,_brd_white);
 		show();
-		log_print("assign new value to the board\n");
+		print_log("assign new value to the board\n");
 	}
 	void assign(cboard _brd){
 		push();
 		brd = _brd;
 		show();
-		log_print("assign new value to the board\n");
+		print_log("assign new value to the board\n");
 	}
 
 	chessman get(cpos_type x,cpos_type y){
@@ -126,21 +132,21 @@ public:
 	}
 	void set(cpos_type x, cpos_type y, cchessman chsman){
 		push();
-		brd.set(x,y,chsman);
+		brd.set(x + (y << 3),chsman);
 		show();
 	}
 	void mirror_h(){
 		push();
 		brd.mirror_h();
 		pos.x = board::size - pos.x - 1;
-		log_print("mirror horizontally\n");
+		print_log("mirror horizontally\n");
 		show();
 	}
 	void mirror_v(){
 		push();
 		brd.mirror_v();
 		pos.y = board::size - pos.y - 1;
-		log_print("mirror vertically\n");
+		print_log("mirror vertically\n");
 		show();
 	}
 	void rotate_l(){
@@ -148,7 +154,7 @@ public:
 		brd.rotate_l();
 		swap(pos.x,pos.y);
 		pos.y = 7 - pos.y;
-		log_print("rotate clockwise\n");
+		print_log("rotate clockwise\n");
 		show();
 	}
 	void rotate_r(){
@@ -156,7 +162,7 @@ public:
 		brd.rotate_r();
 		swap(pos.x,pos.y);
 		pos.x = 7 - pos.x;
-		log_print("rotate counterclockwise\n");
+		print_log("rotate counterclockwise\n");
 		show();
 	}
 	void reflect(){
@@ -164,7 +170,14 @@ public:
 		brd.reflect();
 		pos.x = board::size - pos.x - 1;
 		pos.y = board::size - pos.y - 1;
-		log_print("reflect\n");
+		print_log("reflect\n");
+		show();
+	}
+	void reverse(){
+		push();
+		brd.reverse();
+		color = !color;
+		print_log("reverse\n");
 		show();
 	}
 	void config(){
@@ -172,18 +185,20 @@ public:
 	}
 	bool flip(cbool color, cpos_type x, cpos_type y){
 		push();
-		bool result = brd.flip(color,x + (y << 3));
-		ostringstream out;
+		bool result;
+		if(x < 0 || x >= board::size || y < 0 || y >= board::size){
+			result = false;
+		}else{
+			board brd_save = brd;
+			brd.flip(color,x + (y << 3));
+			result = (brd != brd_save);
+		}
 		if(result){
-			out << 	(color? "black" : "white")
-				<< " place a stone at ("
-				<< x
-				<< ","
-				<< y
-				<< ")\n";
-			log_print(out.str());
-			if(brd.get_status(!color) & sts_again){
-			}else{
+			print_log(
+				string("place a ") + (color ? "black" : "white")
+				+ " stone at " + char(x + 'A') + char(y + '1') + "\n"
+			);
+			if(!(brd.get_status(!color) & sts_again)){
 				this->color = !color;
 			}
 			this->pos = coordinate(x,y);
@@ -192,9 +207,10 @@ public:
 			if(flag_auto_save){
 				pop();
 			}
-			out << (color? "black" : "white")
-				<< " cannot place a stone here\n";
-			log_print(out.str());
+			print_log(
+				string("cannot place a ") + (color ? "black" : "white")
+				+" stone here\n"
+			);
 		}
 		return result;
 	}
@@ -211,43 +227,90 @@ public:
 	float score(cbool color){
 		return brd.score(color);
 	}
-	float score_ptn(cbool color){
-		return brd.score_ptn(color);
+//	float score_ptn(cbool color){
+//		return brd.score_ptn(color);
+//	}
+	pair<method,short> process_method(cmethod mthd,cshort depth){
+		pair<method,short> result = {mthd,depth};
+		short total = this->brd.sum();
+
+		if(result.first == mthd_rnd){
+			return result;
+		}
+
+		if(result.second == -1){
+			if(total <= 7){
+				result.second = 9;
+			}else if(total <= 10){
+				result.second = 8;
+			}else if(total <= board::size2 - 22){
+				result.second = 7;
+			}else if(total <= board::size2 - 15){
+				result.second = 8;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second == -2){
+			if(total <= 7){
+				result.second = 9;
+			}else if(total <= 10){
+				result.second = 9;
+			}else if(total <= board::size2 - 24){
+				result.second = 8;
+			}else if(total <= board::size2 - 16){
+				result.second = 9;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second <= -3){
+			if(total <= 7){
+				result.second = 11;
+			}else if(total <= 10){
+				result.second = 10;
+			}else if(total <= board::size2 - 22){
+				result.second = 10;
+			}else if(total <= board::size2 - 16){
+				result.second = 10;
+			}else{
+				result.second = 20;
+			}
+		}
+		if(result.second >= board::size2 - total - 1){
+				result.first = method(mthd | mthd_end);
+			result.second = board::size2 - total - 1;	
+		}
+		return result;
 	}
-	vector<float> eval_ptn(cbool color){
-		return brd.eval_ptn(color);
+	calc_type search(cmethod mthd,cbool color,cshort depth = -1,
+		ccalc_type alpha = _inf,ccalc_type beta = inf){
+		pair<method,short> p_mthd = process_method(mthd,depth);
+		return brd.search(p_mthd.first,color,p_mthd.second,alpha,beta);
 	}
-	calc_type search(cmethod mthd,cbool color,cshort height = -1,
-		ccalc_type alpha = _inf,ccalc_type beta = inf,ccalc_type gamma = 0){
-		return brd.search(mthd,color,height,alpha,beta,gamma);
-	}
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort height = -1){
-		return brd.get_choice(mthd,color,height);
+	virtual vector<choice> get_choice(cmethod mthd,cbool color,cshort depth = -1){
+		pair<method,short> p_mthd = process_method(mthd,depth);
+		return brd.get_choice(p_mthd.first,color,p_mthd.second);
 	}
 	choice select_choice(const vector<choice>& choices){
 		return brd.select_choice(choices);
 	}
-
-	coordinate play(cmethod mthd,cbool color,cshort height = -1){
+	coordinate play_ai(cmethod mthd,cbool color,cshort depth = -1){
 		push();
-		auto pos = brd.play(mthd,color,height);
+		pair<method,short> p_mthd = process_method(mthd,depth);
+		auto pos = brd.play(p_mthd.first,color,p_mthd.second);
 		if(pos.x >= 0){
-			ostringstream out;
-			out << (color? "black" : "white")
-				<< " place a stone at ("
-				<< pos.x
-				<< ","
-				<< pos.y
-				<< ")\n";
-			log_print(out.str());
-			if(brd.get_status(!color) & sts_again){
-			}else{
+			print_log(
+				string("place a ") + (color ? "black" : "white")
+				+ " stone at " + char(pos.x + 'A') + char(pos.y + '1') + "\n"
+			);
+			if(!(brd.get_status(!color) & sts_again)){
 				this->color = !color;
 			}
 			this->pos = pos;
 			show();
 		}else{
-			log_print(
+			print_log(
 				string(color? ("black") : ("white"))
 				+ " is unable to move.\n"
 			);
@@ -257,46 +320,63 @@ public:
 		}
 		return pos;
 	}
-	coordinate play(ccoordinate _pos,cmethod mthd,cshort height = -1){
-		bool color_save = color;
-		bool flag = flip(color,_pos.x,_pos.y);
-		if(!flag){
+	virtual coordinate play_other(cmethod mthd,cbool color,cshort depth = -1){
+		return coordinate(-1,-1);
+	}
+	coordinate play(cmethod mthd,cbool color,cshort depth = -1){
+		switch(get_ply(color).p_type){
+		case ply_human:
+			return coordinate(-1,-1);
+		case ply_ai:
+			return play_ai(mthd,color,depth);
+		case ply_other:
+			return play_other(mthd,color,depth);
+		default:
 			return coordinate(-1,-1);
 		}
-		sts_type status = sts_again;
-		coordinate pos;
+	}
+	coordinate play(){
+		sts_type status;
 
-		bool flag_auto = flag_auto_save;
-		flag_auto_save = false;
-
-		while(status & sts_again){
-			pos = play(mthd,!color_save,height);
-			status = brd.get_status(color_save);
-			if(pos.x < 0){
-				show();
-				break;
+		while((status = brd.get_status(color)) & sts_turn){
+			if(get_ply(color).p_type == ply_human){
+				return coordinate(-1,-1);
 			}
+
+			play(mthd,color,depth);
 		}
 
-		flag_auto_save = flag_auto;
-
-		if(status & sts_end){
-			flag_lock = true;
-			ostringstream out;
-			out << brd.count(true)
-				<< " black stones and "
-				<< brd.count(false)
-				<< " white stones remain\n";
-			if(status == sts_bwin){
-				out << "black wins\n";
-			}else if(status == sts_wwin){
-				out << "white wins\n";
-			}else{
-				out << "a tie\n";
-			}
-			log_print(out.str());
+		flag_lock = true;
+		string str = to_string(brd.count(true))
+			+ " black stones and "
+			+ to_string(brd.count(false))
+			+ " white stones remain\n";
+		if(status == sts_bwin){
+			str += "black wins\n";
+		}else if(status == sts_wwin){
+			str += "white wins\n";
+		}else{
+			str += "a tie\n";
 		}
-		return pos;
+		print_log(str);
+
+		return coordinate(-1,-1);
+	}
+
+	coordinate play(ccoordinate pos){
+		sts_type status = brd.get_status(color);
+
+		if(!(status & sts_turn)){
+			return coordinate(-1,-1);
+		}
+
+		if(get_ply(color).p_type == ply_human){
+			flip(color,pos.x,pos.y);
+		}
+		play(mthd,color,depth);
+
+		play();
+		return coordinate(-1,-1);
 	}
 
 protected:
@@ -325,3 +405,5 @@ protected:
 		}
 	}
 };
+
+#endif //GAME_H

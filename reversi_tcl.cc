@@ -1,14 +1,19 @@
+#include <chrono>
+#include <sstream>
+
 #include "cpptcl.h"
 #include "reversi_tcl.h"
 
 using namespace Tcl;
 
 game_gui mygame;
-group grp;
 tree book;
-
 interpreter* ptr_inter;
-bool flag_text_term = true;
+bool flag_echo = false;
+
+void game_gui::print_log(const string& str){
+	return ::print_log(str);
+}
 
 object brd2obj(cboard brd){
 	object result;
@@ -50,39 +55,35 @@ choice obj2choice(const object& obj){
 
 template<typename T>
 object vec2obj(const vector<T>& vec){
-		object result;
-		for(const T& i:vec){
-			result.append(*ptr_inter,object(i));
-		}
-		return result;
+	object result;
+	for(const T& i:vec){
+		result.append(*ptr_inter,object(i));
+	}
+	return result;
 }
 
 template<>
 object vec2obj(const vector<object>& vec){
-		object result;
-		for(const object& i:vec){
-			result.append(*ptr_inter,i);
-		}
-		return result;
+	object result;
+	for(const object& i:vec){
+		result.append(*ptr_inter,i);
+	}
+	return result;
 }
 
 vector<object> obj2vec(const object& objs){
-		vector<object> result;
-		object obj;
-		int num = objs.length(*ptr_inter);
-		for(int i = 0;i != num;++i){
-			obj = objs.at(*ptr_inter,i);
-			result.push_back(obj);
-		}
-		return result;
+	vector<object> result;
+	object obj;
+	int num = objs.length(*ptr_inter);
+	for(int i = 0;i != num;++i){
+		obj = objs.at(*ptr_inter,i);
+		result.push_back(obj);
+	}
+	return result;
 }
 
 void start(){
 	mygame.start();
-}
-
-void auto_show(cbool flag){
-	mygame.flag_print_term = flag;
 }
 
 void auto_save(cbool flag){
@@ -118,13 +119,20 @@ float score(cbool color){
 	return mygame.score(color);
 }
 
-object eval_ptn(cbool color){
-	return vec2obj(mygame.eval_ptn(color));
+void config(){
+	pattern::config();
+	mygame.config();
+	grp.load("data/pattern.dat");
 }
 
-void config(){
-	return mygame.config();
-} 
+void set_player(cbool color,cint p_type){
+	mygame.get_ply(color).p_type = player_type(p_type);
+}
+
+void set_player_path(cbool color,const string& str){
+	mygame.get_ply(color).path = str;
+}
+
 bool flip(cbool color,cint x,cint y){
 	return mygame.flip(color,x,y);
 }
@@ -137,8 +145,8 @@ object play(cint mthd,cbool color,cint height){
 	return result;
 }
 
-object plays(cint x,cint y,cint mthd,cint height){
-	auto pos = mygame.play(coordinate(x,y),method(mthd),height);
+object plays(cint x,cint y){
+	auto pos = mygame.play(coordinate(x,y));
 	object result;
 	result.append(*ptr_inter,object(int(pos.x)));
 	result.append(*ptr_inter,object(int(pos.y)));
@@ -148,7 +156,6 @@ object plays(cint x,cint y,cint mthd,cint height){
 bool undo(){
 	return mygame.undo();
 }
-
 bool redo(){
 	return mygame.redo();
 }
@@ -168,19 +175,34 @@ void rotate_l(){
 void rotate_r(){
 	return mygame.rotate_r();
 }
+void reverse(){
+	return mygame.reverse();
+}
 
 bool get_color(){
 	return mygame.color;
 }
-
 void set_color(cbool color){
 	mygame.set_color(color);
+}
+
+int get_method(){
+	return mygame.mthd;
+}
+void set_method(cint mthd){
+	mygame.mthd = method(mthd);
+}
+
+int get_depth(){
+	return mygame.depth;
+}
+void set_depth(cint depth){
+	mygame.depth = depth;
 }
 
 bool get_is_lock(){
 	return mygame.flag_lock;
 }
-
 void set_is_lock(cbool flag_lock){
 	mygame.flag_lock = flag_lock;
 }
@@ -191,7 +213,6 @@ object get_pos(){
 	result.append(*ptr_inter,object(int(mygame.pos.y)));
 	return result;
 }
-
 void set_pos(cint x,cint y){
 	mygame.set_pos(x,y);
 }
@@ -219,26 +240,14 @@ void load(const string& path){
 	return book.load(path);
 };
 
-void grp_assign(cint size){
-	return grp.assign(size);
+void grp_initial(cint size){
+	return grp.initial(size);
 }
-void grp_initial(){
-	return grp.initial();
-}
-void grp_load(const string& filename,cint num_begin = 0,cint num = 100){
-	return grp.load(filename,num_begin,num);
+void grp_load(const string& filename){
+	return grp.load(filename);
 }
 void grp_save(const string& filename){
 	return grp.save(filename);
-}
-void grp_train(cint num, cint mthd, cint depth){
-	for(int i = 0;i != num;++i){
-		grp.train(method(mthd),depth);
-	}
-}
-
-void use_ptn(cint num){
-	set_ptn(grp.get(num));
 }
 
 void process(const string& str){
@@ -252,8 +261,8 @@ void process(const string& str){
 
 		inter.def("quit",::quit);
 		inter.def("exit",::quit);
-		inter.def("puts",::term_print);
-		inter.def("print",::term_print);
+		inter.def("puts",::print_term);
+		inter.def("print",::print_term);
 
 		inter.def("start",::start);
 		inter.def("config",::config);
@@ -267,7 +276,7 @@ void process(const string& str){
 		inter.def("reflect",::reflect);
 		inter.def("rotate_l",::rotate_l);
 		inter.def("rotate_r",::rotate_r);
-		inter.def("auto_show",::auto_show);
+		inter.def("reverse",::reverse);
 		inter.def("auto_save",::auto_save);
 		inter.def("bget",::bget);
 		inter.def("assign",::assign);
@@ -275,8 +284,14 @@ void process(const string& str){
 		inter.def("place",::set);
 		inter.def("get_color",::get_color);
 		inter.def("set_color",::set_color);
+		inter.def("get_method",::get_method);
+		inter.def("set_method",::set_method);
+		inter.def("get_depth",::get_depth);
+		inter.def("set_depth",::set_depth);
 		inter.def("get_pos",::get_pos);
 		inter.def("set_pos",::set_pos);
+		inter.def("set_player",::set_player);
+		inter.def("set_player_path",::set_player_path);
 		inter.def("get_is_lock",::get_is_lock);
 		inter.def("set_is_lock",::set_is_lock);
 		inter.def("get_choice",::get_choice);
@@ -284,19 +299,12 @@ void process(const string& str){
 		inter.def("count",::count);
 		inter.def("count_move",::count_move);
 		inter.def("score",::score);
-		inter.def("eval_ptn",::eval_ptn);
 
 		inter.def("load",::load);
 
-		inter.def("grp_assign",::grp_assign);
 		inter.def("grp_initial",::grp_initial);
 		inter.def("grp_load",::grp_load);
 		inter.def("grp_save",::grp_save);
-		inter.def("grp_train",::grp_train);
-
-		inter.def("set_ptn",set_ptn);
-		inter.def("use_ptn",::use_ptn);
-		inter.def("check_ptn",::check_ptn);
 
 		inter.def("load_book",::load_book);
 
@@ -317,23 +325,26 @@ void process(const string& str){
 			"set mthd_mtdf 0x10;"
 			"set mthd_ids 0x20;"
 			"set mthd_ptn 0x40;"
-			"set mthd_default [expr $mthd_kill | $mthd_ab];"
-
-			"set h_default -1;"
+			"set mthd_mpc 0x80;"
+			"set mthd_end 0x100;"
 
 			"config;"
 		);
 	}
 
-	if(!flag_text_term){
-		term_print(string(">>") + str);
+	if(flag_echo){
+		print_term(string(">>") + str);
 	}
+
 	try{
+		chrono::system_clock::time_point time_start = chrono::system_clock::now();
 		inter.eval(str);
+		chrono::system_clock::time_point time_end = chrono::system_clock::now();
+		chrono::duration<double> time_exec = time_end - time_start;
+		print_status(
+			"Execution time : " + to_string(time_exec.count()) + " seconds"
+		);
 	}catch(const tcl_error& err){
-		term_print(string(err.what()));
-	}
-	if(mygame.flag_log){
-		log_print(mygame.log_string);
+		print_term(string(err.what()));
 	}
 }

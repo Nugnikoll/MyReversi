@@ -11,9 +11,12 @@
 #include <wx/menu.h>
 #include <wx/textfile.h>
 #include <wx/treectrl.h>
+#include <wx/process.h>
+#include <wx/txtstrm.h>
 
 #include "reversi_tcl.h"
 
+//export
 const int bias = 34;
 const int num = 8;
 const int cell = 44;
@@ -23,6 +26,7 @@ const int radius = cell / 2 - 4;
 const int thick = 3;
 const int margin = 20;
 
+//import
 extern wxFrame* ptr_frame;
 extern wxPanel* ptr_panel;
 extern wxTextCtrl* ptr_term;
@@ -30,12 +34,14 @@ extern wxTextCtrl* ptr_log;
 extern wxTextCtrl* ptr_input;
 extern wxTreeCtrl* ptr_book;
 
+//export
 class myTreeItemData: public wxTreeItemData{
 public:
 	myTreeItemData(node*const& _ptr): ptr(_ptr){}
 	node* ptr;
 };
 
+//export
 void do_show(wxDC& dc);
 void load_node(const wxTreeItemId& item, node* ptr);
 
