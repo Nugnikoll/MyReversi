@@ -8,8 +8,8 @@ clean_all: clean
 clean:
 	rm prof.log test.dot rtest.dot test.png
 
-test.exe: ../test.exe
-	cp ../test.exe ./test.exe
+test.exe: ../bin/Debug/reversi_json.exe
+	cp ../bin/Debug/reversi_json.exe ./test.exe
 
 gmon.out: test.exe in.txt
 	cat in.txt | ./test.exe
@@ -21,7 +21,7 @@ test.dot: prof.log
 	gprof2dot prof.log > test.dot
 
 rtest.dot: test.dot
-	py replace.py test.dot rtest.dot
+	python replace.py test.dot rtest.dot
 
 test.png: rtest.dot
 	dot -Tpng -otest.png rtest.dot

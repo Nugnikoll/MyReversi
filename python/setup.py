@@ -9,6 +9,7 @@ reversi_module = Extension(
 	"_reversi",
 	src,
 	define_macros=[("_hypot", "hypot"),("MS_WIN64", None)],
+	extra_compile_args=["-Ofast"],
 );
 
 setup(
