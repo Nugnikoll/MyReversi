@@ -7,36 +7,50 @@ LD = g++
 WINDRES = windres
 RM = rm -f
 
-INC = -I/usr/include/python3.5/
-CFLAGS =
-CXXFLAGS = -Wall -g -Og -std=c++11 -fPIC
-RESINC =
-LIBDIR = -L/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/
+INC = 
+CFLAGS = 
+CXXFLAGS = -Wall -pg -std=c++11 -fno-omit-frame-pointer -O2
+RESINC = 
+LIBDIR = 
 LIB = 
-LDFLAGS = -shared -lpython3.5
+LDFLAGS = -pg
 
 SRCDIR = ../cpp/
 OBJDIR = obj/
 OUTDIR = ./
 
-SRC = $(wildcard $(SRCDIR)*.cc)
-HEAD = $(wildcard $(SRCDIR)*.h)
-OBJ = $(OBJDIR)reversi_wrap.o $(patsubst $(SRCDIR)%.cc, $(OBJDIR)%.o, $(SRC))
-OUT = $(OUTDIR)_reversi.so
+SRC = $(wildcard $(SRCDIR)*.cc) main.cc
+OBJ = $(patsubst %.cc, %.o, $(patsubst $(SRCDIR)%, $(OBJDIR)%, $(SRC)))
+OUT = $(OUTDIR)reversi
 
 .PHONY: all clean before
 
-all: before $(OUT)
+all: test.png
+
+clean:
+	-$(RM) $(OBJDIR)*.o
+	-$(RM) $(addprefix $(OUTDIR), *.o *.exe *.dll *.so *.pyd *.log *.dot *.png *.out) $(OUT)
+
+test.png: test_replace.dot
+	dot -Tpng -o$@ $<
+
+test_replace.dot: test.dot
+	python replace.py $< $@
+
+test.dot: prof.log
+	gprof2dot $< > $@
+
+prof.log: $(OUT) gmon.out
+	gprof $(OUT) gmon.out > $@
+
+gmon.out: $(OUT) in.txt
+	cat in.txt | $(OUT)
 
 before:
 	test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	test -d $(OUTDIR) || mkdir -p $(OUTDIR)
 
-clean:
-	-$(RM) $(OBJDIR)*.o
-	-$(RM) $(addprefix $(OUTDIR), *wrap* reversi.py *.exe *.dll *.so *.pyd)
-
-$(OUT): $(OBJ)
+$(OUT): before $(OBJ)
 	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
 
 $(OBJDIR)reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)reversi.cc | awk -f parse.awk))
@@ -51,8 +65,6 @@ $(OBJDIR)search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)search.c
 $(OBJDIR)pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)pattern.cc | awk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OUTDIR)reversi_wrap.cxx: $(OUTDIR)reversi.i $(HEAD)
-	swig -python -c++ -threads -o $@ $<
+main.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM main.cc | awk -f parse.awk))
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)reversi_wrap.o: $(OUTDIR)reversi_wrap.cxx
-	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
