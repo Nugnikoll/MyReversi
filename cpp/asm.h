@@ -9,8 +9,8 @@
 
 #define asm_bt(brd, pos, result) \
 	asm volatile( \
-		"bt %2,%1;" \
-		"setc %0;" \
+		"bt %2,%1\n" \
+		"setc %0\n" \
 		:"=&r"(result) \
 		:"r"(brd), "r"(pos) \
 	)
@@ -26,7 +26,7 @@
 
 #define asm_bts(brd, pos) \
 	asm volatile( \
-		"bts %1,%0;" \
+		"bts %1,%0\n" \
 		:"+r"(brd) \
 		:"r"(pos) \
 	)
@@ -42,7 +42,7 @@
 
 #define asm_btr(brd, pos) \
 	asm volatile( \
-		"btr %1,%0;" \
+		"btr %1,%0\n" \
 		:"+r"(brd) \
 		:"r"(pos) \
 	)
@@ -58,7 +58,7 @@
 
 #define asm_rol(brd, val) \
 	asm volatile( \
-		"rol %1, %0;" \
+		"rol %1, %0\n" \
 		: "+r"(brd) \
 		: "c"(char(val)) \
 	)
@@ -78,7 +78,7 @@ inline void equ_rol(ull& brd, char val){
 
 #define asm_ror(brd, val) \
 	asm volatile( \
-		"ror %1, %0;" \
+		"ror %1, %0\n" \
 		: "+r"(brd) \
 		: "c"(char(val)) \
 	)
@@ -98,7 +98,7 @@ inline void equ_ror(ull& brd, char val){
 
 #define asm_bswap(brd) \
 	asm volatile( \
-		"bswap %0;" \
+		"bswap %0\n" \
 		: "+r"(brd) \
 	)
 
@@ -116,7 +116,7 @@ inline void equ_bswap(ull& brd){
 
 #define asm_popcnt(brd, result) \
 	asm volatile( \
-		"popcnt %1, %0;" \
+		"popcnt %1, %0\n" \
 		: "=r"(result) \
 		: "r"(brd) \
 	)
@@ -136,7 +136,7 @@ inline void equ_popcnt(cull brd, ull& result){
 
 #define asm_tzcnt(brd, result) \
 	asm volatile( \
-		"tzcnt %1, %0;" \
+		"tzcnt %1, %0\n" \
 		:"=r"(result) \
 		:"r"(brd) \
 	)
@@ -153,7 +153,7 @@ inline void equ_tzcnt(cull brd, ull& result){
 
 #define asm_pext(brd, mask, result) \
 	asm volatile( \
-		"pext %1, %2, %0;" \
+		"pext %1, %2, %0\n" \
 		: "=r"(result) \
 		: "r"(mask), "r"(brd) \
 	)
@@ -178,7 +178,7 @@ inline void equ_pext(cull brd, cull mask, ull& result){
 
 #define asm_pdep(brd, mask, result) \
 	asm volatile( \
-		"pdep %1, %2, %0;" \
+		"pdep %1, %2, %0\n" \
 		: "=r"(result) \
 		: "r"(mask), "r"(brd) \
 	)

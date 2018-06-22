@@ -130,14 +130,14 @@ public:
 		#ifdef USE_ASM
 			chessman result,temp;
 			asm volatile(
-				"mov $0, %0;"
-				"mov %5, %1;"
-				"bt %4, %2;"
-				"cmovc %1, %0;"
-				"mov %0, %1;"
-				"or %6, %1;"
-				"bt %4, %3;"
-				"cmovc %1, %0;"
+				"mov $0, %0\n"
+				"mov %5, %1\n"
+				"bt %4, %2\n"
+				"cmovc %1, %0\n"
+				"mov %0, %1\n"
+				"or %6, %1\n"
+				"bt %4, %3\n"
+				"cmovc %1, %0\n"
 				:"=&r"(result), "=&r"(temp)
 				:"r"(brd_black), "r"(brd_white), "r"(ull(pos)),
 					"g"(black), "g"(white)
@@ -165,20 +165,20 @@ public:
 		#ifdef USE_ASM
 			ull temp;
 			asm volatile(
-				"mov %0, %1;"
-				"btr %2, %0;"
-				"bts %2, %1;"
-				"test %4, %3;"
-				"cmovnz %1, %0;"
+				"mov %0, %1\n"
+				"btr %2, %0\n"
+				"bts %2, %1\n"
+				"test %4, %3\n"
+				"cmovnz %1, %0\n"
 				:"+r"(brd_black), "=&r"(temp)
 				:"r"(ull(pos)), "r"(chsm), "g"(black)
 			);
 			asm volatile(
-				"mov %0, %1;"
-				"btr %2, %0;"
-				"bts %2, %1;"
-				"test %4, %3;"
-				"cmovnz %1, %0;"
+				"mov %0, %1\n"
+				"btr %2, %0\n"
+				"bts %2, %1\n"
+				"test %4, %3\n"
+				"cmovnz %1, %0\n"
 				:"+r"(brd_white), "=&r"(temp)
 				:"r"(ull(pos)), "r"(chsm), "g"(white)
 			);
