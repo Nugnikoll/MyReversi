@@ -6,10 +6,10 @@ import os
 import _thread
 import time
 import pdb
-from reversi_gui import *
+from game import *
 
 rv.pattern.config();
-rv.group.config("data/pattern.dat")
+rv.group.config("../data/pattern.dat")
 
 evt_thrd_id = wx.NewId();
 
@@ -41,7 +41,7 @@ class reversi_app(wx.App):
 
 		#set the icon of the frame
 		frame_icon = wx.Icon();
-		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("image/Reversi.bmp")));
+		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/Reversi.bmp")));
 		self.frame.SetIcon(frame_icon);
 
 		#create background elements
@@ -113,7 +113,7 @@ class reversi_app(wx.App):
 		self.text_path_black.Hide();
 
 		self.button_folder_black = wx.BitmapButton(
-			panel_note, bitmap = wx.Bitmap(wx.Image("image/folder_small.png")), size = wx.Size(32,29)
+			panel_note, bitmap = wx.Bitmap(wx.Image("../image/folder_small.png")), size = wx.Size(32,29)
 		);
 		self.button_folder_black.SetBackgroundColour(wx.Colour(0,0,0));
 		self.sizer_note_path_black.Add(self.button_folder_black, 0, wx.ALL | wx.ALIGN_CENTER, 5);
@@ -147,7 +147,7 @@ class reversi_app(wx.App):
 		self.text_path_white.Hide();
 
 		self.button_folder_white = wx.BitmapButton(
-			panel_note, bitmap = wx.Bitmap(wx.Image("image/folder_small.png")), size = wx.Size(32,29)
+			panel_note, bitmap = wx.Bitmap(wx.Image("../image/folder_small.png")), size = wx.Size(32,29)
 		);
 		self.button_folder_white.SetBackgroundColour(wx.Colour(0,0,0));
 		self.sizer_note_path_white.Add(self.button_folder_white, 0, wx.ALL | wx.ALIGN_CENTER, 5);
