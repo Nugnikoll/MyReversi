@@ -13,16 +13,19 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 - Prerequisites
 	- A decent C++ compiler  
 		C++11 must be supported by this compiler. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
-	- [python3](https://www.python.org/) (required by the GUI written in Python and some simple scripts)
+	- [Python3](https://www.python.org/) (required by the GUI written in Python and some simple scripts)
 	- [swig](http://swig.org/) (required by the GUI written in Python)
 	- [wxPython](https://www.wxpython.org/) (required by the GUI written in Python)
+	- [CMake](https://cmake.org/)
 
-- Build reversi with GUI for python
-	1. Enter the directory python/  
-		`cd python`
-	2. Compile the source code and generate dynamic link library _reversi.so  
+- Build reversi with GUI
+	1. Compile the source code and generate dynamic link library _reversi.so  
+		`cd build`
+		`cmake .`
 		`make`
-	3. Execute the project
+		`cd ..`
+	2. Execute the project
+		`cd python`
 		`python3 main.py`
 
 - Build reversi for [Botzone](https://botzone.org)
@@ -33,7 +36,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 ### Development
 
-- Structure  
+- File Structure  
 
 	cpp/reversi.h: class board
 	│	cpp/flip.cc board::flip()
@@ -41,14 +44,14 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 	│	cpp/search.cc board::search()
 	│	...
 	│
-	└───python/reversi_gui.py: class game
+	└───python/game.py: class game
 	│		│
 	│		└───python/main.py (python GUI project)
 	│
 	└───botzone/main.cc (Botzone online project)
 
-- Profile
-	- Prerequisites (dependents required before is included)
+- Profile (only available on UNIX-like systems)
+	- Prerequisites
 		- [graphiz](https://www.graphviz.org/)
 		- [gprof2dot](https://github.com/jrfonseca/gprof2dot)
 
