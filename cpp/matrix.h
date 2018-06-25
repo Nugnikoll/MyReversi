@@ -18,7 +18,7 @@ public:
 		table = new T[height * width];
     }
     matrix(const int& h,const int& w,const T* const& ptr):height(h),width(w){
-		table = new T[height];
+		table = new T[height * width];
 		memcpy(table,ptr,sizeof(T) * height * width);
     }
     matrix(std::initializer_list<std::initializer_list<T>> m)

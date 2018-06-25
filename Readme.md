@@ -40,7 +40,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 - Prerequisites
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
-	- library (_reversi.so or _reversi.dll)
+	- library _reversi.so or _reversi.dll (should be downloaded here or built from source)
 
 - Execute the main program
 	`cd python`  
