@@ -12,6 +12,8 @@ include (FindPythonLibs)
 
 set (cpp_dir "${PROJECT_SOURCE_DIR}/../cpp")
 set (python_dir "${PROJECT_SOURCE_DIR}/../python")
+set (cpuid_dir "${PROJECT_SOURCE_DIR}/../cpuid")
+
 if (WIN32)
 	if ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 		set (CMAKE_CXX_FLAGS "-Wall -D_hypot=hypot -DMS_WIN64 -Og -g")
@@ -23,6 +25,25 @@ else ()
 endif ()
 #set (CMAKE_CXX_FLAGS_DEBUG "-Og -g -DEBUG")
 #set (CMAKE_CXX_FLAGS_RELEASE "-O3 -NDEBUG")
+
+try_run (
+	BMI_RUN_RESULT BMI_COMPILE_RESULT
+	${cpuid_dir} ${cpuid_dir}/bmi2.cc
+)
+
+if ("${BMI_COMPILE_RESULT}" STREQUAL "TRUE")
+	message ("64-bit inline assembly is supported. Define macro USE_ASM .")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM")
+else ()
+	message ("64-bit inline assembly is not supported")
+endif ()
+if (NOT ("${BMI_RUN_RESULT}" STREQUAL "FAILED_TO_RUN"))
+	message ("BMI2 instruction set is supported. Define macro USE_ASM_BMI2 .")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM_BMI2")
+else ()
+	message ("BMI2 instruction set is not supported")
+endif ()
+
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
 include_directories ("${PYTHON_INCLUDE_DIRS}")
