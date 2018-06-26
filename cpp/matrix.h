@@ -17,10 +17,14 @@ public:
     matrix(const int& h,const int& w):height(h),width(w){
 		table = new T[height * width];
     }
-    matrix(const int& h,const int& w,const T* const& ptr):height(h),width(w){
+    matrix(int h,int w, T* ptr):height(h),width(w){
 		table = new T[height * width];
 		memcpy(table,ptr,sizeof(T) * height * width);
     }
+//    matrix(const int& h,const int& w,const T* const& ptr):height(h),width(w){
+//		table = new T[height * width];
+//		memcpy(table,ptr,sizeof(T) * height * width);
+//    }
     matrix(std::initializer_list<std::initializer_list<T>> m)
 		:height(m.size()),width(m.begin()->size()){
         table = new T[height * width];
@@ -285,22 +289,30 @@ public:
     int geth()const{return this->height;}
     int getw()const{return this->width;}
 
-    const T& at(const int& h,const int& w)const{
-        assert(h < height && w < width);
-        return table[h * width + w];
-    }
-    T& at(const int& h,const int& w){
-        assert(h < height && w < width);
-        return table[h * width + w];
-    }
-    const T& at(const int& n)const{
-        assert(n < height * width);
-        return table[n];
-    }
-    T& at(const int& n){
-        assert(n < height * width);
-        return table[n];
-    }
+	T& at(const int& h,const int& w){
+		assert(h < height && w < width);
+		return table[h * width + w];
+	}
+	const T& at(const int& h,const int& w)const{
+		assert(h < height && w < width);
+		return table[h * width + w];
+	}
+	T& at(const int& n){
+		assert(n < height * width);
+		return table[n];
+	}
+	const T& at(const int& n)const{
+		assert(n < height * width);
+		return table[n];
+	}
+	T __getitem__(const int& n)const{
+		assert(n < height * width);
+		return table[n];
+	}
+	void __setitem__(const int& n, const T& t){
+		assert(n < height * width);
+		table[n] = t;
+	}
 
     matrix transpose()const{
 		matrix result(width,height);
@@ -456,29 +468,29 @@ public:
         return false;
     }
 
-    const board* operator[](const int& h)const{
+    board* operator[](const int& h){
         return table + h * width;
     }
-    board* operator[](const int& h){
+    const board* operator[](const int& h)const{
         return table + h * width;
     }
 
     int geth()const{return this->height;}
     int getw()const{return this->width;}
 
-    const board& at(const int& h,const int& w)const{
-        assert(h <= height || w <= width);
-        return table[h * width + w];
-    }
     board& at(const int& h,const int& w){
         assert(h <= height || w <= width);
         return table[h * width + w];
     }
-    const board& at(const int& n)const{
+    const board& at(const int& h,const int& w)const{
+        assert(h <= height || w <= width);
+        return table[h * width + w];
+    }
+    board& at(const int& n){
         assert(n <= height * width);
         return table[n];
     }
-    board& at(const int& n){
+    const board& at(const int& n)const{
         assert(n <= height * width);
         return table[n];
     }
