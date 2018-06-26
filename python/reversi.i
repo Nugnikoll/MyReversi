@@ -9,6 +9,7 @@
 %feature("director") game;
 
 %{
+#define SWIG_FILE_WITH_INIT
 #include "../cpp/type.h"
 #include "../cpp/asm.h"
 #include "../cpp/reversi.h"
@@ -17,6 +18,7 @@
 #include "../cpp/log.h"
 %}
 
+%include "numpy.i"
 %include "../cpp/type.h"
 %include "../cpp/reversi.h"
 %include "../cpp/matrix.h"
@@ -39,3 +41,10 @@
 %rename(__eq__) board::operator==;
 %rename(__neq__) board::operator!=;
 %ignore board::operator<<(ostream& out,const board& brd);
+
+%init %{
+import_array();
+%}
+
+%apply (int DIM1, int DIM2, int* INPLACE_ARRAY2)
+{(int h, int w, int* ptr)};

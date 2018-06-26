@@ -25,10 +25,10 @@ else:
 	time1 = time.clock();
 	sample = rv.sample_gen(size);
 	time2 = time.clock();
-	print("time1",time2 - time1);
+	print("time1:",time2 - time1);
 	sample = rv.sample_2mat(sample);
 	time3 = time.clock();
-	print("time2",time3 - time2);
+	print("time2:",time3 - time2);
 	sample.save(name);
 
 print(sample.geth(),sample.getw());
@@ -42,7 +42,7 @@ else:
 	time3 = time.clock();
 	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans ,4);
 	time4 = time.clock();
-	print("time3",time4 - time3);
+	print("time3:",time4 - time3);
 	target.save(name);
 
 value = rv.evaluate(ptn,sample);
@@ -50,7 +50,7 @@ epsilon = target - value;
 epsilon_2 = epsilon.modulus();
 
 print(epsilon.geth(), epsilon.getw())
-epsilon_save = rv.mat_f(epsilon);print("okok")
+epsilon_save = rv.mat_f(epsilon);
 ptn_save = rv.pattern(ptn)
 
 epsilon = rv.mat_f(epsilon_save);
