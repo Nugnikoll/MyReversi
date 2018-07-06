@@ -441,7 +441,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 				if(temp > result){
 					result = temp;
 					if(flag_hash){
-						best_pos = pos;
+						best_pos = p->pos;
 					}
 				}
 				alpha = max(alpha,result);
