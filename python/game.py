@@ -217,7 +217,7 @@ class game:
 		self.play_continue();
 
 	def bget(self, color):
-		return brd.bget(color);
+		return self.brd.bget(color);
 
 	def assign(self, brd):
 		self.push();
