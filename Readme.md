@@ -26,7 +26,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- [CMake](https://cmake.org/)
 
 - Build the library for reversi  
-	Compile the source code and generate dynamic link library (_reversi.so or _reversi.dll)  
+	Compile the source code and generate dynamic link library (_reversi.so or _reversi.pyd)  
 	`cd build`  
 	`cmake -DCMAKE_BUILD_TYPE=RELEASE
 .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles"  -DCMAKE_BUILD_TYPE=RELEASE .`)  
@@ -43,7 +43,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 - Prerequisites
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
-	- library _reversi.so or _reversi.dll (should be downloaded here or built from source)
+	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 
 - Execute the main program
 	`cd python`  

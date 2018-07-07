@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import wx
-import sys
-import os
-import _thread
-import time
-import pdb
-from game import *
+import wx;
+import sys;
+import os;
+import _thread;
+import time;
+import pdb;
+from game import * ;
 
 rv.pattern.config();
 rv.group.config("../data/pattern.dat")
@@ -105,7 +105,7 @@ class reversi_app(wx.App):
 		self.sizer_note.Add(self.sizer_note_path_black, 1, wx.ALL | wx.ALIGN_CENTER, 5);
 
 		self.text_path_black = wx.TextCtrl(
-			panel_note, value = "bot/Irius",
+			panel_note, value = default_path,
 			size = (332,30), style = wx.TE_PROCESS_ENTER
 		);
 		self.text_path_black.SetBackgroundColour(wx.Colour(200,200,200));
@@ -139,7 +139,7 @@ class reversi_app(wx.App):
 		self.sizer_note.Add(self.sizer_note_path_white, 1, wx.ALL | wx.ALIGN_CENTER, 5);
 
 		self.text_path_white = wx.TextCtrl(
-			panel_note, value = "bot/Irius",
+			panel_note, value = default_path,
 			size = (332,30), style = wx.TE_PROCESS_ENTER
 		);
 		self.text_path_white.SetBackgroundColour(wx.Colour(200,200,200));
@@ -525,10 +525,15 @@ class reversi_app(wx.App):
 			);
 
 	def on_button_folder_click(self,event):
+		if sys.platform == "win32":
+			wildcard = "*.exe";
+		else:
+			wildcard = "*";
+
 		if event.GetId() == self.button_folder_black.GetId():
 			dialog_choice_player = wx.FileDialog(
 				self.frame, "Select file", wx.EmptyString, wx.EmptyString,
-				"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
+				wildcard, wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
 				wx.DefaultSize, "wxFileDialog"
 			);
 
@@ -544,7 +549,7 @@ class reversi_app(wx.App):
 		elif event.GetId() == self.button_folder_white.GetId():
 			dialog_choice_player = wx.FileDialog(
 				self.frame, "Select file", wx.EmptyString, wx.EmptyString,
-				"*.exe", wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
+				wildcard, wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
 				wx.DefaultSize, "wxFileDialog"
 			);
 
