@@ -14,8 +14,12 @@ using namespace std;
 // check whether the complier support 64-bit AT&T inline assembly
 #if defined(__GNUC__) || defined(__clang__)
 	#if defined(__x86_64__) || defined(__ppc64__)
-		#define USE_ASM
-		//#define USE_ASM_BMI2
+		#ifndef USE_ASM
+			#define USE_ASM
+		#endif
+		//#ifndef USE_ASM_BMI2
+			//#define USE_ASM_BMI2
+		//#endif
 	#endif
 #endif
 #ifndef USE_ASM
@@ -104,7 +108,7 @@ class group;
 typedef const group& cgroup;
 
 enum player_type{
-	ply_human,ply_ai,ply_other
+	ply_human, ply_ai, ply_other
 };
 #ifdef USE_REF
 	typedef const player_type& cplayer_type;
