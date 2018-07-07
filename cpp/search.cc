@@ -16,7 +16,7 @@
 
 const short depth_kill = 2;
 const short depth_pvs = 2;
-const short depth_hash = 3;
+const short depth_hash = 2;
 const short depth_mtdf = 4;
 const short depth_mpc = 3;
 
@@ -441,7 +441,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 				if(temp > result){
 					result = temp;
 					if(flag_hash){
-						best_pos = pos;
+						best_pos = p->pos;
 					}
 				}
 				alpha = max(alpha,result);

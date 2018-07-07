@@ -38,3 +38,6 @@ doc/*
 
 build/*
 !build/CMakeLists.txt
+
+cpuid/*
+!cpuid/*.cc
