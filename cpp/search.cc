@@ -16,7 +16,7 @@
 
 const short depth_kill = 2;
 const short depth_pvs = 2;
-const short depth_hash = 3;
+const short depth_hash = 2;
 const short depth_mtdf = 4;
 const short depth_mpc = 3;
 

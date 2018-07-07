@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import wx;
+import sys;
+import os;
 import reversi;
 import reversi as rv;
 import json;
@@ -35,6 +37,11 @@ def floats2str(self):
 	return "[" + ",".join([str(f) for f in self]) + "]";
 setattr(reversi.floats,"__str__",floats2str)
 
+if sys.platform == "win32":
+	default_path = "../bot/reversi.exe";
+else:
+	default_path = "../bot/reversi";
+
 class player:
 	pass;
 
@@ -53,9 +60,9 @@ class game:
 
 	def __init__(self):
 		self.ply[False].type = rv.ply_ai;
-		self.ply[False].path = "bot/Irius"
+		self.ply[False].path = default_path
 		self.ply[True].type = rv.ply_human;
-		self.ply[True].path = "bot/Irius"
+		self.ply[True].path = default_path
 
 	def show(self):
 		self.do_show(self.dc);
@@ -424,8 +431,6 @@ class game:
 		if depth is None:
 			depth = self.depth;
 
-		p = sp.Popen(self.ply[color].path, stdin = sp.PIPE, stdout = sp.PIPE);
-
 		result = rv.coordinate();
 		request = {
 			"request":{
@@ -444,22 +449,47 @@ class game:
 			+ self.ply[color].path
 			+ "\"\n"
 		);
-
 		self.text_log.AppendText(s + "\n");
-		[s, str_err] = p.communicate(s.encode());
+
+		sp_result = sp.run(self.ply[color].path.strip().split(), input = s.encode(), stdout = sp.PIPE);
+
+		if sp_result.returncode:
+			self.text_log.AppendText(
+				"runtime error\n"
+				 + "the process exits with code %d" % sp_result.returncode
+			);
+			raise RuntimeError;
+
 		self.text_log.AppendText(
 			"receive a response from process \""
 			+ self.ply[color].path
 			+ "\"\n"
 		);
 
-		self.text_log.AppendText(s.decode());
-		response = json.loads(s.decode());
+		response = None;
+		self.text_log.AppendText(sp_result.stdout.decode());
+		try:
+			response = json.loads(sp_result.stdout.decode());
+		except json.decoder.JSONDecodeError:
+			self.text_log.AppendText(
+				"invalid output format\n"
+			);
+			raise RuntimeError;
+
+		if not "response" in response or not "x" in response["response"] or not "y" in response["response"]:
+			self.text_log.AppendText(
+				"invalid output format\n"
+			);
+			raise RuntimeError;
 
 		result.x = response["response"]["x"];
 		result.y = response["response"]["y"];
 
-		self.flip(color, result.x, result.y);
+		if(not self.flip(color, result.x, result.y)):
+			self.text_log.AppendText(
+				"illegal move\n"
+			);
+			raise RuntimeError;
 
 	def play(self, mthd = None, color = None, depth = None):
 
@@ -491,6 +521,7 @@ class game:
 				break;
 			if self.ply[self.color].type == rv.ply_human:
 				return;
+			wx.Yield();
 			self.play(mthd, self.color, depth);
 
 		self.flag_lock = True;
@@ -515,11 +546,13 @@ class game:
 		if self.ply[self.color].type == rv.ply_human:
 			self.flip(self.color, pos[0], pos[1]);
 
-		self.play(self.mthd, self.color, self.depth);
-		self.play_continue();
+		try:
+			self.play(self.mthd, self.color, self.depth);
+			self.play_continue();
+		except RuntimeError:
+			pass;
 
 reversi.board.config();
 mygame = game();
-mygame.flag_print_term = False;
 grp = reversi.group();
 
