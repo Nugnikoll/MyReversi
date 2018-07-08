@@ -45,7 +45,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- [wxPython](https://www.wxpython.org/)
 	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 
-- Execute the main program
+- Execute the main program  
 	`cd python`  
 	`python3 main.py` 
 

@@ -54,7 +54,7 @@ int main(int argc, char *argv[], char *envp[]){
 	this_thread::sleep_for(chrono::milliseconds(900));
 	mtx.lock();
 
-	choice best = board::select_choice(choices, 0.75);
+	choice best = board::select_choice(choices, 0.2);
 
 	result["response"]["x"] = best.pos & 7;
 	result["response"]["y"] = best.pos >> 3;

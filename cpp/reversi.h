@@ -438,7 +438,7 @@ public:
 
 	ull get_key(cbool color)const{
 		ull result = (brd_black * 0xe2abbb5e6688fdcf) ^ (brd_white * 0x34df417f070da53d);
-		fun_rol(result, 20);
+		fun_rol(result, 22);
 		result += color;
 		return result;
 	}

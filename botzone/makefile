@@ -13,7 +13,7 @@ CXXFLAGS = -Wall -std=c++11 -O2
 RESINC = 
 LIBDIR = 
 LIB = 
-LDFLAGS =
+LDFLAGS = -pthread
 
 SRCDIR = ../cpp/
 OBJDIR = obj/
