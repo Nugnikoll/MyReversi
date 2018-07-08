@@ -19,7 +19,7 @@ for filename in src:
 lines = "".join(lines);
 
 # suppress redundant include header macros
-lines = re.sub(r"\s*#include *\"(?!json).*\".*\n","\n",lines);
+lines = re.sub(r"\s*#include *\"(?![a-zA-Z/.]*json).*\".*\n","\n",lines);
 
 target = "main_merge.cc"
 
