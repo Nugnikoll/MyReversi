@@ -10,8 +10,10 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 ### Download
 Here are prebuilt binaries. Download and extract one to the subdirectory python/ .  
-	[library for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/_reversi.pyd.zip)  
-	[library for Ubuntu 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/_reversi.so.gz)
+	[library for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_windows_x64.zip)  
+	[library for Windows 64-bit which supports BMI2 instruction set](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_windows_x64_bmi2.zip)  
+	[library for Linux 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_linux_x64.tar.gz)  
+	[library for Linux 64-bit which supports BMI2 instruction set](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_linux_x64_bmi2.tar.gz)
 
 ### Build
 
@@ -24,9 +26,10 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- [CMake](https://cmake.org/)
 
 - Build the library for reversi  
-	Compile the source code and generate dynamic link library (_reversi.so or _reversi.dll)  
+	Compile the source code and generate dynamic link library (_reversi.so or _reversi.pyd)  
 	`cd build`  
-	`cmake .` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles" .`)  
+	`cmake -DCMAKE_BUILD_TYPE=RELEASE
+.` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles"  -DCMAKE_BUILD_TYPE=RELEASE .`)  
 	`make`  
 	`cd ..`  
 
@@ -40,9 +43,9 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 - Prerequisites
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
-	- library _reversi.so or _reversi.dll (should be downloaded here or built from source)
+	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 
-- Execute the main program
+- Execute the main program  
 	`cd python`  
 	`python3 main.py` 
 

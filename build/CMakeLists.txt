@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 project (reversi)
 set (REVERSI_VERSION 2.1)
 
+set (CMAKE_VERBOSE_MAKEFILE ON)
+
 include (CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG ("-std=c++11" COMPILER_SUPPORTS_CXX11)
 if (NOT COMPILER_SUPPORTS_CXX11)
@@ -10,17 +12,38 @@ endif ()
 
 set (cpp_dir "${PROJECT_SOURCE_DIR}/../cpp")
 set (python_dir "${PROJECT_SOURCE_DIR}/../python")
+set (cpuid_dir "${PROJECT_SOURCE_DIR}/../cpuid")
+
 if (WIN32)
 	if ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-		set (CMAKE_CXX_FLAGS "-Wall -D_hypot=hypot -DMS_WIN64 -Og -g")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_hypot=hypot -DMS_WIN64")
 	else ()
-		set (CMAKE_CXX_FLAGS "-Wall -D_hypot=hypot -DMS_WIN32 -Og -g")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_hypot=hypot -DMS_WIN32")
 	endif ()
 else ()
-	set (CMAKE_CXX_FLAGS "-Wall -Og -g")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif ()
-#set (CMAKE_CXX_FLAGS_DEBUG "-Og -g -DEBUG")
-#set (CMAKE_CXX_FLAGS_RELEASE "-O3 -NDEBUG")
+set (CMAKE_CXX_FLAGS_DEBUG "-Og -g -DDEBUG")
+set (CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+
+try_run (
+	BMI_RUN_RESULT BMI_COMPILE_RESULT
+	${cpuid_dir} ${cpuid_dir}/bmi2.cc
+)
+
+if ("${BMI_COMPILE_RESULT}" STREQUAL "TRUE")
+	message ("-- 64-bit inline assembly is supported. Define macro USE_ASM .")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM")
+else ()
+	message ("-- 64-bit inline assembly is not supported.")
+endif ()
+if (NOT ("${BMI_RUN_RESULT}" STREQUAL "FAILED_TO_RUN"))
+	message ("-- BMI2 instruction set is supported. Define macro USE_ASM_BMI2 .")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM_BMI2")
+else ()
+	message ("-- BMI2 instruction set is not supported.")
+endif ()
+
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
 include (FindPythonLibs)

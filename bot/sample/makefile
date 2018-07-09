@@ -15,9 +15,9 @@ LIBDIR =
 LIB = 
 LDFLAGS = -pthread
 
-SRCDIR = ../cpp/
+SRCDIR = ../../cpp/
 OBJDIR = obj/
-OUTDIR = ./
+OUTDIR = ../
 
 SRC = $(wildcard $(SRCDIR)*.cc) main.cc
 OBJ = $(patsubst %.cc, %.o, $(patsubst $(SRCDIR)%, $(OBJDIR)%, $(SRC)))

@@ -42,7 +42,7 @@ struct slot{
 
 class bucket{
 public:
-	static const ull size = 1 << 20;
+	static const ull size = 1 << 22;
 	static const ull mask = size - 1;
 
 protected:
