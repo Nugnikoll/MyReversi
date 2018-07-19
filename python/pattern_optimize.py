@@ -50,7 +50,7 @@ epsilon = target - value;
 epsilon_2 = epsilon.modulus();
 
 print(epsilon.geth(), epsilon.getw())
-epsilon_save = rv.mat_f(epsilon);print("okok")
+epsilon_save = rv.mat_f(epsilon);
 ptn_save = rv.pattern(ptn)
 
 epsilon = rv.mat_f(epsilon_save);
