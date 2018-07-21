@@ -24,6 +24,7 @@
 #include <utility>
 #include <tuple>
 #include <vector>
+#include <bitset>
 
 using namespace std;
 
@@ -730,6 +731,15 @@ protected:
 	static void config_flip();
 	static void config_search();
 };
+
+namespace std{
+	template <>
+	struct hash<board>: public unary_function<board, size_t>{
+		size_t operator()(cboard brd)const{
+			return hash<bitset<board::size2 * 2>>()(*(const bitset<board::size2 * 2>*)&brd);
+		}
+	};
+}
 
 struct choice{
 	board brd;

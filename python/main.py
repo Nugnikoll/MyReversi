@@ -9,7 +9,8 @@ import pdb;
 from game import * ;
 
 rv.pattern.config();
-rv.group.config("../data/pattern.dat")
+#rv.group.config("../data/pattern.dat");
+rv.group.config("./ptn_opt.dat");
 
 evt_thrd_id = wx.NewId();
 
@@ -24,7 +25,6 @@ class reversi_app(wx.App):
 	#overload the initializer
 	def OnInit(self):
 		# pdb.set_trace();
-		#self.res = xrc.XmlResource(xrcfile);
 		self.init_frame();
 		return True;
 

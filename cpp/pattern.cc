@@ -14,31 +14,31 @@ int table_map_inv[6561];
 int table_reverse[256];
 int table_shuffle[256];
 
-const short pattern::table_num[pattern::size_n] = {
-	0, 1, 2, 3, 3, 2, 1, 0,
-	0, 1, 2, 3, 3, 2, 1, 0,
-	4, 5, 6, 7, 8, 7, 6, 5,
-	4, 5, 6, 7, 8, 7, 6, 5,
-	9, 9, 9, 9
-};
+//const short pattern::table_num[pattern::size_n] = {
+//	0, 1, 2, 3, 3, 2, 1, 0,
+//	0, 1, 2, 3, 3, 2, 1, 0,
+//	4, 5, 6, 7, 8, 7, 6, 5,
+//	4, 5, 6, 7, 8, 7, 6, 5,
+//	9, 9, 9, 9
+//};
 
-const short pattern::table_num_size[pattern::size] = {
-	4,4,4,4,2,4,4,4,2,4
-};
+//const short pattern::table_num_size[pattern::size] = {
+//	4,4,4,4,2,4,4,4,2,4
+//};
 
 
-const short pattern::table_num_convert[pattern::size][4] = {
-	{0, 7, 8, 15},
-	{1, 6, 9, 14},
-	{2, 5, 10, 13},
-	{3, 4, 11, 12},
-	{16, 24},
-	{17, 23, 25, 31},
-	{18, 22, 26, 30},
-	{19, 21, 27, 29},
-	{20, 28},
-	{32, 33, 34, 35}
-};
+//const short pattern::table_num_convert[pattern::size][4] = {
+//	{0, 7, 8, 15},
+//	{1, 6, 9, 14},
+//	{2, 5, 10, 13},
+//	{3, 4, 11, 12},
+//	{16, 24},
+//	{17, 23, 25, 31},
+//	{18, 22, 26, 30},
+//	{19, 21, 27, 29},
+//	{20, 28},
+//	{32, 33, 34, 35}
+//};
 
 const ull pattern::table_mask[pattern::size_n] = {
 	// horizontal pattern
@@ -936,7 +936,6 @@ float mat_2f(const matrix<float>& m){
 	return m.at(0);
 }
 
-/*
 unordered_set<board> sample_gen(cint n){
 	unordered_set<board> brds;
 	board brd,brd_save;
@@ -973,49 +972,36 @@ matrix<board> sample_2mat(const unordered_set<board>& brds){
 	return result;
 }
 
-matrix<int> sample_process(const unordered_set<board>& brds){
-	int i = 0;
-	matrix<int> result(brds.size(),pattern::size_n);
-	for(cboard brd:brds){
-		get_index(true,brd,result[i]);
-		++i;
-	}
-	return result;
-}
-*/
+//matrix<int> sample_process(const unordered_set<board>& brds){
+//	int i = 0;
+//	matrix<int> result(brds.size(),pattern::size_n);
+//	for(cboard brd:brds){
+//		get_index(true,brd,result[i]);
+//		++i;
+//	}
+//	return result;
+//}
 
-matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
-	int h = index1.geth(), w = index2.geth();
-	matrix<int> result(h,w);
-	for(int i = 0;i != h;++i){
-		for(int j = 0;j != w;++j){
-			result[i][j] = 0;
-			for(int k = 0;k != pattern::size;++k){
-				for(int l = 0;l != pattern::table_num_size[k];++l){
-					for(int m = 0;m != pattern::table_num_size[k];++m){
-						result[i][j] += (
-							index1[i][pattern::table_num_convert[k][l]]
-							== index2[j][pattern::table_num_convert[k][m]]
-						);
-					}
-				}
-			}
-		}
-	}
-	return result;
-}
-
-/*
-matrix<val_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height){
-	int i = 0;
-	matrix<val_type> result(brds.size(),1);
-	for(cboard brd:brds){
-		result.at(i) = brd.search(mthd,true,height);
-		++i;
-	}
-	return result;
-}
-*/
+//matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
+//	int h = index1.geth(), w = index2.geth();
+//	matrix<int> result(h,w);
+//	for(int i = 0;i != h;++i){
+//		for(int j = 0;j != w;++j){
+//			result[i][j] = 0;
+//			for(int k = 0;k != pattern::size;++k){
+//				for(int l = 0;l != pattern::table_num_size[k];++l){
+//					for(int m = 0;m != pattern::table_num_size[k];++m){
+//						result[i][j] += (
+//							index1[i][pattern::table_num_convert[k][l]]
+//							== index2[j][pattern::table_num_convert[k][m]]
+//						);
+//					}
+//				}
+//			}
+//		}
+//	}
+//	return result;
+//}
 
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
 	matrix<val_type> result(brds.geth(),1);
@@ -1025,16 +1011,16 @@ matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
 	return result;
 }
 
-matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index){
-	matrix<val_type> result(index.geth(),1);
-	for(int i = 0;i != index.geth();++i){
-		result.at(i) = 0;
-		for(int j = 0;j != index.getw();++j){
-			result.at(i) += ptn.at(index[i][j]);
-		}
-	}
-	return result;
-}
+//matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index){
+//	matrix<val_type> result(index.geth(),1);
+//	for(int i = 0;i != index.geth();++i){
+//		result.at(i) = 0;
+//		for(int j = 0;j != index.getw();++j){
+//			result.at(i) += ptn.at(index[i][j]);
+//		}
+//	}
+//	return result;
+//}
 
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
 	matrix<val_type> result(brds.geth(),1);
@@ -1045,13 +1031,13 @@ matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
 	return result;
 }
 
-void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta){
-	for(int i = 0;i != index.geth();++i){
-		for(int j = 0;j != index.getw();++j){
-			ptn.at(index[i][j]) += delta.at(i);
-		}
-	}
-}
+//void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta){
+//	for(int i = 0;i != index.geth();++i){
+//		for(int j = 0;j != index.getw();++j){
+//			ptn.at(index[i][j]) += delta.at(i);
+//		}
+//	}
+//}
 
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta){
 	for(int i = 0;i != brds.geth();++i){
