@@ -13,12 +13,21 @@ rv.group.config("../data/pattern.dat");
 ptn = rv.pattern();
 ptn.initial();
 
+#name = "ptn_opt.dat";
+#if os.path.exists(name):
+#	grp = rv.group();
+#	grp.load(name);
+#	ptn = grp.vec[0];
+#else:
+#	ptn = rv.pattern();
+#	ptn.initial();
+
 size = 100000;
 alpha = 0.004 / size;
 
 name = "sample.dat";
 if os.path.exists(name):
-	sample = rv.mat_brd(size, 1);
+	sample = rv.mat_brd();
 	sample.load(name);
 else:
 	print("generate sample");
@@ -35,12 +44,12 @@ print(sample.geth(),sample.getw());
 
 name = "target.dat";
 if os.path.exists(name):
-	target = rv.mat_f(size, 1);
+	target = rv.mat_f();
 	target.load(name);
 else:
 	print("generate target");
 	time3 = time.clock();
-	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans ,4);
+	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans, 4);
 	time4 = time.clock();
 	print("time3:",time4 - time3);
 	target.save(name);
@@ -66,7 +75,6 @@ for i in range(2000):
 	value = rv.evaluate(ptn,sample);
 	epsilon = target - value;
 	if i % 10 == 0:
-		print(value.modulus());
 		epsilon_2 = epsilon.modulus();
 		print("i: ",i," epsilon_2: ",epsilon_2);
 

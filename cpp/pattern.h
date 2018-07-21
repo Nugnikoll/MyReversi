@@ -5,6 +5,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <unordered_set>
 
 #include "matrix.h"
 #include "type.h"
@@ -33,9 +34,6 @@ public:
 	static const size_t size_n = 36;
 	static const size_t length = 1 << 16;
 	static const size_t length_compress = 6561;
-	static const short table_num[size_n];
-	static const short table_num_size[size];
-	static const short table_num_convert[size][4];
 	static const ull table_mask[size_n];
 
 	val_type table[size * length];
@@ -81,6 +79,13 @@ public:
 		return table[n];
 	};
 
+	val_type __getitem__(cint n)const{
+		return table[n];
+	}
+	void __setitem__(cint n, cval_type val){
+		table[n] = val;
+	}
+
 	void load(istream& fin);
 	void save(ostream& fout)const;
 
@@ -117,15 +122,15 @@ public:
 void get_index(cbool color, cboard brd, int* const& ind);
 matrix<float> mat_i2f(const matrix<int>& m);
 float mat_2f(const matrix<float>& m);
-//matrix<board> sample_2mat(const unordered_set<board>& brds);
-//unordered_set<board> sample_gen(cint n);
+matrix<board> sample_2mat(const unordered_set<board>& brds);
+unordered_set<board> sample_gen(cint n);
 //matrix<int> sample_process(const unordered_set<board>& brds);
-matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2);
+//matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2);
 //matrix<val_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height);
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
-matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index);
+//matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index);
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
-void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta);
+//void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta);
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
 
 #endif //PATTERN_H
