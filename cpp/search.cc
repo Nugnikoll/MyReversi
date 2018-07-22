@@ -318,10 +318,10 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 			if(*this == slt->brd){
 				if(depth == slt->depth){
 					if(alpha >= slt->beta){
-						return alpha;
+						return slt->beta;
 					}
 					if(beta <= slt->alpha){
-						return beta;
+						return slt->alpha;
 					}
 					alpha = max(alpha, slt->alpha);
 					beta = min(beta, slt->beta);
