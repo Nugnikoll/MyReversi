@@ -754,7 +754,8 @@ void group::load(istream& fin){
 		cout << "Error: The size of pattern does not match." << endl;
 		return;
 	}
-	
+
+	this->vec.clear();
 	this->vec.reserve(group_size);
 
 	for(size_t i = 0;i != group_size;++i){

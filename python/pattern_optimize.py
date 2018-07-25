@@ -23,6 +23,7 @@ ptn.initial();
 #	ptn.initial();
 
 size = 100000;
+#alpha = 0.004 / size;
 alpha = 0.004 / size * 50;
 
 name = "sample.dat";
