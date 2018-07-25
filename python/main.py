@@ -11,7 +11,6 @@ from view_log import *;
 
 rv.pattern.config();
 rv.group.config("../data/pattern.dat");
-#rv.group.config("./ptn_opt.dat");
 
 evt_thrd_id = wx.NewId();
 
