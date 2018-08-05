@@ -116,5 +116,7 @@ enum player_type{
 	typedef player_type cplayer_type;
 #endif //USE_REF
 
+template<typename T>
+class matrix;
 
 #endif //TYPE_H
