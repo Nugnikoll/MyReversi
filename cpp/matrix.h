@@ -58,6 +58,12 @@ public:
 		delete[] table;
     }
 
+	void numpy(int* h, int* w, T** ptr)const{
+		*h = height;
+		*w = width;
+		*ptr = table;
+	}
+
     matrix& operator=(const matrix& m){
 		delete[] table;
 

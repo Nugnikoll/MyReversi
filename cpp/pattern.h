@@ -41,6 +41,13 @@ public:
 	void initial(){
 		memset(table,0,sizeof(table));
 	}
+
+	void numpy(int* h, int*w, float** ptr){
+		*h = size;
+		*w = length;
+		*ptr = table;
+	}
+
 	static void config(){
 		ull j = 0;
 		for(ull i = 0;i != length;++i){
@@ -124,13 +131,8 @@ matrix<float> mat_i2f(const matrix<int>& m);
 float mat_2f(const matrix<float>& m);
 matrix<board> sample_2mat(const unordered_set<board>& brds);
 unordered_set<board> sample_gen(cint n);
-//matrix<int> sample_process(const unordered_set<board>& brds);
-//matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2);
-//matrix<val_type> evaluate(const unordered_set<board>& brds,cmethod mthd,cshort height);
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
-//matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index);
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
-//void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta);
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
 
 #endif //PATTERN_H

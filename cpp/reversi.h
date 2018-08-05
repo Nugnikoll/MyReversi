@@ -103,6 +103,8 @@ public:
 	*/
 	void print(ostream& out = cout)const;
 
+	matrix<int> to_mat()const;
+
 	/** @fn board& assign(cull _brd_black,cull _brd_white)
 	 *	@brief Assign the board to some specific value.
 	 *	@param _brd_black the value of the 64-bit board of black stones
