@@ -27,6 +27,12 @@ public:
 	pattern() = default;
 	pattern(const pattern&) = default;
 	pattern(pattern&&) = default;
+	pattern(int h, int w, val_type* ptr){
+		assert(h == size);
+		assert(w == length);
+		memcpy(table, ptr, sizeof(table));
+	}
+
 	pattern& operator=(const pattern&) = default;
 	pattern& operator=(pattern&&) = default;
 
@@ -39,10 +45,10 @@ public:
 	val_type table[size * length];
 
 	void initial(){
-		memset(table,0,sizeof(table));
+		memset(table, 0, sizeof(table));
 	}
 
-	void numpy(int* h, int*w, float** ptr){
+	void numpy(int* h, int*w, val_type** ptr){
 		*h = size;
 		*w = length;
 		*ptr = table;
@@ -50,7 +56,7 @@ public:
 
 	static void config(){
 		ull j = 0;
-		for(ull i = 0;i != length;++i){
+		for(ull i = 0; i != length; ++i){
 			if((i & (i >> 8)) == 0){
 				table_map[i] = j;
 				table_map_inv[j] = i;
@@ -60,23 +66,23 @@ public:
 			}
 		}
 
-		for(ull i = 0;i != 256;++i){
-			j = board::deposit(i,0x0101010101010101);
+		for(ull i = 0; i != 256; ++i){
+			j = board::deposit(i, 0x0101010101010101);
 			board::mirror_v(j);
-			j = board::extract(j,0x0101010101010101);
+			j = board::extract(j, 0x0101010101010101);
 			table_reverse[i] = j;
 
-			j = board::deposit(i,0x2004801002400801);
+			j = board::deposit(i, 0x2004801002400801);
 			board::rotate_r(j);
-			j = board::extract(j,0x0420010840021080);
+			j = board::extract(j, 0x0420010840021080);
 			table_shuffle[i] = j;
 		}
 	}
 
-	val_type& at(cint n,cint pos){
+	val_type& at(cint n, cint pos){
 		return table[(n << 16) + pos];
 	};
-	cval_type at(cint n,cint pos)const{
+	cval_type at(cint n, cint pos)const{
 		return table[(n << 16) + pos];
 	};
 	val_type& at(cint n){
@@ -127,8 +133,6 @@ public:
 };
 
 void get_index(cbool color, cboard brd, int* const& ind);
-matrix<float> mat_i2f(const matrix<int>& m);
-float mat_2f(const matrix<float>& m);
 matrix<board> sample_2mat(const unordered_set<board>& brds);
 unordered_set<board> sample_gen(cint n);
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);

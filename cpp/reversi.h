@@ -716,8 +716,8 @@ public:
 		return table_status[index];
 	}
 
-	float score_ptn(cbool color,const pattern& ptn)const;
-	void adjust_ptn(cbool color,pattern& ptn,cfloat value)const;
+	val_type score_ptn(cbool color,const pattern& ptn)const;
+	void adjust_ptn(cbool color,pattern& ptn,cval_type value)const;
 
 	#ifdef DEBUG_SEARCH
 		static void enable_log();
