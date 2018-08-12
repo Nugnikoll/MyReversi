@@ -295,7 +295,7 @@ void get_index(cbool color, cboard brd, int* const& ind){
 	ind[35] = index;
 }
 
-float board::score_ptn(cbool color,const pattern& ptn)const{
+val_type board::score_ptn(cbool color,const pattern& ptn)const{
 	ull brd_blue = bget(color);
 	ull brd_green = bget(!color);
 	ull brd_v_blue = brd_blue;
@@ -311,7 +311,7 @@ float board::score_ptn(cbool color,const pattern& ptn)const{
 	mirror_v(brd_r_blue);
 	mirror_v(brd_r_green);
 	ull index;
-	float result;
+	val_type result;
 
 	result = 0;
 
@@ -507,7 +507,7 @@ float board::score_ptn(cbool color,const pattern& ptn)const{
 	return result;
 }
 
-void board::adjust_ptn(cbool color,pattern& ptn,cfloat value)const{
+void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
 	ull brd_blue = bget(color);
 	ull brd_green = bget(!color);
 	ull brd_v_blue = brd_blue;
@@ -930,13 +930,6 @@ void pattern::balance(){
 	#pragma GCC diagnostic pop
 #endif
 
-matrix<float> mat_i2f(const matrix<int>& m){
-	return m;
-}
-float mat_2f(const matrix<float>& m){
-	return m.at(0);
-}
-
 unordered_set<board> sample_gen(cint n){
 	unordered_set<board> brds;
 	board brd,brd_save;
@@ -973,37 +966,6 @@ matrix<board> sample_2mat(const unordered_set<board>& brds){
 	return result;
 }
 
-//matrix<int> sample_process(const unordered_set<board>& brds){
-//	int i = 0;
-//	matrix<int> result(brds.size(),pattern::size_n);
-//	for(cboard brd:brds){
-//		get_index(true,brd,result[i]);
-//		++i;
-//	}
-//	return result;
-//}
-
-//matrix<int> correlate(const matrix<int>& index1, const matrix<int>& index2){
-//	int h = index1.geth(), w = index2.geth();
-//	matrix<int> result(h,w);
-//	for(int i = 0;i != h;++i){
-//		for(int j = 0;j != w;++j){
-//			result[i][j] = 0;
-//			for(int k = 0;k != pattern::size;++k){
-//				for(int l = 0;l != pattern::table_num_size[k];++l){
-//					for(int m = 0;m != pattern::table_num_size[k];++m){
-//						result[i][j] += (
-//							index1[i][pattern::table_num_convert[k][l]]
-//							== index2[j][pattern::table_num_convert[k][m]]
-//						);
-//					}
-//				}
-//			}
-//		}
-//	}
-//	return result;
-//}
-
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
 	matrix<val_type> result(brds.geth(),1);
 	for(int i = 0;i != brds.geth();++i){
@@ -1011,17 +973,6 @@ matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
 	}
 	return result;
 }
-
-//matrix<val_type> evaluate(const pattern& ptn, const matrix<int>& index){
-//	matrix<val_type> result(index.geth(),1);
-//	for(int i = 0;i != index.geth();++i){
-//		result.at(i) = 0;
-//		for(int j = 0;j != index.getw();++j){
-//			result.at(i) += ptn.at(index[i][j]);
-//		}
-//	}
-//	return result;
-//}
 
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
 	matrix<val_type> result(brds.geth(),1);
@@ -1031,14 +982,6 @@ matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
 	}
 	return result;
 }
-
-//void adjust(pattern& ptn, const matrix<int>& index, const matrix<val_type>& delta){
-//	for(int i = 0;i != index.geth();++i){
-//		for(int j = 0;j != index.getw();++j){
-//			ptn.at(index[i][j]) += delta.at(i);
-//		}
-//	}
-//}
 
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta){
 	for(int i = 0;i != brds.geth();++i){
