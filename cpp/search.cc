@@ -296,7 +296,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 			if(mthd & mthd_end)
 				return this->score_end(color);
 			else if(mthd & mthd_ptn)
-				return this->score_ptn(color,grp.vec[0]);
+				return this->score_ptn(color, ptn);
 			else
 				return this->score(color);
 		}

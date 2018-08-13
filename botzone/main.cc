@@ -24,8 +24,8 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
+	ptn.load("../data/pattern.dat");
 	brd.initial();
-	grp.load("../data/pattern.dat");
  
  	// input JSON
  	string str;

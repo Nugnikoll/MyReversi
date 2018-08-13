@@ -9,8 +9,7 @@ import pdb;
 from game import *;
 from view_log import *;
 
-rv.pattern.config();
-rv.group.config("../data/pattern.dat");
+rv.pattern.config("../data/pattern.dat");
 
 evt_thrd_id = wx.NewId();
 

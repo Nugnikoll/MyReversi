@@ -1,10 +1,8 @@
-import reversi as rv
-
-dir_save = "./";
+import reversi as rv;
 
 rv.board.config();
 rv.pattern.config();
-grp = rv.group();
-grp.load("ptn_opt.dat");
-grp.at(0).balance();
-grp.save("ptn_balance.dat");
+ptn = rv.pattern();
+ptn.load("pattern.dat");
+ptn.balance();
+ptn.save("pattern_balance.dat");
