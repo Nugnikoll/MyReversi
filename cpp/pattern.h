@@ -15,7 +15,7 @@ using namespace std;
 class pattern;
 class group;
 
-extern group grp;
+extern pattern ptn;
 
 extern int table_map[65536];
 extern int table_map_inv[6561];
@@ -79,6 +79,10 @@ public:
 		}
 	}
 
+	static void config(const string& path){
+		ptn.load(path);
+	}
+
 	val_type& at(cint n, cint pos){
 		return table[(n << 16) + pos];
 	};
@@ -99,40 +103,14 @@ public:
 		table[n] = val;
 	}
 
+	void load(const string& path);
 	void load(istream& fin);
+	void save(const string& path)const;
 	void save(ostream& fout)const;
 
 	void balance();
 };
 
-class group{
-public:
-	vector<pattern> vec;
-	void initial(const int& size){
-		vec.clear();
-		while(vec.size() < (unsigned int)(size)){
-			vec.emplace_back();
-		}
-		for(auto& ptn:vec){
-			ptn.initial();
-		}
-	}
-	void load(istream& fin);
-	void load(const string& path);
-	void save(const string& path)const;
-	const pattern& at(const int& pos)const{
-		return vec[pos];
-	}
-	pattern& at(const int& pos){
-		return vec[pos];
-	}
-
-	static void config(const string& str){
-		grp.load(str);
-	}
-};
-
-void get_index(cbool color, cboard brd, int* const& ind);
 matrix<board> sample_2mat(const unordered_set<board>& brds);
 unordered_set<board> sample_gen(cint n);
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);

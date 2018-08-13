@@ -553,6 +553,5 @@ class game:
 			pass;
 
 reversi.board.config();
+reversi.pattern.config();
 mygame = game();
-grp = reversi.group();
-

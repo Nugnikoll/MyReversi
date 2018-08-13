@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <string>
 
-#include "jsoncpp/json.h"
+#include "../cpp/jsoncpp/json.h"
 
 #include "../cpp/reversi.h"
 #include "../cpp/pattern.h"
@@ -17,6 +17,7 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
+	ptn.load("../data/pattern.dat");
 	brd.initial();
  
  	// input JSON
@@ -51,8 +52,6 @@ int main(int argc, char *argv[], char *envp[]){
 
  	if (x >= 0)
  		brd.flip(!mycolor,x + (y << 3)); // 模拟对方落子
-
-	grp.load("./data/pattern2.dat");
 
 	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_mtdf | mthd_ptn | mthd_trans);
 	short depth = -2;

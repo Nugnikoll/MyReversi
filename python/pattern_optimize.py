@@ -10,18 +10,15 @@ dir_save = "./";
 
 rv.board.config();
 rv.pattern.config();
-#rv.group.config("../data/pattern.dat");
-
-ptn = rv.pattern();
-ptn.initial();
-
-size = 1000;
+#rv.pattern.config("../data/pattern.dat");
 
 name = "sample.dat";
 if os.path.exists(name):
+	print("sample already exists");
 	sample = rv.mat_brd();
 	sample.load(name);
 else:
+	size = int(input("Please input number of simulations: "));
 	print("generate sample");
 	time1 = time.clock();
 	sample = rv.sample_gen(size);
@@ -32,14 +29,11 @@ else:
 	print("time2:",time3 - time2);
 	sample.save(name);
 
-size = sample.geth();
-alpha = 0.004 / size;
-beta = 0.001;
-
-print("sample size: ", sample.geth(), sample.getw());
+print("sample size: ", sample.geth());
 
 name = "target.dat";
 if os.path.exists(name):
+	print("target already exists");
 	target = rv.mat_lf();
 	target.load(name);
 else:
@@ -50,8 +44,7 @@ else:
 	print("time3:",time4 - time3);
 	target.save(name);
 
-ptn_shape = ptn.numpy().shape;
-print("shape:", ptn_shape);
+ptn_shape = rv.pattern().numpy().shape;
 weight = np.zeros(ptn_shape).ravel();
 
 def fun(weight):
@@ -75,3 +68,5 @@ result = optimize.minimize(
 )
 
 print(result);
+ptn = rv.pattern(result.x.reshape(ptn_shape));
+ptn.save("pattern.dat");
