@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include "reversi.h"
+#include "board.h"
 #include "pattern.h"
 
 using namespace std;

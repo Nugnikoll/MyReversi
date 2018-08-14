@@ -4,7 +4,7 @@
 #include <random>
 #include <chrono>
 
-#include "reversi.h"
+#include "board.h"
 #include "matrix.h"
 #include "search.h"
 

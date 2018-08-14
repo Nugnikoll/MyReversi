@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "reversi.h"
+#include "board.h"
 #include "search.h"
 #include "pattern.h"
 #include "hash.h"

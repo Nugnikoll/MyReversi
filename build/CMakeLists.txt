@@ -62,7 +62,7 @@ set (
 	head_file
 	${cpp_dir}/type.h
 	${cpp_dir}/asm.h
-	${cpp_dir}/reversi.h
+	${cpp_dir}/board.h
 	${cpp_dir}/hash.h
 	${cpp_dir}/log.h
 	${cpp_dir}/matrix.h
@@ -71,7 +71,7 @@ set (
 
 set (
 	source_file
-	${cpp_dir}/reversi.cc
+	${cpp_dir}/board.cc
 	${cpp_dir}/flip.cc
 	${cpp_dir}/pattern.cc
 	${cpp_dir}/search.cc

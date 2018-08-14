@@ -8,7 +8,7 @@
 
  */
 
-/** @file reversi.h
+/** @file board.h
  * @brief This head file is an essential part of reversi
  * where the most important class board is defined.
  * Many basic functions are declared here.
