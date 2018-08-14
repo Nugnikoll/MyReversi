@@ -5,7 +5,7 @@
 
 #include "../cpp/jsoncpp/json.h"
 
-#include "../cpp/reversi.h"
+#include "../cpp/board.h"
 #include "../cpp/pattern.h"
 
 using namespace std;

@@ -55,9 +55,9 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 
 - File Structure  
 
-		cpp/reversi.h: class board
+		cpp/board.h: class board
+		│	cpp/board.cc
 		│	cpp/flip.cc board::flip()
-		│	cpp/reversi.cc
 		│	cpp/search.cc board::search()
 		│	...
 		│

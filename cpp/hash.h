@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "type.h"
-#include "reversi.h"
+#include "board.h"
 
 struct slot;
 class bucket;
