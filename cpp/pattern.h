@@ -111,8 +111,7 @@ public:
 	void balance();
 };
 
-matrix<board> sample_2mat(const unordered_set<board>& brds);
-unordered_set<board> sample_gen(cint n);
+matrix<board> sample_gen(cint n);
 matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
