@@ -83,191 +83,191 @@ val_type board::score_ptn(cbool color,const pattern& ptn)const{
 
 	//horizontal pattern
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0x00000000000000ff) << 8;
-	index |= board::extract(brd_green,0x00000000000000ff);
+	index |= board::extract(brd_blue, 0x00000000000000ff) << 8;
+	index |= board::extract(brd_green, 0x00000000000000ff);
 	result += ptn.table[index];
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x000000000000ff00) << 8;
-	index |= board::extract(brd_green,0x000000000000ff00);
+	index |= board::extract(brd_blue, 0x000000000000ff00) << 8;
+	index |= board::extract(brd_green, 0x000000000000ff00);
 	result += ptn.table[index];
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x0000000000ff0000) << 8;
-	index |= board::extract(brd_green,0x0000000000ff0000);
+	index |= board::extract(brd_blue, 0x0000000000ff0000) << 8;
+	index |= board::extract(brd_green, 0x0000000000ff0000);
 	result += ptn.table[index];
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x00000000ff000000) << 8;
-	index |= board::extract(brd_green,0x00000000ff000000);
+	index |= board::extract(brd_blue, 0x00000000ff000000) << 8;
+	index |= board::extract(brd_green, 0x00000000ff000000);
 	result += ptn.table[index];
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x000000ff00000000) << 8;
-	index |= board::extract(brd_green,0x000000ff00000000);
+	index |= board::extract(brd_blue, 0x000000ff00000000) << 8;
+	index |= board::extract(brd_green, 0x000000ff00000000);
 	result += ptn.table[index];
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x0000ff0000000000) << 8;
-	index |= board::extract(brd_green,0x0000ff0000000000);
+	index |= board::extract(brd_blue, 0x0000ff0000000000) << 8;
+	index |= board::extract(brd_green, 0x0000ff0000000000);
 	result += ptn.table[index];
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x00ff000000000000) << 8;
-	index |= board::extract(brd_green,0x00ff000000000000);
+	index |= board::extract(brd_blue, 0x00ff000000000000) << 8;
+	index |= board::extract(brd_green, 0x00ff000000000000);
 	result += ptn.table[index];
 
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0xff00000000000000) << 8;
-	index |= board::extract(brd_green,0xff00000000000000);
+	index |= board::extract(brd_blue, 0xff00000000000000) << 8;
+	index |= board::extract(brd_green, 0xff00000000000000);
 	result += ptn.table[index];
 
 	//vertical pattern
 
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0x0101010101010101) << 8;
-	index |= board::extract(brd_green,0x0101010101010101);
+	index |= board::extract(brd_blue, 0x0101010101010101) << 8;
+	index |= board::extract(brd_green, 0x0101010101010101);
 	result += ptn.table[index];
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x0202020202020202) << 8;
-	index |= board::extract(brd_green,0x0202020202020202);
+	index |= board::extract(brd_blue, 0x0202020202020202) << 8;
+	index |= board::extract(brd_green, 0x0202020202020202);
 	result += ptn.table[index];
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x0404040404040404) << 8;
-	index |= board::extract(brd_green,0x0404040404040404);
+	index |= board::extract(brd_blue, 0x0404040404040404) << 8;
+	index |= board::extract(brd_green, 0x0404040404040404);
 	result += ptn.table[index];
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x0808080808080808) << 8;
-	index |= board::extract(brd_green,0x0808080808080808);
+	index |= board::extract(brd_blue, 0x0808080808080808) << 8;
+	index |= board::extract(brd_green, 0x0808080808080808);
 	result += ptn.table[index];
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x1010101010101010) << 8;
-	index |= board::extract(brd_green,0x1010101010101010);
+	index |= board::extract(brd_blue, 0x1010101010101010) << 8;
+	index |= board::extract(brd_green, 0x1010101010101010);
 	result += ptn.table[index];
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x2020202020202020) << 8;
-	index |= board::extract(brd_green,0x2020202020202020);
+	index |= board::extract(brd_blue, 0x2020202020202020) << 8;
+	index |= board::extract(brd_green, 0x2020202020202020);
 	result += ptn.table[index];
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x4040404040404040) << 8;
-	index |= board::extract(brd_green,0x4040404040404040);
+	index |= board::extract(brd_blue, 0x4040404040404040) << 8;
+	index |= board::extract(brd_green, 0x4040404040404040);
 	result += ptn.table[index];
 
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0x8080808080808080) << 8;
-	index |= board::extract(brd_green,0x8080808080808080);
+	index |= board::extract(brd_blue, 0x8080808080808080) << 8;
+	index |= board::extract(brd_green, 0x8080808080808080);
 	result += ptn.table[index];
 
 	//diagnal pattern
 
 	index = 4 << 16;
-	index |= board::extract(brd_blue,0x8040201008040201) << 8;
-	index |= board::extract(brd_green,0x8040201008040201);
+	index |= board::extract(brd_blue, 0x8040201008040201) << 8;
+	index |= board::extract(brd_green, 0x8040201008040201);
 	result += ptn.table[index];
 
 	index = 5 << 16;
-	index |= board::extract(brd_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_green,0x4020100804020180);
+	index |= board::extract(brd_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_green, 0x4020100804020180);
 	result += ptn.table[index];
 
 	index = 6 << 16;
-	index |= board::extract(brd_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_green,0x2010080402018040);
+	index |= board::extract(brd_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_green, 0x2010080402018040);
 	result += ptn.table[index];
 
 	index = 7 << 16;
-	index |= board::extract(brd_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_green,0x1008040201804020);
+	index |= board::extract(brd_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_green, 0x1008040201804020);
 	result += ptn.table[index];
 
 	index = 8 << 16;
-	index |= board::extract(brd_blue,0x0804020180402010) << 8;
-	index |= board::extract(brd_green,0x0804020180402010);
+	index |= board::extract(brd_blue, 0x0804020180402010) << 8;
+	index |= board::extract(brd_green, 0x0804020180402010);
 	result += ptn.table[index];
 
 	index = 7 << 16;
-	index |= board::extract(brd_r_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_r_green,0x1008040201804020);
+	index |= board::extract(brd_r_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_r_green, 0x1008040201804020);
 	result += ptn.table[index];
 
 	index = 6 << 16;
-	index |= board::extract(brd_r_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_r_green,0x2010080402018040);
+	index |= board::extract(brd_r_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_r_green, 0x2010080402018040);
 	result += ptn.table[index];
 
 	index = 5 << 16;
-	index |= board::extract(brd_r_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_r_green,0x4020100804020180);
+	index |= board::extract(brd_r_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_r_green, 0x4020100804020180);
 	result += ptn.table[index];
 
 	//diagnal pattern
 
 	index = 4 << 16;
-	index |= board::extract(brd_v_blue,0x8040201008040201) << 8;
-	index |= board::extract(brd_v_green,0x8040201008040201);
+	index |= board::extract(brd_v_blue, 0x8040201008040201) << 8;
+	index |= board::extract(brd_v_green, 0x8040201008040201);
 	result += ptn.table[index];
 
 	index = 5 << 16;
-	index |= board::extract(brd_v_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_v_green,0x4020100804020180);
+	index |= board::extract(brd_v_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_v_green, 0x4020100804020180);
 	result += ptn.table[index];
 
 	index = 6 << 16;
-	index |= board::extract(brd_v_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_v_green,0x2010080402018040);
+	index |= board::extract(brd_v_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_v_green, 0x2010080402018040);
 	result += ptn.table[index];
 
 	index = 7 << 16;
-	index |= board::extract(brd_v_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_v_green,0x1008040201804020);
+	index |= board::extract(brd_v_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_v_green, 0x1008040201804020);
 	result += ptn.table[index];
 
 	index = 8 << 16;
-	index |= board::extract(brd_v_blue,0x0804020180402010) << 8;
-	index |= board::extract(brd_v_green,0x0804020180402010);
+	index |= board::extract(brd_v_blue, 0x0804020180402010) << 8;
+	index |= board::extract(brd_v_green, 0x0804020180402010);
 	result += ptn.table[index];
 
 	index = 7 << 16;
-	index |= board::extract(brd_h_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_h_green,0x1008040201804020);
+	index |= board::extract(brd_h_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_h_green, 0x1008040201804020);
 	result += ptn.table[index];
 
 	index = 6 << 16;
-	index |= board::extract(brd_h_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_h_green,0x2010080402018040);
+	index |= board::extract(brd_h_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_h_green, 0x2010080402018040);
 	result += ptn.table[index];
 
 	index = 5 << 16;
-	index |= board::extract(brd_h_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_h_green,0x4020100804020180);
+	index |= board::extract(brd_h_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_h_green, 0x4020100804020180);
 	result += ptn.table[index];
 
 	//corner pattern
 
 	index = 9 << 16;
-	index |= board::extract(brd_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_green,0x0000000000030707);
+	index |= board::extract(brd_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_green, 0x0000000000030707);
 	result += ptn.table[index];
 
 	index = 9 << 16;
-	index |= board::extract(brd_h_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_h_green,0x0000000000030707);
+	index |= board::extract(brd_h_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_h_green, 0x0000000000030707);
 	result += ptn.table[index];
 
 	index = 9 << 16;
-	index |= board::extract(brd_v_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_v_green,0x0000000000030707);
+	index |= board::extract(brd_v_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_v_green, 0x0000000000030707);
 	result += ptn.table[index];
 
 	index = 9 << 16;
-	index |= board::extract(brd_r_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_r_green,0x0000000000030707);
+	index |= board::extract(brd_r_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_r_green, 0x0000000000030707);
 	result += ptn.table[index];
 
 	return result;
@@ -292,191 +292,191 @@ void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
 
 	//horizontal pattern
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0x00000000000000ff) << 8;
-	index |= board::extract(brd_green,0x00000000000000ff);
+	index |= board::extract(brd_blue, 0x00000000000000ff) << 8;
+	index |= board::extract(brd_green, 0x00000000000000ff);
 	ptn.table[index] += value;
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x000000000000ff00) << 8;
-	index |= board::extract(brd_green,0x000000000000ff00);
+	index |= board::extract(brd_blue, 0x000000000000ff00) << 8;
+	index |= board::extract(brd_green, 0x000000000000ff00);
 	ptn.table[index] += value;
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x0000000000ff0000) << 8;
-	index |= board::extract(brd_green,0x0000000000ff0000);
+	index |= board::extract(brd_blue, 0x0000000000ff0000) << 8;
+	index |= board::extract(brd_green, 0x0000000000ff0000);
 	ptn.table[index] += value;
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x00000000ff000000) << 8;
-	index |= board::extract(brd_green,0x00000000ff000000);
+	index |= board::extract(brd_blue, 0x00000000ff000000) << 8;
+	index |= board::extract(brd_green, 0x00000000ff000000);
 	ptn.table[index] += value;
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x000000ff00000000) << 8;
-	index |= board::extract(brd_green,0x000000ff00000000);
+	index |= board::extract(brd_blue, 0x000000ff00000000) << 8;
+	index |= board::extract(brd_green, 0x000000ff00000000);
 	ptn.table[index] += value;
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x0000ff0000000000) << 8;
-	index |= board::extract(brd_green,0x0000ff0000000000);
+	index |= board::extract(brd_blue, 0x0000ff0000000000) << 8;
+	index |= board::extract(brd_green, 0x0000ff0000000000);
 	ptn.table[index] += value;
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x00ff000000000000) << 8;
-	index |= board::extract(brd_green,0x00ff000000000000);
+	index |= board::extract(brd_blue, 0x00ff000000000000) << 8;
+	index |= board::extract(brd_green, 0x00ff000000000000);
 	ptn.table[index] += value;
 
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0xff00000000000000) << 8;
-	index |= board::extract(brd_green,0xff00000000000000);
+	index |= board::extract(brd_blue, 0xff00000000000000) << 8;
+	index |= board::extract(brd_green, 0xff00000000000000);
 	ptn.table[index] += value;
 
 	//vertical pattern
 
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0x0101010101010101) << 8;
-	index |= board::extract(brd_green,0x0101010101010101);
+	index |= board::extract(brd_blue, 0x0101010101010101) << 8;
+	index |= board::extract(brd_green, 0x0101010101010101);
 	ptn.table[index] += value;
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x0202020202020202) << 8;
-	index |= board::extract(brd_green,0x0202020202020202);
+	index |= board::extract(brd_blue, 0x0202020202020202) << 8;
+	index |= board::extract(brd_green, 0x0202020202020202);
 	ptn.table[index] += value;
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x0404040404040404) << 8;
-	index |= board::extract(brd_green,0x0404040404040404);
+	index |= board::extract(brd_blue, 0x0404040404040404) << 8;
+	index |= board::extract(brd_green, 0x0404040404040404);
 	ptn.table[index] += value;
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x0808080808080808) << 8;
-	index |= board::extract(brd_green,0x0808080808080808);
+	index |= board::extract(brd_blue, 0x0808080808080808) << 8;
+	index |= board::extract(brd_green, 0x0808080808080808);
 	ptn.table[index] += value;
 
 	index = 3 << 16;
-	index |= board::extract(brd_blue,0x1010101010101010) << 8;
-	index |= board::extract(brd_green,0x1010101010101010);
+	index |= board::extract(brd_blue, 0x1010101010101010) << 8;
+	index |= board::extract(brd_green, 0x1010101010101010);
 	ptn.table[index] += value;
 
 	index = 2 << 16;
-	index |= board::extract(brd_blue,0x2020202020202020) << 8;
-	index |= board::extract(brd_green,0x2020202020202020);
+	index |= board::extract(brd_blue, 0x2020202020202020) << 8;
+	index |= board::extract(brd_green, 0x2020202020202020);
 	ptn.table[index] += value;
 
 	index = 1 << 16;
-	index |= board::extract(brd_blue,0x4040404040404040) << 8;
-	index |= board::extract(brd_green,0x4040404040404040);
+	index |= board::extract(brd_blue, 0x4040404040404040) << 8;
+	index |= board::extract(brd_green, 0x4040404040404040);
 	ptn.table[index] += value;
 
 	index = 0 << 16;
-	index |= board::extract(brd_blue,0x8080808080808080) << 8;
-	index |= board::extract(brd_green,0x8080808080808080);
+	index |= board::extract(brd_blue, 0x8080808080808080) << 8;
+	index |= board::extract(brd_green, 0x8080808080808080);
 	ptn.table[index] += value;
 
 	//diagnal pattern
 
 	index = 4 << 16;
-	index |= board::extract(brd_blue,0x8040201008040201) << 8;
-	index |= board::extract(brd_green,0x8040201008040201);
+	index |= board::extract(brd_blue, 0x8040201008040201) << 8;
+	index |= board::extract(brd_green, 0x8040201008040201);
 	ptn.table[index] += value;
 
 	index = 5 << 16;
-	index |= board::extract(brd_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_green,0x4020100804020180);
+	index |= board::extract(brd_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_green, 0x4020100804020180);
 	ptn.table[index] += value;
 
 	index = 6 << 16;
-	index |= board::extract(brd_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_green,0x2010080402018040);
+	index |= board::extract(brd_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_green, 0x2010080402018040);
 	ptn.table[index] += value;
 
 	index = 7 << 16;
-	index |= board::extract(brd_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_green,0x1008040201804020);
+	index |= board::extract(brd_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_green, 0x1008040201804020);
 	ptn.table[index] += value;
 
 	index = 8 << 16;
-	index |= board::extract(brd_blue,0x0804020180402010) << 8;
-	index |= board::extract(brd_green,0x0804020180402010);
+	index |= board::extract(brd_blue, 0x0804020180402010) << 8;
+	index |= board::extract(brd_green, 0x0804020180402010);
 	ptn.table[index] += value;
 
 	index = 7 << 16;
-	index |= board::extract(brd_r_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_r_green,0x1008040201804020);
+	index |= board::extract(brd_r_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_r_green, 0x1008040201804020);
 	ptn.table[index] += value;
 
 	index = 6 << 16;
-	index |= board::extract(brd_r_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_r_green,0x2010080402018040);
+	index |= board::extract(brd_r_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_r_green, 0x2010080402018040);
 	ptn.table[index] += value;
 
 	index = 5 << 16;
-	index |= board::extract(brd_r_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_r_green,0x4020100804020180);
+	index |= board::extract(brd_r_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_r_green, 0x4020100804020180);
 	ptn.table[index] += value;
 
 	//diagnal pattern
 
 	index = 4 << 16;
-	index |= board::extract(brd_v_blue,0x8040201008040201) << 8;
-	index |= board::extract(brd_v_green,0x8040201008040201);
+	index |= board::extract(brd_v_blue, 0x8040201008040201) << 8;
+	index |= board::extract(brd_v_green, 0x8040201008040201);
 	ptn.table[index] += value;
 
 	index = 5 << 16;
-	index |= board::extract(brd_v_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_v_green,0x4020100804020180);
+	index |= board::extract(brd_v_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_v_green, 0x4020100804020180);
 	ptn.table[index] += value;
 
 	index = 6 << 16;
-	index |= board::extract(brd_v_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_v_green,0x2010080402018040);
+	index |= board::extract(brd_v_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_v_green, 0x2010080402018040);
 	ptn.table[index] += value;
 
 	index = 7 << 16;
-	index |= board::extract(brd_v_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_v_green,0x1008040201804020);
+	index |= board::extract(brd_v_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_v_green, 0x1008040201804020);
 	ptn.table[index] += value;
 
 	index = 8 << 16;
-	index |= board::extract(brd_v_blue,0x0804020180402010) << 8;
-	index |= board::extract(brd_v_green,0x0804020180402010);
+	index |= board::extract(brd_v_blue, 0x0804020180402010) << 8;
+	index |= board::extract(brd_v_green, 0x0804020180402010);
 	ptn.table[index] += value;
 
 	index = 7 << 16;
-	index |= board::extract(brd_h_blue,0x1008040201804020) << 8;
-	index |= board::extract(brd_h_green,0x1008040201804020);
+	index |= board::extract(brd_h_blue, 0x1008040201804020) << 8;
+	index |= board::extract(brd_h_green, 0x1008040201804020);
 	ptn.table[index] += value;
 
 	index = 6 << 16;
-	index |= board::extract(brd_h_blue,0x2010080402018040) << 8;
-	index |= board::extract(brd_h_green,0x2010080402018040);
+	index |= board::extract(brd_h_blue, 0x2010080402018040) << 8;
+	index |= board::extract(brd_h_green, 0x2010080402018040);
 	ptn.table[index] += value;
 
 	index = 5 << 16;
-	index |= board::extract(brd_h_blue,0x4020100804020180) << 8;
-	index |= board::extract(brd_h_green,0x4020100804020180);
+	index |= board::extract(brd_h_blue, 0x4020100804020180) << 8;
+	index |= board::extract(brd_h_green, 0x4020100804020180);
 	ptn.table[index] += value;
 
 	//corner pattern
 
 	index = 9 << 16;
-	index |= board::extract(brd_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_green,0x0000000000030707);
+	index |= board::extract(brd_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_green, 0x0000000000030707);
 	ptn.table[index] += value;
 
 	index = 9 << 16;
-	index |= board::extract(brd_h_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_h_green,0x0000000000030707);
+	index |= board::extract(brd_h_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_h_green, 0x0000000000030707);
 	ptn.table[index] += value;
 
 	index = 9 << 16;
-	index |= board::extract(brd_v_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_v_green,0x0000000000030707);
+	index |= board::extract(brd_v_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_v_green, 0x0000000000030707);
 	ptn.table[index] += value;
 
 	index = 9 << 16;
-	index |= board::extract(brd_r_blue,0x0000000000030707) << 8;
-	index |= board::extract(brd_r_green,0x0000000000030707);
+	index |= board::extract(brd_r_blue, 0x0000000000030707) << 8;
+	index |= board::extract(brd_r_green, 0x0000000000030707);
 	ptn.table[index] += value;
 }
 
@@ -570,8 +570,8 @@ void pattern::balance(){
 		table[(num << 16) | i] = value; \
 		table[(num << 16) | index] = value; \
 
-	for(int i = 0;i != length;++i){
-		if(i & (i >> 8)){}else{
+	for(int i = 0; i != length; ++i){
+		if(!(i & (i >> 8))){
 			index_l = i;
 			index_l = table_reverse[index_l];
 			index_h = i >> 8;
@@ -661,61 +661,57 @@ void pattern::balance(){
 	#pragma GCC diagnostic pop
 #endif
 
-unordered_set<board> sample_gen(cint n){
+matrix<board> sample_gen(cint n){
 	unordered_set<board> brds;
-	board brd,brd_save;
-	coordinate pos1,pos2;
+	board brd, brd_save;
+	coordinate pos1, pos2;
 
 	for(int i = 0;i != n;++i){
 		brd.initial();
 		do{
 			brd_save = brd;
-			pos1 = brd.play(mthd_rnd,true,0);
+			pos1 = brd.play(mthd_rnd, true, 0);
 			if(pos1.x >= 0){
 				brds.insert(brd_save);
 			}
 
 			brd_save = brd;
-			pos2 = brd.play(mthd_rnd,false,0);
+			pos2 = brd.play(mthd_rnd, false, 0);
 			if(pos2.x >= 0){
 				brd_save.reverse();
 				brds.insert(brd_save);
 			}
 		}while(pos1.x >= 0 || pos2.x >= 0);
 	}
-	return brds;
-};
 
-
-matrix<board> sample_2mat(const unordered_set<board>& brds){
 	int i = 0;
-	matrix<board> result(brds.size(),1);
+	matrix<board> result(brds.size(), 1);
 	for(cboard brd:brds){
 		result.at(i) = brd;
 		++i;
 	}
 	return result;
-}
+};
 
-matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height){
-	matrix<val_type> result(brds.geth(),1);
-	for(int i = 0;i != brds.geth();++i){
-		result.at(i) = brds.at(i).search(mthd,true,height);
+matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height){
+	matrix<val_type> result(brds.geth(), 1);
+	for(int i = 0; i != brds.geth(); ++i){
+		result.at(i) = brds.at(i).search(mthd, true, height);
 	}
 	return result;
 }
 
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
-	matrix<val_type> result(brds.geth(),1);
+	matrix<val_type> result(brds.geth(), 1);
 	
-	for(int i = 0;i != brds.geth();++i){
-		result.at(i) = brds.at(i).score_ptn(true,ptn);
+	for(int i = 0; i != brds.geth(); ++i){
+		result.at(i) = brds.at(i).score_ptn(true, ptn);
 	}
 	return result;
 }
 
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta){
-	for(int i = 0;i != brds.geth();++i){
-		brds.at(i).adjust_ptn(true,ptn,delta.at(i));
+	for(int i = 0; i != brds.geth(); ++i){
+		brds.at(i).adjust_ptn(true, ptn, delta.at(i));
 	}
 }

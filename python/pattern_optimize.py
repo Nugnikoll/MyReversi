@@ -20,13 +20,10 @@ if os.path.exists(name):
 else:
 	size = int(input("Please input number of simulations: "));
 	print("generate sample");
-	time1 = time.clock();
+	time_begin = time.time();
 	sample = rv.sample_gen(size);
-	time2 = time.clock();
-	print("time1:",time2 - time1);
-	sample = rv.sample_2mat(sample);
-	time3 = time.clock();
-	print("time2:",time3 - time2);
+	time_end = time.time();
+	print("time:", time_end - time_begin);
 	sample.save(name);
 
 print("sample size: ", sample.geth());
@@ -38,10 +35,10 @@ if os.path.exists(name):
 	target.load(name);
 else:
 	print("generate target");
-	time3 = time.clock();
+	time_begin = time.time();
 	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans, 4);
-	time4 = time.clock();
-	print("time3:",time4 - time3);
+	time_end = time.time();
+	print("time:", time_end - time_begin);
 	target.save(name);
 
 ptn_shape = rv.pattern().numpy().shape;
@@ -49,15 +46,15 @@ weight = np.zeros(ptn_shape).ravel();
 
 def fun(weight):
 	value = rv.evaluate(rv.pattern(weight.reshape(ptn_shape)), sample);
-	delta = value - target;
-	eps = delta.numpy();
-	loss = (eps ** 2).sum();
+	delta = value.numpy() - target.numpy();
+	loss = (delta ** 2).sum();
 	ptn_grad = rv.pattern();
 	ptn_grad.initial();
-	rv.adjust(ptn_grad, sample, delta);
+	rv.adjust(ptn_grad, sample, rv.mat_lf(delta));
 	grad = ptn_grad.numpy().ravel();
 	return (loss, grad * 2);
 
+time_begin = time.time();
 result = optimize.minimize(
 	fun, weight, method = "L-BFGS-B", jac = True,
 	options = {
@@ -66,6 +63,8 @@ result = optimize.minimize(
 		"maxiter": 400
 	}
 )
+time_end = time.time();
+print("time:", time_end - time_begin);
 
 print(result);
 ptn = rv.pattern(result.x.reshape(ptn_shape));
