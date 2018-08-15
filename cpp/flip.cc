@@ -1,4 +1,4 @@
-#include "reversi.h"
+#include "board.h"
 
 #ifdef USE_ASM_BMI
 

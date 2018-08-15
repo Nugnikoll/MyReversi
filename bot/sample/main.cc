@@ -8,7 +8,7 @@
 
 #include "../../cpp/jsoncpp/json.h"
 
-#include "../../cpp/reversi.h"
+#include "../../cpp/board.h"
 #include "../../cpp/pattern.h"
 
 using namespace std;
@@ -18,8 +18,8 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
+	ptn.load("../data/pattern.dat");
 	brd.initial();
-	grp.load("../data/pattern.dat");
 
 	string str;
 	getline(cin, str);
