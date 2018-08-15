@@ -10,8 +10,6 @@ if (NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
 
-include (FindPythonLibs)
-
 set (cpp_dir "${PROJECT_SOURCE_DIR}/../cpp")
 set (python_dir "${PROJECT_SOURCE_DIR}/../python")
 set (cpuid_dir "${PROJECT_SOURCE_DIR}/../cpuid")
@@ -48,13 +46,23 @@ endif ()
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
-include_directories ("${PYTHON_INCLUDE_DIRS}")
+include (FindPythonLibs)
+include (FindPythonInterp)
+message (${PYTHON_LIBRARIES})
+execute_process(
+	COMMAND "${PYTHON_EXECUTABLE}" "-c"
+	"import numpy; print(numpy.get_include());"
+	OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+)
+message (${NUMPY_INCLUDE_DIR})
+
+include_directories ("${PYTHON_INCLUDE_DIRS}" "${NUMPY_INCLUDE_DIR}")
 
 set (
 	head_file
 	${cpp_dir}/type.h
 	${cpp_dir}/asm.h
-	${cpp_dir}/reversi.h
+	${cpp_dir}/board.h
 	${cpp_dir}/hash.h
 	${cpp_dir}/log.h
 	${cpp_dir}/matrix.h
@@ -63,7 +71,7 @@ set (
 
 set (
 	source_file
-	${cpp_dir}/reversi.cc
+	${cpp_dir}/board.cc
 	${cpp_dir}/flip.cc
 	${cpp_dir}/pattern.cc
 	${cpp_dir}/search.cc
@@ -72,7 +80,7 @@ set (
 
 add_custom_command (
 	OUTPUT ${python_dir}/reversi_wrap.cxx
-	COMMAND swig -python -c++ -threads -o ${python_dir}/reversi_wrap.cxx ${python_dir}/reversi.i
+	COMMAND swig -python -c++ -threads -w-314,-362,-389,-503,-509 -o ${python_dir}/reversi_wrap.cxx ${python_dir}/reversi.i
 	DEPENDS ${python_dir}/reversi.i ${head_file}
 )
 

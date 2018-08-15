@@ -45,7 +45,7 @@ typedef const line_type& cline_type;
 typedef short pos_type;
 typedef const pos_type& cpos_type;
 
-typedef float val_type;
+typedef double val_type;
 typedef const val_type& cval_type;
 
 enum chessman{blank, white, black, null};
@@ -116,5 +116,7 @@ enum player_type{
 	typedef player_type cplayer_type;
 #endif //USE_REF
 
+template<typename T>
+class matrix;
 
 #endif //TYPE_H

@@ -8,7 +8,7 @@
 
  */
 
-/** @file reversi.h
+/** @file board.h
  * @brief This head file is an essential part of reversi
  * where the most important class board is defined.
  * Many basic functions are declared here.
@@ -24,6 +24,7 @@
 #include <utility>
 #include <tuple>
 #include <vector>
+#include <bitset>
 
 using namespace std;
 
@@ -101,6 +102,8 @@ public:
 	 *	@param out the output stream
 	*/
 	void print(ostream& out = cout)const;
+
+	matrix<int> to_mat()const;
 
 	/** @fn board& assign(cull _brd_black,cull _brd_white)
 	 *	@brief Assign the board to some specific value.
@@ -713,8 +716,8 @@ public:
 		return table_status[index];
 	}
 
-	float score_ptn(cbool color,const pattern& ptn)const;
-	void adjust_ptn(cbool color,pattern& ptn,cfloat value)const;
+	val_type score_ptn(cbool color,const pattern& ptn)const;
+	void adjust_ptn(cbool color,pattern& ptn,cval_type value)const;
 
 	#ifdef DEBUG_SEARCH
 		static void enable_log();
@@ -730,6 +733,15 @@ protected:
 	static void config_flip();
 	static void config_search();
 };
+
+namespace std{
+	template <>
+	struct hash<board>: public unary_function<board, size_t>{
+		size_t operator()(cboard brd)const{
+			return hash<bitset<board::size2 * 2>>()(*(const bitset<board::size2 * 2>*)&brd);
+		}
+	};
+}
 
 struct choice{
 	board brd;

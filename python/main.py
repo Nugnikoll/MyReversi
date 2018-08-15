@@ -6,10 +6,10 @@ import os;
 import _thread;
 import time;
 import pdb;
-from game import * ;
+from game import *;
+from view_log import *;
 
-rv.pattern.config();
-rv.group.config("../data/pattern.dat")
+rv.pattern.config("../data/pattern.dat");
 
 evt_thrd_id = wx.NewId();
 
@@ -24,7 +24,6 @@ class reversi_app(wx.App):
 	#overload the initializer
 	def OnInit(self):
 		# pdb.set_trace();
-		#self.res = xrc.XmlResource(xrcfile);
 		self.init_frame();
 		return True;
 
@@ -175,6 +174,14 @@ class reversi_app(wx.App):
 		self.text_log.SetForegroundColour(wx.Colour(200,200,200));
 		self.text_log.SetBackgroundColour(wx.Colour(32,32,32));
 		self.text_log.SetFont(font_text);
+
+		self.tree_list = wx.TreeCtrl(notebook);
+		notebook.AddPage(self.tree_list, "Tree");
+		self.tree_list.SetForegroundColour(wx.Colour(200,200,200));
+		self.tree_list.SetBackgroundColour(wx.Colour(32,32,32));
+		font_text = wx.Font(14, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas");
+		self.tree_list.SetFont(font_text);
+		self.tree_list.Hide();
 
 		#create a input box on the bottom right
 		self.text_input = wx.TextCtrl(panel_base, size = wx.Size(266,30), style = wx.TE_PROCESS_ENTER | wx.TE_PROCESS_TAB);
@@ -367,6 +374,7 @@ class reversi_app(wx.App):
 		self.choice_white.Bind(wx.EVT_CHOICE, self.on_choice_player);
 		self.text_path_white.Bind(wx.EVT_TEXT_ENTER, self.on_text_path_enter);
 		self.button_folder_white.Bind(wx.EVT_BUTTON, self.on_button_folder_click);
+		self.tree_list.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.on_tree_item_select);
 		self.button_start.Bind(wx.EVT_BUTTON, self.on_start);
 		self.Bind(wx.EVT_MENU, self.on_start, id = menu_new.GetId());
 		self.Bind(wx.EVT_MENU, self.on_load, id = menu_load.GetId());
@@ -662,6 +670,23 @@ class reversi_app(wx.App):
 		time.sleep(count);
 		_print("sleep for %d seconds" % count);
 
+	def on_tree_item_select(self, event):
+		item = event.GetItem();
+		ptr = self.tree_list.GetItemData(item);
+		if not ptr.flag_expand:
+			for p in ptr.child:
+				p.flag_expand = False;
+				self.tree_list.AppendItem(item, "color: %d, alpha: %f, beta: %f, result: %f" % (p.color, p.alpha, p.beta, p.result), data = p);
+			ptr.flag_expand = True;
+		
+		mygame.assign(ptr.brd);
+
+	def tree_display(self, name):
+		self.tree = load_log(name);
+		ptr = self.tree.root.child[0];
+		ptr.flag_expand = False;
+		self.tree_list.AddRoot("color: %d, alpha: %f, beta: %f, result: %f" % (ptr.color, ptr.alpha, ptr.beta, ptr.result), data = ptr);
+
 # def on_context_menu(wxContextMenuEvent& event){
 	# //wxMenu* menu = new wxMenu();
 
@@ -676,29 +701,6 @@ class reversi_app(wx.App):
 # //	menu->Append(wxID_SELECTALL, _("Select &All"));  
 # //  
 	# //PopupMenu(menu);
-# }
-
-# def on_tree_item_select(wxTreeEvent& event){
-	# wxTreeItemId item = event.GetItem();
-	# vector<node*> vec;
-	# board brd;
-
-	# while(item != book_tree->GetRootItem()){
-		# vec.push_back(((myTreeItemData*)(book_tree->GetItemData(item)))->ptr);
-		# item = book_tree->GetItemParent(item);
-	# }
-	# reverse(vec.begin(),vec.end());
-	# if(!vec.empty()){
-		# mygame.color = vec.back()->dat.color;
-	# }else{
-		# mygame.color = True;
-	# }
-	# brd.initial();
-	# for(node *& ptr:vec){
-		# brd.flip(!ptr->dat.color,ptr->dat.pos);
-	# }
-	# mygame.brd = brd;
-	# mygame.show();
 # }
 
 if __name__ == "__main__":

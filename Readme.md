@@ -23,6 +23,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- [Python3](https://www.python.org/)
 	- [swig](http://swig.org/)
 	- [wxPython](https://www.wxpython.org/)
+	- [numpy](http://www.numpy.org/)
 	- [CMake](https://cmake.org/)
 
 - Build the library for reversi  
@@ -43,6 +44,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 - Prerequisites
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
+	- [numpy](http://www.numpy.org/)
 	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 
 - Execute the main program  
@@ -53,9 +55,9 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 
 - File Structure  
 
-		cpp/reversi.h: class board
+		cpp/board.h: class board
+		│	cpp/board.cc
 		│	cpp/flip.cc board::flip()
-		│	cpp/reversi.cc
 		│	cpp/search.cc board::search()
 		│	...
 		│

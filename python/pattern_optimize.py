@@ -2,74 +2,70 @@ import reversi as rv;
 import time;
 import matplotlib.pyplot as plt;
 import os;
+import numpy as np;
+from scipy import optimize;
 
 mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
 dir_save = "./";
 
 rv.board.config();
 rv.pattern.config();
-rv.group.config("../data/pattern.dat");
-
-ptn = rv.pattern();
-ptn.initial();
-
-size = 100000;
-alpha = 0.004 / size;
+#rv.pattern.config("../data/pattern.dat");
 
 name = "sample.dat";
 if os.path.exists(name):
-	sample = rv.mat_brd(size, 1);
+	print("sample already exists");
+	sample = rv.mat_brd();
 	sample.load(name);
 else:
+	size = int(input("Please input number of simulations: "));
 	print("generate sample");
-	time1 = time.clock();
+	time_begin = time.time();
 	sample = rv.sample_gen(size);
-	time2 = time.clock();
-	print("time1",time2 - time1);
-	sample = rv.sample_2mat(sample);
-	time3 = time.clock();
-	print("time2",time3 - time2);
+	time_end = time.time();
+	print("time:", time_end - time_begin);
 	sample.save(name);
 
-print(sample.geth(),sample.getw());
+print("sample size: ", sample.geth());
 
 name = "target.dat";
 if os.path.exists(name):
-	target = rv.mat_f(size, 1);
+	print("target already exists");
+	target = rv.mat_lf();
 	target.load(name);
 else:
 	print("generate target");
-	time3 = time.clock();
-	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans ,4);
-	time4 = time.clock();
-	print("time3",time4 - time3);
+	time_begin = time.time();
+	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans, 4);
+	time_end = time.time();
+	print("time:", time_end - time_begin);
 	target.save(name);
 
-value = rv.evaluate(ptn,sample);
-epsilon = target - value;
-epsilon_2 = epsilon.modulus();
+ptn_shape = rv.pattern().numpy().shape;
+weight = np.zeros(ptn_shape).ravel();
 
-print(epsilon.geth(), epsilon.getw())
-epsilon_save = rv.mat_f(epsilon);
-ptn_save = rv.pattern(ptn)
+def fun(weight):
+	value = rv.evaluate(rv.pattern(weight.reshape(ptn_shape)), sample);
+	delta = value.numpy() - target.numpy();
+	loss = (delta ** 2).sum();
+	ptn_grad = rv.pattern();
+	ptn_grad.initial();
+	rv.adjust(ptn_grad, sample, rv.mat_lf(delta));
+	grad = ptn_grad.numpy().ravel();
+	return (loss, grad * 2);
 
-epsilon = rv.mat_f(epsilon_save);
-ptn = rv.pattern(ptn_save);
+time_begin = time.time();
+result = optimize.minimize(
+	fun, weight, method = "L-BFGS-B", jac = True,
+	options = {
+		"disp": True,
+		"maxcor": 25,
+		"maxiter": 400
+	}
+)
+time_end = time.time();
+print("time:", time_end - time_begin);
 
-print("alpha: ",alpha);
-print("epsilon_2: ",epsilon_2);
-
-for i in range(2000):
-	epsilon *= alpha;
-	rv.adjust(ptn,sample,epsilon);
-
-	value = rv.evaluate(ptn,sample);
-	epsilon = target - value;
-	if i % 10 == 0:
-		print(value.modulus());
-		epsilon_2 = epsilon.modulus();
-		print("i: ",i," epsilon_2: ",epsilon_2);
-
-grp = rv.group();
-grp.vec.append(ptn);
-grp.save(dir_save + "ptn_opt.dat");
+print(result);
+ptn = rv.pattern(result.x.reshape(ptn_shape));
+ptn.save("pattern.dat");

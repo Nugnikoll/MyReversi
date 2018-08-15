@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "reversi.h"
+#include "board.h"
 #include "search.h"
 #include "pattern.h"
 #include "hash.h"
@@ -296,7 +296,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 			if(mthd & mthd_end)
 				return this->score_end(color);
 			else if(mthd & mthd_ptn)
-				return this->score_ptn(color,grp.vec[0]);
+				return this->score_ptn(color, ptn);
 			else
 				return this->score(color);
 		}
@@ -318,10 +318,10 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 			if(*this == slt->brd){
 				if(depth == slt->depth){
 					if(alpha >= slt->beta){
-						return alpha;
+						return slt->beta;
 					}
 					if(beta <= slt->alpha){
-						return beta;
+						return slt->alpha;
 					}
 					alpha = max(alpha, slt->alpha);
 					beta = min(beta, slt->beta);
@@ -347,8 +347,8 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		val_type temp;
 
 		if(flag_mpc && (table_predict[cnt][0][depth][0] >= 40)){
-			const val_type mpc_alpha = -0.5;
-			const val_type mpc_beta = 2.0;
+			const val_type mpc_alpha = -0.6 + (0.2 * depth);
+			const val_type mpc_beta = 1.78 + (0.15 * depth);
 			short depth_start = depth & 1;
 
 			temp = this->template search<mthd_presearch>(color, depth_start);
