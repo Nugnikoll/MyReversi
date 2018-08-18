@@ -12,19 +12,23 @@ rv.board.config();
 rv.pattern.config();
 #rv.pattern.config("../data/pattern.dat");
 
-name = "sample.dat";
-if os.path.exists(name):
+name = ["sample.dat", "occurrence.dat"];
+if os.path.exists(name[0]) and os.path.exists(name[1]):
 	print("sample already exists");
 	sample = rv.mat_brd();
-	sample.load(name);
+	sample.load(name[0]);
+	occurrence = rv.mat_i();
+	occurrence.load(name[1]);
 else:
 	size = int(input("Please input number of simulations: "));
 	print("generate sample");
 	time_begin = time.time();
-	sample = rv.sample_gen(size);
+	occurrence = rv.mat_i();
+	sample = rv.sample_gen(size, occurrence);
 	time_end = time.time();
 	print("time:", time_end - time_begin);
-	sample.save(name);
+	sample.save(name[0]);
+	occurrence.save(name[1]);
 
 print("sample size: ", sample.geth());
 
@@ -47,10 +51,10 @@ weight = np.zeros(ptn_shape).ravel();
 def fun(weight):
 	value = rv.evaluate(rv.pattern(weight.reshape(ptn_shape)), sample);
 	delta = value.numpy() - target.numpy();
-	loss = (delta ** 2).sum();
+	loss = (delta ** 2 * occurrence.numpy()).sum();
 	ptn_grad = rv.pattern();
 	ptn_grad.initial();
-	rv.adjust(ptn_grad, sample, rv.mat_lf(delta));
+	rv.adjust(ptn_grad, sample, rv.mat_lf(delta * occurrence.numpy()));
 	grad = ptn_grad.numpy().ravel();
 	return (loss, grad * 2);
 

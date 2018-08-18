@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "matrix.h"
 #include "type.h"
@@ -112,7 +113,8 @@ public:
 };
 
 matrix<board> sample_gen(cint n);
-matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
+matrix<board> sample_gen(cint n, matrix<int>& occurrence);
+matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height);
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
 

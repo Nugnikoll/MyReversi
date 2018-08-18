@@ -693,6 +693,42 @@ matrix<board> sample_gen(cint n){
 	return result;
 };
 
+matrix<board> sample_gen(cint n, matrix<int>& occurrence){
+	unordered_map<board, int> brds;
+	board brd, brd_save;
+	coordinate pos1, pos2;
+
+	for(int i = 0;i != n;++i){
+		brd.initial();
+		do{
+			brd_save = brd;
+			pos1 = brd.play(mthd_rnd, true, 0);
+			if(pos1.x >= 0){
+				++brds[brd_save];
+			}
+
+			brd_save = brd;
+			pos2 = brd.play(mthd_rnd, false, 0);
+			if(pos2.x >= 0){
+				brd_save.reverse();
+				++brds[brd_save];
+			}
+		}while(pos1.x >= 0 || pos2.x >= 0);
+	}
+
+	int i = 0;
+	matrix<board> result(brds.size(), 1);
+	occurrence.resize(brds.size(), 1);
+
+	for(const auto& p: brds){
+		result.at(i) = p.first;
+		occurrence.at(i) = p.second;
+		++i;
+	}
+
+	return result;
+};
+
 matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height){
 	matrix<val_type> result(brds.geth(), 1);
 	for(int i = 0; i != brds.geth(); ++i){
