@@ -174,14 +174,14 @@ void board::config_search(){
 #endif
 
 val_type board::search(
-	cmethod mthd,cbool color,cshort depth,
-	cval_type alpha,cval_type beta
+	cmethod mthd, cbool color, cshort depth,
+	cval_type alpha, cval_type beta
 )const{
 
 	if(mthd & mthd_ids){
 		method mthd_de_ids = method(mthd & ~mthd_ids);
 		for(short i = 0;i != depth;++i){
-			this->search(mthd_de_ids,color,depth,alpha,beta);
+			this->search(mthd_de_ids, color, depth, alpha, beta);
 		}
 	}
 
@@ -201,19 +201,19 @@ val_type board::search(
 			val_type window_alpha = gamma + info.bias - window_width / 2;
 			val_type window_beta = gamma + info.bias + window_width / 2;
 
-			val_type result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+			val_type result = this->search(mthd_de_mtdf, color, depth, window_alpha, window_beta);
 
 			if(result <= window_alpha && result > alpha){
 				do{
 					window_beta = result;
 					window_alpha = window_beta - window_width;
-					result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+					result = this->search(mthd_de_mtdf, color, depth, window_alpha, window_beta);
 				}while(result <= window_alpha && result > alpha);
 			}else if(result >= window_beta && result < beta){
 				do{
 					window_alpha = result;
 					window_beta = window_alpha + window_width;
-					result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
+					result = this->search(mthd_de_mtdf, color, depth, window_alpha, window_beta);
 				}while(result >= window_beta && result < beta);
 			}
 
@@ -223,13 +223,13 @@ val_type board::search(
 
 			return result;
 		}else{
-			return this->search(mthd_de_mtdf,color,depth, alpha, beta);
+			return this->search(mthd_de_mtdf, color, depth, alpha, beta);
 		}
 	}
 
 	#define search_mthd(mthd) \
 		case mthd: case mthd | mthd_ids:\
-			return board::search<method(mthd)>(color,depth,alpha,beta);
+			return board::search<method(mthd)>(color, depth, alpha, beta);
 	#define search_mthd_ab(mthd) \
 		search_mthd(mthd | mthd_ab)
 	#define search_mthd_kill(mthd) \
@@ -239,14 +239,14 @@ val_type board::search(
 	#define search_mthd_trans(mthd) \
 		search_mthd_pvs(mthd) search_mthd_pvs(mthd | mthd_trans)
 	#define search_mthd_ptn(mthd) \
-		search_mthd_trans(mthd) search_mthd_trans(mthd | mthd_ptn)
+		search_mthd_trans(mthd) search_mthd_trans(mthd | mthd_ptn) search_mthd_trans(mthd | mthd_net)
 	#define search_mthd_mpc(mthd) \
 		search_mthd_ptn(mthd) search_mthd_ptn(mthd | mthd_mpc)
 	#define search_mthd_end(mthd) \
 		search_mthd_mpc(mthd) search_mthd_mpc(mthd | mthd_end)
 
 	switch(mthd){
-		case mthd_rnd: return board::search<mthd_rnd>(color,depth,alpha,beta);
+		case mthd_rnd: return board::search<mthd_rnd>(color, depth, alpha, beta);
 		search_mthd_end(mthd_rnd);
 	default:
 		assert(false);
@@ -295,6 +295,8 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		if(depth == 0){
 			if(mthd & mthd_end)
 				return this->score_end(color);
+			else if(mthd & mthd_net)
+				return this->score_net(color);
 			else if(mthd & mthd_ptn)
 				return this->score_ptn(color, ptn);
 			else

@@ -67,6 +67,7 @@ set (
 	${cpp_dir}/log.h
 	${cpp_dir}/matrix.h
 	${cpp_dir}/pattern.h
+	${cpp_dir}/net.h
 )
 
 set (
@@ -75,6 +76,7 @@ set (
 	${cpp_dir}/flip.cc
 	${cpp_dir}/pattern.cc
 	${cpp_dir}/search.cc
+	${cpp_dir}/net.cc
 	${python_dir}/reversi_wrap.cxx
 )
 

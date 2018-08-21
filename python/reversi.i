@@ -15,6 +15,7 @@
 #include "../cpp/board.h"
 #include "../cpp/matrix.h"
 #include "../cpp/pattern.h"
+#include "../cpp/net.h"
 #include "../cpp/log.h"
 %}
 
@@ -41,6 +42,7 @@ import_array();
 %include "../cpp/board.h"
 %include "../cpp/matrix.h"
 %include "../cpp/pattern.h"
+%include "../cpp/net.h"
 %include "../cpp/log.h"
 
 %template(shorts) std::vector<short>;
