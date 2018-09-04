@@ -12,7 +12,7 @@
 #define SWIG_FILE_WITH_INIT
 #include "../cpp/type.h"
 #include "../cpp/asm.h"
-#include "../cpp/reversi.h"
+#include "../cpp/board.h"
 #include "../cpp/matrix.h"
 #include "../cpp/pattern.h"
 #include "../cpp/log.h"
@@ -38,7 +38,7 @@ import_array();
 {(int* h, int* w, double** ptr)};
 
 %include "../cpp/type.h"
-%include "../cpp/reversi.h"
+%include "../cpp/board.h"
 %include "../cpp/matrix.h"
 %include "../cpp/pattern.h"
 %include "../cpp/log.h"
