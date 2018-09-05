@@ -6,7 +6,6 @@
 #include <cmath>
 
 #include "board.h"
-#include "search.h"
 #include "pattern.h"
 #include "hash.h"
 
@@ -828,7 +827,7 @@ val_type board::search_end_five(
 }
 
 vector<choice> board::get_choice(
-	cmethod mthd,cbool color,cshort depth
+	cmethod mthd, cbool color, cshort depth
 )const{
 
 	#ifdef DEBUG_SEARCH
@@ -889,8 +888,6 @@ vector<choice> board::get_choice(
 			val_type window_width = sqrt(info.sigma) * 2;
 			val_type window_alpha = gamma + info.bias - window_width / 2;
 			val_type window_beta = gamma + info.bias + window_width / 2;
-
-			clear_search_info();
 
 			best = _inf;
 			for(choice& c:choices){

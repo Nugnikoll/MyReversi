@@ -66,7 +66,7 @@ int main(int argc, char *argv[], char *envp[]){
 
 	if(brd.sum() >= 64 - 16){
 		depth = 64 - brd.sum();
-		choices = brd.get_choice(method(mthd | mthd_end), color, depth);
+		choices = brd.get_choice(method(mthd | mthd_end | mthd_mtdf), color, depth);
 	}else{
 		auto fun = [&](){
 			for(short i = 2; i != 100; ++i){
@@ -111,6 +111,10 @@ int main(int argc, char *argv[], char *envp[]){
 		result["debug"]["board"]["black"] = brd.bget(true);
 		result["debug"]["board"]["white"] = brd.bget(false);
 	#endif
+	for(unsigned int i = 0; i != choices.size(); ++i){
+		result["debug"]["choice"][i]["pos"] = choices[i].pos;
+		result["debug"]["choice"][i]["val"] = choices[i].val;
+	}
 
 	cout << writer.write(result) << endl;
 
