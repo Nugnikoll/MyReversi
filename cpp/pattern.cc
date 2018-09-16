@@ -7,12 +7,6 @@
 
 using namespace std;
 
-const ull ptn_a1 = 0x00000000000042ff;
-const ull shift_a1 = 10;
-const ull bias_a1 = 0;
-const ull ptn_a1_v = 0x0103010101010301;
-const ull shift_a1_v = 10;
-const ull bias_a1_v = 0;
 /*
 # # # # # # # #
 
@@ -30,14 +24,40 @@ const ull bias_a1_v = 0;
 
 . . . . . . . .
 */
+const ull ptn_a1 = 0x00000000000042ff;
+const ull shift_a1 = 10;
+const ull bias_a1 = 0;
+const ull ptn_a1_v = 0x0103010101010301;
+const ull shift_a1_v = 10;
+const ull bias_a1_v = 0;
 
+/*
+. . . . . . . .
+
+# # # # # # # #
+
+. . . . . . . .
+
+. . . . . . . .
+
+. . . . . . . .
+
+. . . . . . . .
+
+. . . . . . . .
+
+. . . . . . . .
+*/
 const ull ptn_a2 = 0x000000000000ff00;
 const ull shift_a2 = 8;
 const ull bias_a2 = 1048576;
 const ull ptn_a2_v = 0x0202020202020202;
 const ull shift_a2_v = 8;
 const ull bias_a2_v = 1048576;
+
 /*
+. . . . . . . .
+
 . . . . . . . .
 
 # # # # # # # #
@@ -51,17 +71,17 @@ const ull bias_a2_v = 1048576;
 . . . . . . . .
 
 . . . . . . . .
-
-. . . . . . . .
 */
-
 const ull ptn_a3 = 0x0000000000ff0000;
 const ull shift_a3 = 8;
 const ull bias_a3 = 1114112;
 const ull ptn_a3_v = 0x0404040404040404;
 const ull shift_a3_v = 8;
 const ull bias_a3_v = 1114112;
+
 /*
+. . . . . . . .
+
 . . . . . . . .
 
 . . . . . . . .
@@ -75,37 +95,14 @@ const ull bias_a3_v = 1114112;
 . . . . . . . .
 
 . . . . . . . .
-
-. . . . . . . .
 */
-
 const ull ptn_a4 = 0x00000000ff000000;
 const ull shift_a4 = 8;
 const ull bias_a4 = 1179684;
 const ull ptn_a4_v = 0x0808080808080808;
 const ull shift_a4_v = 8;
 const ull bias_a4_v = 1179684;
-/*
-. . . . . . . .
 
-. . . . . . . .
-
-. . . . . . . .
-
-# # # # # # # #
-
-. . . . . . . .
-
-. . . . . . . .
-
-. . . . . . . .
-
-. . . . . . . .
-*/
-
-const ull ptn_b1 = 0x0000000001020408;
-const ull shift_b1 = 4;
-const ull bias_b1 = 1245184;
 /*
 . . . # . . . .
 
@@ -123,10 +120,10 @@ const ull bias_b1 = 1245184;
 
 . . . . . . . .
 */
+const ull ptn_b1 = 0x0000000001020408;
+const ull shift_b1 = 4;
+const ull bias_b1 = 1245184;
 
-const ull ptn_b2 = 0x0000000102040810;
-const ull shift_b2 = 5;
-const ull bias_b2 = 1245440;
 /*
 . . . . # . . .
 
@@ -144,10 +141,10 @@ const ull bias_b2 = 1245440;
 
 . . . . . . . .
 */
+const ull ptn_b2 = 0x0000000102040810;
+const ull shift_b2 = 5;
+const ull bias_b2 = 1245440;
 
-const ull ptn_b3 = 0x0000010204081020;
-const ull shift_b3 = 6;
-const ull bias_b3 = 1246464;
 /*
 . . . . . # . .
 
@@ -165,10 +162,10 @@ const ull bias_b3 = 1246464;
 
 . . . . . . . .
 */
+const ull ptn_b3 = 0x0000010204081020;
+const ull shift_b3 = 6;
+const ull bias_b3 = 1246464;
 
-const ull ptn_b4 = 0x0001020408102040;
-const ull shift_b4 = 7;
-const ull bias_b4 = 1250560;
 /*
 . . . . . . # .
 
@@ -186,10 +183,10 @@ const ull bias_b4 = 1250560;
 
 . . . . . . . .
 */
+const ull ptn_b4 = 0x0001020408102040;
+const ull shift_b4 = 7;
+const ull bias_b4 = 1250560;
 
-const ull ptn_b5 = 0x0102040810204080;
-const ull shift_b5 = 8;
-const ull bias_b5 = 1266944;
 /*
 . . . . . . . #
 
@@ -207,10 +204,10 @@ const ull bias_b5 = 1266944;
 
 # . . . . . . .
 */
+const ull ptn_b5 = 0x0102040810204080;
+const ull shift_b5 = 8;
+const ull bias_b5 = 1266944;
 
-const ull ptn_c1 = 0x0000000000070707;
-const ull shift_c1 = 9;
-const ull bias_c1 = 1332480;
 /*
 # # # . . . . .
 
@@ -228,10 +225,10 @@ const ull bias_c1 = 1332480;
 
 . . . . . . . .
 */
+const ull ptn_c1 = 0x0000000000070707;
+const ull shift_c1 = 9;
+const ull bias_c1 = 1332480;
 
-const ull ptn_c2 = 0x000000010101031f;
-const ull shift_c2 = 10;
-const ull bias_c2 = 1594624;
 /*
 # # # # # . . .
 
@@ -249,6 +246,9 @@ const ull bias_c2 = 1594624;
 
 . . . . . . . .
 */
+const ull ptn_c2 = 0x000000010101031f;
+const ull shift_c2 = 10;
+const ull bias_c2 = 1594624;
 
 pattern ptn;
 
@@ -361,11 +361,21 @@ val_type board::score_ptn(cbool color, const pattern& ptn)const{
 	extract_pattern(a4, brd_v);
 
 	//vertical pattern
-	extract_pattern(a1_v, brd);
+	index = bias_a1_v;
+	index += board::extract(brd_blue, 0x0002000000000200) << 18;
+	index += board::extract(brd_blue, 0x0101010101010101) << 10;
+	index += board::extract(brd_green, 0x0002000000000200) << 8;
+	index += board::extract(brd_green, 0x0101010101010101);
+	result += ptn.table[index];
 	extract_pattern(a2_v, brd);
 	extract_pattern(a3_v, brd);
 	extract_pattern(a4_v, brd);
-	extract_pattern(a1_v, brd_h);
+	index = bias_a1_v;
+	index += board::extract(brd_h_blue, 0x0002000000000200) << 18;
+	index += board::extract(brd_h_blue, 0x0101010101010101) << 10;
+	index += board::extract(brd_h_green, 0x0002000000000200) << 8;
+	index += board::extract(brd_h_green, 0x0101010101010101);
+	result += ptn.table[index];
 	extract_pattern(a2_v, brd_h);
 	extract_pattern(a3_v, brd_h);
 	extract_pattern(a4_v, brd_h);
@@ -443,11 +453,21 @@ void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
 	extract_pattern(a4, brd_v);
 
 	//vertical pattern
-	extract_pattern(a1_v, brd);
+	index = bias_a1_v;
+	index += board::extract(brd_blue, 0x0002000000000200) << 18;
+	index += board::extract(brd_blue, 0x0101010101010101) << 10;
+	index += board::extract(brd_green, 0x0002000000000200) << 8;
+	index += board::extract(brd_green, 0x0101010101010101);
+	ptn.table[index] += value;
 	extract_pattern(a2_v, brd);
 	extract_pattern(a3_v, brd);
 	extract_pattern(a4_v, brd);
-	extract_pattern(a1_v, brd_h);
+	index = bias_a1_v;
+	index += board::extract(brd_h_blue, 0x0002000000000200) << 18;
+	index += board::extract(brd_h_blue, 0x0101010101010101) << 10;
+	index += board::extract(brd_h_green, 0x0002000000000200) << 8;
+	index += board::extract(brd_h_green, 0x0101010101010101);
+	ptn.table[index] += value;
 	extract_pattern(a2_v, brd_h);
 	extract_pattern(a3_v, brd_h);
 	extract_pattern(a4_v, brd_h);
@@ -515,7 +535,24 @@ void pattern::load(const string& path){
 		return;
 	}
 	
-	_READ(table);
+	#define read_pattern(id) \
+		for(int i = 0; i != 1 << (shift_##id << 1); ++i){ \
+			if(!(i >> shift_##id & i)){ \
+				_READ(table[i + bias_##id]); \
+			} \
+		}
+
+	read_pattern(a1);
+	read_pattern(a2);
+	read_pattern(a3);
+	read_pattern(a4);
+	read_pattern(b1);
+	read_pattern(b2);
+	read_pattern(b3);
+	read_pattern(b4);
+	read_pattern(b5);
+	read_pattern(c1);
+	read_pattern(c2);
 
 	fin.close();
 
@@ -534,8 +571,26 @@ void pattern::save(const string& path)const{
 	WRITE(calc_size);
 	WRITE(ptn_size);
 	WRITE(group_size);
-	WRITE(table);
-	
+
+	#define write_pattern(id) \
+		for(int i = 0; i != 1 << (shift_##id << 1); ++i){ \
+			if(!(i >> shift_##id & i)){ \
+				WRITE(table[i + bias_##id]); \
+			} \
+		}
+
+	write_pattern(a1);
+	write_pattern(a2);
+	write_pattern(a3);
+	write_pattern(a4);
+	write_pattern(b1);
+	write_pattern(b2);
+	write_pattern(b3);
+	write_pattern(b4);
+	write_pattern(b5);
+	write_pattern(c1);
+	write_pattern(c2);
+
 	fout.close();
 
 	#undef WRITE

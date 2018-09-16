@@ -25,7 +25,11 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
-	ptn.load("../data/pattern.dat");
+	#ifdef _BOTZONE_ONLINE
+		ptn.load("../data/pattern_test.dat");
+	#else
+		ptn.load("../data/pattern.dat");
+	#endif
 	brd.initial();
  
  	// input JSON
