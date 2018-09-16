@@ -941,7 +941,7 @@ vector<choice> board::get_choice(
 			window_alpha = range_alpha - window_width;
 			range_alpha = window_alpha;
 			for(choice& c: choices){
-				if(c.val < window_beta){
+				if(c.val < window_beta && c.val > best - threshold){
 					c.val = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 				}
 			}
