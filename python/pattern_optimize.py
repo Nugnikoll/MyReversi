@@ -10,7 +10,7 @@ dir_save = "./";
 
 rv.board.config();
 rv.pattern.config();
-#rv.pattern.config("../data/pattern.dat");
+rv.pattern.config("./data_temp/data7/pattern_double_balance.dat");
 
 name = "sample.dat";
 if os.path.exists(name):
@@ -23,7 +23,7 @@ else:
 	time_begin = time.time();
 	sample = rv.sample_gen(size);
 	time_end = time.time();
-	print("time:", time_end - time_begin);
+	print("time: ", time_end - time_begin);
 	sample.save(name);
 
 print("sample size: ", sample.geth());
@@ -38,7 +38,7 @@ else:
 	time_begin = time.time();
 	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans, 4);
 	time_end = time.time();
-	print("time:", time_end - time_begin);
+	print("time: ", time_end - time_begin);
 	target.save(name);
 
 ptn_shape = rv.pattern().numpy().shape;
@@ -64,7 +64,7 @@ result = optimize.minimize(
 	}
 )
 time_end = time.time();
-print("time:", time_end - time_begin);
+print("time: ", time_end - time_begin);
 
 print(result);
 ptn = rv.pattern(result.x.reshape(ptn_shape));
