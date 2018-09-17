@@ -32,9 +32,9 @@ using namespace std;
 #include "asm.h"
 
 struct coordinate{
-	coordinate():x(-1),y(-1){}
-	coordinate(cpos_type _x,cpos_type _y):x(_x),y(_y){}
-	coordinate(cpos_type pos):x(pos & 7),y(pos >> 3){}
+	coordinate(): x(-1), y(-1){}
+	coordinate(cpos_type _x, cpos_type _y): x(_x),y(_y){}
+	coordinate(cpos_type pos): x(pos & 7), y(pos >> 3){}
 
 	pos_type x;
 	pos_type y;
@@ -79,20 +79,20 @@ public:
 	*/
 	board() = default;
 	board(const board& brd) = default;
-	board(cull _brd_black,cull _brd_white)
-		:brd_white(_brd_white),brd_black(_brd_black){}
+	board(cull _brd_black, cull _brd_white)
+		: brd_white(_brd_white), brd_black(_brd_black){}
 
-	friend bool operator==(const board& b1,const board& b2){
+	friend bool operator==(const board& b1, const board& b2){
 		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
 	}
-	friend bool operator!=(const board& b1,const board& b2){
+	friend bool operator!=(const board& b1, const board& b2){
 		return b1.brd_black != b2.brd_black || b1.brd_white != b2.brd_white;
 	}
 
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
 
-	friend ostream& operator<<(ostream& out,const board& brd){
+	friend ostream& operator<<(ostream& out, const board& brd){
 		brd.print(out);
 		return out;
 	}
@@ -110,7 +110,7 @@ public:
 	 *	@param _brd_black the value of the 64-bit board of black stones
 	 *	@param _brd_black the value of the 64-bit board of white stones
 	*/
-	void assign(cull _brd_black,cull _brd_white){
+	void assign(cull _brd_black, cull _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
 	}
@@ -200,20 +200,20 @@ public:
 		#endif
 	}
 
-	static ull extract(cull brd,cull mask){
+	static ull extract(cull brd, cull mask){
 		ull result;
 		fun_pext(brd,mask,result);
 		return result;
 	}
 
-	static ull deposit(cull brd,cull mask){
+	static ull deposit(cull brd, cull mask){
 		ull result;
-		fun_pdep(brd,mask,result);
+		fun_pdep(brd, mask, result);
 		return result;
 	}
 
 	void reverse(){
-		swap(brd_black,brd_white);
+		swap(brd_black, brd_white);
 	}
 
 	/** @fn static void mirror_h(ull& brd)
@@ -608,7 +608,7 @@ public:
 		return result;
 	}
 
-	void flip(cbool color,cpos_type pos);
+	void flip(cbool color, cpos_type pos);
 
 	val_type score_end(cbool color)const{
 		val_type num_diff = count(color) - count(!color);
@@ -664,44 +664,47 @@ public:
 
 	template<method mthd>
 	val_type search(
-		cbool color,cshort height,
-		val_type alpha = _inf,val_type beta = inf,cbool flag_pass = false
+		cbool color, cshort depth,
+		val_type alpha = _inf, val_type beta = inf, cbool flag_pass = false
 	)const;
 	val_type search(
-		cmethod mthd,cbool color,cshort height,
-		cval_type alpha = _inf,cval_type beta = inf
+		cmethod mthd, cbool color, cshort depth,
+		cval_type alpha = _inf, cval_type beta = inf
 	)const;
 	val_type search_end_two(
-		cbool color,cpos_type pos1,cpos_type pos2,
-		val_type alpha,val_type beta,cbool flag_pass
+		cbool color, cpos_type pos1, cpos_type pos2,
+		val_type alpha, val_type beta, cbool flag_pass
 	)const;
 	val_type search_end_three(
-		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,
-		val_type alpha,val_type beta,cbool flag_pass
+		cbool color, cpos_type pos1, cpos_type pos2, cpos_type pos3,
+		val_type alpha, val_type beta, cbool flag_pass
 	)const;
 	val_type search_end_four(
-		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,
-		val_type alpha,val_type beta,cbool flag_pass
+		cbool color, cpos_type pos1, cpos_type pos2, cpos_type pos3, cpos_type pos4,
+		val_type alpha, val_type beta, cbool flag_pass
 	)const;
 	template<method mthd>
 	val_type search_end_five(
-		cbool color,val_type alpha,val_type beta,cbool flag_pass
+		cbool color, val_type alpha, val_type beta, cbool flag_pass
 	)const;
 
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth)const;
-	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-	coordinate play(cmethod mthd,cbool color,cshort depth = -1);
+	vector<choice> get_choice(
+		cmethod mthd, cbool color, cshort depth,
+		val_type alpha = _inf, val_type beta = inf, val_type gamma = inf
+	)const;
+	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
+	coordinate play(cmethod mthd, cbool color, cshort depth = -1);
 
 	sts_type get_status(cbool color){
 		const sts_type table_status[32] = {
-			sts_wturn,sts_wturn,sts_wturn,sts_wturn,
-			sts_bagain,sts_bagain,sts_bagain,sts_bagain,
-			sts_wturn,sts_wturn,sts_wturn,sts_wturn,
-			sts_tie,sts_tie,sts_wwin,sts_bwin,
-			sts_bturn,sts_bturn,sts_bturn,sts_bturn,
-			sts_bturn,sts_bturn,sts_bturn,sts_bturn,
-			sts_wagain,sts_wagain,sts_wagain,sts_wagain,
-			sts_tie,sts_tie,sts_wwin,sts_bwin
+			sts_wturn, sts_wturn, sts_wturn, sts_wturn,
+			sts_bagain, sts_bagain, sts_bagain, sts_bagain,
+			sts_wturn, sts_wturn, sts_wturn, sts_wturn,
+			sts_tie, sts_tie, sts_wwin, sts_bwin,
+			sts_bturn, sts_bturn, sts_bturn, sts_bturn,
+			sts_bturn, sts_bturn, sts_bturn, sts_bturn,
+			sts_wagain, sts_wagain, sts_wagain, sts_wagain,
+			sts_tie, sts_tie, sts_wwin, sts_bwin
 		};
 
 		int num_diff = count(true) - count(false);
@@ -716,8 +719,8 @@ public:
 		return table_status[index];
 	}
 
-	val_type score_ptn(cbool color,const pattern& ptn)const;
-	void adjust_ptn(cbool color,pattern& ptn,cval_type value)const;
+	val_type score_ptn(cbool color, const pattern& ptn)const;
+	void adjust_ptn(cbool color, pattern& ptn, cval_type value)const;
 
 	#ifdef DEBUG_SEARCH
 		static void enable_log();

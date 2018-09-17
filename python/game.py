@@ -376,8 +376,8 @@ class game:
 
 		return result;
 
-	def search(mthd, color, depth = -1, alpha = rv._inf, beta = rv.inf):
-		(mthd, depth) = process_method(mthd, depth);
+	def search(self, mthd, color, depth = -1, alpha = rv._inf, beta = rv.inf):
+		(mthd, depth) = self.process_method(mthd, depth);
 		return self.brd.search(mthd, color, depth, alpha, beta);
 
 	def get_choice(self, mthd, color, depth = -1):

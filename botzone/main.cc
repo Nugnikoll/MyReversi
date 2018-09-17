@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <algorithm>
 
 #ifdef _BOTZONE_ONLINE
 	#include "jsoncpp/json.h"
@@ -24,7 +25,11 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
-	ptn.load("../data/pattern.dat");
+	#ifdef _BOTZONE_ONLINE
+		ptn.load("../data/pattern_test.dat");
+	#else
+		ptn.load("../data/pattern.dat");
+	#endif
 	brd.initial();
  
  	// input JSON
@@ -63,28 +68,40 @@ int main(int argc, char *argv[], char *envp[]){
 	short depth;
 	vector<choice> choices;
 	mutex mtx;
+	int depth_limit = 64 - brd.sum();
+	val_type principle_value[64];
 
-	if(brd.sum() >= 64 - 16){
-		depth = 64 - brd.sum();
-		choices = brd.get_choice(method(mthd | mthd_end), color, depth);
-	}else{
-		auto fun = [&](){
-			for(short i = 2; i != 100; ++i){
-				auto p_mthd = brd.process_method(mthd, i);
-				auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
-				mtx.lock();
-				depth = i;
-				choices = temp;
-				mtx.unlock();
+	auto fun = [&](){
+		for(short i = 1; i <= depth_limit; ++i){
+			auto p_mthd = brd.process_method(mthd, i);
+			val_type gamma;
+			if(p_mthd.second >= 4){
+				gamma = principle_value[i - 2];
+			}else{
+				gamma = inf;
 			}
-		};
+			auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second, _inf, inf, gamma);
+			if(temp.empty()){
+				break;
+			}
+			mtx.lock();
+			depth = i;
+			choices = temp;
+			principle_value[i] = max_element(
+				choices.begin(), choices.end(),
+				[](const choice& c1, const choice& c2) -> bool{
+					return c1.rnd_val < c2.rnd_val;
+				}
+			)->val;
+			mtx.unlock();
+		}
+	};
 
-		thread thrd(fun);
-		thrd.detach();
+	thread thrd(fun);
+	thrd.detach();
 
-		this_thread::sleep_for(chrono::milliseconds(900));
-		mtx.lock();
-	}
+	this_thread::sleep_for(chrono::milliseconds(900));
+	mtx.lock();
 
 	choice best{brd, 0, 0, -1};
 	if(!choices.empty()){
@@ -111,6 +128,10 @@ int main(int argc, char *argv[], char *envp[]){
 		result["debug"]["board"]["black"] = brd.bget(true);
 		result["debug"]["board"]["white"] = brd.bget(false);
 	#endif
+	for(unsigned int i = 0; i != choices.size(); ++i){
+		result["debug"]["choice"][i]["pos"] = choices[i].pos;
+		result["debug"]["choice"][i]["val"] = choices[i].val;
+	}
 
 	cout << writer.write(result) << endl;
 
