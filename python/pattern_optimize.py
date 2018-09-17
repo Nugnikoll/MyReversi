@@ -5,12 +5,12 @@ import os;
 import numpy as np;
 from scipy import optimize;
 
-mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
+mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf;
 dir_save = "./";
 
 rv.board.config();
 rv.pattern.config();
-#rv.pattern.config("../data/pattern.dat");
+rv.pattern.config("../data/pattern.dat");
 
 name = ["sample.dat", "occurrence.dat"];
 if os.path.exists(name[0]) and os.path.exists(name[1]):
@@ -26,7 +26,7 @@ else:
 	occurrence = rv.mat_i();
 	sample = rv.sample_gen(size, occurrence);
 	time_end = time.time();
-	print("time:", time_end - time_begin);
+	print("time: ", time_end - time_begin);
 	sample.save(name[0]);
 	occurrence.save(name[1]);
 
@@ -42,7 +42,7 @@ else:
 	time_begin = time.time();
 	target = rv.evaluate(sample, mthd & ~rv.mthd_ptn & ~rv.mthd_trans, 4);
 	time_end = time.time();
-	print("time:", time_end - time_begin);
+	print("time: ", time_end - time_begin);
 	target.save(name);
 
 ptn_shape = rv.pattern().numpy().shape;
@@ -68,7 +68,7 @@ result = optimize.minimize(
 	}
 )
 time_end = time.time();
-print("time:", time_end - time_begin);
+print("time: ", time_end - time_begin);
 
 print(result);
 ptn = rv.pattern(result.x.reshape(ptn_shape));
