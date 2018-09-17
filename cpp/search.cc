@@ -904,6 +904,9 @@ vector<choice> board::get_choice(
 		for(choice& c: choices){
 			result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 			c.val = result;
+			if(mthd & mthd_kill){
+				ptr_val[c.pos] = result;
+			}
 			best = max(best, result);
 		}
 
@@ -918,6 +921,9 @@ vector<choice> board::get_choice(
 				for(choice& c: choices){
 					result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 					c.val = result;
+					if(mthd & mthd_kill){
+						ptr_val[c.pos] = result;
+					}
 					best = max(best, result);
 				}
 			}while(best <= window_alpha && best > alpha);
@@ -931,6 +937,9 @@ vector<choice> board::get_choice(
 				for(choice& c: choices){
 					result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 					c.val = result;
+					if(mthd & mthd_kill){
+						ptr_val[c.pos] = result;
+					}
 					best = max(best, result);
 				}
 			}while(best >= window_beta && best < beta);
