@@ -702,7 +702,11 @@ matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height
 	matrix<val_type> result(brds.geth(), 1);
 	for(int i = 0; i != brds.geth(); ++i){
 		result.at(i) = brds.at(i).search(mthd, true, height);
+		if(i % 100 == 0){
+			cout << "\rfinish " << i << "/" << brds.geth();
+		}
 	}
+	cout << endl;
 	return result;
 }
 
