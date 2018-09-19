@@ -272,6 +272,7 @@ int* const table_reverse_b4 = table_reverse_7;
 int* const table_reverse_b5 = table_reverse_8;
 int table_reverse_c1[1 << 9];
 int table_reverse_c2[1 << 10];
+int table_rotate_a1[1 << 10];
 
 void pattern::config(){
 	ull j = 0;
@@ -321,6 +322,11 @@ void pattern::config(){
 		board::mirror_v(j);
 		table_reverse_c2[i] = board::extract(j, ptn_c2);
 	}
+	for(ull i = 0; i != 1024; ++i){
+		j = board::deposit(i, ptn_a1_v);
+		board::rotate_r(j);
+		table_rotate_a1[i] = board::extract(j, ptn_a1);
+	}
 }
 
 val_type board::score_ptn(cbool color, const pattern& ptn)const{
@@ -362,19 +368,15 @@ val_type board::score_ptn(cbool color, const pattern& ptn)const{
 
 	//vertical pattern
 	index = bias_a1_v;
-	index += board::extract(brd_blue, 0x0002000000000200) << 18;
-	index += board::extract(brd_blue, 0x0101010101010101) << 10;
-	index += board::extract(brd_green, 0x0002000000000200) << 8;
-	index += board::extract(brd_green, 0x0101010101010101);
+	index += table_rotate_a1[board::extract(brd_blue, ptn_a1_v)] << 10;
+	index += table_rotate_a1[board::extract(brd_green, ptn_a1_v)];
 	result += ptn.table[index];
 	extract_pattern(a2_v, brd);
 	extract_pattern(a3_v, brd);
 	extract_pattern(a4_v, brd);
 	index = bias_a1_v;
-	index += board::extract(brd_h_blue, 0x0002000000000200) << 18;
-	index += board::extract(brd_h_blue, 0x0101010101010101) << 10;
-	index += board::extract(brd_h_green, 0x0002000000000200) << 8;
-	index += board::extract(brd_h_green, 0x0101010101010101);
+	index += table_rotate_a1[board::extract(brd_h_blue, ptn_a1_v)] << 10;
+	index += table_rotate_a1[board::extract(brd_h_green, ptn_a1_v)];
 	result += ptn.table[index];
 	extract_pattern(a2_v, brd_h);
 	extract_pattern(a3_v, brd_h);
