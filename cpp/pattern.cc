@@ -456,19 +456,15 @@ void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
 
 	//vertical pattern
 	index = bias_a1_v;
-	index += board::extract(brd_blue, 0x0002000000000200) << 18;
-	index += board::extract(brd_blue, 0x0101010101010101) << 10;
-	index += board::extract(brd_green, 0x0002000000000200) << 8;
-	index += board::extract(brd_green, 0x0101010101010101);
+	index += table_rotate_a1[board::extract(brd_blue, ptn_a1_v)] << 10;
+	index += table_rotate_a1[board::extract(brd_green, ptn_a1_v)];
 	ptn.table[index] += value;
 	extract_pattern(a2_v, brd);
 	extract_pattern(a3_v, brd);
 	extract_pattern(a4_v, brd);
 	index = bias_a1_v;
-	index += board::extract(brd_h_blue, 0x0002000000000200) << 18;
-	index += board::extract(brd_h_blue, 0x0101010101010101) << 10;
-	index += board::extract(brd_h_green, 0x0002000000000200) << 8;
-	index += board::extract(brd_h_green, 0x0101010101010101);
+	index += table_rotate_a1[board::extract(brd_h_blue, ptn_a1_v)] << 10;
+	index += table_rotate_a1[board::extract(brd_h_green, ptn_a1_v)];
 	ptn.table[index] += value;
 	extract_pattern(a2_v, brd_h);
 	extract_pattern(a3_v, brd_h);
