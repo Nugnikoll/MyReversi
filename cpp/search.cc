@@ -991,3 +991,22 @@ vector<choice> board::get_choice(
 	return result;
 	#endif
 }
+
+vector<int> board::get_pv(bool color)const{
+	vector<int> result;
+	sts_type status;
+
+	board brd = *this;
+	while(true){
+		slot slt = bkt.probe(brd.get_key(color));
+		if(slt.brd != brd){
+			break;
+		}
+		result.push_back(slt.pos);
+		brd.flip(color, slt.pos);
+		status = brd.get_status(!color);
+		color = status & sts_black;
+	}
+
+	return result;
+}
