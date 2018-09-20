@@ -729,9 +729,11 @@ public:
 		static void save_log(const string& filename);
 	#endif //DEBUG_SEARCH
 
+	vector<int> get_pv(bool color)const;
+
 protected:
 
-	ull brd_white,brd_black;
+	ull brd_white, brd_black;
 
 	static void config_flip();
 	static void config_search();
