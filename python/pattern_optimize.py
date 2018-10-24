@@ -41,7 +41,7 @@ else:
 	while response != "y" and response != "n":
 		response = input("Whether generate target with old pattern? y/[n] ");
 	if response == "y":
-		rv.pattern.config("./pattern.dat");
+		rv.pattern.config("./pattern_balance.dat");
 		mthd = mthd | rv.mthd_ptn;
 	print("generate target");
 	time_begin = time.time();
@@ -53,7 +53,7 @@ else:
 ptn_shape = rv.pattern().numpy().shape;
 weight = np.zeros(ptn_shape).ravel();
 target_np = target.numpy();
-occurrence_np = np.sqrt(occurrence.numpy());
+occurrence_np = occurrence.numpy() ** (3 / 4);
 
 def fun(weight):
 	value = rv.evaluate(rv.pattern(weight.reshape(ptn_shape)), sample);
