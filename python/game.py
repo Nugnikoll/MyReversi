@@ -120,7 +120,7 @@ class game:
 					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
 					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
-		
+
 		#show where is the last move
 		if check(self.pos):
 			if self.get(self.pos[0], self.pos[1]) == rv.black:
@@ -157,7 +157,10 @@ class game:
 				x = self.pv[i] & 0x7;
 				y = self.pv[i] >> 3;
 				if color:
-					dc.SetBrush(wx.Brush(wx.TransparentColour));
+					if brd_move & (1 << self.pv[i]):
+						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
+					else:
+						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
 					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
 					dc.SetTextForeground(wx.Colour(20,20,20));
@@ -168,7 +171,10 @@ class game:
 						bias + cell * y + cell / 2 - 8
 					);
 				else:
-					dc.SetBrush(wx.Brush(wx.TransparentColour));
+					if brd_move & (1 << self.pv[i]):
+						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
+					else:
+						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
 					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
 					dc.SetTextForeground(wx.Colour(230,230,230));
