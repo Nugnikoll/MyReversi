@@ -8,6 +8,8 @@ import reversi as rv;
 import json;
 import subprocess as sp;
 from enum import Enum;
+import numpy as np;
+import torch;
 
 bias = 34;
 num = 8;

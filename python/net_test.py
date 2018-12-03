@@ -55,47 +55,31 @@ target_np = target.numpy();
 #sample_ts = torch.Tensor(sample_np);
 #target_ts = torch.Tensor(target_np);
 
-def train(epoch, sample_np, target_np, batch_size):
-	model.train();
+def test(epoch, sample_np, target_np, batch_size):
+	model.eval();
 	index = np.array(range(sample_np.shape[0]));
 	np.random.shuffle(index);
-	sample_np = sample_np[index, :, :];
-	target_np = target_np[index, :];
-	sample_ts = torch.Tensor(sample_np);
-	target_ts = torch.Tensor(target_np);
-	for i in range(sample_np.shape[0] // batch_size):
-		sample_batch = sample_ts[i * batch_size: (i + 1) * batch_size];
-		target_batch = target_ts[i * batch_size: (i + 1) * batch_size];
-		optimizer.zero_grad();
+	sample_npi = sample_np[index, :, :];
+	target_npi = target_np[index, :];
+	with torch.no_grad():
+		sample_ts = torch.Tensor(sample_npi);
+		target_ts = torch.Tensor(target_npi);
+		sample_batch = sample_ts[0: batch_size];
+		target_batch = target_ts[0: batch_size];
 		result = model(sample_batch);
 		loss = fun.mse_loss(result, target_batch);
-		loss.backward();
-		optimizer.step();
-		if i % 10 == 0:
-			print("train epoch: {} [{}/{} ({:.0f}%)]\tloss: {:.6f}".format(
-				epoch, i * batch_size, sample_np.shape[0],
-				100. * i / (sample_np.shape[0] // batch_size), loss.item()
-			));
-#			print("result");
-#			print(result);
-#			print("target");
-#			print(target_batch);
-#			input();
+		for i in range(batch_size):
+			print(result[i], target_batch[i]);
+			sample[int(index[i])]._print();
+			print();
 
 file_model = "model.pt";
 file_optim = "optim.pt";
-batch_size = 1000;
+batch_size = 10;
 model = network();
-optimizer = optim.Adam(model.parameters(), lr = 0.001);
 
 if os.path.exists(file_model):
 	model.load_state_dict(torch.load(file_model));
-else:
-	model.initial();
-if os.path.exists(file_optim):
-	optimizer.load_state_dict(torch.load(file_optim));
 
-for epoch in range(100):
-	train(epoch, sample_np, target_np, batch_size);
-	torch.save(model.state_dict(), file_model);
-	torch.save(optimizer.state_dict(), file_optim)
+epoch = 0;
+test(epoch, sample_np, target_np, batch_size);
