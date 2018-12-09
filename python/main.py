@@ -197,6 +197,8 @@ class reversi_app(wx.App):
 		self.menubar.Append(menu_file, "&File");
 		menu_edit = wx.Menu();
 		self.menubar.Append(menu_edit, "&Edit");
+		menu_analyze = wx.Menu();
+		self.menubar.Append(menu_analyze, "&Analyze");
 		menu_setting = wx.Menu();
 		self.menubar.Append(menu_setting, "&Setting");
 		menu_help = wx.Menu();
@@ -243,11 +245,6 @@ class reversi_app(wx.App):
 		menu_edit.Append(menu_redo);
 		menu_transform = wx.Menu();
 		menu_edit.Append(wx.NewId(), "&Transform", menu_transform);
-		menu_eval = wx.MenuItem(
-			menu_edit, id = wx.NewId(),
-			text = "&Evaluate\tCtrl+E",
-		);
-		menu_edit.Append(menu_eval);
 		menu_clear = wx.Menu();
 		menu_edit.Append(wx.NewId(), "&Clear", menu_clear);
 
@@ -300,6 +297,23 @@ class reversi_app(wx.App):
 			text = "Clear Log"
 		);
 		menu_clear.Append(menu_clear_log);
+
+		#add items to menu_analyze
+		menu_search = wx.MenuItem(
+			menu_analyze, id = wx.NewId(),
+			text = "Search\tCtrl+A",
+		);
+		menu_analyze.Append(menu_search);
+		menu_choice = wx.MenuItem(
+			menu_analyze, id = wx.NewId(),
+			text = "Show Choices\tCtrl+E",
+		);
+		menu_analyze.Append(menu_choice);
+		menu_pv = wx.MenuItem(
+			menu_analyze, id = wx.NewId(),
+			text = "Show &Principle Variation\tCtrl+P",
+		);
+		menu_analyze.Append(menu_pv);
 
 		#add items to menu_setting
 		self.menu_algorithm = wx.Menu();
@@ -382,7 +396,9 @@ class reversi_app(wx.App):
 		self.Bind(wx.EVT_MENU, self.on_quit, id = menu_quit.GetId());
 		self.Bind(wx.EVT_MENU, self.on_undo, id = menu_undo.GetId());
 		self.Bind(wx.EVT_MENU, self.on_redo, id = menu_redo.GetId());
-		self.Bind(wx.EVT_MENU, self.on_eval, id = menu_eval.GetId());
+		self.Bind(wx.EVT_MENU, self.on_search, id = menu_search.GetId());
+		self.Bind(wx.EVT_MENU, self.on_choice, id = menu_choice.GetId());
+		self.Bind(wx.EVT_MENU, self.on_pv, id = menu_pv.GetId());
 		self.Bind(wx.EVT_MENU, self.on_clear_log, id = menu_clear_log.GetId());
 		self.Bind(wx.EVT_MENU, self.on_clear_term, id = menu_clear_term.GetId());
 		self.Bind(wx.EVT_MENU, self.on_about, id = menu_about.GetId());
@@ -428,10 +444,10 @@ class reversi_app(wx.App):
 	def on_text_input_textenter(self, event):
 		self.process(self.text_input.GetValue());
 
-	def on_quit(self,event):
+	def on_quit(self, event):
 		self.frame.Close();
 
-	def on_about(self,event):
+	def on_about(self, event):
 		wx.MessageBox("Reversi Game\nBy Rick", "About");
 
 	#paint on panel_board
@@ -444,7 +460,7 @@ class reversi_app(wx.App):
 		mygame.do_show(dc);
 
 	#click on the panel board
-	def on_panel_board_leftdown(self,event):
+	def on_panel_board_leftdown(self, event):
 		# if mygame.is_lock:
 			# return;
 		pos = event.GetPosition();
@@ -518,7 +534,7 @@ class reversi_app(wx.App):
 
 			self.sizer_note.Layout();
 
-	def on_text_path_enter(self,event):
+	def on_text_path_enter(self, event):
 		if event.GetId() == self.text_path_black.GetId():
 			self.process(
 				"mygame.ply[True].path = \""
@@ -532,7 +548,7 @@ class reversi_app(wx.App):
 				+ "\";"
 			);
 
-	def on_button_folder_click(self,event):
+	def on_button_folder_click(self, event):
 		if sys.platform == "win32":
 			wildcard = "*.exe";
 		else:
@@ -572,10 +588,10 @@ class reversi_app(wx.App):
 				);
 
 	#start a new game
-	def on_start(self,event):
+	def on_start(self, event):
 		self.process("mygame.start();");
 
-	def on_undo(self,event):
+	def on_undo(self, event):
 		self.process("mygame.undo();");
 
 	def on_redo(self, event):
@@ -596,8 +612,14 @@ class reversi_app(wx.App):
 		elif num == 5:
 			self.process("mygame.reverse();");
 
-	def on_eval(self,event):
-		self.process("_print(mygame.get_choice(mygame.mthd,mygame.color,mygame.depth));");
+	def on_search(self, event):
+		self.process("_print(mygame.search(mygame.mthd, mygame.color, mygame.depth));");
+
+	def on_choice(self, event):
+		self.process("_print(mygame.get_choice(mygame.mthd, mygame.color, mygame.depth));");
+
+	def on_pv(self, event):
+		self.process("_print(mygame.get_pv(mygame.color));");
 
 	def on_clear_log(self, event):
 		self.process("self.text_log.Clear();");
@@ -609,7 +631,7 @@ class reversi_app(wx.App):
 		self.process("self.text_log.Clear();");
 		self.process("self.text_term.Clear();");
 
-	def on_menu_alg(self,event):
+	def on_menu_alg(self, event):
 		id = event.GetId();
 		item = self.menu_algorithm.FindItemById(id);
 
@@ -634,7 +656,7 @@ class reversi_app(wx.App):
 
 				self.process("mygame.mthd &= ~" + item.mthd_str + ";");
 
-	def on_menu_level(self,event):
+	def on_menu_level(self, event):
 		pos = 0;
 		for i in self.menu_level.GetMenuItems():
 			i.Check(False);
@@ -655,7 +677,7 @@ class reversi_app(wx.App):
 			_print("fail to launch the thread!");
 			self.thrd_lock = False;
 
-	def thrd_catch(self,event):
+	def thrd_catch(self, event):
 		self.thrd_lock = False;
 
 	def thrd_wrap(self,fun,param):

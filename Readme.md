@@ -24,13 +24,13 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- [swig](http://swig.org/)
 	- [wxPython](https://www.wxpython.org/)
 	- [numpy](http://www.numpy.org/)
-	- [CMake](https://cmake.org/)
+	- [CMake](https://cmake.org/)  
+	Please make sure that the directory of python3, swig and cmake has been appended to the environment variable PATH.
 
 - Build the library for reversi  
 	Compile the source code and generate dynamic link library (_reversi.so or _reversi.pyd)  
 	`cd build`  
-	`cmake -DCMAKE_BUILD_TYPE=RELEASE
-.` (To generate MinGW Makefiles on windows, it should be `cmake -G"MinGW Makefiles"  -DCMAKE_BUILD_TYPE=RELEASE .`)  
+	`cmake -DCMAKE_BUILD_TYPE=RELEASE .` (DO NOT OMIT THE TRAILING DOT. To generate MinGW G++ Makefiles on windows, it should be `cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=RELEASE .`)  
 	`make`  
 	`cd ..`  
 
@@ -66,6 +66,12 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 		│		└───python/main.py (python GUI project)
 		│
 		└───botzone/main.cc (Botzone online project)
+
+- Training  
+	Besides the dependencies metioned before, scipy is also required here. To train with random self-play games, simply enter the directory /python and execute the script pattern_optimize.py .  
+	`cd python`
+	`python3 pattern_optimize.py`
+	If you want to perform training with custom parameters, type `python3 pattern_optimize.py --help` for help.
 
 - Profile (only available on UNIX-like systems)
 	- Prerequisites

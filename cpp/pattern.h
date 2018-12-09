@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "matrix.h"
 #include "type.h"
@@ -19,8 +20,6 @@ extern pattern ptn;
 
 extern int table_map[65536];
 extern int table_map_inv[6561];
-extern int table_reverse[256];
-extern int table_shuffle[256];
 
 class pattern{
 public:
@@ -28,56 +27,29 @@ public:
 	pattern(const pattern&) = default;
 	pattern(pattern&&) = default;
 	pattern(int h, int w, val_type* ptr){
-		assert(h == size);
-		assert(w == length);
+		assert(h == 1);
+		assert(w == size);
 		memcpy(table, ptr, sizeof(table));
 	}
 
 	pattern& operator=(const pattern&) = default;
 	pattern& operator=(pattern&&) = default;
 
-	static const size_t size = 10;
-	static const size_t size_n = 36;
-	static const size_t length = 1 << 16;
-	static const size_t length_compress = 6561;
-	static const ull table_mask[size_n];
+	static const int size = 2643200;
 
-	val_type table[size * length];
+	val_type table[size];
 
 	void initial(){
 		memset(table, 0, sizeof(table));
 	}
 
 	void numpy(int* h, int*w, val_type** ptr){
-		*h = size;
-		*w = length;
+		*h = 1;
+		*w = size;
 		*ptr = table;
 	}
 
-	static void config(){
-		ull j = 0;
-		for(ull i = 0; i != length; ++i){
-			if((i & (i >> 8)) == 0){
-				table_map[i] = j;
-				table_map_inv[j] = i;
-				++j;
-			}else{
-				table_map[i] = -1;
-			}
-		}
-
-		for(ull i = 0; i != 256; ++i){
-			j = board::deposit(i, 0x0101010101010101);
-			board::mirror_v(j);
-			j = board::extract(j, 0x0101010101010101);
-			table_reverse[i] = j;
-
-			j = board::deposit(i, 0x2004801002400801);
-			board::rotate_r(j);
-			j = board::extract(j, 0x0420010840021080);
-			table_shuffle[i] = j;
-		}
-	}
+	static void config();
 
 	static void config(const string& path){
 		ptn.load(path);
@@ -104,15 +76,14 @@ public:
 	}
 
 	void load(const string& path);
-	void load(istream& fin);
 	void save(const string& path)const;
-	void save(ostream& fout)const;
 
 	void balance();
 };
 
 matrix<board> sample_gen(cint n);
-matrix<val_type> evaluate(const matrix<board>& brds,cmethod mthd,cshort height);
+matrix<board> sample_gen(cint n, matrix<int>& occurrence);
+matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height);
 matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
 void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
 

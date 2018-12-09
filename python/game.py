@@ -23,19 +23,17 @@ def check(pos):
 
 def coord2str(self):
 	return "(%d,%d)" % (self.x,self.y);
-setattr(reversi.coordinate,"__str__",coord2str);
+setattr(reversi.coordinate, "__str__", coord2str);
 
 def choice2str(self):
 	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
-setattr(reversi.choice,"__str__",choice2str);
+setattr(reversi.choice, "__str__", choice2str);
 
-def choices2str(self):
-	return "[" + ",".join([choice2str(c) for c in self]) + "]";
-setattr(reversi.choices,"__str__",choices2str);
-
-def floats2str(self):
-	return "[" + ",".join([str(f) for f in self]) + "]";
-setattr(reversi.floats,"__str__",floats2str)
+def vals2str(self):
+	return "[" + ",".join([str(v) for v in self]) + "]";
+setattr(reversi.ints, "__str__", vals2str);
+setattr(reversi.floats, "__str__", vals2str);
+setattr(reversi.choices, "__str__", vals2str);
 
 if sys.platform == "win32":
 	default_path = "../bot/reversi.exe";
@@ -46,19 +44,20 @@ class player:
 	pass;
 
 class game:
-	brd = rv.board(0, 0);
-	color = True;
-	pos = (-1, -1);
-	mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
-	depth = -1;
-	flag_auto_save = True;
-	flag_lock = True;
-	ply = (player(), player());
-	record = [];
-	storage = [];
-	choices = None;
-
 	def __init__(self):
+		self.brd = rv.board(0, 0);
+		self.color = True;
+		self.pos = (-1, -1);
+		self.mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
+		self.depth = -1;
+		self.flag_auto_save = True;
+		self.flag_lock = True;
+		self.ply = (player(), player());
+		self.record = [];
+		self.storage = [];
+		self.choices = None;
+		self.pv = None;
+
 		self.ply[False].type = rv.ply_ai;
 		self.ply[False].path = default_path
 		self.ply[True].type = rv.ply_human;
@@ -121,7 +120,7 @@ class game:
 					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
 					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
-		
+
 		#show where is the last move
 		if check(self.pos):
 			if self.get(self.pos[0], self.pos[1]) == rv.black:
@@ -151,9 +150,52 @@ class game:
 					bias + cell * y + cell / 2 - 8
 				);
 
-	def paint(self, show_choice = False):
+		if not (self.pv is None):
+			brd = rv.board(self.brd);
+			color = self.color;
+			for i in range(len(self.pv)):
+				x = self.pv[i] & 0x7;
+				y = self.pv[i] >> 3;
+				if color:
+					if brd_move & (1 << self.pv[i]):
+						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
+					else:
+						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
+					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
+					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
+					dc.SetTextForeground(wx.Colour(20,20,20));
+					s = "%d" % (i + 1);
+					dc.DrawText(
+						s,
+						bias + cell * x  + cell / 2 - 3.5 * len(s),
+						bias + cell * y + cell / 2 - 8
+					);
+				else:
+					if brd_move & (1 << self.pv[i]):
+						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
+					else:
+						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
+					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
+					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
+					dc.SetTextForeground(wx.Colour(230,230,230));
+					s = "%d" % (i + 1);
+					dc.DrawText(
+						s,
+						bias + cell * x  + cell / 2 - 3.5 * len(s),
+						bias + cell * y + cell / 2 - 8
+					);
+				brd.flip(color, self.pv[i]);
+				status = brd.get_status(not color);
+				if status & rv.sts_black:
+					color = True;
+				else:
+					color = False;
+
+	def paint(self, show_choice = False, show_pv = False):
 		if not show_choice:
 			self.choices = None;
+		if not show_pv:
+			self.pv = None;
 		evt = wx.PaintEvent(self.panel_board.GetId());
 		self.panel_board.GetEventHandler().ProcessEvent(evt);
 
@@ -376,8 +418,8 @@ class game:
 
 		return result;
 
-	def search(mthd, color, depth = -1, alpha = rv._inf, beta = rv.inf):
-		(mthd, depth) = process_method(mthd, depth);
+	def search(self, mthd, color, depth = -1, alpha = rv._inf, beta = rv.inf):
+		(mthd, depth) = self.process_method(mthd, depth);
 		return self.brd.search(mthd, color, depth, alpha, beta);
 
 	def get_choice(self, mthd, color, depth = -1):
@@ -389,6 +431,12 @@ class game:
 
 	def select_choice(self, choices):
 		return self.brd.select_choice(choices);
+
+	def get_pv(self, color):
+		result = self.brd.get_pv(color);
+		self.pv = result;
+		self.paint(show_pv = True);
+		return result;
 
 	def play_ai(self, mthd = None, color = None, depth = None):
 
