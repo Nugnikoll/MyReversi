@@ -25,7 +25,11 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
-	ptn.load("../data/pattern.dat");
+	#ifdef _BOTZONE_ONLINE
+		ptn.load("../data/pattern_test.dat");
+	#else
+		ptn.load("../data/pattern.dat");
+	#endif
 	brd.initial();
  
  	// input JSON
@@ -60,7 +64,7 @@ int main(int argc, char *argv[], char *envp[]){
 	if (x >= 0)
 		brd.flip(!color,x + (y << 3)); // 模拟对方落子
 
-	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans);
+	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans | mthd_mtdf);
 	short depth;
 	vector<choice> choices;
 	mutex mtx;

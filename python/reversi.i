@@ -9,13 +9,13 @@
 %feature("director") game;
 
 %{
-#define SWIG_FILE_WITH_INIT
-#include "../cpp/type.h"
-#include "../cpp/asm.h"
-#include "../cpp/board.h"
-#include "../cpp/matrix.h"
-#include "../cpp/pattern.h"
-#include "../cpp/log.h"
+	#define SWIG_FILE_WITH_INIT
+	#include "../cpp/type.h"
+	#include "../cpp/asm.h"
+	#include "../cpp/board.h"
+	#include "../cpp/matrix.h"
+	#include "../cpp/pattern.h"
+	#include "../cpp/log.h"
 %}
 
 %include "numpy.i"
@@ -49,7 +49,7 @@ import_array();
 %template(boards) std::vector<board>;
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
-%template(pair_method) std::pair<method,short>;
+%template(pair_method) std::pair<method, short>;
 
 %template(mat_i) matrix<int>;
 %template(mat_f) matrix<float>;

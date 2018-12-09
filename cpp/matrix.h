@@ -15,11 +15,11 @@ class matrix{
 public:
     matrix(): height(0), width(0), table(NULL){}
 
-    matrix(const int& h,const int& w): height(h), width(w){
+    matrix(const int& h, const int& w): height(h), width(w){
 		table = new T[height * width];
     }
 
-    matrix(int h,int w, T* ptr): height(h), width(w){
+    matrix(int h, int w, T* ptr): height(h), width(w){
 		table = new T[height * width];
 		memcpy(table,ptr,sizeof(T) * height * width);
     }
@@ -85,6 +85,13 @@ public:
 		m.table = NULL;
 		return *this;
     }
+
+	void resize(const int& h, const int& w){
+		delete[] table;
+		height = h;
+		width = w;
+		table = new T[height * width];
+	}
 
 	void load(const std::string& filename){
 		ifstream fin(filename);

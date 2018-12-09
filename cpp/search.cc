@@ -904,6 +904,9 @@ vector<choice> board::get_choice(
 		for(choice& c: choices){
 			result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 			c.val = result;
+			if(mthd & mthd_kill){
+				ptr_val[c.pos] = result;
+			}
 			best = max(best, result);
 		}
 
@@ -918,6 +921,9 @@ vector<choice> board::get_choice(
 				for(choice& c: choices){
 					result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 					c.val = result;
+					if(mthd & mthd_kill){
+						ptr_val[c.pos] = result;
+					}
 					best = max(best, result);
 				}
 			}while(best <= window_alpha && best > alpha);
@@ -931,6 +937,9 @@ vector<choice> board::get_choice(
 				for(choice& c: choices){
 					result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 					c.val = result;
+					if(mthd & mthd_kill){
+						ptr_val[c.pos] = result;
+					}
 					best = max(best, result);
 				}
 			}while(best >= window_beta && best < beta);
@@ -941,7 +950,7 @@ vector<choice> board::get_choice(
 			window_alpha = range_alpha - window_width;
 			range_alpha = window_alpha;
 			for(choice& c: choices){
-				if(c.val < window_beta){
+				if(c.val < window_beta && c.val > best - threshold){
 					c.val = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 				}
 			}
@@ -981,4 +990,23 @@ vector<choice> board::get_choice(
 	search_log.insert(node{*this, color, height, depth, _inf, inf, best});
 	return result;
 	#endif
+}
+
+vector<int> board::get_pv(bool color)const{
+	vector<int> result;
+	sts_type status;
+
+	board brd = *this;
+	while(true){
+		slot slt = bkt.probe(brd.get_key(color));
+		if(slt.brd != brd){
+			break;
+		}
+		result.push_back(slt.pos);
+		brd.flip(color, slt.pos);
+		status = brd.get_status(!color);
+		color = status & sts_black;
+	}
+
+	return result;
 }
