@@ -6,14 +6,14 @@ from scipy import optimize;
 import argparse
 import reversi as rv;
 
-parser = argparse.ArgumentParser(description = "Training parameters for reversi programming");
+parser = argparse.ArgumentParser(description = "training parameters for reversi programming");
 parser.add_argument("--num-simulate", type = int, default = 10000, help = "number of random self-play games (default: 10000)");
 parser.add_argument("--path-sample", type = str, default = "./sample.dat", help = "path to find sample (default: ./sample.dat) sample will be generated if it cannot be found here");
 parser.add_argument("--path-occur", type = str, default = "./occurrence.dat", help = "path to find count of occurrence (default: ./occurrence.dat) sample will be generated if it cannot be found here");
 parser.add_argument("--path-target", type = str, default = "./target.dat", help = "path to find target of optimization (default: ./target) target will be generated if it cannot be found here");
 parser.add_argument("--path-save", type = str, default = "./pattern.dat", help = "path to save training result (default: ./pattern.dat)");
 parser.add_argument("--path-pattern", type = str, default = "", help = "generate target with old pattern and specify the path to find it");
-parser.add_argument("--epoch", type = int, default = 400, help = "The number of epochs to run (default: 400)");
+parser.add_argument("--epoch", type = int, default = 400, help = "the number of epochs to run (default: 400)");
 args = parser.parse_args();
 
 mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_mtdf;
@@ -61,8 +61,6 @@ ptn_shape = rv.pattern().numpy().shape;
 weight = np.zeros(ptn_shape, dtype = np.float64).ravel();
 target_np = target.numpy();
 occurrence_np = occurrence.numpy() ** (3 / 4);
-target_np = np.exp(target_np / 10);
-target_np = (target_np / (target_np + 1) - 0.5) * 128;
 
 def fun(weight):
 	global size;
