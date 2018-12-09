@@ -11,9 +11,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 ### Download
 Here are prebuilt binaries. Download and extract one to the subdirectory python/ .  
 	[library for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_windows_x64.zip)  
-	[library for Windows 64-bit which supports BMI2 instruction set](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_windows_x64_bmi2.zip)  
-	[library for Linux 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_linux_x64.tar.gz)  
-	[library for Linux 64-bit which supports BMI2 instruction set](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_linux_x64_bmi2.tar.gz)
+	[library for Windows 64-bit which supports BMI2 instruction set](https://github.com/Nugnikoll/MyReversi/releases/download/untagged-20c3c432273701ae53ef/reversi_windows_x64_bmi2.zip)
 
 ### Build
 
@@ -69,8 +67,8 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 
 - Training  
 	Besides the dependencies metioned before, scipy is also required here. To train with random self-play games, simply enter the directory /python and execute the script pattern_optimize.py .  
-	`cd python`
-	`python3 pattern_optimize.py`
+	`cd python`  
+	`python3 pattern_optimize.py`  
 	If you want to perform training with custom parameters, type `python3 pattern_optimize.py --help` for help.
 
 - Profile (only available on UNIX-like systems)
