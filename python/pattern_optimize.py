@@ -29,12 +29,13 @@ else:
 	sample.save(name[0]);
 	occurrence.save(name[1]);
 
-print("sample size: ", sample.geth());
+size = sample.geth();
+print("sample size: ", size);
 
 name = "target.dat";
 if os.path.exists(name):
 	print("target already exists");
-	target = rv.mat_lf();
+	target = rv.mat_f();
 	target.load(name);
 else:
 	response = "";
@@ -51,19 +52,20 @@ else:
 	target.save(name);
 
 ptn_shape = rv.pattern().numpy().shape;
-weight = np.zeros(ptn_shape).ravel();
+weight = np.zeros(ptn_shape, dtype = np.float64).ravel();
 target_np = target.numpy();
 occurrence_np = occurrence.numpy() ** (3 / 4);
 
 def fun(weight):
-	value = rv.evaluate(rv.pattern(weight.reshape(ptn_shape)), sample);
+	global size;
+	value = rv.evaluate(rv.pattern(weight.astype(np.float32).reshape(ptn_shape)), sample);
 	delta = value.numpy() - target_np;
-	loss = (delta ** 2 * occurrence_np).sum();
+	loss = (delta ** 2 * occurrence_np).mean();
 	ptn_grad = rv.pattern();
 	ptn_grad.initial();
-	rv.adjust(ptn_grad, sample, rv.mat_lf(delta * occurrence_np));
+	rv.adjust(ptn_grad, sample, rv.mat_f((delta * occurrence_np).astype(np.float32)));
 	grad = ptn_grad.numpy().ravel();
-	return (loss, grad * 2);
+	return (loss.astype(np.float64), (grad * 2 / size).astype(np.float64));
 
 time_begin = time.time();
 result = optimize.minimize(
@@ -78,5 +80,5 @@ time_end = time.time();
 print("time: ", time_end - time_begin);
 
 print(result);
-ptn = rv.pattern(result.x.reshape(ptn_shape));
+ptn = rv.pattern(result.x.astype(np.float32).reshape(ptn_shape));
 ptn.save("pattern.dat");
