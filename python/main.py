@@ -416,10 +416,9 @@ class reversi_app(wx.App):
 
 		#show the frame
 		self.frame.Show(True);
+		self.tree_list.Hide();
 
 		#define a function which prints strings on text_term
-		global _print;
-		_print = lambda *args: self.text_term.AppendText(" ".join([str(x) for x in args]) + "\n");
 
 		self.thrd_lock = False;
 		mygame.panel_board = self.panel_board;
@@ -432,11 +431,20 @@ class reversi_app(wx.App):
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
 		time_start = time.time();
-		#try:
+
+		class redirect:
+			frame = self;
+			def write(self, buf):
+				self.frame.text_term.AppendText(buf);
+
+		stdout_save = sys.stdout;
+		stderr_save = sys.stderr;
+		sys.stdout = redirect();
+		sys.stderr = redirect();
 		exec(s);
-		#except:
-		#	self.info = sys.exc_info();
-		#	_print(sys.exc_info()[1]);
+		sys.stdout = stdout_save;
+		sys.stderr = stderr_save;
+
 		time_end = time.time();
 		self.statusbar.SetStatusText("Wall time : %f seconds" % (time_end - time_start), 2);
 
@@ -613,13 +621,13 @@ class reversi_app(wx.App):
 			self.process("mygame.reverse();");
 
 	def on_search(self, event):
-		self.process("_print(mygame.search(mygame.mthd, mygame.color, mygame.depth));");
+		self.process("print(mygame.search(mygame.mthd, mygame.color, mygame.depth));");
 
 	def on_choice(self, event):
-		self.process("_print(mygame.get_choice(mygame.mthd, mygame.color, mygame.depth));");
+		self.process("print(mygame.get_choice(mygame.mthd, mygame.color, mygame.depth));");
 
 	def on_pv(self, event):
-		self.process("_print(mygame.get_pv(mygame.color));");
+		self.process("print(mygame.get_pv(mygame.color));");
 
 	def on_clear_log(self, event):
 		self.process("self.text_log.Clear();");
@@ -674,7 +682,7 @@ class reversi_app(wx.App):
 		try:
 			_thread.start_new_thread(self.thrd_wrap,(fun,param));
 		except:
-			_print("fail to launch the thread!");
+			print("fail to launch the thread!");
 			self.thrd_lock = False;
 
 	def thrd_catch(self, event):
@@ -684,13 +692,13 @@ class reversi_app(wx.App):
 		try:
 			result = fun(*param);
 		except:
-			_print("fail to launch the thread!");
+			print("fail to launch the thread!");
 			self.thrd_lock = False;
 		wx.PostEvent(self,thrd_event(None));
 
 	def sleep(self,count):
 		time.sleep(count);
-		_print("sleep for %d seconds" % count);
+		print("sleep for %d seconds" % count);
 
 	def on_tree_item_select(self, event):
 		item = event.GetItem();
