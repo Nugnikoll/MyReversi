@@ -460,86 +460,156 @@ public:
 
 		const ull& brd_blue = bget(color);
 		const ull& brd_green = bget(!color);
-		ull moves;
 		ull brd_green_inner;
-		ull brd_flip;
-		ull brd_green_adj;
+		ull moves;
 
-		brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+		#ifdef USE_ASM_AVX2
 
-		brd_flip = (brd_blue >> 1) & brd_green_inner;
-		brd_flip |= (brd_flip >> 1) & brd_green_inner;
+			ull table_brd_blue[4] __attribute__((aligned(32)));
+			ull table_brd_green[4] __attribute__((aligned(32)));
+			ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+			ull table_move[4] __attribute__((aligned(32)));
 
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
-		brd_flip |= (brd_flip >> 2) & brd_green_adj;
-		brd_flip |= (brd_flip >> 2) & brd_green_adj;
+			table_brd_blue[0] = brd_blue;
+			table_brd_blue[1] = brd_blue;
+			table_brd_blue[2] = brd_blue;
+			table_brd_blue[3] = brd_blue;
 
-		moves = brd_flip >> 1;
+			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			table_brd_green[0] = brd_green_inner;
+			table_brd_green[1] = brd_green_inner;
+			table_brd_green[2] = brd_green;
+			table_brd_green[3] = brd_green_inner;
 
-		brd_flip = (brd_blue << 1) & brd_green_inner;
-		brd_flip |= (brd_flip << 1) & brd_green_inner;
+			asm volatile(
+				"vmovapd %1, %%ymm0;"
+				"vmovapd %2, %%ymm1;"
+				"vmovapd %3, %%ymm2;"
+				"vpsllq $1, %%ymm2, %%ymm3;"
 
-		brd_green_adj = brd_green_inner & (brd_green_inner << 1);
-		brd_flip |= (brd_flip << 2) & brd_green_adj;
-		brd_flip |= (brd_flip << 2) & brd_green_adj;
+				"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm7;"
 
-		moves |= brd_flip << 1;
+				"vpsllvq %%ymm2, %%ymm0, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm4;"
+				"vpor %%ymm4, %%ymm7, %%ymm7;"
 
-		brd_flip = (brd_blue >> 8) & brd_green;
-		brd_flip |= (brd_flip >> 8) & brd_green;
+				"vmovapd %%ymm7, %0;"
+				:"=m"(table_move)
+				:"m"(table_brd_blue), "m"(table_brd_green), "m"(table_shift)
+				:
+			);
 
-		brd_green_adj = brd_green & (brd_green >> 8);
-		brd_flip |= (brd_flip >> 16) & brd_green_adj;
-		brd_flip |= (brd_flip >> 16) & brd_green_adj;
+			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
+			moves &= ~(brd_blue | brd_green);
 
-		moves |= brd_flip >> 8;
+		#else
 
-		brd_flip = (brd_blue << 8) & brd_green;
-		brd_flip |= (brd_flip << 8) & brd_green;
+			ull brd_flip;
+			ull brd_green_adj;
 
-		brd_green_adj = brd_green & (brd_green << 8);
-		brd_flip |= (brd_flip << 16) & brd_green_adj;
-		brd_flip |= (brd_flip << 16) & brd_green_adj;
+			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
 
-		moves |= brd_flip << 8;
+			brd_flip = (brd_blue >> 1) & brd_green_inner;
+			brd_flip |= (brd_flip >> 1) & brd_green_inner;
 
-		brd_flip = (brd_blue >> 7) & brd_green_inner;
-		brd_flip |= (brd_flip >> 7) & brd_green_inner;
+			brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
+			brd_flip |= (brd_flip >> 2) & brd_green_adj;
+			brd_flip |= (brd_flip >> 2) & brd_green_adj;
+
+			moves = brd_flip >> 1;
+
+			brd_flip = (brd_blue << 1) & brd_green_inner;
+			brd_flip |= (brd_flip << 1) & brd_green_inner;
+
+			brd_green_adj = brd_green_inner & (brd_green_inner << 1);
+			brd_flip |= (brd_flip << 2) & brd_green_adj;
+			brd_flip |= (brd_flip << 2) & brd_green_adj;
+
+			moves |= brd_flip << 1;
+
+			brd_flip = (brd_blue >> 8) & brd_green;
+			brd_flip |= (brd_flip >> 8) & brd_green;
+
+			brd_green_adj = brd_green & (brd_green >> 8);
+			brd_flip |= (brd_flip >> 16) & brd_green_adj;
+			brd_flip |= (brd_flip >> 16) & brd_green_adj;
+
+			moves |= brd_flip >> 8;
+
+			brd_flip = (brd_blue << 8) & brd_green;
+			brd_flip |= (brd_flip << 8) & brd_green;
+
+			brd_green_adj = brd_green & (brd_green << 8);
+			brd_flip |= (brd_flip << 16) & brd_green_adj;
+			brd_flip |= (brd_flip << 16) & brd_green_adj;
+
+			moves |= brd_flip << 8;
+
+			brd_flip = (brd_blue >> 7) & brd_green_inner;
+			brd_flip |= (brd_flip >> 7) & brd_green_inner;
+			
+			brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
+			brd_flip |= (brd_flip >> 14) & brd_green_adj;
+			brd_flip |= (brd_flip >> 14) & brd_green_adj;
+			
+			moves |= brd_flip >> 7;
+
+			brd_flip = (brd_blue << 7) & brd_green_inner;
+			brd_flip |= (brd_flip << 7) & brd_green_inner;
+
+			brd_green_adj = brd_green_inner & (brd_green_inner << 7);
+			brd_flip |= (brd_flip << 14) & brd_green_adj;
+			brd_flip |= (brd_flip << 14) & brd_green_adj;
+
+			moves |= brd_flip << 7;
+
+			brd_flip = (brd_blue >> 9) & brd_green_inner;
+			brd_flip |= (brd_flip >> 9) & brd_green_inner;
+			
+			brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
+			brd_flip |= (brd_flip >> 18) & brd_green_adj;
+			brd_flip |= (brd_flip >> 18) & brd_green_adj;
+			
+			moves |= brd_flip >> 9;
+			
+			brd_flip = (brd_blue << 9) & brd_green_inner;
+			brd_flip |= (brd_flip << 9) & brd_green_inner;
+
+			brd_green_adj = brd_green_inner & (brd_green_inner << 9);
+			brd_flip |= (brd_flip << 18) & brd_green_adj;
+			brd_flip |= (brd_flip << 18) & brd_green_adj;
+
+			moves |= brd_flip << 9;
+
+			moves &= ~(brd_blue | brd_green);
+
+		#endif //USE_ASM_AVX2
 		
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
-		brd_flip |= (brd_flip >> 14) & brd_green_adj;
-		brd_flip |= (brd_flip >> 14) & brd_green_adj;
-		
-		moves |= brd_flip >> 7;
-
-		brd_flip = (brd_blue << 7) & brd_green_inner;
-		brd_flip |= (brd_flip << 7) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 7);
-		brd_flip |= (brd_flip << 14) & brd_green_adj;
-		brd_flip |= (brd_flip << 14) & brd_green_adj;
-
-		moves |= brd_flip << 7;
-
-		brd_flip = (brd_blue >> 9) & brd_green_inner;
-		brd_flip |= (brd_flip >> 9) & brd_green_inner;
-		
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
-		brd_flip |= (brd_flip >> 18) & brd_green_adj;
-		brd_flip |= (brd_flip >> 18) & brd_green_adj;
-		
-		moves |= brd_flip >> 9;
-		
-		brd_flip = (brd_blue << 9) & brd_green_inner;
-		brd_flip |= (brd_flip << 9) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 9);
-		brd_flip |= (brd_flip << 18) & brd_green_adj;
-		brd_flip |= (brd_flip << 18) & brd_green_adj;
-
-		moves |= brd_flip << 9;
-
-		moves &= ~(brd_blue | brd_green);
 		return moves;
 	}
 

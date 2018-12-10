@@ -10,26 +10,33 @@
 using namespace std;
 
 //#define USE_REF
+//#define DEBUG_SEARCH
 
-// check whether the complier support 64-bit AT&T inline assembly
-#if defined(__GNUC__) || defined(__clang__)
-	#if defined(__x86_64__)
-		#ifndef USE_ASM
-			#define USE_ASM
+//check whether the complier support 64-bit AT&T inline assembly
+#ifndef USE_CMAKE
+	#if defined(__GNUC__) || defined(__clang__)
+		#if defined(__x86_64__)
+			#ifndef USE_ASM
+				#define USE_ASM
+			#endif
+			//#ifndef USE_ASM_BMI2
+				//#define USE_ASM_BMI2
+			//#endif
+			//#ifndef USE_ASM_AVX2
+				//#define USE_ASM_AVX2
+			//#endif
 		#endif
-		//#ifndef USE_ASM_BMI2
-			//#define USE_ASM_BMI2
-		//#endif
 	#endif
 #endif
 #ifndef USE_ASM
 	#undef USE_ASM_BMI2
+	#undef USE_ASM_AVX2
 #endif
 #ifdef _BOTZONE_ONLINE
 	#define USE_ASM
 	#define USE_ASM_BMI2
+	#define USE_ASM_AVX2
 #endif //_BOTZONE_ONLINE
-//#define DEBUG_SEARCH
 
 typedef const bool& cbool;
 typedef const short& cshort;

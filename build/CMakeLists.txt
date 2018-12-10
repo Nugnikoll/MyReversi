@@ -16,45 +16,58 @@ set (cpuid_dir "${PROJECT_SOURCE_DIR}/../cpuid")
 
 if (WIN32)
 	if ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_hypot=hypot -DMS_WIN64")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_hypot=hypot -DMS_WIN64 -DUSE_CMAKE")
 	else ()
-		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_hypot=hypot -DMS_WIN32")
+		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -D_hypot=hypot -DMS_WIN32 -DUSE_CMAKE")
 	endif ()
 else ()
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -DUSE_CMAKE")
 endif ()
 set (CMAKE_CXX_FLAGS_DEBUG "-Og -g -DDEBUG")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 try_run (
-	BMI_RUN_RESULT BMI_COMPILE_RESULT
-	${cpuid_dir} ${cpuid_dir}/bmi2.cc
+	CPUID_RUN_RESULT CPUID_COMPILE_RESULT
+	${cpuid_dir} ${cpuid_dir}/cpuid.cc
+	RUN_OUTPUT_VARIABLE CPUID_OUTPUT_VARIABLE
 )
+message (${CPUID_OUTPUT_VARIABLE})
 
-if ("${BMI_COMPILE_RESULT}" STREQUAL "TRUE")
-	message ("-- 64-bit inline assembly is supported. Define macro USE_ASM .")
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM")
-else ()
-	message ("-- 64-bit inline assembly is not supported.")
-endif ()
-if (NOT ("${BMI_RUN_RESULT}" STREQUAL "FAILED_TO_RUN"))
-	message ("-- BMI2 instruction set is supported. Define macro USE_ASM_BMI2 .")
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM_BMI2")
-else ()
-	message ("-- BMI2 instruction set is not supported.")
+if ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+	if ("${CPUID_COMPILE_RESULT}" STREQUAL "TRUE")
+		message ("-- Successfully compile a program with inline assembly.")
+		if (NOT ("${CPUID_RUN_RESULT}" STREQUAL "FAILED_TO_RUN"))
+			message ("-- Successfully execute a program with inline assembly. Define macro USE_ASM.")
+			set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM")
+			string (FIND ${CPUID_OUTPUT_VARIABLE} "bmi2 " POS_BMI2)
+			if (NOT ("${POS_BMI2}" EQUAL "-1"))
+				message ("-- BMI2 instruction set is supported. Define macro USE_ASM_BMI2.")
+				set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM_BMI2")
+			endif ()
+			string (FIND ${CPUID_OUTPUT_VARIABLE} "avx2 " POS_AVX2)
+			if (NOT ("${POS_AVX2}" EQUAL "-1"))
+				message ("-- AVX2 instruction set is supported. Define macro USE_ASM_AVX2.")
+				set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM_AVX2")
+			endif ()
+		else ()
+			message ("-- Failed to execute a program with inline assembly..")
+		endif ()
+	else ()
+		message ("-- Failed to complile a program with inline assembly.")
+	endif ()
 endif ()
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
 include (FindPythonLibs)
 include (FindPythonInterp)
-message (${PYTHON_LIBRARIES})
+message ("-- Locate python libraries at ${PYTHON_LIBRARIES}")
 execute_process(
 	COMMAND "${PYTHON_EXECUTABLE}" "-c"
 	"import numpy; print(numpy.get_include());"
 	OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
 )
-message (${NUMPY_INCLUDE_DIR})
+message ("-- Locate NumPy include files at ${NUMPY_INCLUDE_DIR}")
 
 include_directories ("${PYTHON_INCLUDE_DIRS}" "${NUMPY_INCLUDE_DIR}")
 
