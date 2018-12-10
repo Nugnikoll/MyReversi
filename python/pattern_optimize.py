@@ -48,7 +48,7 @@ if os.path.exists(name):
 	target.load(name);
 else:
 	if os.path.exists(args.path_pattern):
-		rv.pattern.config(args.path_ptn);
+		rv.pattern.config(args.path_pattern);
 		mthd = mthd | rv.mthd_ptn;
 	print("generate target");
 	time_begin = time.time();
