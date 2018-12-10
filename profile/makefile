@@ -9,7 +9,7 @@ RM = rm -f
 
 INC = 
 CFLAGS = 
-CXXFLAGS = -Wall -pg -std=c++11 -fno-omit-frame-pointer -O2
+CXXFLAGS = -Wall -pg -std=c++11 -fno-omit-frame-pointer -O2 -DUSE_ASM -DUSE_ASM_BMI2
 RESINC = 
 LIBDIR = 
 LIB = 
