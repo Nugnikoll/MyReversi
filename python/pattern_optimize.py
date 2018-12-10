@@ -47,7 +47,7 @@ if os.path.exists(name):
 	target = rv.mat_f();
 	target.load(name);
 else:
-	if os.path.exists(args.path_ptn):
+	if os.path.exists(args.path_pattern):
 		rv.pattern.config(args.path_ptn);
 		mthd = mthd | rv.mthd_ptn;
 	print("generate target");
