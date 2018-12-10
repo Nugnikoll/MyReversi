@@ -13,7 +13,7 @@ using namespace std;
 
 // check whether the complier support 64-bit AT&T inline assembly
 #if defined(__GNUC__) || defined(__clang__)
-	#if defined(__x86_64__) || defined(__ppc64__)
+	#if defined(__x86_64__)
 		#ifndef USE_ASM
 			#define USE_ASM
 		#endif

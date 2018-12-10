@@ -54,7 +54,7 @@ int main(int argc, char *argv[], char *envp[]){
  		brd.flip(!mycolor,x + (y << 3)); // 模拟对方落子
 
 	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_mtdf | mthd_ptn | mthd_trans);
-	short depth = -2;
+	short depth = 14;
 	auto p_mthd = brd.process_method(mthd, depth);
 	mthd = p_mthd.first;
 	depth = p_mthd.second;
