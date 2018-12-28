@@ -8,7 +8,7 @@
 
  */
 
-/** @file reversi.h
+/** @file board.h
  * @brief This head file is an essential part of reversi
  * where the most important class board is defined.
  * Many basic functions are declared here.
@@ -24,6 +24,7 @@
 #include <utility>
 #include <tuple>
 #include <vector>
+#include <bitset>
 
 using namespace std;
 
@@ -31,9 +32,9 @@ using namespace std;
 #include "asm.h"
 
 struct coordinate{
-	coordinate():x(-1),y(-1){}
-	coordinate(cpos_type _x,cpos_type _y):x(_x),y(_y){}
-	coordinate(cpos_type pos):x(pos & 7),y(pos >> 3){}
+	coordinate(): x(-1), y(-1){}
+	coordinate(cpos_type _x, cpos_type _y): x(_x),y(_y){}
+	coordinate(cpos_type pos): x(pos & 7), y(pos >> 3){}
 
 	pos_type x;
 	pos_type y;
@@ -78,20 +79,20 @@ public:
 	*/
 	board() = default;
 	board(const board& brd) = default;
-	board(cull _brd_black,cull _brd_white)
-		:brd_white(_brd_white),brd_black(_brd_black){}
+	board(cull _brd_black, cull _brd_white)
+		: brd_white(_brd_white), brd_black(_brd_black){}
 
-	friend bool operator==(const board& b1,const board& b2){
+	friend bool operator==(const board& b1, const board& b2){
 		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
 	}
-	friend bool operator!=(const board& b1,const board& b2){
+	friend bool operator!=(const board& b1, const board& b2){
 		return b1.brd_black != b2.brd_black || b1.brd_white != b2.brd_white;
 	}
 
 	static const pos_type size = 8;
 	static const pos_type size2 = size * size;
 
-	friend ostream& operator<<(ostream& out,const board& brd){
+	friend ostream& operator<<(ostream& out, const board& brd){
 		brd.print(out);
 		return out;
 	}
@@ -102,12 +103,14 @@ public:
 	*/
 	void print(ostream& out = cout)const;
 
+	matrix<int> to_mat()const;
+
 	/** @fn board& assign(cull _brd_black,cull _brd_white)
 	 *	@brief Assign the board to some specific value.
 	 *	@param _brd_black the value of the 64-bit board of black stones
 	 *	@param _brd_black the value of the 64-bit board of white stones
 	*/
-	void assign(cull _brd_black,cull _brd_white){
+	void assign(cull _brd_black, cull _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
 	}
@@ -197,20 +200,20 @@ public:
 		#endif
 	}
 
-	static ull extract(cull brd,cull mask){
+	static ull extract(cull brd, cull mask){
 		ull result;
 		fun_pext(brd,mask,result);
 		return result;
 	}
 
-	static ull deposit(cull brd,cull mask){
+	static ull deposit(cull brd, cull mask){
 		ull result;
-		fun_pdep(brd,mask,result);
+		fun_pdep(brd, mask, result);
 		return result;
 	}
 
 	void reverse(){
-		swap(brd_black,brd_white);
+		swap(brd_black, brd_white);
 	}
 
 	/** @fn static void mirror_h(ull& brd)
@@ -438,7 +441,7 @@ public:
 
 	ull get_key(cbool color)const{
 		ull result = (brd_black * 0xe2abbb5e6688fdcf) ^ (brd_white * 0x34df417f070da53d);
-		fun_rol(result, 20);
+		fun_rol(result, 22);
 		result += color;
 		return result;
 	}
@@ -457,86 +460,156 @@ public:
 
 		const ull& brd_blue = bget(color);
 		const ull& brd_green = bget(!color);
-		ull moves;
 		ull brd_green_inner;
-		ull brd_flip;
-		ull brd_green_adj;
+		ull moves;
 
-		brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+		#ifdef USE_ASM_AVX2
 
-		brd_flip = (brd_blue >> 1) & brd_green_inner;
-		brd_flip |= (brd_flip >> 1) & brd_green_inner;
+			ull table_brd_blue[4] __attribute__((aligned(32)));
+			ull table_brd_green[4] __attribute__((aligned(32)));
+			ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+			ull table_move[4] __attribute__((aligned(32)));
 
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
-		brd_flip |= (brd_flip >> 2) & brd_green_adj;
-		brd_flip |= (brd_flip >> 2) & brd_green_adj;
+			table_brd_blue[0] = brd_blue;
+			table_brd_blue[1] = brd_blue;
+			table_brd_blue[2] = brd_blue;
+			table_brd_blue[3] = brd_blue;
 
-		moves = brd_flip >> 1;
+			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			table_brd_green[0] = brd_green_inner;
+			table_brd_green[1] = brd_green_inner;
+			table_brd_green[2] = brd_green;
+			table_brd_green[3] = brd_green_inner;
 
-		brd_flip = (brd_blue << 1) & brd_green_inner;
-		brd_flip |= (brd_flip << 1) & brd_green_inner;
+			asm volatile(
+				"vmovapd %1, %%ymm0;"
+				"vmovapd %2, %%ymm1;"
+				"vmovapd %3, %%ymm2;"
+				"vpsllq $1, %%ymm2, %%ymm3;"
 
-		brd_green_adj = brd_green_inner & (brd_green_inner << 1);
-		brd_flip |= (brd_flip << 2) & brd_green_adj;
-		brd_flip |= (brd_flip << 2) & brd_green_adj;
+				"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm7;"
 
-		moves |= brd_flip << 1;
+				"vpsllvq %%ymm2, %%ymm0, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm4;"
+				"vpor %%ymm4, %%ymm7, %%ymm7;"
 
-		brd_flip = (brd_blue >> 8) & brd_green;
-		brd_flip |= (brd_flip >> 8) & brd_green;
+				"vmovapd %%ymm7, %0;"
+				:"=m"(table_move)
+				:"m"(table_brd_blue), "m"(table_brd_green), "m"(table_shift)
+				:
+			);
 
-		brd_green_adj = brd_green & (brd_green >> 8);
-		brd_flip |= (brd_flip >> 16) & brd_green_adj;
-		brd_flip |= (brd_flip >> 16) & brd_green_adj;
+			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
+			moves &= ~(brd_blue | brd_green);
 
-		moves |= brd_flip >> 8;
+		#else
 
-		brd_flip = (brd_blue << 8) & brd_green;
-		brd_flip |= (brd_flip << 8) & brd_green;
+			ull brd_flip;
+			ull brd_green_adj;
 
-		brd_green_adj = brd_green & (brd_green << 8);
-		brd_flip |= (brd_flip << 16) & brd_green_adj;
-		brd_flip |= (brd_flip << 16) & brd_green_adj;
+			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
 
-		moves |= brd_flip << 8;
+			brd_flip = (brd_blue >> 1) & brd_green_inner;
+			brd_flip |= (brd_flip >> 1) & brd_green_inner;
 
-		brd_flip = (brd_blue >> 7) & brd_green_inner;
-		brd_flip |= (brd_flip >> 7) & brd_green_inner;
+			brd_green_adj = brd_green_inner & (brd_green_inner >> 1);
+			brd_flip |= (brd_flip >> 2) & brd_green_adj;
+			brd_flip |= (brd_flip >> 2) & brd_green_adj;
+
+			moves = brd_flip >> 1;
+
+			brd_flip = (brd_blue << 1) & brd_green_inner;
+			brd_flip |= (brd_flip << 1) & brd_green_inner;
+
+			brd_green_adj = brd_green_inner & (brd_green_inner << 1);
+			brd_flip |= (brd_flip << 2) & brd_green_adj;
+			brd_flip |= (brd_flip << 2) & brd_green_adj;
+
+			moves |= brd_flip << 1;
+
+			brd_flip = (brd_blue >> 8) & brd_green;
+			brd_flip |= (brd_flip >> 8) & brd_green;
+
+			brd_green_adj = brd_green & (brd_green >> 8);
+			brd_flip |= (brd_flip >> 16) & brd_green_adj;
+			brd_flip |= (brd_flip >> 16) & brd_green_adj;
+
+			moves |= brd_flip >> 8;
+
+			brd_flip = (brd_blue << 8) & brd_green;
+			brd_flip |= (brd_flip << 8) & brd_green;
+
+			brd_green_adj = brd_green & (brd_green << 8);
+			brd_flip |= (brd_flip << 16) & brd_green_adj;
+			brd_flip |= (brd_flip << 16) & brd_green_adj;
+
+			moves |= brd_flip << 8;
+
+			brd_flip = (brd_blue >> 7) & brd_green_inner;
+			brd_flip |= (brd_flip >> 7) & brd_green_inner;
+			
+			brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
+			brd_flip |= (brd_flip >> 14) & brd_green_adj;
+			brd_flip |= (brd_flip >> 14) & brd_green_adj;
+			
+			moves |= brd_flip >> 7;
+
+			brd_flip = (brd_blue << 7) & brd_green_inner;
+			brd_flip |= (brd_flip << 7) & brd_green_inner;
+
+			brd_green_adj = brd_green_inner & (brd_green_inner << 7);
+			brd_flip |= (brd_flip << 14) & brd_green_adj;
+			brd_flip |= (brd_flip << 14) & brd_green_adj;
+
+			moves |= brd_flip << 7;
+
+			brd_flip = (brd_blue >> 9) & brd_green_inner;
+			brd_flip |= (brd_flip >> 9) & brd_green_inner;
+			
+			brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
+			brd_flip |= (brd_flip >> 18) & brd_green_adj;
+			brd_flip |= (brd_flip >> 18) & brd_green_adj;
+			
+			moves |= brd_flip >> 9;
+			
+			brd_flip = (brd_blue << 9) & brd_green_inner;
+			brd_flip |= (brd_flip << 9) & brd_green_inner;
+
+			brd_green_adj = brd_green_inner & (brd_green_inner << 9);
+			brd_flip |= (brd_flip << 18) & brd_green_adj;
+			brd_flip |= (brd_flip << 18) & brd_green_adj;
+
+			moves |= brd_flip << 9;
+
+			moves &= ~(brd_blue | brd_green);
+
+		#endif //USE_ASM_AVX2
 		
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 7);
-		brd_flip |= (brd_flip >> 14) & brd_green_adj;
-		brd_flip |= (brd_flip >> 14) & brd_green_adj;
-		
-		moves |= brd_flip >> 7;
-
-		brd_flip = (brd_blue << 7) & brd_green_inner;
-		brd_flip |= (brd_flip << 7) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 7);
-		brd_flip |= (brd_flip << 14) & brd_green_adj;
-		brd_flip |= (brd_flip << 14) & brd_green_adj;
-
-		moves |= brd_flip << 7;
-
-		brd_flip = (brd_blue >> 9) & brd_green_inner;
-		brd_flip |= (brd_flip >> 9) & brd_green_inner;
-		
-		brd_green_adj = brd_green_inner & (brd_green_inner >> 9);
-		brd_flip |= (brd_flip >> 18) & brd_green_adj;
-		brd_flip |= (brd_flip >> 18) & brd_green_adj;
-		
-		moves |= brd_flip >> 9;
-		
-		brd_flip = (brd_blue << 9) & brd_green_inner;
-		brd_flip |= (brd_flip << 9) & brd_green_inner;
-
-		brd_green_adj = brd_green_inner & (brd_green_inner << 9);
-		brd_flip |= (brd_flip << 18) & brd_green_adj;
-		brd_flip |= (brd_flip << 18) & brd_green_adj;
-
-		moves |= brd_flip << 9;
-
-		moves &= ~(brd_blue | brd_green);
 		return moves;
 	}
 
@@ -605,7 +678,7 @@ public:
 		return result;
 	}
 
-	void flip(cbool color,cpos_type pos);
+	void flip(cbool color, cpos_type pos);
 
 	val_type score_end(cbool color)const{
 		val_type num_diff = count(color) - count(!color);
@@ -661,44 +734,47 @@ public:
 
 	template<method mthd>
 	val_type search(
-		cbool color,cshort height,
-		val_type alpha = _inf,val_type beta = inf,cbool flag_pass = false
+		cbool color, cshort depth,
+		val_type alpha = _inf, val_type beta = inf, cbool flag_pass = false
 	)const;
 	val_type search(
-		cmethod mthd,cbool color,cshort height,
-		cval_type alpha = _inf,cval_type beta = inf
+		cmethod mthd, cbool color, cshort depth,
+		cval_type alpha = _inf, cval_type beta = inf
 	)const;
 	val_type search_end_two(
-		cbool color,cpos_type pos1,cpos_type pos2,
-		val_type alpha,val_type beta,cbool flag_pass
+		cbool color, cpos_type pos1, cpos_type pos2,
+		val_type alpha, val_type beta, cbool flag_pass
 	)const;
 	val_type search_end_three(
-		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,
-		val_type alpha,val_type beta,cbool flag_pass
+		cbool color, cpos_type pos1, cpos_type pos2, cpos_type pos3,
+		val_type alpha, val_type beta, cbool flag_pass
 	)const;
 	val_type search_end_four(
-		cbool color,cpos_type pos1,cpos_type pos2,cpos_type pos3,cpos_type pos4,
-		val_type alpha,val_type beta,cbool flag_pass
+		cbool color, cpos_type pos1, cpos_type pos2, cpos_type pos3, cpos_type pos4,
+		val_type alpha, val_type beta, cbool flag_pass
 	)const;
 	template<method mthd>
 	val_type search_end_five(
-		cbool color,val_type alpha,val_type beta,cbool flag_pass
+		cbool color, val_type alpha, val_type beta, cbool flag_pass
 	)const;
 
-	vector<choice> get_choice(cmethod mthd,cbool color,cshort depth)const;
-	static choice select_choice(vector<choice> choices,const float& variation = 0.75);
-	coordinate play(cmethod mthd,cbool color,cshort depth = -1);
+	vector<choice> get_choice(
+		cmethod mthd, cbool color, cshort depth,
+		val_type alpha = _inf, val_type beta = inf, val_type gamma = inf
+	)const;
+	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
+	coordinate play(cmethod mthd, cbool color, cshort depth = -1);
 
 	sts_type get_status(cbool color){
 		const sts_type table_status[32] = {
-			sts_wturn,sts_wturn,sts_wturn,sts_wturn,
-			sts_bagain,sts_bagain,sts_bagain,sts_bagain,
-			sts_wturn,sts_wturn,sts_wturn,sts_wturn,
-			sts_tie,sts_tie,sts_wwin,sts_bwin,
-			sts_bturn,sts_bturn,sts_bturn,sts_bturn,
-			sts_bturn,sts_bturn,sts_bturn,sts_bturn,
-			sts_wagain,sts_wagain,sts_wagain,sts_wagain,
-			sts_tie,sts_tie,sts_wwin,sts_bwin
+			sts_wturn, sts_wturn, sts_wturn, sts_wturn,
+			sts_bagain, sts_bagain, sts_bagain, sts_bagain,
+			sts_wturn, sts_wturn, sts_wturn, sts_wturn,
+			sts_tie, sts_tie, sts_wwin, sts_bwin,
+			sts_bturn, sts_bturn, sts_bturn, sts_bturn,
+			sts_bturn, sts_bturn, sts_bturn, sts_bturn,
+			sts_wagain, sts_wagain, sts_wagain, sts_wagain,
+			sts_tie, sts_tie, sts_wwin, sts_bwin
 		};
 
 		int num_diff = count(true) - count(false);
@@ -713,8 +789,8 @@ public:
 		return table_status[index];
 	}
 
-	float score_ptn(cbool color,const pattern& ptn)const;
-	void adjust_ptn(cbool color,pattern& ptn,cfloat value)const;
+	val_type score_ptn(cbool color, const pattern& ptn)const;
+	void adjust_ptn(cbool color, pattern& ptn, cval_type value)const;
 
 	#ifdef DEBUG_SEARCH
 		static void enable_log();
@@ -723,13 +799,24 @@ public:
 		static void save_log(const string& filename);
 	#endif //DEBUG_SEARCH
 
+	vector<int> get_pv(bool color)const;
+
 protected:
 
-	ull brd_white,brd_black;
+	ull brd_white, brd_black;
 
 	static void config_flip();
 	static void config_search();
 };
+
+namespace std{
+	template <>
+	struct hash<board>: public unary_function<board, size_t>{
+		size_t operator()(cboard brd)const{
+			return hash<bitset<board::size2 * 2>>()(*(const bitset<board::size2 * 2>*)&brd);
+		}
+	};
+}
 
 struct choice{
 	board brd;

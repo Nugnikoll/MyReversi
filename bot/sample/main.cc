@@ -8,7 +8,7 @@
 
 #include "../../cpp/jsoncpp/json.h"
 
-#include "../../cpp/reversi.h"
+#include "../../cpp/board.h"
 #include "../../cpp/pattern.h"
 
 using namespace std;
@@ -18,8 +18,8 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	board::config();
 	pattern::config();
+	ptn.load("../data/pattern.dat");
 	brd.initial();
-	grp.load("../data/pattern.dat");
 
 	string str;
 	getline(cin, str);
@@ -54,7 +54,7 @@ int main(int argc, char *argv[], char *envp[]){
 	this_thread::sleep_for(chrono::milliseconds(900));
 	mtx.lock();
 
-	choice best = board::select_choice(choices, 0.75);
+	choice best = board::select_choice(choices, 0.2);
 
 	result["response"]["x"] = best.pos & 7;
 	result["response"]["y"] = best.pos >> 3;

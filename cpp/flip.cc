@@ -1,6 +1,6 @@
-#include "reversi.h"
+#include "board.h"
 
-#ifdef USE_ASM_BMI
+#ifdef USE_ASM_BMI2
 
 const pos_type pos_diag1[board::size2] = {
 	0,0,0,0,0,0,0,0,

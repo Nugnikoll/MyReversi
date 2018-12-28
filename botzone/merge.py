@@ -4,8 +4,8 @@ import codecs
 
 src_dir = "../cpp/";
 
-src = ["type.h","asm.h","reversi.h", "hash.h","matrix.h","pattern.h",
-	"reversi.cc","flip.cc","search.cc","pattern.cc"];
+src = ["type.h","asm.h","board.h", "hash.h","matrix.h","pattern.h",
+	"board.cc","flip.cc","search.cc","pattern.cc"];
 src = [src_dir + x for x in src] + ["main.cc"];
 
 lines = [];
@@ -19,7 +19,7 @@ for filename in src:
 lines = "".join(lines);
 
 # suppress redundant include header macros
-lines = re.sub(r"\s*#include *\"(?!json).*\".*\n","\n",lines);
+lines = re.sub(r"\s*#include *\"(?![a-zA-Z/.]*json).*\".*\n","\n",lines);
 
 target = "main_merge.cc"
 
