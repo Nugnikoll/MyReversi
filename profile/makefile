@@ -9,7 +9,7 @@ RM = rm -f
 
 INC = 
 CFLAGS = 
-CXXFLAGS = -Wall -pg -std=c++11 -fno-omit-frame-pointer -O2
+CXXFLAGS = -Wall -pg -std=c++11 -fno-omit-frame-pointer -O2 -DUSE_ASM -DUSE_ASM_BMI2 -DUSE_ASM_AVX2
 RESINC = 
 LIBDIR = 
 LIB = 
@@ -53,7 +53,7 @@ before:
 $(OUT): before $(OBJ)
 	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
 
-$(OBJDIR)reversi.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)reversi.cc | awk -f parse.awk))
+$(OBJDIR)board.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)board.cc | awk -f parse.awk))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)flip.cc | awk -f parse.awk))
