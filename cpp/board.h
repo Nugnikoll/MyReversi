@@ -625,6 +625,7 @@ public:
 		config_flip();
 		config_search();
 	}
+	static void postprocess();
 
 	pair<method, short> process_method(cmethod mthd, cshort depth){
 		pair<method, short> result = {mthd, depth};
@@ -824,7 +825,5 @@ struct choice{
 	float rnd_val;
 	pos_type pos;
 };
-
-float int2float(unsigned int n);
 
 #endif // REVERSI_H

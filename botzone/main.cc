@@ -84,6 +84,7 @@ int main(int argc, char *argv[], char *envp[]){
 			if(temp.empty()){
 				break;
 			}
+
 			mtx.lock();
 			depth = i;
 			choices = temp;
@@ -93,6 +94,10 @@ int main(int argc, char *argv[], char *envp[]){
 					return c1.rnd_val < c2.rnd_val;
 				}
 			)->val;
+			mtx.unlock();
+
+			mtx.lock();
+			board::postprocess();
 			mtx.unlock();
 		}
 	};
