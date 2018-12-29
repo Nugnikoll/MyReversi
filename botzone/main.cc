@@ -96,9 +96,9 @@ int main(int argc, char *argv[], char *envp[]){
 			)->val;
 			mtx.unlock();
 
-			mtx.lock();
-			board::postprocess();
-			mtx.unlock();
+//			mtx.lock();
+//			board::postprocess();
+//			mtx.unlock();
 		}
 	};
 
