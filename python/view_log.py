@@ -1,4 +1,5 @@
 import reversi as rv;
+import struct
 
 class empty:
 	pass;
@@ -13,9 +14,9 @@ def load_node(fobj):
 	ptr.height = int.from_bytes(fobj.read(2), "little");
 	ptr.depth = int.from_bytes(fobj.read(2), "little");
 	fobj.read(2);
-	ptr.alpha = rv.int2float(int.from_bytes(fobj.read(4), "little"));
-	ptr.beta = rv.int2float(int.from_bytes(fobj.read(4), "little"));
-	ptr.result = rv.int2float(int.from_bytes(fobj.read(4), "little"));
+	ptr.alpha = struct.unpack('f', fobj.read(4))[0];
+	ptr.beta = struct.unpack('f', fobj.read(4))[0];
+	ptr.result = struct.unpack('f', fobj.read(4))[0];
 	fobj.read(4);
 	ptr.child = [];
 	return ptr;
