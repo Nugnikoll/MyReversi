@@ -717,22 +717,7 @@ class reversi_app(wx.App):
 		ptr.flag_expand = False;
 		self.tree_list.AddRoot("color: %d, alpha: %f, beta: %f, result: %f" % (ptr.color, ptr.alpha, ptr.beta, ptr.result), data = ptr);
 
-# def on_context_menu(wxContextMenuEvent& event){
-	# //wxMenu* menu = new wxMenu();
-
-	# //menu->Append(id_undo, _("&Undo"));  
-# //	menu->Append(wxID_REDO, _("&Redo"));  
-# //	menu->AppendSeparator();  
-# //	menu->Append(wxID_CUT, _("Cu&t"));  
-# //	menu->Append(wxID_COPY, _("&Copy"));  
-# //	menu->Append(wxID_PASTE, _("&Paste"));  
-# //	menu->Append(wxID_CLEAR, _("&Delete"));  
-# //	menu->AppendSeparator();  
-# //	menu->Append(wxID_SELECTALL, _("Select &All"));  
-# //  
-	# //PopupMenu(menu);
-# }
-
 if __name__ == "__main__":
 	app = reversi_app(False);
 	app.MainLoop();
+	reversi.board.postprocess();
