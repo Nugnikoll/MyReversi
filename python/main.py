@@ -706,7 +706,7 @@ class reversi_app(wx.App):
 		if not ptr.flag_expand:
 			for p in ptr.child:
 				p.flag_expand = False;
-				self.tree_list.AppendItem(item, "color: %d, alpha: %f, beta: %f, result: %f" % (p.color, p.alpha, p.beta, p.result), data = p);
+				self.tree_list.AppendItem(item, "depth: %d, color: %d, alpha: %f, beta: %f, result: %f" % (p.depth, p.color, p.alpha, p.beta, p.result), data = p);
 			ptr.flag_expand = True;
 		
 		mygame.assign(ptr.brd);
@@ -715,7 +715,7 @@ class reversi_app(wx.App):
 		self.tree = load_log(name);
 		ptr = self.tree.root.child[0];
 		ptr.flag_expand = False;
-		self.tree_list.AddRoot("color: %d, alpha: %f, beta: %f, result: %f" % (ptr.color, ptr.alpha, ptr.beta, ptr.result), data = ptr);
+		self.tree_list.AddRoot("depth: %d, color: %d, alpha: %f, beta: %f, result: %f" % (ptr.depth, ptr.color, ptr.alpha, ptr.beta, ptr.result), data = ptr);
 
 if __name__ == "__main__":
 	app = reversi_app(False);
