@@ -175,14 +175,14 @@ void board::config_search(){
 	in.close();
 	in.clear();
 
-	#ifndef _BOTZONE_ONLINE
-		in.open("../data/reversi_table_mtdf.dat", ios::binary | ios::in);
-	#else
-		in.open("data/reversi_table_mtdf.dat", ios::binary | ios::in);
-	#endif
-	if(in){
-		in.read((char*)table_mtdf_info, sizeof(table_mtdf_info));
-	}else{
+//	#ifndef _BOTZONE_ONLINE
+//		in.open("../data/reversi_table_mtdf.dat", ios::binary | ios::in);
+//	#else
+//		in.open("data/reversi_table_mtdf.dat", ios::binary | ios::in);
+//	#endif
+//	if(in){
+//		in.read((char*)table_mtdf_info, sizeof(table_mtdf_info));
+//	}else{
 		for(auto& i: table_mtdf_info){
 			for(auto& j : i){
 				for(auto&k : j){
@@ -192,46 +192,46 @@ void board::config_search(){
 				}
 			}
 		}
-	}
-	in.close();
-	in.clear();
+//	}
+//	in.close();
+//	in.clear();
 
-	#ifndef _BOTZONE_ONLINE
-		in.open("../data/reversi_table_hash.dat", ios::binary | ios::in);
-	#else
-		in.open("data/reversi_table_hash.dat", ios::binary | ios::in);
-	#endif	
-	if(in){
-		in.read((char*)&bkt, sizeof(bkt));
-	}
-	in.close();
-	in.clear();
+//	#ifndef _BOTZONE_ONLINE
+//		in.open("../data/reversi_table_hash.dat", ios::binary | ios::in);
+//	#else
+//		in.open("data/reversi_table_hash.dat", ios::binary | ios::in);
+//	#endif	
+//	if(in){
+//		in.read((char*)&bkt, sizeof(bkt));
+//	}
+//	in.close();
+//	in.clear();
 }
 
 void board::postprocess(){
-	ofstream out;
+//	ofstream out;
 
-	#ifndef _BOTZONE_ONLINE
-		out.open("../data/reversi_table_mtdf.dat", ios::binary | ios::out);
-	#else
-		out.open("data/reversi_table_mtdf.dat", ios::binary | ios::out);
-	#endif
-	if(out){
-		out.write((char*)table_mtdf_info, sizeof(table_mtdf_info));
-	}
-	out.close();
-	out.clear();
+//	#ifndef _BOTZONE_ONLINE
+//		out.open("../data/reversi_table_mtdf.dat", ios::binary | ios::out);
+//	#else
+//		out.open("data/reversi_table_mtdf.dat", ios::binary | ios::out);
+//	#endif
+//	if(out){
+//		out.write((char*)table_mtdf_info, sizeof(table_mtdf_info));
+//	}
+//	out.close();
+//	out.clear();
 
-	#ifndef _BOTZONE_ONLINE
-		out.open("../data/reversi_table_hash.dat", ios::binary | ios::out);
-	#else
-		out.open("data/reversi_table_hash.dat", ios::binary | ios::out);
-	#endif
-	if(out){
-		out.write((char*)&bkt, sizeof(bkt));
-	}
-	out.close();
-	out.clear();
+//	#ifndef _BOTZONE_ONLINE
+//		out.open("../data/reversi_table_hash.dat", ios::binary | ios::out);
+//	#else
+//		out.open("data/reversi_table_hash.dat", ios::binary | ios::out);
+//	#endif
+//	if(out){
+//		out.write((char*)&bkt, sizeof(bkt));
+//	}
+//	out.close();
+//	out.clear();
 }
 
 #ifdef __GNUC__
