@@ -660,6 +660,32 @@ matrix<board> sample_gen(cint n){
 	return result;
 };
 
+board random_transform(board brd){
+	static uniform_int_distribution<int> dist(0, 7);
+	int value = dist(engine);
+	switch(value >> 1){
+	case 0:
+		break;
+	case 1:
+		brd.rotate_l();
+		break;
+	case 2:
+		brd.rotate_r();
+		break;
+	case 3:
+		brd.reflect();
+		break;
+	default:
+		assert(false);
+	}
+
+	if(value & 1){
+		brd.mirror_v();
+	}
+
+	return brd;
+}
+
 matrix<board> sample_gen(cint n, matrix<int>& occurrence){
 	unordered_map<board, int> brds;
 	board brd, brd_save;
@@ -671,14 +697,14 @@ matrix<board> sample_gen(cint n, matrix<int>& occurrence){
 			brd_save = brd;
 			pos1 = brd.play(mthd_rnd, true, 0);
 			if(pos1.x >= 0){
-				++brds[brd_save];
+				++brds[random_transform(brd_save)];
 			}
 
 			brd_save = brd;
 			pos2 = brd.play(mthd_rnd, false, 0);
 			if(pos2.x >= 0){
 				brd_save.reverse();
-				++brds[brd_save];
+				++brds[random_transform(brd_save)];
 			}
 		}while(pos1.x >= 0 || pos2.x >= 0);
 	}
