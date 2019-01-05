@@ -11,7 +11,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 ### Download
 Here are prebuilt binaries. Download and extract one to the subdirectory python/ .  
 	[library for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/v2.2/reversi_windows.zip)  
-	[library for Windows 64-bit which supports BMI2 instruction set](https://github.com/Nugnikoll/MyReversi/releases/download/v2.2/reversi_windows_bmi2.zip)
+	[library for Windows 64-bit which supports BMI2 and AVX2 instruction sets](https://github.com/Nugnikoll/MyReversi/releases/download/v2.2/reversi_windows_bmi2_avx2.zip) (faster but requires instruction sets support)
 
 ### Build
 

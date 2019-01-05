@@ -521,7 +521,7 @@ public:
 				"vmovapd %%ymm7, %0;"
 				:"=m"(table_move)
 				:"m"(table_brd_blue), "m"(table_brd_green), "m"(table_shift)
-				:
+				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
 			);
 
 			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
@@ -625,6 +625,7 @@ public:
 		config_flip();
 		config_search();
 	}
+	static void postprocess();
 
 	pair<method, short> process_method(cmethod mthd, cshort depth){
 		pair<method, short> result = {mthd, depth};
@@ -824,7 +825,5 @@ struct choice{
 	float rnd_val;
 	pos_type pos;
 };
-
-float int2float(unsigned int n);
 
 #endif // REVERSI_H

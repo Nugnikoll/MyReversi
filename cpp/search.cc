@@ -161,22 +161,77 @@ short table_mtdf_depth[board::size2] = {
 };
 
 void board::config_search(){
-	ifstream in("data/reversi_table_predict.dat", ios::binary | ios::in);
-	in.seekg(0xa2);
-	in.read((char*)table_predict, sizeof(table_predict));
-	in.close();
+	ifstream in;
 
-	for(int i = 0; i != 65; ++i){
-		for(int j = 0; j != 32; ++j){
-			for(int k = 0; k != 16; ++k){
-				if(table_predict[i][k][j][0] >= 40){
-					table_mtdf_info[i][j][k].num = table_predict[i][k][j][0];
-					table_mtdf_info[i][j][k].bias = table_predict[i][k][j][1];
-					table_mtdf_info[i][j][k].sigma = table_predict[i][k][j][2];
+	#ifndef _BOTZONE_ONLINE
+		in.open("../data/reversi_table_predict.dat", ios::binary | ios::in);
+	#else
+		in.open("data/reversi_table_predict.dat", ios::binary | ios::in);
+	#endif
+	if(in){
+		in.seekg(0xa2);
+		in.read((char*)table_predict, sizeof(table_predict));
+	}
+	in.close();
+	in.clear();
+
+//	#ifndef _BOTZONE_ONLINE
+//		in.open("../data/reversi_table_mtdf.dat", ios::binary | ios::in);
+//	#else
+//		in.open("data/reversi_table_mtdf.dat", ios::binary | ios::in);
+//	#endif
+//	if(in){
+//		in.read((char*)table_mtdf_info, sizeof(table_mtdf_info));
+//	}else{
+		for(auto& i: table_mtdf_info){
+			for(auto& j : i){
+				for(auto&k : j){
+					k.num = 1;
+					k.bias = 0;
+					k.sigma = 1;
 				}
 			}
 		}
-	}
+//	}
+//	in.close();
+//	in.clear();
+
+//	#ifndef _BOTZONE_ONLINE
+//		in.open("../data/reversi_table_hash.dat", ios::binary | ios::in);
+//	#else
+//		in.open("data/reversi_table_hash.dat", ios::binary | ios::in);
+//	#endif	
+//	if(in){
+//		in.read((char*)&bkt, sizeof(bkt));
+//	}
+//	in.close();
+//	in.clear();
+}
+
+void board::postprocess(){
+//	ofstream out;
+
+//	#ifndef _BOTZONE_ONLINE
+//		out.open("../data/reversi_table_mtdf.dat", ios::binary | ios::out);
+//	#else
+//		out.open("data/reversi_table_mtdf.dat", ios::binary | ios::out);
+//	#endif
+//	if(out){
+//		out.write((char*)table_mtdf_info, sizeof(table_mtdf_info));
+//	}
+//	out.close();
+//	out.clear();
+
+//	#ifndef _BOTZONE_ONLINE
+//		out.open("../data/reversi_table_hash.dat", ios::binary | ios::out);
+//	#else
+//		out.open("data/reversi_table_hash.dat", ios::binary | ios::out);
+//	#endif
+//	if(out){
+//		out.write((char*)&bkt, sizeof(bkt));
+//	}
+//	out.close();
+//	out.clear();
 }
 
 #ifdef __GNUC__
