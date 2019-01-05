@@ -521,7 +521,7 @@ public:
 				"vmovapd %%ymm7, %0;"
 				:"=m"(table_move)
 				:"m"(table_brd_blue), "m"(table_brd_green), "m"(table_shift)
-				:
+				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
 			);
 
 			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
