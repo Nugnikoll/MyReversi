@@ -6,7 +6,7 @@
 ### Overview
 Reversi (also called Othello) is a kind of strategy board game which involves play by two parties on an eight-by-eight square grid. For details of reversi please go to [https://en.wikipedia.org/wiki/Reversi](https://en.wikipedia.org/wiki/Reversi).
 
-This reversi project is my simple work. The kernel is written in C++11 whith a bit inline assembly. The GUI is witten in python. The sources of this project can be merged in to a single file and submitted to [Botzone](https://botzone.org) which is a online platform for competition of differnt bots made by students and other programming learners.
+This reversi project is my simple work. The kernel is written in C++11 whith a bit inline assembly. The GUI is witten in python. It's open source and cross platform. I've managed to build it on Ubuntu and on Windows with MingW G++ compiler. It's tailored for programming learning. To ease debugging and trainning, many C++ functions are wrapped and can be called interactively in the Python GUI application. The sources of this project can be merged in to a single file and submitted to [Botzone](https://botzone.org) which is a online platform for competition of differnt bots made by other students. The Python GUI application can also act as a judge by communicating with other reversi program in json format.
 
 ### Download
 Here are prebuilt binaries. Download and extract one to the subdirectory python/ .  
@@ -20,7 +20,6 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 		C++11 must be supported by this compiler. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
 	- [Python3](https://www.python.org/)
 	- [swig](http://swig.org/)
-	- [wxPython](https://www.wxpython.org/)
 	- [numpy](http://www.numpy.org/)
 	- [CMake](https://cmake.org/)  
 	Please make sure that the directory of python3, swig and cmake has been appended to the environment variable PATH.
@@ -40,10 +39,10 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 
 ### Usage
 - Prerequisites
+	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
 	- [numpy](http://www.numpy.org/)
-	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 
 - Execute the main program  
 	`cd python`  
