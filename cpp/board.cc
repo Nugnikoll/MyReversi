@@ -111,7 +111,3 @@ coordinate board::play(cmethod mthd,cbool color,cshort depth){
 		return coordinate(best.pos);
 	}
 }
-
-float int2float(unsigned int n){
-	return *(float*)&n;
-}
