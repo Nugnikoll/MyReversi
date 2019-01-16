@@ -151,6 +151,21 @@ inline void equ_tzcnt(cull brd, ull& result){
 	#define fun_tzcnt(brd, result) equ_tzcnt(brd, result)
 #endif //USE_ASM
 
+#define asm_blsr(brd) \
+	asm volatile( \
+		"blsr %0, %0;" \
+		:"+r"(brd) \
+	)
+
+#define equ_blsr(brd) \
+	(brd &= brd - 1)
+
+#ifdef USE_ASM_BMI2
+	#define fun_blsr(brd) asm_blsr(brd)
+#else
+	#define fun_blsr(brd) equ_blsr(brd)
+#endif //USE_ASM
+
 #define asm_pext(brd, mask, result) \
 	asm volatile( \
 		"pext %1, %2, %0\n" \
