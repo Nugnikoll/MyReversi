@@ -466,7 +466,7 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 				ptr->val = ptr_val[pos];
 			}
 			++ptr;
-			brd_move &= brd_move - 1;
+			fun_blsr(brd_move);
 			fun_tzcnt(brd_move, pos);
 		}
 
