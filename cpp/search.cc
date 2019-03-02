@@ -576,8 +576,8 @@ val_type board::search_end_two(
 	++node_count;
 
 	board brd;
-	ull brd_blue = bget(color);
-	ull brd_green = bget(!color);
+	ull brd_blue = get_brd(color);
+	ull brd_green = get_brd(!color);
 	ull brd_save;
 	val_type result = _inf,temp;
 
@@ -655,7 +655,7 @@ val_type board::search_end_three(
 	++node_count;
 
 	board brd;
-	ull brd_green = bget(!color);
+	ull brd_green = get_brd(!color);
 	val_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
@@ -731,7 +731,7 @@ val_type board::search_end_four(
 	++node_count;
 
 	board brd;
-	ull brd_green = bget(!color);
+	ull brd_green = get_brd(!color);
 	val_type result = _inf,temp;
 
 	if(brd_green | mask_adj[pos1]){
@@ -829,7 +829,7 @@ val_type board::search_end_five(
 	board brd;
 	val_type result = _inf,temp;
 	val_type* ptr_val = table_val[this->sum()];
-	ull brd_green = bget(false);
+	ull brd_green = get_brd(false);
 	ull pos;
 
 	fun_tzcnt(brd_blank, pos);

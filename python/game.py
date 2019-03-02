@@ -265,8 +265,8 @@ class game:
 		self.paint();
 		self.play_continue();
 
-	def bget(self, color):
-		return self.brd.bget(color);
+	def get_brd(self, color):
+		return self.brd.get_brd(color);
 
 	def assign(self, brd):
 		self.push();
@@ -340,7 +340,7 @@ class game:
 		else:
 			brd_save = rv.board(self.brd);
 			self.brd.flip(color, x + (y << 3));
-			result = (self.brd.bget(True) != brd_save.bget(True));
+			result = (self.brd.get_brd(True) != brd_save.get_brd(True));
 
 		if result:
 			self.print_log(
@@ -484,8 +484,8 @@ class game:
 			"request":{
 				"color":color,
 				"board":{
-					"black":self.brd.bget(True),
-					"white":self.brd.bget(False)
+					"black":self.brd.get_brd(True),
+					"white":self.brd.get_brd(False)
 				}
 			}
 		};

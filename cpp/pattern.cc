@@ -330,8 +330,8 @@ void pattern::config(){
 }
 
 val_type board::score_ptn(cbool color, const pattern& ptn)const{
-	ull brd_blue = bget(color);
-	ull brd_green = bget(!color);
+	ull brd_blue = get_brd(color);
+	ull brd_green = get_brd(!color);
 	ull brd_v_blue = brd_blue;
 	ull brd_v_green = brd_green;
 	mirror_v(brd_v_blue);
@@ -421,8 +421,8 @@ val_type board::score_ptn(cbool color, const pattern& ptn)const{
 }
 
 void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
-	ull brd_blue = bget(color);
-	ull brd_green = bget(!color);
+	ull brd_blue = get_brd(color);
+	ull brd_green = get_brd(!color);
 	ull brd_v_blue = brd_blue;
 	ull brd_v_green = brd_green;
 	mirror_v(brd_v_blue);

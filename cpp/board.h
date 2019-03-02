@@ -122,10 +122,10 @@ public:
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
 
-	cull bget(cbool color)const{
+	cull get_brd(cbool color)const{
 		return *(&brd_white + color);
 	}
-	ull& bget(cbool color){
+	ull& get_brd(cbool color){
 		return *(&brd_white + color);
 	}
 
@@ -429,7 +429,7 @@ public:
 	 *	@param color Whether the color is black.
 	*/
 	short count(cbool color)const{
-		return count(bget(color));
+		return count(get_brd(color));
 	}
 
 	/** @fn pos_type sum()const
@@ -458,8 +458,8 @@ public:
 		// This part of code is brought from Zebra.
 		// I rewrite it in 64-bit style.
 
-		const ull& brd_blue = bget(color);
-		const ull& brd_green = bget(!color);
+		const ull& brd_blue = get_brd(color);
+		const ull& brd_green = get_brd(!color);
 		ull brd_green_inner;
 		ull moves;
 
@@ -694,8 +694,8 @@ public:
 	}
 
 	val_type score(cbool color)const{
-		ull brd_blue = bget(color);
-		ull brd_green = bget(!color);
+		ull brd_blue = get_brd(color);
+		ull brd_green = get_brd(!color);
 		ull brd_mix = brd_blue | brd_green;
 		ull brd_temp;
 		const val_type table_param[3][4] = {
