@@ -123,11 +123,11 @@ int main(int argc, char *argv[], char *envp[]){
 	result["debug"]["val"] = best.val;
 	result["debug"]["rnd_val"] = best.rnd_val;
 	#ifdef _BOTZONE_ONLINE
-		result["debug"]["board"]["black"] = to_string(brd.bget(true));
-		result["debug"]["board"]["white"] = to_string(brd.bget(false));
+		result["debug"]["board"]["black"] = to_string(brd.get_brd(true));
+		result["debug"]["board"]["white"] = to_string(brd.get_brd(false));
 	#else
-		result["debug"]["board"]["black"] = brd.bget(true);
-		result["debug"]["board"]["white"] = brd.bget(false);
+		result["debug"]["board"]["black"] = brd.get_brd(true);
+		result["debug"]["board"]["white"] = brd.get_brd(false);
 	#endif
 	for(unsigned int i = 0; i != choices.size(); ++i){
 		result["debug"]["choice"][i]["pos"] = choices[i].pos;

@@ -60,7 +60,7 @@ def extract_sample(filename):
 						continue;
 					pos = turn["x"] + (turn["y"] << 3);
 					brd.flip(color, pos);
-					element = (brd.bget(color), brd.bget(not color));
+					element = (brd.get_brd(color), brd.get_brd(not color));
 					if element in record:
 						record[element] += 1;
 					else:

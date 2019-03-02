@@ -96,8 +96,8 @@ flip_info table_flip_info[board::size2];
 
 void board::flip(cbool color,cpos_type pos){
 
-	ull& brd_blue = this->bget(color);
-	ull& brd_green = this->bget(!color);
+	ull& brd_blue = this->get_brd(color);
+	ull& brd_green = this->get_brd(!color);
 
 	ull piece, temp, mask, brd_result;
 	ull sum_blue = 0, sum_green = 0;
@@ -288,8 +288,8 @@ void board::config_flip(){
 #define flip_fun(name,kernel) \
  \
 	void name(board* const& ptr,cbool color,cpos_type _pos){ \
-		ull& blue = ptr->bget(color), blue_save = blue; \
-		ull& green = ptr->bget(!color); \
+		ull& blue = ptr->get_brd(color), blue_save = blue; \
+		ull& green = ptr->get_brd(!color); \
 		ull mask = ull(1) << _pos;\
  \
 		ull pos = mask; \

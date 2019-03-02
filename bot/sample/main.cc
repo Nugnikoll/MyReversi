@@ -12,7 +12,7 @@
 #include "../../cpp/pattern.h"
 
 using namespace std;
- 
+
 int main(int argc, char *argv[], char *envp[]){
 	bool color;
 	board brd;
@@ -29,8 +29,8 @@ int main(int argc, char *argv[], char *envp[]){
 	reader.parse(str, input);
 
 	color = input["request"]["color"].asBool();
-	brd.bget(true) = input["request"]["board"]["black"].asUInt64();
-	brd.bget(false) = input["request"]["board"]["white"].asUInt64();
+	brd.get_brd(true) = input["request"]["board"]["black"].asUInt64();
+	brd.get_brd(false) = input["request"]["board"]["white"].asUInt64();
 
 	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans);
 	short depth;
@@ -62,8 +62,8 @@ int main(int argc, char *argv[], char *envp[]){
 	result["debug"]["color"] = color;
 	result["debug"]["val"] = best.val;
 	result["debug"]["rnd_val"] = best.rnd_val;
-	result["debug"]["board"]["black"] = brd.bget(true);
-	result["debug"]["board"]["white"] = brd.bget(false);
+	result["debug"]["board"]["black"] = brd.get_brd(true);
+	result["debug"]["board"]["white"] = brd.get_brd(false);
 
 	cout << writer.write(result) << flush;
 
