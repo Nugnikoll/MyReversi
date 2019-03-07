@@ -80,6 +80,7 @@ set (
 	${cpp_dir}/log.h
 	${cpp_dir}/matrix.h
 	${cpp_dir}/pattern.h
+	${cpp_dir}/tree.h
 )
 
 set (

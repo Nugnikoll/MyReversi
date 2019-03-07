@@ -16,6 +16,7 @@
 	#include "../cpp/matrix.h"
 	#include "../cpp/pattern.h"
 	#include "../cpp/log.h"
+	#include "../cpp/tree.h"
 %}
 
 %include "numpy.i"
@@ -42,6 +43,7 @@ import_array();
 %include "../cpp/matrix.h"
 %include "../cpp/pattern.h"
 %include "../cpp/log.h"
+%include "../cpp/tree.h"
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;

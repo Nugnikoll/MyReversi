@@ -548,13 +548,13 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		--height;
 	}catch(int n){
 		--height;
-		search_log.insert(node{*this, color, height, depth, _alpha, _beta, result});
+		search_log.insert(log_record::node{*this, color, height, depth, _alpha, _beta, result});
 		if(height == 0){
 			save_log("except.dat");
 		}
 		throw n;
 	}
-	search_log.insert(node{*this, color, height, depth, _alpha, _beta, result});
+	search_log.insert(log_record::node{*this, color, height, depth, _alpha, _beta, result});
 	return result;
 	#endif
 }
@@ -636,7 +636,7 @@ val_type board::search_end_two(
 	++height;
 	val_type result = fun();
 	--height;
-	search_log.insert(node{*this, color, height, 2, _alpha, _beta, result});
+	search_log.insert(log_record::node{*this, color, height, 2, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -712,7 +712,7 @@ val_type board::search_end_three(
 	++height;
 	val_type result = fun();
 	--height;
-	search_log.insert(node{*this, color, height, 3, _alpha, _beta, result});
+	search_log.insert(log_record::node{*this, color, height, 3, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -801,7 +801,7 @@ val_type board::search_end_four(
 	++height;
 	val_type result = fun();
 	--height;
-	search_log.insert(node{*this, color, height, 4, _alpha, _beta, result});
+	search_log.insert(log_record::node{*this, color, height, 4, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -887,7 +887,7 @@ val_type board::search_end_five(
 	++height;
 	val_type result = fun();
 	--height;
-	search_log.insert(node{*this, color, height, 5, _alpha, _beta, result});
+	search_log.insert(log_record::node{*this, color, height, 5, _alpha, _beta, result});
 	return result;
 	#endif
 
@@ -1042,7 +1042,7 @@ vector<choice> board::get_choice(
 			return c1.rnd_val < c2.rnd_val;
 		}
 	)->val;
-	search_log.insert(node{*this, color, height, depth, _inf, inf, best});
+	search_log.insert(log_record::node{*this, color, height, depth, _inf, inf, best});
 	return result;
 	#endif
 }
