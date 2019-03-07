@@ -7,16 +7,17 @@
 
 using namespace std;
 
-struct node{
-	board brd;
-	bool color;
-	short height, depth;
-	val_type alpha, beta;
-	val_type value;
-};
-typedef const node& cnode;
-
 class log_record{
+public:
+	struct node{
+		board brd;
+		bool color;
+		short height, depth;
+		val_type alpha, beta;
+		val_type value;
+	};
+	typedef const node& cnode;
+
 protected:
 	bool flag;
 	vector<node> vec;

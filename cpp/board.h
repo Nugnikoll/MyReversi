@@ -467,7 +467,7 @@ public:
 
 			ull table_brd_blue[4] __attribute__((aligned(32)));
 			ull table_brd_green[4] __attribute__((aligned(32)));
-			ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 			ull table_move[4] __attribute__((aligned(32)));
 
 			table_brd_blue[0] = brd_blue;
