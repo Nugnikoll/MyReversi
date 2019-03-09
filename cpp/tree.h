@@ -145,25 +145,20 @@ struct node{
 	}
 
 	node* descend(cbool color)const{
-		float table[64];
-		float *table_end = table;
-		int sel;
-		node *ptr;
+		node *ptr, *p;
+		float best = _inf;
+		float temp;
 
 		for(ptr = child; ptr; ptr = ptr->sibling){
-			*table_end = pow(0.8, ptr->value - bound)
-				+ ptr->get_win(!color) / (ptr->count + 1)
-				+ sqrt(log(count) / (ptr->count + 1)) * 0.3;
-			++table_end;
+			temp = 1 / (exp(ptr->value * 0.07) + 1)
+				+ ptr->get_win(color) / (ptr->count + 1) * 3
+				+ sqrt(log(count) / (ptr->count + 1)) * 1;
+			if(temp > best){
+				best = temp;
+				p = ptr;
+			}
 		}
-
-		discrete_distribution<int> dist(table, table_end);
-		sel = dist(engine);
-		for(ptr = child; sel; ptr = ptr->sibling){
-			--sel;
-			assert(ptr);
-		}
-		return ptr;
+		return p;
 	}
 
 	int simulate(cbool color, cshort depth_search)const{
