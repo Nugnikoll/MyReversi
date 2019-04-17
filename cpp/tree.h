@@ -151,8 +151,8 @@ struct node{
 
 		for(ptr = child; ptr; ptr = ptr->sibling){
 			temp = 1 / (exp(ptr->value * 0.07) + 1)
-				+ ptr->get_win(color) / (ptr->count + 1) * 3
-				+ sqrt(log(count) / (ptr->count + 1)) * 1;
+				+ float(ptr->get_win(color) + 1) / (ptr->count + 2) / 3 
+				+ sqrt(log(count) / (ptr->count + 1));
 			if(temp > best){
 				best = temp;
 				p = ptr;
@@ -188,18 +188,18 @@ struct node{
 		node *table[100];
 		node **table_end = table;
 
-		for(ptr = this; ptr->child; ptr = ptr->descend(color_next)){
+		for(ptr = this; ptr->child; color_next = !color_next){
 			*table_end = ptr;
 			++table_end;
-			color_next = !color_next;
+			ptr = ptr->descend(color_next);
 		}
 
 		if(ptr->count > 2){
 			ptr->expand(color_next, depth_search);
 			*table_end = ptr;
 			++table_end;
-			color_next = !color_next;
 			ptr = ptr->descend(color_next);
+			color_next = !color_next;
 		}
 
 		int value = ptr->simulate(color_next, depth_search);

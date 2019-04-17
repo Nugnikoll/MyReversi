@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt;
 import os;
 import numpy as np;
 from scipy import optimize;
-import argparse
+import argparse;
 import reversi as rv;
 
 parser = argparse.ArgumentParser(description = "training parameters for reversi programming");
