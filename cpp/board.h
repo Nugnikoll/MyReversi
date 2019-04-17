@@ -465,15 +465,9 @@ public:
 
 		#ifdef USE_ASM_AVX2
 
-			ull table_brd_blue[4] __attribute__((aligned(32)));
 			ull table_brd_green[4] __attribute__((aligned(32)));
 			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 			ull table_move[4] __attribute__((aligned(32)));
-
-			table_brd_blue[0] = brd_blue;
-			table_brd_blue[1] = brd_blue;
-			table_brd_blue[2] = brd_blue;
-			table_brd_blue[3] = brd_blue;
 
 			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
 			table_brd_green[0] = brd_green_inner;
@@ -482,7 +476,7 @@ public:
 			table_brd_green[3] = brd_green_inner;
 
 			asm volatile(
-				"vmovapd %1, %%ymm0;"
+				"vpbroadcastq %1, %%ymm0;"
 				"vmovapd %2, %%ymm1;"
 				"vmovapd %3, %%ymm2;"
 				"vpsllq $1, %%ymm2, %%ymm3;"
@@ -520,7 +514,7 @@ public:
 
 				"vmovapd %%ymm7, %0;"
 				:"=m"(table_move)
-				:"m"(table_brd_blue), "m"(table_brd_green), "m"(table_shift)
+				:"m"(brd_blue), "m"(table_brd_green), "m"(table_shift)
 				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
 			);
 
