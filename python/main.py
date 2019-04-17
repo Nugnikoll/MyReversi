@@ -713,14 +713,18 @@ class reversi_app(wx.App):
 			self.tree_list.SetItemData(item, (ptr, True));
 		
 		mygame.assign(rv.board(ptr.brd));
+		if mygame.pos[0] >= 0:
+			mygame.set_pos(-1, -1);
 
 	def log_display(self, name):
+		self.tree_list.DeleteAllItems();
 		self.tree_list.Show();
 		self.tree = load_log(name);
 		ptr = self.tree.root.child[0];
 		self.tree_list.AddRoot(ptr.info(), data = (ptr, False));
 
 	def tree_display(self, name):
+		self.tree_list.DeleteAllItems();
 		self.tree_list.Show();
 		self.tree = rv.node();
 		self.tree.load(name);
