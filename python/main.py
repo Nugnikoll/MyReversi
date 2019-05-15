@@ -10,7 +10,6 @@ from game import *;
 from view_log import *;
 
 rv.board.config();
-rv.pattern.config();
 rv.pattern.config("../data/pattern.dat");
 mygame = game();
 

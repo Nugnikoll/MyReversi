@@ -49,11 +49,7 @@ public:
 		*ptr = table;
 	}
 
-	static void config();
-
-	static void config(const string& path){
-		ptn.load(path);
-	}
+	static void config(const string& file_ptn = "");
 
 	val_type& at(cint n, cint pos){
 		return table[(n << 16) + pos];
