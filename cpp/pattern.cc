@@ -274,7 +274,7 @@ int table_reverse_c1[1 << 9];
 int table_reverse_c2[1 << 10];
 int table_rotate_a1[1 << 10];
 
-void pattern::config(){
+void pattern::config(const string& file_ptn){
 	ull j = 0;
 	for(ull i = 0; i != size; ++i){
 		if((i & (i >> 8)) == 0){
@@ -326,6 +326,10 @@ void pattern::config(){
 		j = board::deposit(i, ptn_a1_v);
 		board::rotate_r(j);
 		table_rotate_a1[i] = board::extract(j, ptn_a1);
+	}
+
+	if(file_ptn.size()){
+		ptn.load(file_ptn);
 	}
 }
 

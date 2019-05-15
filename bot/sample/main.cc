@@ -68,8 +68,7 @@ int main(int argc, char *argv[], char *envp[]){
 	board brd;
 	if(flag_pattern){
 		board::config();
-		pattern::config();
-		ptn.load(data_path);
+		pattern::config(data_path);
 	}else{
 		board::config(data_path);
 	}
