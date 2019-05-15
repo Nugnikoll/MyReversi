@@ -68,6 +68,10 @@ namespace std{
  */
 
 class board{
+protected:
+	ull brd_white, brd_black;
+	static val_type table_param[65][8];
+
 public:
 
 	/** @fn board()
@@ -615,10 +619,7 @@ public:
 		return count(get_move(color));
 	}
 
-	static void config(){
-		config_flip();
-		config_search();
-	}
+	static void config(const string& file_param = "");
 	static void postprocess();
 
 	pair<method, short> process_method(cmethod mthd, cshort depth){
@@ -692,37 +693,26 @@ public:
 		ull brd_green = get_brd(!color);
 		ull brd_mix = brd_blue | brd_green;
 		ull brd_temp;
-		const val_type table_param[3][4] = {
-			{12,0.5,-6,-0.2},
-			{10,0.5,-5,0.2},
-			{3,1,0,0}
-		};
 
-		short stage;
 		short total = count(brd_mix);
-		if(total <= 40){
-			stage = 0;
-		}else if(total <= size2 - 7){
-			stage = 1;
-		}else{
-			stage = 2;
-		}
+		auto table_ptr = table_param[total];
 
 		val_type result = 0;
-		result += count_move(color) - count_move(!color);
-		brd_temp = get_stable(brd_mix);
-		result += count(brd_blue & brd_temp) - count(brd_green & brd_temp);
-		brd_temp = get_front(brd_mix);
-		result += count(brd_green & brd_temp) - count(brd_blue & brd_temp);
 
 		result += (count(brd_blue & 0x8100000000000081) - count(brd_green & 0x8100000000000081))
-			* table_param[stage][0];
+			* table_ptr[0];
 		result += (count(brd_blue & 0x7e8181818181817e) - count(brd_green & 0x7e8181818181817e))
-			* table_param[stage][1];
+			* table_ptr[1];
 		result += (count(brd_blue & 0x0042000000004200) - count(brd_green & 0x0042000000004200))
-			* table_param[stage][2];
+			* table_ptr[2];
 		result += (count(brd_blue & 0x003c7e7e7e7e3c00) - count(brd_green & 0x003c7e7e7e7e3c00))
-			* table_param[stage][3];
+			* table_ptr[3];
+
+		result += table_ptr[4] * (count_move(color) - count_move(!color));
+		brd_temp = get_stable(brd_mix);
+		result += table_ptr[5] * (count(brd_blue & brd_temp) - count(brd_green & brd_temp));
+		brd_temp = get_front(brd_mix);
+		result += table_ptr[6] * (count(brd_green & brd_temp) - count(brd_blue & brd_temp));
 
 		return result;
 	}
@@ -797,8 +787,6 @@ public:
 	vector<int> get_pv(bool color)const;
 
 protected:
-
-	ull brd_white, brd_black;
 
 	static void config_flip();
 	static void config_search();

@@ -18,6 +18,7 @@ int main(int argc, char *argv[], char *envp[]){
 
 	bool flag_time = true;
 	bool flag_continue = false;
+	bool flag_pattern = true;
 	int arg_time = 900;
 	int arg_depth = 8;
 	string data_path = "../data/pattern.dat";
@@ -47,6 +48,15 @@ int main(int argc, char *argv[], char *envp[]){
 				cout << "missing parameter" << endl;
 				return 1;
 			}
+			flag_pattern = true;
+			data_path = argv[i];
+		}else if(!strcmp(argv[i], "-w")){
+			++i;
+			if(i == argc){
+				cout << "missing parameter" << endl;
+				return 1;
+			}
+			flag_pattern = false;
 			data_path = argv[i];
 		}else{
 			cout << "unrecognized option" << endl;
@@ -56,9 +66,13 @@ int main(int argc, char *argv[], char *envp[]){
 
 	bool color;
 	board brd;
-	board::config();
-	pattern::config();
-	ptn.load(data_path);
+	if(flag_pattern){
+		board::config();
+		pattern::config();
+		ptn.load(data_path);
+	}else{
+		board::config(data_path);
+	}
 	brd.initial();
 
 	string str;
@@ -72,7 +86,12 @@ int main(int argc, char *argv[], char *envp[]){
 		brd.get_brd(true) = input["request"]["board"]["black"].asUInt64();
 		brd.get_brd(false) = input["request"]["board"]["white"].asUInt64();
 
-		method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans);
+		method mthd;
+		if(flag_pattern){
+			mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans);
+		}else{
+			mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_trans);
+		}
 		short depth;
 		vector<choice> choices;
 		mutex mtx;
@@ -95,12 +114,10 @@ int main(int argc, char *argv[], char *envp[]){
 			this_thread::sleep_for(chrono::milliseconds(arg_time));
 			mtx.lock();
 		}else{
-			for(short i = 1; i <= arg_depth; ++i){
-				auto p_mthd = brd.process_method(mthd, i);
-				auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
-				depth = i;
-				choices = temp;
-			}
+			auto p_mthd = brd.process_method(mthd, arg_depth);
+			auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
+			depth = p_mthd.second;
+			choices = temp;
 		}
 
 		choice best = board::select_choice(choices, 0.2);
