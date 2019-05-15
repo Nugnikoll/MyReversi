@@ -3,10 +3,10 @@
 import wx;
 import sys;
 import os;
+import time;
 import reversi;
 import reversi as rv;
 import json;
-import subprocess as sp;
 from enum import Enum;
 
 bias = 34;
@@ -59,9 +59,11 @@ class game:
 		self.pv = None;
 
 		self.ply[False].type = rv.ply_ai;
-		self.ply[False].path = default_path
+		self.ply[False].path = default_path;
+		self.ply[False].proc = None;
 		self.ply[True].type = rv.ply_human;
-		self.ply[True].path = default_path
+		self.ply[True].path = default_path;
+		self.ply[True].proc = None;
 
 	def show(self):
 		self.do_show(self.dc);
@@ -479,6 +481,31 @@ class game:
 		if depth is None:
 			depth = self.depth;
 
+		ply = self.ply[color];
+
+		def check_proc():
+			if not ply.proc.Exists(ply.pid):
+				self.text_log.AppendText(
+					"runtime error\n"
+					 + "the process exits unexpectedly"
+				);
+				raise RuntimeError;
+
+		if not (ply.proc is None) and wx.Process.Exists(ply.pid) and ply.path_exec != ply.path:
+			wx.Process.Kill(ply.pid);
+			wx.Yield();
+			ply.proc = None;
+
+		if ply.proc is None or not wx.Process.Exists(ply.pid):
+			ply.proc = wx.Process();
+			ply.proc.Redirect();
+			ply.path_exec = ply.path.strip();
+			ply.pid = wx.Execute(ply.path.strip(), wx.EXEC_ASYNC, ply.proc);
+			check_proc();
+
+		proc_in = ply.proc.GetInputStream();
+		proc_out = ply.proc.GetOutputStream();
+
 		result = rv.coordinate();
 		request = {
 			"request":{
@@ -499,14 +526,9 @@ class game:
 		);
 		self.text_log.AppendText(s + "\n");
 
-		sp_result = sp.run(self.ply[color].path.strip().split(), input = s.encode(), stdout = sp.PIPE);
+		proc_out.write((s + "\n").encode());
 
-		if sp_result.returncode:
-			self.text_log.AppendText(
-				"runtime error\n"
-				 + "the process exits with code %d" % sp_result.returncode
-			);
-			raise RuntimeError;
+		check_proc();
 
 		self.text_log.AppendText(
 			"receive a response from process \""
@@ -514,10 +536,28 @@ class game:
 			+ "\"\n"
 		);
 
+		for i in range(100):
+			if proc_in.CanRead():
+				break;
+			time.sleep(0.01);
+
+		check_proc();
+
+		if proc_in.CanRead():
+			s = proc_in.readline();
+		else:
+			self.text_log.AppendText(
+				"time limit exceeding\n"
+			);
+			wx.Process.Kill(ply.pid);
+			wx.Yield();
+			ply.proc = None;
+			raise RuntimeError;
+
 		response = None;
-		self.text_log.AppendText(sp_result.stdout.decode());
+		self.text_log.AppendText(s.decode());
 		try:
-			response = json.loads(sp_result.stdout.decode());
+			response = json.loads(s.decode());
 		except json.decoder.JSONDecodeError:
 			self.text_log.AppendText(
 				"invalid output format\n"
@@ -599,7 +639,3 @@ class game:
 			self.play_continue();
 		except RuntimeError:
 			pass;
-
-reversi.board.config();
-reversi.pattern.config();
-mygame = game();
