@@ -55,6 +55,12 @@ typedef const pos_type& cpos_type;
 typedef float val_type;
 typedef const val_type& cval_type;
 
+struct pull{
+	ull first;
+	ull second;
+};
+typedef const pull& cpull;
+
 enum chessman{blank, white, black, null};
 #ifdef USE_REF
 	typedef const chessman& cchessman;
