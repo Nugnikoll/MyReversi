@@ -611,81 +611,116 @@ public:
 		return moves;
 	}
 
-	/** @fn pull get_move_stable(cbool color)const
+	/** @fn pull get_move_flip(cbool color)const
 	 *	@brief Calculate possible moves and flippable stones.
 	 *	@param color Whether it is black's turn.
 	*/
-	pull get_move_stable(cbool color)const{
+	pull get_move_flip(cbool color)const{
 		const ull& brd_blue = get_brd(color);
 		const ull& brd_green = get_brd(!color);
+		ull brd_blank = ~(brd_blue | brd_green);
 		ull brd_green_inner;
 		ull moves;
 		ull flips;
 
-/*		#ifdef USE_ASM_AVX2*/
+		#ifdef USE_ASM_AVX2
 
-/*			ull table_brd_green[4] __attribute__((aligned(32)));*/
-/*			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};*/
-/*			ull table_move[4] __attribute__((aligned(32)));*/
+			ull table_brd_green[4] __attribute__((aligned(32)));
+			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+			ull table_move[4] __attribute__((aligned(32)));
+			ull table_flip[4] __attribute__((aligned(32)));
 
-/*			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;*/
-/*			table_brd_green[0] = brd_green_inner;*/
-/*			table_brd_green[1] = brd_green_inner;*/
-/*			table_brd_green[2] = brd_green;*/
-/*			table_brd_green[3] = brd_green_inner;*/
+			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			table_brd_green[0] = brd_green_inner;
+			table_brd_green[1] = brd_green_inner;
+			table_brd_green[2] = brd_green;
+			table_brd_green[3] = brd_green_inner;
 
-/*			asm volatile(*/
-/*				"vpbroadcastq %1, %%ymm0;"*/
-/*				"vmovapd %2, %%ymm1;"*/
-/*				"vmovapd %3, %%ymm2;"*/
-/*				"vpsllq $1, %%ymm2, %%ymm3;"*/
+			asm volatile(
+				"vpbroadcastq %2, %%ymm0;"
+				"vmovapd %3, %%ymm1;"
+				"vmovapd %4, %%ymm2;"
+				"vpsllq $1, %%ymm2, %%ymm3;"
+				"vpbroadcastq %5, %%ymm8;"
 
-/*				"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"*/
-/*				"vpand %%ymm1, %%ymm4, %%ymm4;"*/
-/*				"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"*/
-/*				"vpand %%ymm1, %%ymm5, %%ymm5;"*/
-/*				"vpor %%ymm5, %%ymm4, %%ymm4;"*/
-/*				"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"*/
-/*				"vpand %%ymm1, %%ymm5, %%ymm5;"*/
-/*				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"*/
-/*				"vpand %%ymm5, %%ymm6, %%ymm6;"*/
-/*				"vpor %%ymm6, %%ymm4, %%ymm4;"*/
-/*				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"*/
-/*				"vpand %%ymm5, %%ymm6, %%ymm6;"*/
-/*				"vpor %%ymm6, %%ymm4, %%ymm4;"*/
-/*				"vpsrlvq %%ymm2, %%ymm4, %%ymm7;"*/
+				"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm4;"
+				"vpand %%ymm8, %%ymm4, %%ymm4;"
+				"vmovdqa %%ymm4, %%ymm7;"
 
-/*				"vpsllvq %%ymm2, %%ymm0, %%ymm4;"*/
-/*				"vpand %%ymm1, %%ymm4, %%ymm4;"*/
-/*				"vpsllvq %%ymm2, %%ymm4, %%ymm5;"*/
-/*				"vpand %%ymm1, %%ymm5, %%ymm5;"*/
-/*				"vpor %%ymm5, %%ymm4, %%ymm4;"*/
-/*				"vpsllvq %%ymm2, %%ymm1, %%ymm5;"*/
-/*				"vpand %%ymm1, %%ymm5, %%ymm5;"*/
-/*				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"*/
-/*				"vpand %%ymm5, %%ymm6, %%ymm6;"*/
-/*				"vpor %%ymm6, %%ymm4, %%ymm4;"*/
-/*				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"*/
-/*				"vpand %%ymm5, %%ymm6, %%ymm6;"*/
-/*				"vpor %%ymm6, %%ymm4, %%ymm4;"*/
-/*				"vpsllvq %%ymm2, %%ymm4, %%ymm4;"*/
-/*				"vpor %%ymm4, %%ymm7, %%ymm7;"*/
+				"vpsllvq %%ymm2, %%ymm4, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm9;"
 
-/*				"vmovapd %%ymm7, %0;"*/
-/*				:"=m"(table_move)*/
-/*				:"m"(brd_blue), "m"(table_brd_green), "m"(table_shift)*/
-/*				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"*/
-/*			);*/
+				"vpsllvq %%ymm2, %%ymm0, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsllvq %%ymm2, %%ymm4, %%ymm4;"
+				"vpand %%ymm8, %%ymm4, %%ymm4;"
+				"vpor %%ymm4, %%ymm7, %%ymm7;"
 
-/*			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];*/
-/*			moves &= ~(brd_blue | brd_green);*/
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm4;"
+				"vpand %%ymm1, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpor %%ymm5, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"
+				"vpand %%ymm1, %%ymm5, %%ymm5;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+				"vpand %%ymm5, %%ymm6, %%ymm6;"
+				"vpor %%ymm6, %%ymm4, %%ymm4;"
+				"vpor %%ymm4, %%ymm9, %%ymm9;"
 
-/*		#else*/
+				"vmovapd %%ymm7, %0;"
+				"vmovapd %%ymm9, %1;"
+				:"=m"(table_move), "=m"(table_flip)
+				:"m"(brd_blue), "m"(table_brd_green), "m"(table_shift) ,"m"(brd_blank)
+				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
+			);
+
+			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
+			flips = table_flip[0] | table_flip[1] | table_flip[2] | table_flip[3];
+
+		#else
 
 			ull brd_flip;
 			ull brd_green_adj;
 			ull move_part;
-			ull brd_blank = ~(brd_blue | brd_green);
 
 			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
 
@@ -849,7 +884,7 @@ public:
 
 			flips |= brd_flip;
 
-/*		#endif //USE_ASM_AVX2*/
+		#endif //USE_ASM_AVX2
 		
 		return pull{moves, flips};
 	}
