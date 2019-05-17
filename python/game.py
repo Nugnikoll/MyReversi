@@ -193,6 +193,16 @@ class game:
 				else:
 					color = False;
 
+	def mark(self, brd):
+		dc = self.dc;
+		dc.SetPen(wx.Pen(wx.Colour(0,0,230), thick));
+		for i in range(rv.board.size2):
+			if brd & (1 << i):
+				x = i & 0x7;
+				y = i >> 3;
+				dc.DrawLine(bias + cell * x, bias + cell * y, bias + cell * (x + 1), bias + cell * (y + 1));
+				dc.DrawLine(bias + cell * x, bias + cell * (y + 1), bias + cell * (x + 1), bias + cell * y);
+
 	def paint(self, show_choice = False, show_pv = False):
 		if not show_choice:
 			self.choices = None;
