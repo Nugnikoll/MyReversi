@@ -60,16 +60,16 @@ else:
 ptn_shape = rv.pattern().numpy().shape;
 weight = np.zeros(ptn_shape, dtype = np.float64).ravel();
 target_np = target.numpy();
-occurrence_np = occurrence.numpy() ** (3 / 4);
+#occurrence_np = occurrence.numpy() ** (3 / 4);
 
 def fun(weight):
 	global size;
 	value = rv.evaluate(rv.pattern(weight.astype(np.float32).reshape(ptn_shape)), sample);
 	delta = value.numpy() - target_np;
-	loss = (delta ** 2 * occurrence_np).mean();
+	loss = (delta ** 2).mean();
 	ptn_grad = rv.pattern();
 	ptn_grad.initial();
-	rv.adjust(ptn_grad, sample, rv.mat_f((delta * occurrence_np).astype(np.float32)));
+	rv.adjust(ptn_grad, sample, rv.mat_f((delta).astype(np.float32)));
 	grad = ptn_grad.numpy().ravel();
 	return (loss.astype(np.float64), (grad * 2 / size).astype(np.float64));
 
