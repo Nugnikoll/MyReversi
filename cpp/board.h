@@ -300,91 +300,6 @@ public:
 		return result;
 	}
 
-	/** @fn static ull get_edge_stable(cull brd)
-	 *	@brief It's a function used to estimate which stones are stable.
-	 *	@param brd the 64-bit board
-	*/
-	static ull get_edge_stable(cull brd){
-		ull brd_ul,brd_ur,brd_dl,brd_dr;
-
-		brd_ul = brd;
-		brd_ul &= (brd_ul >>  1) | 0x8080808080808080;
-		brd_ul &= (brd_ul >>  2) | 0xc0c0c0c0c0c0c0c0;
-		brd_ul &= (brd_ul >>  4) | 0xf0f0f0f0f0f0f0f0;
-		brd_dl = brd_ul;
-		brd_ul &= (brd_ul >>  8) | 0xff00000000000000;
-		brd_ul &= (brd_ul >> 16) | 0xffff000000000000;
-		brd_ul &= (brd_ul >> 32) | 0xffffffff00000000;
-		brd_dl &= (brd_dl <<  8) | 0x00000000000000ff;
-		brd_dl &= (brd_dl << 16) | 0x000000000000ffff;
-		brd_dl &= (brd_dl << 32) | 0x00000000ffffffff;
-
-		brd_ur = brd;
-		brd_ur &= (brd_ur <<  1) | 0x0101010101010101;
-		brd_ur &= (brd_ur <<  2) | 0x0303030303030303;
-		brd_ur &= (brd_ur <<  4) | 0x0f0f0f0f0f0f0f0f;
-		brd_dr = brd_ur;
-		brd_ur &= (brd_ur >>  8) | 0xff00000000000000;
-		brd_ur &= (brd_ur >> 16) | 0xffff000000000000;
-		brd_ur &= (brd_ur >> 32) | 0xffffffff00000000;
-		brd_dr &= (brd_dr <<  8) | 0x00000000000000ff;
-		brd_dr &= (brd_dr << 16) | 0x000000000000ffff;
-		brd_dr &= (brd_dr << 32) | 0x00000000ffffffff;
-
-		return brd_ul | brd_ur | brd_dl | brd_dr;
-	}
-
-	/** @fn static ull get_edge_stable(cull brd)
-	 *	@brief It's a function used to estimate which stones are stable.
-	 *	@param brd the 64-bit board
-	*/
-	static ull get_stable(cull brd){
-		ull brd_l,brd_r,brd_u,brd_d,brd_ul,brd_ur,brd_dl,brd_dr;
-
-		brd_l  = brd;
-		brd_l  &= (brd_l  >>  1) | 0x8080808080808080;
-		brd_l  &= (brd_l  >>  2) | 0xc0c0c0c0c0c0c0c0;
-		brd_l  &= (brd_l  >>  4) | 0xf0f0f0f0f0f0f0f0;
-
-		brd_r  = brd;
-		brd_r  &= (brd_r  <<  1) | 0x0101010101010101;
-		brd_r  &= (brd_r  <<  2) | 0x0303030303030303;
-		brd_r  &= (brd_r  <<  4) | 0x0f0f0f0f0f0f0f0f;
-
-		brd_u  = brd;
-		brd_u  &= (brd_u  >>  8) | 0xff00000000000000;
-		brd_u  &= (brd_u  >> 16) | 0xffff000000000000;
-		brd_u  &= (brd_u  >> 32) | 0xffffffff00000000;
-
-		brd_d  = brd;
-		brd_d  &= (brd_d  <<  8) | 0x00000000000000ff;
-		brd_d  &= (brd_d  << 16) | 0x000000000000ffff;
-		brd_d  &= (brd_d  << 32) | 0x00000000ffffffff;
-
-		brd_ul = brd;
-		brd_ul &= (brd_ul >>  9) | 0xff80808080808080;
-		brd_ul &= (brd_ul >> 18) | 0xffffc0c0c0c0c0c0;
-		brd_ul &= (brd_ul >> 36) | 0xfffffffff0f0f0f0;
-
-		brd_dl = brd;
-		brd_dl &= (brd_dl <<  7) | 0x80808080808080ff;
-		brd_dl &= (brd_dl << 14) | 0xc0c0c0c0c0c0ffff;
-		brd_dl &= (brd_dl << 28) | 0xf0f0f0f0ffffffff;
-
-		brd_ur = brd;
-		brd_ur &= (brd_ur >>  7) | 0xff01010101010101;
-		brd_ur &= (brd_ur >> 14) | 0xffff030303030303;
-		brd_ur &= (brd_ur >> 28) | 0xffffffff0f0f0f0f;
-
-		brd_dr = brd;
-		brd_dr &= (brd_dr <<  9) | 0x01010101010101ff;
-		brd_dr &= (brd_dr << 18) | 0x030303030303ffff;
-		brd_dr &= (brd_dr << 36) | 0x0f0f0f0fffffffff;
-
-		return (brd_l | brd_r) & (brd_u | brd_d)
-			& (brd_ul | brd_dr) & (brd_ur | brd_dl);
-	}
-
 	/** @fn static ull get_front(cull brd)
 	 *	@brief It's a function used to calculate the frontier.
 	 *	@param brd the 64-bit board
@@ -710,7 +625,7 @@ public:
 				"vmovapd %%ymm9, %1;"
 				:"=m"(table_move), "=m"(table_flip)
 				:"m"(brd_blue), "m"(table_brd_green), "m"(table_shift) ,"m"(brd_blank)
-				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7"
+				:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "ymm9"
 			);
 
 			moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
@@ -970,7 +885,9 @@ public:
 		ull brd_blue = get_brd(color);
 		ull brd_green = get_brd(!color);
 		ull brd_mix = brd_blue | brd_green;
-		ull brd_temp;
+		pull brd_blue_move_flip;
+		pull brd_green_move_flip;
+		ull brd_front;
 
 		short total = count(brd_mix);
 		auto table_ptr = table_param[total];
@@ -986,11 +903,15 @@ public:
 		result += (count(brd_blue & 0x003c7e7e7e7e3c00) - count(brd_green & 0x003c7e7e7e7e3c00))
 			* table_ptr[3];
 
-		result += table_ptr[4] * (count_move(color) - count_move(!color));
-		brd_temp = get_stable(brd_mix);
-		result += table_ptr[5] * (count(brd_blue & brd_temp) - count(brd_green & brd_temp));
-		brd_temp = get_front(brd_mix);
-		result += table_ptr[6] * (count(brd_green & brd_temp) - count(brd_blue & brd_temp));
+		brd_blue_move_flip = get_move_flip(color);
+		brd_green_move_flip = get_move_flip(!color);
+		result += table_ptr[4] * (count(brd_blue_move_flip.first) - count(brd_green_move_flip.first));
+		result += table_ptr[5] * (
+			count(brd_blue & ~brd_green_move_flip.second)
+			- count(brd_green & ~brd_blue_move_flip.second)
+		);
+		brd_front = get_front(brd_mix);
+		result += table_ptr[6] * (count(brd_green & brd_front) - count(brd_blue & brd_front));
 
 		return result;
 	}
