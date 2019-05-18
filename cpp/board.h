@@ -911,7 +911,7 @@ public:
 			- count(brd_green & ~brd_blue_move_flip.second)
 		);
 		brd_front = get_front(brd_mix);
-		result += table_ptr[6] * (count(brd_green & brd_front) - count(brd_blue & brd_front));
+		result += table_ptr[6] * (count(brd_blue & brd_front) - count(brd_green & brd_front));
 
 		return result;
 	}
