@@ -1,6 +1,9 @@
 import os;
+import sys;
 import signal;
 import argparse;
+
+sys.path.append("../python");
 import reversi as rv;
 
 def str2bool(v):

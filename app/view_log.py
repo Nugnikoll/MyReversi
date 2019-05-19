@@ -1,5 +1,8 @@
+import sys;
+import struct;
+
+sys.path.append("../python");
 import reversi as rv;
-import struct
 
 class empty:
 	pass;
