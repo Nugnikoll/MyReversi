@@ -4,10 +4,10 @@ import wx;
 import sys;
 import os;
 import time;
-import reversi;
-import reversi as rv;
 import json;
-from enum import Enum;
+
+sys.path.append("../python");
+import reversi as rv;
 
 bias = 34;
 num = 8;
@@ -23,17 +23,17 @@ def check(pos):
 
 def coord2str(self):
 	return "(%d,%d)" % (self.x,self.y);
-setattr(reversi.coordinate, "__str__", coord2str);
+setattr(rv.coordinate, "__str__", coord2str);
 
 def choice2str(self):
 	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
-setattr(reversi.choice, "__str__", choice2str);
+setattr(rv.choice, "__str__", choice2str);
 
 def vals2str(self):
 	return "[" + ",".join([str(v) for v in self]) + "]";
-setattr(reversi.ints, "__str__", vals2str);
-setattr(reversi.floats, "__str__", vals2str);
-setattr(reversi.choices, "__str__", vals2str);
+setattr(rv.ints, "__str__", vals2str);
+setattr(rv.floats, "__str__", vals2str);
+setattr(rv.choices, "__str__", vals2str);
 
 if sys.platform == "win32":
 	default_path = "../bot/reversi.exe";
@@ -75,7 +75,7 @@ class game:
 		dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
 		dc.SetPen(wx.Pen(wx.Colour(30,100,0), thick));
 		brd_move = self.brd.get_move(self.color);
-		for i in range(reversi.board.size2):
+		for i in range(rv.board.size2):
 			if brd_move & (1 << i):
 				dc.DrawRectangle(bias + cell * (i & 7), bias + cell * (i >> 3), cell, cell);
 		
@@ -118,7 +118,7 @@ class game:
 					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
 
-				elif chssmn == reversi.white:
+				elif chssmn == rv.white:
 					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
 					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);

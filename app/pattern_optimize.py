@@ -1,9 +1,12 @@
 import time;
 import matplotlib.pyplot as plt;
 import os;
+import sys;
 import numpy as np;
 from scipy import optimize;
 import argparse;
+
+sys.path.append("../python");
 import reversi as rv;
 
 parser = argparse.ArgumentParser(description = "training parameters for reversi programming");

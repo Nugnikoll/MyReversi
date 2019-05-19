@@ -735,4 +735,4 @@ class reversi_app(wx.App):
 if __name__ == "__main__":
 	app = reversi_app(False);
 	app.MainLoop();
-	reversi.board.postprocess();
+	rv.board.postprocess();

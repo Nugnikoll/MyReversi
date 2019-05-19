@@ -45,7 +45,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- [numpy](http://www.numpy.org/)
 
 - Execute the main program  
-	`cd python`  
+	`cd app`  
 	`python3 main.py` 
 
 ### Development
@@ -58,15 +58,15 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 		│	cpp/search.cc board::search()
 		│	...
 		│
-		└───python/game.py: class game
+		└───app/game.py: class game
 		│		│
-		│		└───python/main.py (python GUI project)
+		│		└───app/main.py (python GUI project)
 		│
 		└───botzone/main.cc (Botzone online project)
 
 - Training  
 	Besides the dependencies metioned before, scipy is also required here. To train with random self-play games, simply enter the directory /python and execute the script pattern_optimize.py .  
-	`cd python`  
+	`cd app`  
 	`python3 pattern_optimize.py`  
 	If you want to perform training with custom parameters, type `python3 pattern_optimize.py --help` for help.
 
