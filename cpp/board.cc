@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <fstream>
 
 #include "board.h"
-#include "matrix.h"
 #include "search.h"
 
 default_random_engine engine(
@@ -141,15 +141,6 @@ void board::print(ostream& out)const{
 			out << chr;
 		}
 	}
-}
-
-matrix<int> board::to_mat()const{
-	matrix<int> mat(2, size2);
-	for(int i = 0; i != size2; ++i){
-		mat.at(i) = bool(brd_white & 1 << i);
-		mat.at(i + size2) = bool(brd_black & 1 << i);
-	}
-	return mat;
 }
 
 choice board::select_choice(vector<choice> choices,const float& variation){

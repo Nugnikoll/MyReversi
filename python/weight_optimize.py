@@ -9,7 +9,6 @@ import reversi as rv;
 parser = argparse.ArgumentParser(description = "training parameters for reversi programming");
 parser.add_argument("--num-simulate", type = int, default = 10000, help = "number of random self-play games (default: 10000)");
 parser.add_argument("--path-sample", type = str, default = "./sample.dat", help = "path to find sample (default: ./sample.dat) sample will be generated if it cannot be found here");
-parser.add_argument("--path-occur", type = str, default = "./occurrence.dat", help = "path to find count of occurrence (default: ./occurrence.dat) sample will be generated if it cannot be found here");
 parser.add_argument("--path-target", type = str, default = "./target.dat", help = "path to find target of optimization (default: ./target) target will be generated if it cannot be found here");
 parser.add_argument("--path-save", type = str, default = "./weight.dat", help = "path to save training result (default: ./weight.dat)");
 parser.add_argument("--path-pattern", type = str, default = "", help = "generate target with old pattern and specify the path to find it");
@@ -21,31 +20,28 @@ mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_mtdf;
 rv.board.config();
 rv.pattern.config();
 
-name = [args.path_sample, args.path_occur];
-if os.path.exists(name[0]) and os.path.exists(name[1]):
+name = args.path_sample;
+if os.path.exists(name):
 	print("sample already exists");
-	sample = rv.mat_brd();
-	sample.load(name[0]);
-	occurrence = rv.mat_i();
-	occurrence.load(name[1]);
+	with open(name, "rb") as fobj:
+		sample = np.load(fobj);
 else:
 	print("generate sample");
 	time_begin = time.time();
-	occurrence = rv.mat_i();
-	sample = rv.sample_gen(args.num_simulate, occurrence);
+	sample = rv.sample_gen(args.num_simulate);
 	time_end = time.time();
 	print("time: ", time_end - time_begin);
-	sample.save(name[0]);
-	occurrence.save(name[1]);
+	with open(name, "wb") as fobj:
+		np.save(fobj, sample);
 
-size = sample.geth();
+size = sample.shape[0];
 print("sample size: ", size);
 
 name = args.path_target;
 if os.path.exists(name):
 	print("target already exists");
-	target = rv.mat_f();
-	target.load(name);
+	with open(name, "rb") as fobj:
+		target = np.load(fobj);
 else:
 	if os.path.exists(args.path_pattern):
 		rv.pattern.config(args.path_pattern);
@@ -55,15 +51,15 @@ else:
 	target = rv.evaluate(sample, mthd, 4);
 	time_end = time.time();
 	print("time: ", time_end - time_begin);
-	target.save(name);
+	with open(name, "wb") as fobj:
+		np.save(fobj, target);
 
 weight = np.zeros((65, 8), dtype = np.float64).ravel();
-target_np = target.numpy();
 param = np.zeros((size, 8), dtype = np.float64);
 count = np.empty(size, dtype = np.int32);
 
 for i in range(size):
-	brd = sample[i];
+	brd = rv.board(sample[i]);
 	brd_black = brd.get_brd(True);
 	brd_white = brd.get_brd(False);
 	count[i] = brd.sum();

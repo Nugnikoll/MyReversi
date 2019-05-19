@@ -4,7 +4,7 @@ import codecs
 
 src_dir = "../cpp/";
 
-src = ["type.h","asm.h","board.h", "hash.h","matrix.h","pattern.h",
+src = ["type.h","asm.h","board.h", "hash.h","pattern.h",
 	"board.cc","flip.cc","search.cc","pattern.cc"];
 src = [src_dir + x for x in src] + ["main.cc"];
 
