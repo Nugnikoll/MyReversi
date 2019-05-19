@@ -504,6 +504,8 @@ class game:
 		if not (ply.proc is None) and wx.Process.Exists(ply.pid) and ply.path_exec != ply.path:
 			wx.Process.Kill(ply.pid);
 			wx.Yield();
+			time.sleep(0.01);
+			wx.Yield();
 			ply.proc = None;
 
 		if ply.proc is None or not wx.Process.Exists(ply.pid):
@@ -546,7 +548,7 @@ class game:
 			+ "\"\n"
 		);
 
-		for i in range(100):
+		for i in range(1000):
 			if proc_in.CanRead():
 				break;
 			time.sleep(0.01);
@@ -560,6 +562,8 @@ class game:
 				"time limit exceeding\n"
 			);
 			wx.Process.Kill(ply.pid);
+			wx.Yield();
+			time.sleep(0.01);
 			wx.Yield();
 			ply.proc = None;
 			raise RuntimeError;
