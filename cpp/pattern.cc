@@ -632,38 +632,6 @@ void pattern::balance(){
 	#pragma GCC diagnostic pop
 #endif
 
-matrix<board> sample_gen(cint n){
-	unordered_set<board> brds;
-	board brd, brd_save;
-	coordinate pos1, pos2;
-
-	for(int i = 0;i != n;++i){
-		brd.initial();
-		do{
-			brd_save = brd;
-			pos1 = brd.play(mthd_rnd, true, 0);
-			if(pos1.x >= 0){
-				brds.insert(brd_save);
-			}
-
-			brd_save = brd;
-			pos2 = brd.play(mthd_rnd, false, 0);
-			if(pos2.x >= 0){
-				brd_save.reverse();
-				brds.insert(brd_save);
-			}
-		}while(pos1.x >= 0 || pos2.x >= 0);
-	}
-
-	int i = 0;
-	matrix<board> result(brds.size(), 1);
-	for(cboard brd:brds){
-		result.at(i) = brd;
-		++i;
-	}
-	return result;
-};
-
 board random_transform(board brd){
 	static uniform_int_distribution<int> dist(0, 7);
 	int value = dist(engine);
@@ -690,8 +658,8 @@ board random_transform(board brd){
 	return brd;
 }
 
-matrix<board> sample_gen(cint n, matrix<int>& occurrence){
-	unordered_map<board, int> brds;
+void sample_gen(ARRAY_2D_OUT_M(ULL), cint n){
+	unordered_set<board> brds;
 	board brd, brd_save;
 	coordinate pos1, pos2;
 
@@ -701,54 +669,52 @@ matrix<board> sample_gen(cint n, matrix<int>& occurrence){
 			brd_save = brd;
 			pos1 = brd.play(mthd_rnd, true, 0);
 			if(pos1.x >= 0){
-				++brds[random_transform(brd_save)];
+				brds.insert(brd_save);
 			}
 
 			brd_save = brd;
 			pos2 = brd.play(mthd_rnd, false, 0);
 			if(pos2.x >= 0){
 				brd_save.reverse();
-				++brds[random_transform(brd_save)];
+				brds.insert(brd_save);
 			}
 		}while(pos1.x >= 0 || pos2.x >= 0);
 	}
 
+	*m1 = brds.size();
+	*m2 = 2;
+	*ptrm = new ull[*m1 * 2];
 	int i = 0;
-	matrix<board> result(brds.size(), 1);
-	occurrence.resize(brds.size(), 1);
-
-	for(const auto& p: brds){
-		result.at(i) = p.first;
-		occurrence.at(i) = p.second;
+	for(cboard brd:brds){
+		(*ptrm)[i * 2] = brd.get_brd(false);
+		(*ptrm)[i * 2 + 1] = brd.get_brd(true);
 		++i;
 	}
-
-	return result;
 };
 
-matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height){
-	matrix<val_type> result(brds.geth(), 1);
-	for(int i = 0; i != brds.geth(); ++i){
-		result.at(i) = brds.at(i).search(mthd, true, height);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height){
+	*m1 = i1;
+	*ptrm = new val_type[i1];
+	for(int i = 0; i != i1; ++i){
+		(*ptrm)[i] = ((board*)(ptri + i * 2))->search(mthd, true, height);
 		if(i % 100 == 0){
-			cout << "\rfinish " << i << "/" << brds.geth();
+			cout << "\rfinish " << i << "/" << i1;
 		}
 	}
 	cout << endl;
-	return result;
 }
 
-matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
-	matrix<val_type> result(brds.geth(), 1);
-	
-	for(int i = 0; i != brds.geth(); ++i){
-		result.at(i) = brds.at(i).score_ptn(true, ptn);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), const pattern& ptn, ARRAY_2D_IN_I(ULL)){
+	*m1 = i1;
+	*ptrm = new val_type[i1];
+	for(int i = 0; i != i1; ++i){
+		(*ptrm)[i] = ((board*)(ptri + i * 2))->score_ptn(true, ptn);
 	}
-	return result;
 }
 
-void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta){
-	for(int i = 0; i != brds.geth(); ++i){
-		brds.at(i).adjust_ptn(true, ptn, delta.at(i));
+void adjust(pattern& ptn, ARRAY_2D_IN_I(ULL), ARRAY_1D_IN_J(VAL_TYPE)){
+	assert(j1 == pattern::size);
+	for(int i = 0; i != i1; ++i){
+		((board*)(ptri + i * 2))->adjust_ptn(true, ptn, ptrj[i]);
 	}
 }

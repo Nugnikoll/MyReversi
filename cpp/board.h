@@ -85,6 +85,11 @@ public:
 	board(const board& brd) = default;
 	board(cull _brd_black, cull _brd_white)
 		: brd_white(_brd_white), brd_black(_brd_black){}
+	board(ARRAY_1D_IN_I(unsigned long long)){
+		assert(i1 == 2);
+		brd_white = ptri[0];
+		brd_black = ptri[1];
+	}
 
 	friend bool operator==(const board& b1, const board& b2){
 		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
@@ -107,7 +112,23 @@ public:
 	*/
 	void print(ostream& out = cout)const;
 
-	matrix<int> to_mat()const;
+	void numpy(ARRAY_1D_OUT_M(unsigned long long))const{
+		*m1 = 2;
+		*ptrm = new ull[2];
+		(*ptrm)[0] = brd_white;
+		(*ptrm)[1] = brd_black;
+	}
+	void expand(ARRAY_2D_OUT_M(bool))const{
+		*m1 = 2;
+		*m2 = size2;
+		*ptrm = new bool[2 * size2];
+		for(ull i = 0; i != size2; ++i){
+			(*ptrm)[i] = bool(brd_white & (1ull << i));
+		}
+		for(ull i = 0; i != size2; ++i){
+			(*ptrm)[i + size2] = bool(brd_black & (1ull << i));
+		}
+	}
 
 	/** @fn board& assign(cull _brd_black,cull _brd_white)
 	 *	@brief Assign the board to some specific value.

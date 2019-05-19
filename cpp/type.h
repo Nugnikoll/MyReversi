@@ -42,8 +42,10 @@ typedef const bool& cbool;
 typedef const short& cshort;
 typedef const int& cint;
 typedef const float& cfloat;
+#define LL long long
 typedef long long ll;
 typedef const ll& cll;
+#define ULL unsigned long long
 typedef unsigned long long ull;
 typedef const ull& cull;
 
@@ -52,7 +54,8 @@ typedef const line_type& cline_type;
 typedef short pos_type;
 typedef const pos_type& cpos_type;
 
-typedef float val_type;
+#define VAL_TYPE float
+typedef VAL_TYPE val_type;
 typedef const val_type& cval_type;
 
 struct pull{
@@ -129,7 +132,17 @@ enum player_type{
 	typedef player_type cplayer_type;
 #endif //USE_REF
 
-template<typename T>
-class matrix;
+#define ARRAY_1D_IN_I(TYPE) TYPE* ptri, int i1
+#define ARRAY_1D_IN_J(TYPE) TYPE* ptrj, int j1
+#define ARRAY_1D_OUT_O(TYPE) TYPE** ptro, int* o1
+#define ARRAY_1D_OUT_M(TYPE) TYPE** ptrm, int* m1
+#define ARRAY_2D_IN_I(TYPE) TYPE* ptri, int i1, int i2
+#define ARRAY_2D_IN_J(TYPE) TYPE* ptrj, int j1, int j2
+#define ARRAY_2D_OUT_O(TYPE) TYPE** ptro, int* o1, int* o2
+#define ARRAY_2D_OUT_M(TYPE) TYPE** ptrm, int* m1, int* m2
+#define ARRAY_3D_IN_I(TYPE) TYPE* ptri, int i1, int i2, int i3
+#define ARRAY_3D_IN_J(TYPE) TYPE* ptrj, int j1, int j2, int j3
+#define ARRAY_3D_OUT_O(TYPE) TYPE** ptro, int* o1, int* o2, int* o3
+#define ARRAY_3D_OUT_M(TYPE) TYPE** ptrm, int* m1, int* m2, int* m3
 
 #endif //TYPE_H
