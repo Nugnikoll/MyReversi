@@ -19,8 +19,8 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- A decent C++ compiler  
 		C++11 must be supported by this compiler. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
 	- [Python3](https://www.python.org/)
-	- [swig](http://swig.org/)
-	- [numpy](http://www.numpy.org/)
+	- [Swig](http://swig.org/)
+	- [NumPy](http://www.numpy.org/)
 	- [CMake](https://cmake.org/)  
 	Please make sure that the directory of python3, swig and cmake has been appended to the environment variable PATH.
 
@@ -42,7 +42,8 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
-	- [numpy](http://www.numpy.org/)
+	- [NumPy](http://www.numpy.org/)
+	- [SciPy](https://www.scipy.org/)
 
 - Execute the main program  
 	`cd app`  
