@@ -13,7 +13,6 @@
 using namespace std;
 
 class pattern;
-class group;
 
 extern pattern ptn;
 

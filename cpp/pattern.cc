@@ -514,7 +514,7 @@ void pattern::load(const string& path){
 	#define _READ(var) fin.read((char *)(&var), sizeof(var))
 
 	ifstream fin(path,ios::in | ios::binary);
-	size_t calc_size, ptn_size, group_size;
+	ull calc_size, ptn_size, group_size;
 
 	if(!fin){
 		fin.close();
@@ -566,9 +566,9 @@ void pattern::save(const string& path)const{
 
 	ofstream fout(path,ios::out | ios::binary);
 
-	size_t calc_size = sizeof(val_type);
-	size_t ptn_size = sizeof(pattern);
-	size_t group_size = 1;
+	ull calc_size = sizeof(val_type);
+	ull ptn_size = sizeof(pattern);
+	ull group_size = 1;
 
 	WRITE(calc_size);
 	WRITE(ptn_size);

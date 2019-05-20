@@ -120,8 +120,6 @@ struct choice;
 typedef const choice& cchoice;
 class pattern;
 typedef const pattern& cpattern;
-class group;
-typedef const group& cgroup;
 
 enum player_type{
 	ply_human, ply_ai, ply_other
