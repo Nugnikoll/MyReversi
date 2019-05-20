@@ -45,7 +45,7 @@ public:
 		*o1 = size;
 		*ptro = table;
 	}
-	void numpy(ARRAY_1D_OUT_M(VAL_TYPE)){
+	void numpy(ARRAY_1D_OUT_M(VAL_TYPE))const{
 		*m1 = size;
 		*ptrm = new val_type[size];
 		memcpy(*ptrm, table, sizeof(val_type) * size);

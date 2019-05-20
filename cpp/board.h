@@ -90,6 +90,16 @@ public:
 		brd_white = ptri[0];
 		brd_black = ptri[1];
 	}
+	board(ARRAY_2D_IN_I(bool)): brd_white(0), brd_black(0){
+		assert(i1 == 2);
+		assert(i2 == size2);
+		for(ull i = 0; i != size2; ++i){
+			brd_white |= ull(ptri[i]) << i;
+		}
+		for(ull i = 0; i != size2; ++i){
+			brd_black |= ull(ptri[i + size2]) << i;
+		}
+	}
 
 	friend bool operator==(const board& b1, const board& b2){
 		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
@@ -112,6 +122,10 @@ public:
 	*/
 	void print(ostream& out = cout)const;
 
+	void view(ARRAY_1D_OUT_O(unsigned long long)){
+		*o1 = 2;
+		*ptro = &brd_white;
+	}
 	void numpy(ARRAY_1D_OUT_M(unsigned long long))const{
 		*m1 = 2;
 		*ptrm = new ull[2];
