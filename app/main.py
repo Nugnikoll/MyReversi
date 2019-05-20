@@ -7,7 +7,7 @@ import _thread;
 import time;
 import pdb;
 from game import *;
-from view_log import *;
+from load_log import *;
 
 rv.board.config();
 rv.pattern.config("../data/pattern.dat");
@@ -706,23 +706,22 @@ class reversi_app(wx.App):
 		item = event.GetItem();
 		(ptr, flag) = self.tree_list.GetItemData(item);
 		if not flag:
-#			for p in ptr.child:
-#				self.tree_list.AppendItem(item, p.info(), data = (p, False));
 			p = ptr.child;
 			while p:
 				self.tree_list.AppendItem(item, p.info(), data = (p, False));
 				p = p.sibling;
 			self.tree_list.SetItemData(item, (ptr, True));
 		
-		mygame.assign(rv.board(ptr.brd));
-		if mygame.pos[0] >= 0:
-			mygame.set_pos(-1, -1);
+		if hasattr(ptr, "brd") and not (ptr.brd is None):
+			mygame.assign(rv.board(ptr.brd));
+			if mygame.pos[0] >= 0:
+				mygame.set_pos(-1, -1);
 
 	def log_display(self, name):
 		self.tree_list.DeleteAllItems();
 		self.tree_list.Show();
 		self.tree = load_log(name);
-		ptr = self.tree.root.child[0];
+		ptr = self.tree.root;
 		self.tree_list.AddRoot(ptr.info(), data = (ptr, False));
 
 	def tree_display(self, name):
