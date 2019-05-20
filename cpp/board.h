@@ -122,11 +122,11 @@ public:
 	*/
 	void print(ostream& out = cout)const;
 
-	void view(ARRAY_1D_OUT_O(unsigned long long)){
+	void view(ARRAY_1D_OUT_O(ULL)){
 		*o1 = 2;
 		*ptro = &brd_white;
 	}
-	void numpy(ARRAY_1D_OUT_M(unsigned long long))const{
+	void numpy(ARRAY_1D_OUT_M(ULL))const{
 		*m1 = 2;
 		*ptrm = new ull[2];
 		(*ptrm)[0] = brd_white;
