@@ -959,6 +959,13 @@ vector<choice> board::get_choice(
 		for(choice& c: choices){
 			result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
 			c.val = result;
+			if(result <= window_alpha){
+				c.rnd_val = -1;
+			}else if(result >= window_beta){
+				c.rnd_val = 1;
+			}else{
+				c.rnd_val = 0;
+			}
 			if(mthd & mthd_kill){
 				ptr_val[c.pos] = result;
 			}
@@ -974,12 +981,21 @@ vector<choice> board::get_choice(
 				//window_alpha = max(window_beta - window_width, alpha);
 				best = _inf;
 				for(choice& c: choices){
-					result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-					c.val = result;
-					if(mthd & mthd_kill){
-						ptr_val[c.pos] = result;
+					if(c.rnd_val == -1){
+						result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
+						c.val = result;
+						if(result <= window_alpha){
+							c.rnd_val = -1;
+						}else if(result >= window_beta){
+							c.rnd_val = 1;
+						}else{
+							c.rnd_val = 0;
+						}
+						if(mthd & mthd_kill){
+							ptr_val[c.pos] = result;
+						}
+						best = max(best, result);
 					}
-					best = max(best, result);
 				}
 			}while(best <= window_alpha && best > alpha);
 		}else if(best >= window_beta && best < beta){
@@ -990,12 +1006,21 @@ vector<choice> board::get_choice(
 				//window_beta = min(window_alpha + window_width, beta);
 				best = _inf;
 				for(choice& c: choices){
-					result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-					c.val = result;
-					if(mthd & mthd_kill){
-						ptr_val[c.pos] = result;
+					if(c.rnd_val == 1){
+						result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
+						c.val = result;
+						if(result <= window_alpha){
+							c.rnd_val = -1;
+						}else if(result >= window_beta){
+							c.rnd_val = 1;
+						}else{
+							c.rnd_val = 0;
+						}
+						if(mthd & mthd_kill){
+							ptr_val[c.pos] = result;
+						}
+						best = max(best, result);
 					}
-					best = max(best, result);
 				}
 			}while(best >= window_beta && best < beta);
 		}
