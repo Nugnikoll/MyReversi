@@ -119,7 +119,7 @@ int main(int argc, char *argv[], char *envp[]){
 			choices = temp;
 		}
 
-		float noise = 0.05 + (brd.sum() - 4) * ((0.5 - 0.05) / 60);
+		float noise = 0.15 + (brd.sum() - 4) * ((0.5 - 0.15) / 60);
 		choice best = board::select_choice(choices, noise);
 
 		result["response"]["x"] = best.pos & 7;
