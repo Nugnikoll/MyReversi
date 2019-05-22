@@ -13,6 +13,16 @@
 	#include "log.h"
 #endif //DEBUG_SEARCH
 
+#ifdef USE_TERMINATE
+	bool flag_timeout = false;
+	#define CHECK_TIME \
+		if(flag_timeout){ \
+			throw(timeout_exception()); \
+		}
+#else
+	#define CHECK_TIME
+#endif
+
 const short depth_kill = 2;
 const short depth_pvs = 2;
 const short depth_hash = 2;
@@ -240,8 +250,8 @@ void board::postprocess(){
 #endif
 
 val_type board::search(
-	cmethod mthd,cbool color,cshort depth,
-	cval_type alpha,cval_type beta
+	cmethod mthd, cbool color, cshort depth,
+	cval_type alpha, cval_type beta
 )const{
 
 	if(mthd & mthd_ids){
@@ -340,7 +350,7 @@ typedef const brd_val& cbrd_val;
 #endif
 
 template<method mthd>
-val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbool flag_pass)const{
+val_type board::search(cbool color, cshort depth, val_type alpha, val_type beta, cbool flag_pass)const{
 
 	#ifdef DEBUG_SEARCH
 	val_type _alpha = alpha;
@@ -353,9 +363,10 @@ val_type board::search(cbool color,cshort depth,val_type alpha,val_type beta,cbo
 		return 0;
 
 	}else if(mthd & mthd_end && (depth == 5)){
-		return this->template search_end_five<mthd>(color,alpha,beta,flag_pass);
+		return this->template search_end_five<mthd>(color, alpha, beta, flag_pass);
 	}else{
 
+		CHECK_TIME;
 		++node_count;
 
 		if(depth == 0){
@@ -573,6 +584,7 @@ val_type board::search_end_two(
 	auto fun = [&]()->val_type{
 	#endif
 
+	CHECK_TIME;
 	++node_count;
 
 	board brd;
@@ -652,6 +664,7 @@ val_type board::search_end_three(
 	auto fun = [&]()->val_type{
 	#endif
 
+	CHECK_TIME;
 	++node_count;
 
 	board brd;
@@ -728,6 +741,7 @@ val_type board::search_end_four(
 	auto fun = [&]()->val_type{
 	#endif
 
+	CHECK_TIME;
 	++node_count;
 
 	board brd;
@@ -817,6 +831,9 @@ val_type board::search_end_five(
 	val_type _beta = beta;
 	auto fun = [&]()->val_type{
 	#endif
+
+	CHECK_TIME;
+	++node_count;
 
 	const bool flag_kill = (mthd & mthd_kill);
 //	bool flag_pvs = (mthd & mthd_pvs) && depth >= depth_pvs;
