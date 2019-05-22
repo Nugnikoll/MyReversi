@@ -11,6 +11,7 @@ using namespace std;
 
 //#define USE_REF
 //#define DEBUG_SEARCH
+//#define USE_TERMINATE
 
 //check whether the complier support 64-bit AT&T inline assembly
 #ifndef USE_CMAKE
@@ -113,6 +114,17 @@ enum sts_type{
 #include <random>
 #include <chrono>
 extern default_random_engine engine;
+
+#ifdef USE_TERMINATE
+	#include <exception>
+	extern bool flag_timeout;
+	class timeout_exception: public exception
+	{
+		virtual const char* what() const throw(){
+			return "Timeout exception happened";
+		}
+	};
+#endif
 
 class board;
 typedef const board& cboard;

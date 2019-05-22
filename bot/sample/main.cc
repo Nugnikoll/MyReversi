@@ -97,21 +97,24 @@ int main(int argc, char *argv[], char *envp[]){
 
 		if(flag_time){
 			auto fun = [&](){
-				for(short i = 2; i != 100; ++i){
-					auto p_mthd = brd.process_method(mthd, i);
-					auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
-					mtx.lock();
-					depth = i;
-					choices = temp;
-					mtx.unlock();
-				}
+				try{
+					for(short i = 2; i != 100; ++i){
+						auto p_mthd = brd.process_method(mthd, i);
+						auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
+						mtx.lock();
+						depth = i;
+						choices = temp;
+						mtx.unlock();
+					}
+				}catch(timeout_exception){}
 			};
 
 			thread thrd(fun);
-			thrd.detach();
 
 			this_thread::sleep_for(chrono::milliseconds(arg_time));
-			mtx.lock();
+			flag_timeout = true;
+			thrd.join();
+			flag_timeout = false;
 		}else{
 			auto p_mthd = brd.process_method(mthd, arg_depth);
 			auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
