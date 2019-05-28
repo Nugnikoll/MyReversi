@@ -466,8 +466,7 @@ class reversi_app(wx.App):
 
 	#paint on panel_board
 	def paint(self):
-		dc = wx.ClientDC(self.panel_board);
-		mygame.do_show(dc);
+		mygame.show(dc = wx.ClientDC(self.panel_board));
 
 	#click on the panel board
 	def on_panel_board_leftdown(self, event):

@@ -65,10 +65,9 @@ class game:
 		self.ply[True].path = default_path;
 		self.ply[True].proc = None;
 
-	def show(self):
-		self.do_show(self.dc);
-
-	def do_show(self, dc):
+	def show(self, dc = None):
+		if dc is None:
+			dc = self.dc;
 		dc.Clear();
 
 		#draw valid moves
@@ -219,7 +218,7 @@ class game:
 		memdc = wx.MemoryDC();
 		memdc.SelectObject(img);
 		memdc.SetBackground(wx.Brush(wx.Colour(43,155,0)));
-		self.do_show(memdc);
+		self.show(dc = memdc);
 		img.SaveFile(path, img_type);
 
 	def push(self):
@@ -518,7 +517,6 @@ class game:
 		proc_in = ply.proc.GetInputStream();
 		proc_out = ply.proc.GetOutputStream();
 
-		result = rv.coordinate();
 		request = {
 			"request":{
 				"color":color,
@@ -584,10 +582,10 @@ class game:
 			);
 			raise RuntimeError;
 
-		result.x = response["response"]["x"];
-		result.y = response["response"]["y"];
+		x = response["response"]["x"];
+		y = response["response"]["y"];
 
-		if(not self.flip(color, result.x, result.y)):
+		if(not self.flip(color, x, y)):
 			self.text_log.AppendText(
 				"illegal move\n"
 			);
