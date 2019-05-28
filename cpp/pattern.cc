@@ -274,7 +274,7 @@ int table_reverse_c1[1 << 9];
 int table_reverse_c2[1 << 10];
 int table_rotate_a1[1 << 10];
 
-void pattern::config(){
+void pattern::config(const string& file_ptn){
 	ull j = 0;
 	for(ull i = 0; i != size; ++i){
 		if((i & (i >> 8)) == 0){
@@ -327,11 +327,15 @@ void pattern::config(){
 		board::rotate_r(j);
 		table_rotate_a1[i] = board::extract(j, ptn_a1);
 	}
+
+	if(file_ptn.size()){
+		ptn.load(file_ptn);
+	}
 }
 
 val_type board::score_ptn(cbool color, const pattern& ptn)const{
-	ull brd_blue = bget(color);
-	ull brd_green = bget(!color);
+	ull brd_blue = get_brd(color);
+	ull brd_green = get_brd(!color);
 	ull brd_v_blue = brd_blue;
 	ull brd_v_green = brd_green;
 	mirror_v(brd_v_blue);
@@ -421,8 +425,8 @@ val_type board::score_ptn(cbool color, const pattern& ptn)const{
 }
 
 void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
-	ull brd_blue = bget(color);
-	ull brd_green = bget(!color);
+	ull brd_blue = get_brd(color);
+	ull brd_green = get_brd(!color);
 	ull brd_v_blue = brd_blue;
 	ull brd_v_green = brd_green;
 	mirror_v(brd_v_blue);
@@ -510,7 +514,7 @@ void pattern::load(const string& path){
 	#define _READ(var) fin.read((char *)(&var), sizeof(var))
 
 	ifstream fin(path,ios::in | ios::binary);
-	size_t calc_size, ptn_size, group_size;
+	ull calc_size, ptn_size, group_size;
 
 	if(!fin){
 		fin.close();
@@ -562,9 +566,9 @@ void pattern::save(const string& path)const{
 
 	ofstream fout(path,ios::out | ios::binary);
 
-	size_t calc_size = sizeof(val_type);
-	size_t ptn_size = sizeof(pattern);
-	size_t group_size = 1;
+	ull calc_size = sizeof(val_type);
+	ull ptn_size = sizeof(pattern);
+	ull group_size = 1;
 
 	WRITE(calc_size);
 	WRITE(ptn_size);
@@ -628,38 +632,6 @@ void pattern::balance(){
 	#pragma GCC diagnostic pop
 #endif
 
-matrix<board> sample_gen(cint n){
-	unordered_set<board> brds;
-	board brd, brd_save;
-	coordinate pos1, pos2;
-
-	for(int i = 0;i != n;++i){
-		brd.initial();
-		do{
-			brd_save = brd;
-			pos1 = brd.play(mthd_rnd, true, 0);
-			if(pos1.x >= 0){
-				brds.insert(brd_save);
-			}
-
-			brd_save = brd;
-			pos2 = brd.play(mthd_rnd, false, 0);
-			if(pos2.x >= 0){
-				brd_save.reverse();
-				brds.insert(brd_save);
-			}
-		}while(pos1.x >= 0 || pos2.x >= 0);
-	}
-
-	int i = 0;
-	matrix<board> result(brds.size(), 1);
-	for(cboard brd:brds){
-		result.at(i) = brd;
-		++i;
-	}
-	return result;
-};
-
 board random_transform(board brd){
 	static uniform_int_distribution<int> dist(0, 7);
 	int value = dist(engine);
@@ -686,8 +658,8 @@ board random_transform(board brd){
 	return brd;
 }
 
-matrix<board> sample_gen(cint n, matrix<int>& occurrence){
-	unordered_map<board, int> brds;
+void sample_gen(ARRAY_2D_OUT_M(ULL), cint n){
+	unordered_set<board> brds;
 	board brd, brd_save;
 	coordinate pos1, pos2;
 
@@ -697,54 +669,52 @@ matrix<board> sample_gen(cint n, matrix<int>& occurrence){
 			brd_save = brd;
 			pos1 = brd.play(mthd_rnd, true, 0);
 			if(pos1.x >= 0){
-				++brds[random_transform(brd_save)];
+				brds.insert(brd_save);
 			}
 
 			brd_save = brd;
 			pos2 = brd.play(mthd_rnd, false, 0);
 			if(pos2.x >= 0){
 				brd_save.reverse();
-				++brds[random_transform(brd_save)];
+				brds.insert(brd_save);
 			}
 		}while(pos1.x >= 0 || pos2.x >= 0);
 	}
 
+	*m1 = brds.size();
+	*m2 = 2;
+	*ptrm = new ull[*m1 * 2];
 	int i = 0;
-	matrix<board> result(brds.size(), 1);
-	occurrence.resize(brds.size(), 1);
-
-	for(const auto& p: brds){
-		result.at(i) = p.first;
-		occurrence.at(i) = p.second;
+	for(cboard brd:brds){
+		(*ptrm)[i * 2] = brd.get_brd(false);
+		(*ptrm)[i * 2 + 1] = brd.get_brd(true);
 		++i;
 	}
-
-	return result;
 };
 
-matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height){
-	matrix<val_type> result(brds.geth(), 1);
-	for(int i = 0; i != brds.geth(); ++i){
-		result.at(i) = brds.at(i).search(mthd, true, height);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height){
+	*m1 = i1;
+	*ptrm = new val_type[i1];
+	for(int i = 0; i != i1; ++i){
+		(*ptrm)[i] = ((board*)(ptri + i * 2))->search(mthd, true, height);
 		if(i % 100 == 0){
-			cout << "\rfinish " << i << "/" << brds.geth();
+			cout << "\rfinish " << i << "/" << i1;
 		}
 	}
 	cout << endl;
-	return result;
 }
 
-matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds){
-	matrix<val_type> result(brds.geth(), 1);
-	
-	for(int i = 0; i != brds.geth(); ++i){
-		result.at(i) = brds.at(i).score_ptn(true, ptn);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), const pattern& ptn, ARRAY_2D_IN_I(ULL)){
+	*m1 = i1;
+	*ptrm = new val_type[i1];
+	for(int i = 0; i != i1; ++i){
+		(*ptrm)[i] = ((board*)(ptri + i * 2))->score_ptn(true, ptn);
 	}
-	return result;
 }
 
-void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta){
-	for(int i = 0; i != brds.geth(); ++i){
-		brds.at(i).adjust_ptn(true, ptn, delta.at(i));
+void adjust(pattern& ptn, ARRAY_2D_IN_I(ULL), ARRAY_1D_IN_J(VAL_TYPE)){
+	assert(j1 == pattern::size);
+	for(int i = 0; i != i1; ++i){
+		((board*)(ptri + i * 2))->adjust_ptn(true, ptn, ptrj[i]);
 	}
 }

@@ -8,13 +8,11 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "matrix.h"
 #include "type.h"
 
 using namespace std;
 
 class pattern;
-class group;
 
 extern pattern ptn;
 
@@ -26,10 +24,9 @@ public:
 	pattern() = default;
 	pattern(const pattern&) = default;
 	pattern(pattern&&) = default;
-	pattern(int h, int w, val_type* ptr){
-		assert(h == 1);
-		assert(w == size);
-		memcpy(table, ptr, sizeof(table));
+	pattern(ARRAY_1D_IN_I(VAL_TYPE)){
+		assert(i1 == size);
+		memcpy(table, ptri, sizeof(table));
 	}
 
 	pattern& operator=(const pattern&) = default;
@@ -43,17 +40,17 @@ public:
 		memset(table, 0, sizeof(table));
 	}
 
-	void numpy(int* h, int*w, val_type** ptr){
-		*h = 1;
-		*w = size;
-		*ptr = table;
+	void view(ARRAY_1D_OUT_O(VAL_TYPE)){
+		*o1 = size;
+		*ptro = table;
+	}
+	void numpy(ARRAY_1D_OUT_M(VAL_TYPE))const{
+		*m1 = size;
+		*ptrm = new val_type[size];
+		memcpy(*ptrm, table, sizeof(val_type) * size);
 	}
 
-	static void config();
-
-	static void config(const string& path){
-		ptn.load(path);
-	}
+	static void config(const string& file_ptn = "");
 
 	val_type& at(cint n, cint pos){
 		return table[(n << 16) + pos];
@@ -81,10 +78,9 @@ public:
 	void balance();
 };
 
-matrix<board> sample_gen(cint n);
-matrix<board> sample_gen(cint n, matrix<int>& occurrence);
-matrix<val_type> evaluate(const matrix<board>& brds, cmethod mthd, cshort height);
-matrix<val_type> evaluate(const pattern& ptn, const matrix<board>& brds);
-void adjust(pattern& ptn, const matrix<board>& brds, const matrix<val_type>& delta);
+void sample_gen(ARRAY_2D_OUT_M(ULL), cint n);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), const pattern& ptn, ARRAY_2D_IN_I(ULL));
+void adjust(pattern& ptn, ARRAY_2D_IN_I(ULL), ARRAY_1D_IN_J(VAL_TYPE));
 
 #endif //PATTERN_H
