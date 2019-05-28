@@ -332,7 +332,7 @@ class game:
 	def reverse(self):
 		self.push();
 		self.brd.reverse();
-		self.color = not color;
+		self.color = not self.color;
 		self.print_log("reverse\n");
 		self.paint();
 
