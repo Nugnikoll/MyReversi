@@ -3,11 +3,11 @@
 import wx;
 import sys;
 import os;
-import reversi;
-import reversi as rv;
+import time;
 import json;
-import subprocess as sp;
-from enum import Enum;
+
+sys.path.append("../python");
+import reversi as rv;
 
 bias = 34;
 num = 8;
@@ -23,17 +23,17 @@ def check(pos):
 
 def coord2str(self):
 	return "(%d,%d)" % (self.x,self.y);
-setattr(reversi.coordinate, "__str__", coord2str);
+setattr(rv.coordinate, "__str__", coord2str);
 
 def choice2str(self):
 	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
-setattr(reversi.choice, "__str__", choice2str);
+setattr(rv.choice, "__str__", choice2str);
 
 def vals2str(self):
 	return "[" + ",".join([str(v) for v in self]) + "]";
-setattr(reversi.ints, "__str__", vals2str);
-setattr(reversi.floats, "__str__", vals2str);
-setattr(reversi.choices, "__str__", vals2str);
+setattr(rv.ints, "__str__", vals2str);
+setattr(rv.floats, "__str__", vals2str);
+setattr(rv.choices, "__str__", vals2str);
 
 if sys.platform == "win32":
 	default_path = "../bot/reversi.exe";
@@ -59,9 +59,11 @@ class game:
 		self.pv = None;
 
 		self.ply[False].type = rv.ply_ai;
-		self.ply[False].path = default_path
+		self.ply[False].path = default_path;
+		self.ply[False].proc = None;
 		self.ply[True].type = rv.ply_human;
-		self.ply[True].path = default_path
+		self.ply[True].path = default_path;
+		self.ply[True].proc = None;
 
 	def show(self):
 		self.do_show(self.dc);
@@ -73,7 +75,7 @@ class game:
 		dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
 		dc.SetPen(wx.Pen(wx.Colour(30,100,0), thick));
 		brd_move = self.brd.get_move(self.color);
-		for i in range(reversi.board.size2):
+		for i in range(rv.board.size2):
 			if brd_move & (1 << i):
 				dc.DrawRectangle(bias + cell * (i & 7), bias + cell * (i >> 3), cell, cell);
 		
@@ -116,7 +118,7 @@ class game:
 					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
 
-				elif chssmn == reversi.white:
+				elif chssmn == rv.white:
 					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
 					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
 					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
@@ -190,6 +192,16 @@ class game:
 					color = True;
 				else:
 					color = False;
+
+	def mark(self, brd):
+		dc = self.dc;
+		dc.SetPen(wx.Pen(wx.Colour(0,0,230), thick));
+		for i in range(rv.board.size2):
+			if brd & (1 << i):
+				x = i & 0x7;
+				y = i >> 3;
+				dc.DrawLine(bias + cell * x, bias + cell * y, bias + cell * (x + 1), bias + cell * (y + 1));
+				dc.DrawLine(bias + cell * x, bias + cell * (y + 1), bias + cell * (x + 1), bias + cell * y);
 
 	def paint(self, show_choice = False, show_pv = False):
 		if not show_choice:
@@ -265,8 +277,8 @@ class game:
 		self.paint();
 		self.play_continue();
 
-	def bget(self, color):
-		return self.brd.bget(color);
+	def get_brd(self, color):
+		return self.brd.get_brd(color);
 
 	def assign(self, brd):
 		self.push();
@@ -340,7 +352,7 @@ class game:
 		else:
 			brd_save = rv.board(self.brd);
 			self.brd.flip(color, x + (y << 3));
-			result = (self.brd.bget(True) != brd_save.bget(True));
+			result = (self.brd.get_brd(True) != brd_save.get_brd(True));
 
 		if result:
 			self.print_log(
@@ -479,13 +491,40 @@ class game:
 		if depth is None:
 			depth = self.depth;
 
+		ply = self.ply[color];
+
+		def check_proc():
+			if not ply.proc.Exists(ply.pid):
+				self.text_log.AppendText(
+					"runtime error\n"
+					 + "the process exits unexpectedly"
+				);
+				raise RuntimeError;
+
+		if not (ply.proc is None) and wx.Process.Exists(ply.pid) and ply.path_exec != ply.path:
+			wx.Process.Kill(ply.pid);
+			wx.Yield();
+			time.sleep(0.01);
+			wx.Yield();
+			ply.proc = None;
+
+		if ply.proc is None or not wx.Process.Exists(ply.pid):
+			ply.proc = wx.Process();
+			ply.proc.Redirect();
+			ply.path_exec = ply.path.strip();
+			ply.pid = wx.Execute(ply.path.strip(), wx.EXEC_ASYNC, ply.proc);
+			check_proc();
+
+		proc_in = ply.proc.GetInputStream();
+		proc_out = ply.proc.GetOutputStream();
+
 		result = rv.coordinate();
 		request = {
 			"request":{
 				"color":color,
 				"board":{
-					"black":self.brd.bget(True),
-					"white":self.brd.bget(False)
+					"black":self.brd.get_brd(True),
+					"white":self.brd.get_brd(False)
 				}
 			}
 		};
@@ -499,14 +538,9 @@ class game:
 		);
 		self.text_log.AppendText(s + "\n");
 
-		sp_result = sp.run(self.ply[color].path.strip().split(), input = s.encode(), stdout = sp.PIPE);
+		proc_out.write((s + "\n").encode());
 
-		if sp_result.returncode:
-			self.text_log.AppendText(
-				"runtime error\n"
-				 + "the process exits with code %d" % sp_result.returncode
-			);
-			raise RuntimeError;
+		check_proc();
 
 		self.text_log.AppendText(
 			"receive a response from process \""
@@ -514,10 +548,30 @@ class game:
 			+ "\"\n"
 		);
 
+		for i in range(1000):
+			if proc_in.CanRead():
+				break;
+			time.sleep(0.01);
+
+		check_proc();
+
+		if proc_in.CanRead():
+			s = proc_in.readline();
+		else:
+			self.text_log.AppendText(
+				"time limit exceeding\n"
+			);
+			wx.Process.Kill(ply.pid);
+			wx.Yield();
+			time.sleep(0.01);
+			wx.Yield();
+			ply.proc = None;
+			raise RuntimeError;
+
 		response = None;
-		self.text_log.AppendText(sp_result.stdout.decode());
+		self.text_log.AppendText(s.decode());
 		try:
-			response = json.loads(sp_result.stdout.decode());
+			response = json.loads(s.decode());
 		except json.decoder.JSONDecodeError:
 			self.text_log.AppendText(
 				"invalid output format\n"
@@ -599,7 +653,3 @@ class game:
 			self.play_continue();
 		except RuntimeError:
 			pass;
-
-reversi.board.config();
-reversi.pattern.config();
-mygame = game();

@@ -7,9 +7,11 @@ import _thread;
 import time;
 import pdb;
 from game import *;
-from view_log import *;
+from load_log import *;
 
+rv.board.config();
 rv.pattern.config("../data/pattern.dat");
+mygame = game();
 
 evt_thrd_id = wx.NewId();
 
@@ -40,7 +42,7 @@ class reversi_app(wx.App):
 
 		#set the icon of the frame
 		frame_icon = wx.Icon();
-		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/Reversi.bmp")));
+		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/reversi.png")));
 		self.frame.SetIcon(frame_icon);
 
 		#create background elements
@@ -702,22 +704,34 @@ class reversi_app(wx.App):
 
 	def on_tree_item_select(self, event):
 		item = event.GetItem();
-		ptr = self.tree_list.GetItemData(item);
-		if not ptr.flag_expand:
-			for p in ptr.child:
-				p.flag_expand = False;
-				self.tree_list.AppendItem(item, "depth: %d, color: %d, alpha: %f, beta: %f, result: %f" % (p.depth, p.color, p.alpha, p.beta, p.result), data = p);
-			ptr.flag_expand = True;
+		(ptr, flag) = self.tree_list.GetItemData(item);
+		if not flag:
+			p = ptr.child;
+			while p:
+				self.tree_list.AppendItem(item, p.info(), data = (p, False));
+				p = p.sibling;
+			self.tree_list.SetItemData(item, (ptr, True));
 		
-		mygame.assign(ptr.brd);
+		if hasattr(ptr, "brd") and not (ptr.brd is None):
+			mygame.assign(rv.board(ptr.brd));
+			if mygame.pos[0] >= 0:
+				mygame.set_pos(-1, -1);
+
+	def log_display(self, name):
+		self.tree_list.DeleteAllItems();
+		self.tree_list.Show();
+		self.tree = load_log(name);
+		ptr = self.tree.root;
+		self.tree_list.AddRoot(ptr.info(), data = (ptr, False));
 
 	def tree_display(self, name):
-		self.tree = load_log(name);
-		ptr = self.tree.root.child[0];
-		ptr.flag_expand = False;
-		self.tree_list.AddRoot("depth: %d, color: %d, alpha: %f, beta: %f, result: %f" % (ptr.depth, ptr.color, ptr.alpha, ptr.beta, ptr.result), data = ptr);
+		self.tree_list.DeleteAllItems();
+		self.tree_list.Show();
+		self.tree = rv.node();
+		self.tree.load(name);
+		self.tree_list.AddRoot(self.tree.info(), data = (self.tree, False));
 
 if __name__ == "__main__":
 	app = reversi_app(False);
 	app.MainLoop();
-	reversi.board.postprocess();
+	rv.board.postprocess();

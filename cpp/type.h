@@ -11,6 +11,7 @@ using namespace std;
 
 //#define USE_REF
 //#define DEBUG_SEARCH
+//#define USE_TERMINATE
 
 //check whether the complier support 64-bit AT&T inline assembly
 #ifndef USE_CMAKE
@@ -42,8 +43,10 @@ typedef const bool& cbool;
 typedef const short& cshort;
 typedef const int& cint;
 typedef const float& cfloat;
+#define LL long long
 typedef long long ll;
 typedef const ll& cll;
+#define ULL unsigned long long
 typedef unsigned long long ull;
 typedef const ull& cull;
 
@@ -52,8 +55,15 @@ typedef const line_type& cline_type;
 typedef short pos_type;
 typedef const pos_type& cpos_type;
 
-typedef float val_type;
+#define VAL_TYPE float
+typedef VAL_TYPE val_type;
 typedef const val_type& cval_type;
+
+struct pull{
+	ull first;
+	ull second;
+};
+typedef const pull& cpull;
 
 enum chessman{blank, white, black, null};
 #ifdef USE_REF
@@ -105,14 +115,23 @@ enum sts_type{
 #include <chrono>
 extern default_random_engine engine;
 
+#ifdef USE_TERMINATE
+	#include <exception>
+	extern bool flag_timeout;
+	class timeout_exception: public exception
+	{
+		virtual const char* what() const throw(){
+			return "Timeout exception happened";
+		}
+	};
+#endif
+
 class board;
 typedef const board& cboard;
 struct choice;
 typedef const choice& cchoice;
 class pattern;
 typedef const pattern& cpattern;
-class group;
-typedef const group& cgroup;
 
 enum player_type{
 	ply_human, ply_ai, ply_other
@@ -123,7 +142,17 @@ enum player_type{
 	typedef player_type cplayer_type;
 #endif //USE_REF
 
-template<typename T>
-class matrix;
+#define ARRAY_1D_IN_I(TYPE) TYPE* ptri, int i1
+#define ARRAY_1D_IN_J(TYPE) TYPE* ptrj, int j1
+#define ARRAY_1D_OUT_O(TYPE) TYPE** ptro, int* o1
+#define ARRAY_1D_OUT_M(TYPE) TYPE** ptrm, int* m1
+#define ARRAY_2D_IN_I(TYPE) TYPE* ptri, int i1, int i2
+#define ARRAY_2D_IN_J(TYPE) TYPE* ptrj, int j1, int j2
+#define ARRAY_2D_OUT_O(TYPE) TYPE** ptro, int* o1, int* o2
+#define ARRAY_2D_OUT_M(TYPE) TYPE** ptrm, int* m1, int* m2
+#define ARRAY_3D_IN_I(TYPE) TYPE* ptri, int i1, int i2, int i3
+#define ARRAY_3D_IN_J(TYPE) TYPE* ptrj, int j1, int j2, int j3
+#define ARRAY_3D_OUT_O(TYPE) TYPE** ptro, int* o1, int* o2, int* o3
+#define ARRAY_3D_OUT_M(TYPE) TYPE** ptrm, int* m1, int* m2, int* m3
 
 #endif //TYPE_H

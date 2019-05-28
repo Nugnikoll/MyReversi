@@ -1,3 +1,5 @@
+// -*- c++ -*-
+
 %module(directors="1") reversi
 
 %include <std_string.i>
@@ -13,35 +15,63 @@
 	#include "../cpp/type.h"
 	#include "../cpp/asm.h"
 	#include "../cpp/board.h"
-	#include "../cpp/matrix.h"
 	#include "../cpp/pattern.h"
 	#include "../cpp/log.h"
+	#include "../cpp/tree.h"
 %}
 
 %include "numpy.i"
 
 %init %{
-import_array();
+	import_array();
 %}
 
-%apply (int DIM1, int DIM2, int* INPLACE_ARRAY2)
-{(int h, int w, int* ptr)};
-%apply (int* DIM1, int* DIM2, int** ARGOUTVIEW_ARRAY2)
-{(int* h, int* w, int** ptr)};
-%apply (int DIM1, int DIM2, float* INPLACE_ARRAY2)
-{(int h, int w, float* ptr)};
-%apply (int* DIM1, int* DIM2, float** ARGOUTVIEW_ARRAY2)
-{(int* h, int* w, float** ptr)};
-%apply (int DIM1, int DIM2, double* INPLACE_ARRAY2)
-{(int h, int w, double* ptr)};
-%apply (int* DIM1, int* DIM2, double** ARGOUTVIEW_ARRAY2)
-{(int* h, int* w, double** ptr)};
+#define ARRAY_1D(TYPE) \
+	%apply (TYPE* INPLACE_ARRAY1, int DIM1) \
+	{(TYPE* ptri, int i1)}; \
+	%apply (TYPE* INPLACE_ARRAY1, int DIM1) \
+	{(TYPE* ptrj, int j1)}; \
+	%apply (TYPE** ARGOUTVIEW_ARRAY1, int* DIM1) \
+	{(TYPE** ptro, int* o1)}; \
+	%apply (TYPE** ARGOUTVIEWM_ARRAY1, int* DIM1) \
+	{(TYPE** ptrm, int* m1)};
+
+#define ARRAY_2D(TYPE) \
+	%apply (TYPE* INPLACE_ARRAY2, int DIM1, int DIM2) \
+	{(TYPE* ptri, int i1, int i2)}; \
+	%apply (TYPE* INPLACE_ARRAY2, int DIM1, int DIM2) \
+	{(TYPE* ptrj, int j1, int j2)}; \
+	%apply (TYPE** ARGOUTVIEW_ARRAY2, int* DIM1, int* DIM2) \
+	{(TYPE** ptro, int* o1, int* o2)}; \
+	%apply (TYPE** ARGOUTVIEWM_ARRAY2, int* DIM1, int* DIM2) \
+	{(TYPE** ptrm, int* m1, int* m2)};
+
+#define ARRAY_3D(TYPE) \
+	%apply (TYPE* INPLACE_ARRAY3, int DIM1, int DIM2, int DIM3) \
+	{(TYPE* ptri, int i1, int i2, int i3)}; \
+	%apply (TYPE* INPLACE_ARRAY3, int DIM1, int DIM2, int DIM3) \
+	{(TYPE* ptrj, int j1, int j2, int j3)}; \
+	%apply (TYPE** ARGOUTVIEW_ARRAY3, int* DIM1, int* DIM2, int* DIM3) \
+	{(TYPE** ptro, int* o1, int* o2, int* o3)}; \
+	%apply (TYPE** ARGOUTVIEWM_ARRAY3, int* DIM1, int* DIM2, int* DIM3) \
+	{(TYPE** ptrm, int* m1, int* m2, int* m3)}; \
+
+#define ARRAY_ND(TYPE) \
+	ARRAY_1D(TYPE) \
+	ARRAY_2D(TYPE) \
+	ARRAY_3D(TYPE)
+
+ARRAY_ND(bool);
+ARRAY_ND(int);
+ARRAY_ND(unsigned long long);
+ARRAY_ND(float);
+ARRAY_ND(double);
 
 %include "../cpp/type.h"
 %include "../cpp/board.h"
-%include "../cpp/matrix.h"
 %include "../cpp/pattern.h"
 %include "../cpp/log.h"
+%include "../cpp/tree.h"
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;
@@ -50,11 +80,6 @@ import_array();
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;
 %template(pair_method) std::pair<method, short>;
-
-%template(mat_i) matrix<int>;
-%template(mat_f) matrix<float>;
-%template(mat_lf) matrix<double>;
-%template(mat_brd) matrix<board>;
 
 %array_class(pos_type, pos_array);
 
