@@ -42,7 +42,7 @@ class reversi_app(wx.App):
 
 		#set the icon of the frame
 		frame_icon = wx.Icon();
-		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/Reversi.bmp")));
+		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/reversi.png")));
 		self.frame.SetIcon(frame_icon);
 
 		#create background elements

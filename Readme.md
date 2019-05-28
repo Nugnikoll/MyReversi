@@ -1,7 +1,7 @@
 ## Reversi
 
 ### Screenshot
-![](./image/reversi.png)
+![](./image/screenshot.png)
 
 ### Overview
 Reversi (also called Othello) is a kind of strategy board game which involves play by two parties on an eight-by-eight square grid. For details of reversi please go to [https://en.wikipedia.org/wiki/Reversi](https://en.wikipedia.org/wiki/Reversi).
@@ -42,8 +42,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 	- library _reversi.so or _reversi.pyd (should be downloaded here or built from source)
 	- [Python3](https://www.python.org/)
 	- [wxPython](https://www.wxpython.org/)
-	- [NumPy](http://www.numpy.org/)
-	- [SciPy](https://www.scipy.org/)
+	- [NumPy](https://www.numpy.org/)
 
 - Execute the main program  
 	`cd app`  
@@ -66,7 +65,7 @@ Here are prebuilt binaries. Download and extract one to the subdirectory python/
 		└───botzone/main.cc (Botzone online project)
 
 - Training  
-	Besides the dependencies metioned before, scipy is also required here. To train with random self-play games, simply enter the directory /python and execute the script pattern_optimize.py .  
+	Besides the dependencies metioned before, [SciPy](https://www.scipy.org/) is also required here. To train with random self-play games, simply enter the directory /python and execute the script pattern_optimize.py .  
 	`cd app`  
 	`python3 pattern_optimize.py`  
 	If you want to perform training with custom parameters, type `python3 pattern_optimize.py --help` for help.
