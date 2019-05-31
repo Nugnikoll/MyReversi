@@ -45,6 +45,30 @@ class reversi_app(wx.App):
 		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/reversi.png")));
 		self.frame.SetIcon(frame_icon);
 
+		#load images
+		self.img_board = wx.Bitmap(wx.Image("../image/board/board.png"));
+		self.img_cell = wx.Bitmap(wx.Image("../image/board/cell.png"));
+		self.img_move = wx.Bitmap(wx.Image("../image/board/move.png"));
+		self.img_stone = [];
+		str_color = ["white", "black"];
+		str_light = ["", "_light"];
+		str_move = ["", "move_"];
+		for i in (False, True):
+			self.img_stone.append([]);
+			for j in (False, True):
+				self.img_stone[i].append(wx.Bitmap(wx.Image(
+					"../image/board/stone_%s%s.png" % (str_color[i], str_light[j])
+				)));
+		self.img_pvs = [];
+		for i in (False, True):
+			self.img_pvs.append([]);
+			for j in (False, True):
+				self.img_pvs[i].append([]);
+				for k in range(64):
+					self.img_pvs[i][j].append(wx.Bitmap(wx.Image(
+						"../image/board/pvs_%s%s_%s.png" % (str_move[i], str_color[j], str(k))
+					)));
+
 		#create background elements
 		sizer_base = wx.BoxSizer(wx.HORIZONTAL);
 		self.frame.SetSizer(sizer_base);
@@ -423,6 +447,7 @@ class reversi_app(wx.App):
 		#define a function which prints strings on text_term
 
 		self.thrd_lock = False;
+		mygame.frame = self;
 		mygame.panel_board = self.panel_board;
 		mygame.dc = wx.ClientDC(self.panel_board);
 		mygame.text_log = self.text_log;
