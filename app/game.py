@@ -21,10 +21,6 @@ margin = 20;
 def check(pos):
 	return pos[0] >= 0 and pos[0] < rv.board.size and pos[1] >= 0 and pos[1] < rv.board.size;
 
-def coord2str(self):
-	return "(%d,%d)" % (self.x,self.y);
-setattr(rv.coordinate, "__str__", coord2str);
-
 def choice2str(self):
 	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
 setattr(rv.choice, "__str__", choice2str);
@@ -69,69 +65,43 @@ class game:
 		if dc is None:
 			dc = self.dc;
 		dc.Clear();
+		
+		#draw a board
+		dc.DrawBitmap(self.frame.img_board, 0, 0);
 
 		#draw valid moves
-		dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
-		dc.SetPen(wx.Pen(wx.Colour(30,100,0), thick));
 		brd_move = self.brd.get_move(self.color);
 		for i in range(rv.board.size2):
 			if brd_move & (1 << i):
-				dc.DrawRectangle(bias + cell * (i & 7), bias + cell * (i >> 3), cell, cell);
-		
-		#draw a board
-		dc.SetPen(wx.Pen(wx.BLACK, thick));
-		for i in range(num + 1):
-			dc.DrawLine(bias, bias + cell * i, bias + width, bias + cell * i);
-		for i in range(num + 1):
-			dc.DrawLine(bias + cell * i, bias, bias + cell * i, bias + width);
-
-		#draw the outline of the board
-		dc.SetBrush(wx.BLACK_BRUSH);
-		dc.SetPen(wx.Pen(wx.BLACK,thick));
-		dc.DrawRectangle(bias - margin, bias - margin, margin, width + margin * 2);
-		dc.DrawRectangle(bias - margin, bias - margin, width + margin * 2, margin);
-		dc.DrawRectangle(bias + width, bias - margin, margin, width + margin * 2);
-		dc.DrawRectangle(bias - margin, bias + width, width + margin * 2, margin);
-
-		#draw coordinate labels
-		dc.SetTextForeground(wx.Colour(190,190,190));
-		dc.SetFont(
-			wx.Font(
-				12, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL,
-				wx.FONTWEIGHT_BOLD,False, "Consolas"
-				,wx.FONTENCODING_DEFAULT
-			)
-		);
-		for i in range(num):
-			dc.DrawText(chr(ord('A') + i), bias + cell / 2 + cell * i - 4, bias - margin / 2 - 10);
-			dc.DrawText(chr(ord('A') + i), bias + cell / 2 + cell * i - 4, bias + width + margin / 2 - 12);
-			dc.DrawText(chr(ord('1') + i), bias - margin / 2 - 4,bias + cell / 2 + cell * i - 10);
-			dc.DrawText(chr(ord('1') + i), bias + width + margin / 2 - 5, bias + cell / 2 + cell * i - 10);
+				dc.DrawBitmap(self.frame.img_move, bias + cell * (i & 7), bias + cell * (i >> 3));
 
 		#draw stones
-		for i in range(num):
-			for j in range(num):
-				chssmn = self.brd.get(i + (j << 3));
-				if chssmn == rv.black:
-					dc.SetBrush(wx.Brush(wx.Colour(40,40,40)));
-					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
-
-				elif chssmn == rv.white:
-					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
-					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
+		brd_white = self.brd.get_brd(False);
+		brd_black = self.brd.get_brd(True);
+		for i in range(rv.board.size2):
+			if brd_white & (1 << i):
+				dc.DrawBitmap(
+					self.frame.img_stone[False][False],
+					bias + cell * (i & 7),
+					bias + cell * (i >> 3)
+				);
+			elif brd_black & (1 << i):
+				dc.DrawBitmap(
+					self.frame.img_stone[True][False],
+					bias + cell * (i & 7),
+					bias + cell * (i >> 3)
+				);
 
 		#show where is the last move
 		if check(self.pos):
-			if self.get(self.pos[0], self.pos[1]) == rv.black:
-				dc.SetBrush(wx.Brush(wx.Colour(50,50,30)));
-				dc.SetPen(wx.Pen(wx.Colour(90,90,0), thick));
-			else:
-				dc.SetBrush(wx.Brush(wx.Colour(210,210,170)));
-				dc.SetPen(wx.Pen(wx.Colour(200,200,30), thick));
-			dc.DrawCircle(wx.Point(cbias + cell * self.pos[0], cbias + cell * self.pos[1]),radius);
+			color = (self.get(self.pos[0], self.pos[1]) == rv.black);
+			dc.DrawBitmap(
+				self.frame.img_stone[color][True],
+				bias + cell * self.pos[0],
+				bias + cell * self.pos[1]
+			);
 
+		#show the evaluation
 		if not (self.choices is None):
 			dc.SetTextForeground(wx.Colour(255,30,30));
 			dc.SetFont(
@@ -151,40 +121,19 @@ class game:
 					bias + cell * y + cell / 2 - 8
 				);
 
+		#show the principle variation
 		if not (self.pv is None):
 			brd = rv.board(self.brd);
 			color = self.color;
 			for i in range(len(self.pv)):
 				x = self.pv[i] & 0x7;
 				y = self.pv[i] >> 3;
-				if color:
-					if brd_move & (1 << self.pv[i]):
-						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
-					else:
-						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
-					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
-					dc.SetTextForeground(wx.Colour(20,20,20));
-					s = "%d" % (i + 1);
-					dc.DrawText(
-						s,
-						bias + cell * x  + cell / 2 - 3.5 * len(s),
-						bias + cell * y + cell / 2 - 8
-					);
-				else:
-					if brd_move & (1 << self.pv[i]):
-						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
-					else:
-						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
-					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
-					dc.SetTextForeground(wx.Colour(230,230,230));
-					s = "%d" % (i + 1);
-					dc.DrawText(
-						s,
-						bias + cell * x  + cell / 2 - 3.5 * len(s),
-						bias + cell * y + cell / 2 - 8
-					);
+				flag_move = (brd_move & (1 << self.pv[i]) != 0);
+				dc.DrawBitmap(
+					self.frame.img_pvs[flag_move][color][i],
+					bias + cell * x,
+					bias + cell * y
+				);
 				brd.flip(color, self.pv[i]);
 				status = brd.get_status(not color);
 				if status & rv.sts_black:
@@ -645,6 +594,7 @@ class game:
 
 		if self.ply[self.color].type == rv.ply_human:
 			self.flip(self.color, pos[0], pos[1]);
+			wx.Yield();
 
 		try:
 			self.play(self.mthd, self.color, self.depth);
