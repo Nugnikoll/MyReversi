@@ -5,6 +5,7 @@ import sys;
 import os;
 import time;
 import json;
+import numpy as np;
 
 sys.path.append("../python");
 import reversi as rv;
@@ -18,11 +19,46 @@ radius = cell / 2 - 4;
 thick = 3;
 margin = 20;
 
-def check(pos):
+def check_pos(pos):
 	return pos[0] >= 0 and pos[0] < rv.board.size and pos[1] >= 0 and pos[1] < rv.board.size;
 
+def format_pos(pos):
+	tp = type(pos);
+	if tp is tuple:
+		if check_pos(pos):
+			return pos[0] | pos[1] << 3;
+		else:
+			return -1;
+	if tp is int:
+		return pos;
+	if tp is str:
+		if len(pos) != 2:
+			return -1;
+		pos = [ord(pos[0]), ord(pos[1])];
+		if pos[0] < pos[1]:
+			pos = [pos[1], pos[0]];
+		if pos[0] >= ord("a"):
+			pos[0] -= ord("a");
+		else:
+			pos[0] -= ord("A");
+		pos[1] -= ord("1");
+		if check_pos(pos):
+			return pos[0] | pos[1] << 3;
+		else:
+			return -1;
+	return -1;
+
+def format_brd(brd):
+	tp = type(brd);
+	if tp is tuple:
+		return rv.board(brd[0], brd[1]);
+	if tp is rv.board:
+		return brd;
+	if tp is np.array:
+		return rv.board(brd);
+
 def choice2str(self):
-	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
+	return "(\"%c%c\",%f)" % (chr((self.pos >> 3) + ord("1")), chr((self.pos & 0x7) + ord("A")), self.val);
 setattr(rv.choice, "__str__", choice2str);
 
 def vals2str(self):
@@ -93,8 +129,8 @@ class game:
 				);
 
 		#show where is the last move
-		if check(self.pos):
-			color = (self.get(self.pos[0], self.pos[1]) == rv.black);
+		if check_pos(self.pos):
+			color = (self.get((self.pos[0], self.pos[1])) == rv.black);
 			dc.DrawBitmap(
 				self.frame.img_stone[color][True],
 				bias + cell * self.pos[0],
@@ -209,9 +245,10 @@ class game:
 		self.color = color;
 		self.paint();
 
-	def set_pos(self, x, y):
+	def set_pos(self, pos):
 		self.push();
-		self.pos = (x, y);
+		pos = format_pos(pos);
+		self.pos = (pos & 0x7, pos >> 3);
 		self.paint();
 
 	def start(self):
@@ -225,21 +262,24 @@ class game:
 		self.paint();
 		self.play_continue();
 
-	def get_brd(self, color):
-		return self.brd.get_brd(color);
+	def get_brd(self, color = None):
+		if color is None:
+			return (self.brd.get_brd(False), self.brd.get_brd(True));
+		else:
+			return self.brd.get_brd(color);
 
 	def assign(self, brd):
 		self.push();
-		self.brd = brd;
+		self.brd = format_brd(brd);
 		self.paint();
 		self.print_log("assign new value to the board\n");
 
-	def get(self, x, y):
-		return self.brd.get(x + (y << 3));
+	def get(self, pos):
+		return self.brd.get(format_pos(pos));
 
-	def set(self, x, y, chsman):
+	def set(self, pos, chsman):
 		self.push();
-		self.brd.set(x + (y << 3), chsman);
+		self.brd.set(format_pos(pos), chsman);
 		self.paint();
 
 	def mirror_h(self):
@@ -287,29 +327,30 @@ class game:
 	def config(self):
 		return brd.config();
 
-	def flip(self, color, x, y):
+	def flip(self, color, pos):
 
+		pos = format_pos(pos);
 		self.push();
 
 		result = False;
 
 		# if the BMI2 instruction set is used by the function board::flip()
 		# we do not need to compare self.brd.get(x + (y << 3)) with rv.blank
-		if not check((x,y)) or self.brd.get(x + (y << 3)) != rv.blank:
+		if pos < 0 or self.brd.get(pos) != rv.blank:
 			result = False;
 		else:
 			brd_save = rv.board(self.brd);
-			self.brd.flip(color, x + (y << 3));
+			self.brd.flip(color, pos);
 			result = (self.brd.get_brd(True) != brd_save.get_brd(True));
 
 		if result:
 			self.print_log(
 				"place a " + ("black" if color else "white")
-				+ " stone at " + chr(x + ord("A")) + chr(y + ord("1")) + "\n"
+				+ " stone at " + chr((pos & 7) + ord("A")) + chr((pos >> 3) + ord("1")) + "\n"
 			);
 			if not (self.brd.get_status(not color) & rv.sts_again):
 				self.color = not color;
-			self.pos = (x,y);
+			self.pos = (pos & 7, pos >> 3);
 			self.paint();
 		else:
 			if self.flag_auto_save:
@@ -441,7 +482,7 @@ class game:
 
 		ply = self.ply[color];
 
-		def check_proc():
+		def check_pos_proc():
 			if not ply.proc.Exists(ply.pid):
 				self.text_log.AppendText(
 					"runtime error\n"
@@ -461,7 +502,7 @@ class game:
 			ply.proc.Redirect();
 			ply.path_exec = ply.path.strip();
 			ply.pid = wx.Execute(ply.path.strip(), wx.EXEC_ASYNC, ply.proc);
-			check_proc();
+			check_pos_proc();
 
 		proc_in = ply.proc.GetInputStream();
 		proc_out = ply.proc.GetOutputStream();
@@ -487,7 +528,7 @@ class game:
 
 		proc_out.write((s + "\n").encode());
 
-		check_proc();
+		check_pos_proc();
 
 		self.text_log.AppendText(
 			"receive a response from process \""
@@ -500,7 +541,7 @@ class game:
 				break;
 			time.sleep(0.01);
 
-		check_proc();
+		check_pos_proc();
 
 		if proc_in.CanRead():
 			s = proc_in.readline();
@@ -534,7 +575,7 @@ class game:
 		x = response["response"]["x"];
 		y = response["response"]["y"];
 
-		if(not self.flip(color, x, y)):
+		if(not self.flip(color, (x, y))):
 			self.text_log.AppendText(
 				"illegal move\n"
 			);
@@ -593,7 +634,7 @@ class game:
 			return;
 
 		if self.ply[self.color].type == rv.ply_human:
-			self.flip(self.color, pos[0], pos[1]);
+			self.flip(self.color, pos);
 			wx.Yield();
 
 		try:
