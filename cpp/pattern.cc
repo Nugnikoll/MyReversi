@@ -692,16 +692,62 @@ void sample_gen(ARRAY_2D_OUT_M(ULL), cint n){
 	}
 };
 
-void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height){
+void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
+	unordered_set<board> brds;
+	board brd;
+	uniform_int_distribution<int> dist(5, 63);
+	int rnd;
+	bool color;
+	ull brd_move;
+
+	while(brds.size() < n){
+		rnd = dist(engine);
+		brd.initial();
+		color = true;
+		while(true){
+			brd.play(mthd_rnd, color, 0);
+			if(brd.get_move(!color)){
+				color = !color;
+			}
+			if(brd.sum() >= rnd || not brd.get_move(color)){
+				if(color){
+					brd.reverse();
+				}
+				brds.insert(brd);
+				break;
+			}
+		}
+		if(flag_verbose && brds.size() % 1000 == 0){
+			cout << "\rfinish " << brds.size() << "/" << n;
+		}
+	}
+	if(flag_verbose){
+		cout << endl;
+	}
+
+	*m1 = brds.size();
+	*m2 = 2;
+	*ptrm = new ull[*m1 * 2];
+	int i = 0;
+	for(cboard brd:brds){
+		(*ptrm)[i * 2] = brd.get_brd(false);
+		(*ptrm)[i * 2 + 1] = brd.get_brd(true);
+		++i;
+	}
+};
+
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height, cbool flag_verbose){
 	*m1 = i1;
 	*ptrm = new val_type[i1];
 	for(int i = 0; i != i1; ++i){
 		(*ptrm)[i] = ((board*)(ptri + i * 2))->search(mthd, true, height);
-		if(i % 100 == 0){
+		if(flag_verbose && i % 100 == 0){
 			cout << "\rfinish " << i << "/" << i1;
 		}
 	}
-	cout << endl;
+	if(flag_verbose){
+		cout << endl;
+	}
 }
 
 void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), const pattern& ptn, ARRAY_2D_IN_I(ULL)){
