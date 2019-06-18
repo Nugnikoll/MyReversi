@@ -419,11 +419,19 @@ class game:
 
 		return result;
 
-	def search(self, mthd, color, depth = -1, alpha = rv._inf, beta = rv.inf):
+	def search(self, mthd = None, color = None, depth = -1, alpha = rv._inf, beta = rv.inf):
+		if mthd is None:
+			mthd = self.mthd;
+		if color is None:
+			color = self.color;
 		(mthd, depth) = self.process_method(mthd, depth);
 		return self.brd.search(mthd, color, depth, alpha, beta);
 
-	def get_choice(self, mthd, color, depth = -1):
+	def get_choice(self, mthd = None, color = None, depth = -1):
+		if mthd is None:
+			mthd = self.mthd;
+		if color is None:
+			color = self.color;
 		(mthd, depth) = self.process_method(mthd, depth);
 		choices = self.brd.get_choice(mthd, color, depth);
 		self.choices = rv.choices(choices);
@@ -433,7 +441,9 @@ class game:
 	def select_choice(self, choices):
 		return self.brd.select_choice(choices);
 
-	def get_pv(self, color):
+	def get_pv(self, color = None):
+		if color is None:
+			color = self.color;
 		result = self.brd.get_pv(color);
 		self.pv = result;
 		self.paint(show_pv = True);
