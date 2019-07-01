@@ -86,7 +86,7 @@ enum method{
 	mthd_ids = 0x20, // iterative deepening search
 	mthd_ptn = 0x40, // pattern
 	mthd_mpc = 0x80, // multi-probability cut
-	mthd_end = 0x100, // end game solver
+	mthd_end = 0x100 // end game solver
 };
 
 #ifdef USE_REF
