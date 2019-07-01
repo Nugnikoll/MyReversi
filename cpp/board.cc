@@ -159,7 +159,7 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 	);
 }
 
-coordinate board::play(cmethod mthd,cbool color,cshort depth){
+coordinate board::play(cmethod mthd, cbool color, cshort depth){
 
 	vector<choice> choices = get_choice(mthd,color,depth);
 	if(choices.empty()){
@@ -167,7 +167,7 @@ coordinate board::play(cmethod mthd,cbool color,cshort depth){
 	}else{
 		choice best;
 		if(mthd == mthd_rnd){
-			uniform_int_distribution<int> scatter(0,choices.size() - 1);
+			uniform_int_distribution<int> scatter(0, choices.size() - 1);
 			best = choices[scatter(engine)];
 		}else{
 			float variation;

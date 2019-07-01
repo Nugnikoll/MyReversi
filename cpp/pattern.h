@@ -52,12 +52,6 @@ public:
 
 	static void config(const string& file_ptn = "");
 
-	val_type& at(cint n, cint pos){
-		return table[(n << 16) + pos];
-	};
-	cval_type at(cint n, cint pos)const{
-		return table[(n << 16) + pos];
-	};
 	val_type& at(cint n){
 		return table[n];
 	};
