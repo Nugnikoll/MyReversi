@@ -11,7 +11,6 @@ from load_log import *;
 
 rv.board.config();
 rv.pattern.config("../data/pattern.dat");
-mygame = game();
 
 evt_thrd_id = wx.NewId();
 
@@ -372,7 +371,7 @@ class reversi_app(wx.App):
 			menu_alg.mthd = alg_table[i];
 			menu_alg.mthd_str = alg_str_table[i];
 			self.menu_algorithm.Append(menu_alg);
-			if alg_table[i] & mygame.mthd:
+			if alg_table[i] & mthd_default:
 				menu_alg.Check(True);
 		self.menu_algorithm.Insert(1, wx.NewId(), kind = wx.ITEM_SEPARATOR);
 
@@ -444,13 +443,7 @@ class reversi_app(wx.App):
 		self.frame.Show(True);
 		self.tree_list.Hide();
 
-		#define a function which prints strings on text_term
-
 		self.thrd_lock = False;
-		mygame.frame = self;
-		mygame.panel_board = self.panel_board;
-		mygame.dc = wx.ClientDC(self.panel_board);
-		mygame.text_log = self.text_log;
 
 	#process command
 	def process(self, s):
@@ -757,5 +750,6 @@ class reversi_app(wx.App):
 
 if __name__ == "__main__":
 	app = reversi_app(False);
+	mygame = game(app);
 	app.MainLoop();
 	rv.board.postprocess();
