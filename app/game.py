@@ -19,6 +19,8 @@ radius = cell / 2 - 4;
 thick = 3;
 margin = 20;
 
+mthd_default = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
+
 def check_pos(pos):
 	return pos[0] >= 0 and pos[0] < rv.board.size and pos[1] >= 0 and pos[1] < rv.board.size;
 
@@ -58,7 +60,7 @@ def format_brd(brd):
 		return rv.board(brd);
 
 def choice2str(self):
-	return "(\"%c%c\",%f)" % (chr((self.pos >> 3) + ord("1")), chr((self.pos & 0x7) + ord("A")), self.val);
+	return "(\"%c%c\",%f)" % (chr((self.pos & 0x7) + ord("A")), chr((self.pos >> 3) + ord("1")), self.val);
 setattr(rv.choice, "__str__", choice2str);
 
 def vals2str(self):
@@ -76,11 +78,17 @@ class player:
 	pass;
 
 class game:
-	def __init__(self):
+	def __init__(self, app):
+		self.app = app;
+		self.frame = app.frame;
+		self.panel_board = app.panel_board;
+		self.dc = wx.ClientDC(app.panel_board);
+		self.text_log = app.text_log;
+
 		self.brd = rv.board(0, 0);
 		self.color = True;
 		self.pos = (-1, -1);
-		self.mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
+		self.mthd = mthd_default;
 		self.depth = -1;
 		self.flag_auto_save = True;
 		self.flag_lock = True;
@@ -103,13 +111,13 @@ class game:
 		dc.Clear();
 		
 		#draw a board
-		dc.DrawBitmap(self.frame.img_board, 0, 0);
+		dc.DrawBitmap(self.app.img_board, 0, 0);
 
 		#draw valid moves
 		brd_move = self.brd.get_move(self.color);
 		for i in range(rv.board.size2):
 			if brd_move & (1 << i):
-				dc.DrawBitmap(self.frame.img_move, bias + cell * (i & 7), bias + cell * (i >> 3));
+				dc.DrawBitmap(self.app.img_move, bias + cell * (i & 7), bias + cell * (i >> 3));
 
 		#draw stones
 		brd_white = self.brd.get_brd(False);
@@ -117,13 +125,13 @@ class game:
 		for i in range(rv.board.size2):
 			if brd_white & (1 << i):
 				dc.DrawBitmap(
-					self.frame.img_stone[False][False],
+					self.app.img_stone[False][False],
 					bias + cell * (i & 7),
 					bias + cell * (i >> 3)
 				);
 			elif brd_black & (1 << i):
 				dc.DrawBitmap(
-					self.frame.img_stone[True][False],
+					self.app.img_stone[True][False],
 					bias + cell * (i & 7),
 					bias + cell * (i >> 3)
 				);
@@ -132,7 +140,7 @@ class game:
 		if check_pos(self.pos):
 			color = (self.get((self.pos[0], self.pos[1])) == rv.black);
 			dc.DrawBitmap(
-				self.frame.img_stone[color][True],
+				self.app.img_stone[color][True],
 				bias + cell * self.pos[0],
 				bias + cell * self.pos[1]
 			);
@@ -166,7 +174,7 @@ class game:
 				y = self.pv[i] >> 3;
 				flag_move = (brd_move & (1 << self.pv[i]) != 0);
 				dc.DrawBitmap(
-					self.frame.img_pvs[flag_move][color][i],
+					self.app.img_pvs[flag_move][color][i],
 					bias + cell * x,
 					bias + cell * y
 				);
