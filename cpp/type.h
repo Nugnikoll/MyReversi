@@ -74,6 +74,7 @@ enum chessman{blank, white, black, null};
 
 const val_type inf = numeric_limits<short>::max();
 const val_type _inf = - inf;
+const val_type epsilon = 0.0001;
 
 enum method{
 
