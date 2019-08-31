@@ -31,7 +31,7 @@ if os.path.exists(name):
 else:
 	print("generate sample");
 	time_begin = time.time();
-	sample = rv.sample_gen(args.num_simulate);
+	sample = rv.sample_gen_select(args.num_simulate);
 	time_end = time.time();
 	print("time: ", time_end - time_begin);
 	with open(name, "wb") as fobj:

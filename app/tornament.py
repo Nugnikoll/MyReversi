@@ -105,4 +105,4 @@ for i in range(args.num):
 print("proc1=" + proc[0].path);
 print("proc2=" + proc[1].path);
 print("white=proc1\tblack=proc2\t%d:%d:%d" % (score[0][0], score[0][1], score[0][2]));
-print("black=proc2\twhite=proc1\t%d:%d:%d" % (score[1][0], score[1][1], score[1][2]));
+print("white=proc2\tblack=proc1\t%d:%d:%d" % (score[1][0], score[1][1], score[1][2]));
