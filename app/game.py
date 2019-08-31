@@ -10,6 +10,11 @@ import numpy as np;
 sys.path.append("../python");
 import reversi as rv;
 
+if os.path.isdir("./bot/"):
+	bot_path = "./bot/";
+else:
+	bot_path = "../bot/";
+
 bias = 34;
 num = 8;
 cell = 44;
@@ -70,9 +75,9 @@ setattr(rv.floats, "__str__", vals2str);
 setattr(rv.choices, "__str__", vals2str);
 
 if sys.platform == "win32":
-	default_path = "../bot/reversi.exe";
+	default_path = bot_path + "reversi.exe";
 else:
-	default_path = "../bot/reversi";
+	default_path = bot_path + "reversi";
 
 class player:
 	pass;
