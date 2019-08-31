@@ -16,12 +16,12 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 - Prerequisites
 	- A decent C++ compiler  
-		C++11 must be supported by this compiler. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
+		C++11 must be supported by this compiler. g++, mingw32-g++ and clang++ are suggested. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
 	- [Python3](https://www.python.org/)
 	- [Swig](http://swig.org/)
 	- [NumPy](http://www.numpy.org/)
 	- [CMake](https://cmake.org/)  
-	- [wxPython](https://www.wxpython.org/)
+	- [wxPython](https://www.wxpython.org/)  
 	Please make sure that the directory of python3, swig and cmake has been appended to the environment variable PATH.
 
 - Build the library for reversi  
@@ -40,7 +40,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 ### Usage
 
 - If you have downloaded the prebuilt binaries, extract them and double click on reversi.exe .
-- If you have built the binaries from source, enter the subdirectory /app and execute the main program.  
+- If you have built the binaries from source, enter the directory app/ and execute the main program.  
 	`cd app`  
 	`python3 main.py`  
 
@@ -61,7 +61,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 		└───botzone/main.cc (Botzone online project)
 
 - Training  
-	Besides the dependencies metioned before, [SciPy](https://www.scipy.org/) is also required here. To train with random self-play games, simply enter the directory /python and execute the script pattern_optimize.py .  
+	Besides the dependencies metioned before, [SciPy](https://www.scipy.org/) is also required here. To train with random self-play games, simply enter the directory python/ and execute the script pattern_optimize.py .  
 	`cd app`  
 	`python3 pattern_optimize.py`  
 	If you want to perform training with custom parameters, type `python3 pattern_optimize.py --help` for help.
