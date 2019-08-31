@@ -497,7 +497,7 @@ val_type board::search(cbool color, cshort depth, val_type alpha, val_type beta,
 
 				if(flag_pvs){
 					if(p != vec){
-						temp = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - 1,-alpha);
+						temp = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - epsilon,-alpha);
 						if(temp > alpha && temp < beta)
 							temp = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
 					}else{
