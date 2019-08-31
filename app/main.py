@@ -9,8 +9,18 @@ import pdb;
 from game import *;
 from load_log import *;
 
+if os.path.isdir("./data/"):
+	data_path = "./data/";
+else:
+	data_path = "../data/";
+
+if os.path.isdir("./image/"):
+	image_path = "./image/";
+else:
+	image_path = "../image/";
+
 rv.board.config();
-rv.pattern.config("../data/pattern.dat");
+rv.pattern.config(data_path + "pattern.dat");
 
 evt_thrd_id = wx.NewId();
 
@@ -41,13 +51,13 @@ class reversi_app(wx.App):
 
 		#set the icon of the frame
 		frame_icon = wx.Icon();
-		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/reversi.png")));
+		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image(image_path + "reversi.png")));
 		self.frame.SetIcon(frame_icon);
 
 		#load images
-		self.img_board = wx.Bitmap(wx.Image("../image/board/board.png"));
-		self.img_cell = wx.Bitmap(wx.Image("../image/board/cell.png"));
-		self.img_move = wx.Bitmap(wx.Image("../image/board/move.png"));
+		self.img_board = wx.Bitmap(wx.Image(image_path + "board/board.png"));
+		self.img_cell = wx.Bitmap(wx.Image(image_path + "board/cell.png"));
+		self.img_move = wx.Bitmap(wx.Image(image_path + "board/move.png"));
 		self.img_stone = [];
 		str_color = ["white", "black"];
 		str_light = ["", "_light"];
@@ -56,7 +66,7 @@ class reversi_app(wx.App):
 			self.img_stone.append([]);
 			for j in (False, True):
 				self.img_stone[i].append(wx.Bitmap(wx.Image(
-					"../image/board/stone_%s%s.png" % (str_color[i], str_light[j])
+					image_path + "board/stone_%s%s.png" % (str_color[i], str_light[j])
 				)));
 		self.img_pvs = [];
 		for i in (False, True):
@@ -65,7 +75,7 @@ class reversi_app(wx.App):
 				self.img_pvs[i].append([]);
 				for k in range(64):
 					self.img_pvs[i][j].append(wx.Bitmap(wx.Image(
-						"../image/board/pvs_%s%s_%s.png" % (str_move[i], str_color[j], str(k))
+						image_path + "board/pvs_%s%s_%s.png" % (str_move[i], str_color[j], str(k))
 					)));
 
 		#create background elements
@@ -137,7 +147,7 @@ class reversi_app(wx.App):
 		self.text_path_black.Hide();
 
 		self.button_folder_black = wx.BitmapButton(
-			panel_note, bitmap = wx.Bitmap(wx.Image("../image/folder_small.png")), size = wx.Size(32,29)
+			panel_note, bitmap = wx.Bitmap(wx.Image(image_path + "folder_small.png")), size = wx.Size(32,29)
 		);
 		self.button_folder_black.SetBackgroundColour(wx.Colour(0,0,0));
 		self.sizer_note_path_black.Add(self.button_folder_black, 0, wx.ALL | wx.ALIGN_CENTER, 5);
@@ -171,7 +181,7 @@ class reversi_app(wx.App):
 		self.text_path_white.Hide();
 
 		self.button_folder_white = wx.BitmapButton(
-			panel_note, bitmap = wx.Bitmap(wx.Image("../image/folder_small.png")), size = wx.Size(32,29)
+			panel_note, bitmap = wx.Bitmap(wx.Image(image_path + "folder_small.png")), size = wx.Size(32,29)
 		);
 		self.button_folder_white.SetBackgroundColour(wx.Colour(0,0,0));
 		self.sizer_note_path_white.Add(self.button_folder_white, 0, wx.ALL | wx.ALIGN_CENTER, 5);
