@@ -9,16 +9,6 @@ import pdb;
 from game import *;
 from load_log import *;
 
-if os.path.isdir("./data/"):
-	data_path = "./data/";
-else:
-	data_path = "../data/";
-
-if os.path.isdir("./image/"):
-	image_path = "./image/";
-else:
-	image_path = "../image/";
-
 rv.board.config();
 rv.pattern.config(data_path + "pattern.dat");
 

@@ -10,10 +10,25 @@ import numpy as np;
 sys.path.append("../python");
 import reversi as rv;
 
+if os.path.isdir("./data/"):
+	data_path = "./data/";
+else:
+	data_path = "../data/";
+
+if os.path.isdir("./image/"):
+	image_path = "./image/";
+else:
+	image_path = "../image/";
+
 if os.path.isdir("./bot/"):
 	bot_path = "./bot/";
 else:
 	bot_path = "../bot/";
+
+if sys.platform == "win32":
+	default_path = bot_path + "reversi.exe -c -t 900 -p " + data_path + "pattern.dat";
+else:
+	default_path = bot_path + "reversi -c -t 900 -p " + data_path + "pattern.dat";
 
 bias = 34;
 num = 8;
@@ -73,11 +88,6 @@ def vals2str(self):
 setattr(rv.ints, "__str__", vals2str);
 setattr(rv.floats, "__str__", vals2str);
 setattr(rv.choices, "__str__", vals2str);
-
-if sys.platform == "win32":
-	default_path = bot_path + "reversi.exe";
-else:
-	default_path = bot_path + "reversi";
 
 class player:
 	pass;
