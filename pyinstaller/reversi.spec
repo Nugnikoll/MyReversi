@@ -29,6 +29,7 @@ a = Analysis(
 	] + bots,
 	datas = [
 		("../image/*.png", "./image"),
+		("../image/*.ico", "./image"),
 		("../image/board/*", "./image/board"),
 		("../data/*", "./data")
 	],
@@ -57,7 +58,8 @@ exe = EXE(
 	bootloader_ignore_signals = False,
 	strip = False,
 	upx = True,
-	console = False
+	console = False,
+	icon = "../image/reversi.ico"
 );
 
 coll = COLLECT(
