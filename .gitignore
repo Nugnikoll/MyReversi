@@ -41,3 +41,6 @@ build/*
 
 cpuid/*
 !cpuid/*.cc
+
+pyinstaller/build/*
+pyinstaller/dist/*

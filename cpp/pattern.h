@@ -52,12 +52,6 @@ public:
 
 	static void config(const string& file_ptn = "");
 
-	val_type& at(cint n, cint pos){
-		return table[(n << 16) + pos];
-	};
-	cval_type at(cint n, cint pos)const{
-		return table[(n << 16) + pos];
-	};
 	val_type& at(cint n){
 		return table[n];
 	};
@@ -79,7 +73,8 @@ public:
 };
 
 void sample_gen(ARRAY_2D_OUT_M(ULL), cint n);
-void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height);
+void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose = true);
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height, cbool flag_verbose = true);
 void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), const pattern& ptn, ARRAY_2D_IN_I(ULL));
 void adjust(pattern& ptn, ARRAY_2D_IN_I(ULL), ARRAY_1D_IN_J(VAL_TYPE));
 

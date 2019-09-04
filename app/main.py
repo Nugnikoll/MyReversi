@@ -10,8 +10,7 @@ from game import *;
 from load_log import *;
 
 rv.board.config();
-rv.pattern.config("../data/pattern.dat");
-mygame = game();
+rv.pattern.config(data_path + "pattern.dat");
 
 evt_thrd_id = wx.NewId();
 
@@ -42,8 +41,32 @@ class reversi_app(wx.App):
 
 		#set the icon of the frame
 		frame_icon = wx.Icon();
-		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image("../image/reversi.png")));
+		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image(image_path + "reversi.png")));
 		self.frame.SetIcon(frame_icon);
+
+		#load images
+		self.img_board = wx.Bitmap(wx.Image(image_path + "board/board.png"));
+		self.img_cell = wx.Bitmap(wx.Image(image_path + "board/cell.png"));
+		self.img_move = wx.Bitmap(wx.Image(image_path + "board/move.png"));
+		self.img_stone = [];
+		str_color = ["white", "black"];
+		str_light = ["", "_light"];
+		str_move = ["", "move_"];
+		for i in (False, True):
+			self.img_stone.append([]);
+			for j in (False, True):
+				self.img_stone[i].append(wx.Bitmap(wx.Image(
+					image_path + "board/stone_%s%s.png" % (str_color[i], str_light[j])
+				)));
+		self.img_pvs = [];
+		for i in (False, True):
+			self.img_pvs.append([]);
+			for j in (False, True):
+				self.img_pvs[i].append([]);
+				for k in range(64):
+					self.img_pvs[i][j].append(wx.Bitmap(wx.Image(
+						image_path + "board/pvs_%s%s_%s.png" % (str_move[i], str_color[j], str(k))
+					)));
 
 		#create background elements
 		sizer_base = wx.BoxSizer(wx.HORIZONTAL);
@@ -114,7 +137,7 @@ class reversi_app(wx.App):
 		self.text_path_black.Hide();
 
 		self.button_folder_black = wx.BitmapButton(
-			panel_note, bitmap = wx.Bitmap(wx.Image("../image/folder_small.png")), size = wx.Size(32,29)
+			panel_note, bitmap = wx.Bitmap(wx.Image(image_path + "folder_small.png")), size = wx.Size(32,29)
 		);
 		self.button_folder_black.SetBackgroundColour(wx.Colour(0,0,0));
 		self.sizer_note_path_black.Add(self.button_folder_black, 0, wx.ALL | wx.ALIGN_CENTER, 5);
@@ -148,7 +171,7 @@ class reversi_app(wx.App):
 		self.text_path_white.Hide();
 
 		self.button_folder_white = wx.BitmapButton(
-			panel_note, bitmap = wx.Bitmap(wx.Image("../image/folder_small.png")), size = wx.Size(32,29)
+			panel_note, bitmap = wx.Bitmap(wx.Image(image_path + "folder_small.png")), size = wx.Size(32,29)
 		);
 		self.button_folder_white.SetBackgroundColour(wx.Colour(0,0,0));
 		self.sizer_note_path_white.Add(self.button_folder_white, 0, wx.ALL | wx.ALIGN_CENTER, 5);
@@ -348,7 +371,7 @@ class reversi_app(wx.App):
 			menu_alg.mthd = alg_table[i];
 			menu_alg.mthd_str = alg_str_table[i];
 			self.menu_algorithm.Append(menu_alg);
-			if alg_table[i] & mygame.mthd:
+			if alg_table[i] & mthd_default:
 				menu_alg.Check(True);
 		self.menu_algorithm.Insert(1, wx.NewId(), kind = wx.ITEM_SEPARATOR);
 
@@ -420,12 +443,7 @@ class reversi_app(wx.App):
 		self.frame.Show(True);
 		self.tree_list.Hide();
 
-		#define a function which prints strings on text_term
-
 		self.thrd_lock = False;
-		mygame.panel_board = self.panel_board;
-		mygame.dc = wx.ClientDC(self.panel_board);
-		mygame.text_log = self.text_log;
 
 	#process command
 	def process(self, s):
@@ -466,8 +484,7 @@ class reversi_app(wx.App):
 
 	#paint on panel_board
 	def paint(self):
-		dc = wx.ClientDC(self.panel_board);
-		mygame.do_show(dc);
+		mygame.show(dc = wx.ClientDC(self.panel_board));
 
 	#click on the panel board
 	def on_panel_board_leftdown(self, event):
@@ -733,5 +750,6 @@ class reversi_app(wx.App):
 
 if __name__ == "__main__":
 	app = reversi_app(False);
+	mygame = game(app);
 	app.MainLoop();
 	rv.board.postprocess();

@@ -1,11 +1,11 @@
 /** @mainpage Reversi Documentation
-
+ *
  * @section sec_rv Introduction of Reversi
-	Reversi (also called Othello) is a kind of strategy board game
-	which involves play by two parties on an eight-by-eight square grid.
-	
+ * Reversi (also called Othello) is a kind of strategy board game
+ * which involves play by two parties on an eight-by-eight square grid.
+ *
  * @section sec_pro Introduction of the Program
-
+ *
  */
 
 /** @file board.h
@@ -55,15 +55,15 @@ namespace std{
 
 /** @class board 
  *
- * @brief It represent the board of reversi.
+ * @brief It's the board of reversi.
  *
-	It has two data member which are brd_black and brd_white.
-	They represent the board of black stones and board of white stones respectively.
-	Both brd_black and brd_white are 64-bit integer.
-	Where the bit is set to 1, there is a stone.
-	We can assume that brd_black | brd_white is always zero
-	because we can never place a black stone and a white stone at the same cell.
-	This kind of data structure saves a lot of memory and is easy to calculate.
+ * It has two data member which are brd_black and brd_white.
+ * They represent the board of black stones and board of white stones respectively.
+ * Both brd_black and brd_white are 64-bit integer.
+ * Where the bit is set to 1, there is a stone.
+ * We can assume that brd_black | brd_white is always zero
+ * because we can never place a black stone and a white stone at the same cell.
+ * This kind of data structure saves a lot of memory and is easy to calculate.
  *
  */
 
@@ -75,21 +75,45 @@ protected:
 public:
 
 	/** @fn board()
-	* @brief The default constructor of class board
-		This function do nothing at all.
-		The value of the object board is not defined
-		if it's constructed by this function.
-		To initial the object, please use the function initial() .
-	*/
+	 * @brief The default constructor of class board
+	 * This function do nothing at all.
+	 * The value of the object board is not defined
+	 * if it's constructed by this function.
+	 * To initial the object, please use the function initial() .
+	 */
 	board() = default;
+
+	/** @fn board(const board& brd)
+	 * @brief The default copy constructor of class board
+	 * @param brd
+	 */
 	board(const board& brd) = default;
+
+	/** @fn board(cull _brd_black, cull _brd_white)
+	 * @brief A constructor of class board
+	 * @param _brd_black the value of the 64-bit board of black stones
+	 * @param _brd_white the value of the 64-bit board of white stones
+	 */
 	board(cull _brd_black, cull _brd_white)
 		: brd_white(_brd_white), brd_black(_brd_black){}
+
+	/** @fn board(ARRAY_1D_IN_I(unsigned long long))
+	 * @brief A constructor of class board
+	 * @param ptri a 1D NumPy array of shape = (2) and dtype = uint64
+	 * This function is expected to be invoked in python.
+	 */
 	board(ARRAY_1D_IN_I(unsigned long long)){
 		assert(i1 == 2);
 		brd_white = ptri[0];
 		brd_black = ptri[1];
 	}
+
+	/** @fn void board(ARRAY_2D_IN_I(bool))
+	 * @brief A constructor of class board
+	 * @param ptri a 2D NumPy array of shape = (2, 64) and dtype = bool
+	 * This function is expected to be invoked in python.
+	 * The input array is the one-hot representation of the board.
+	 */
 	board(ARRAY_2D_IN_I(bool)): brd_white(0), brd_black(0){
 		assert(i1 == 2);
 		assert(i2 == size2);
@@ -116,22 +140,42 @@ public:
 		return out;
 	}
 
-	/** @fn const board& print(ostream& out = cout)const
-	 *	@brief It's a function used to show the board on a terminal.
-	 *	@param out the output stream
-	*/
+	/** @fn void const board& print(ostream& out = cout)const
+	 * @brief It's a function used to show the board on a terminal.
+	 * @param out the output stream
+	 */
 	void print(ostream& out = cout)const;
 
+	/** @fn void view(ARRAY_1D_OUT_O(ULL))
+	 * @brief get a view of the board
+	 * @return a 1D NumPy array of shape = (2) and dtype = uint64
+	 * This function does not create a NumPy array.
+	 * The return value shares memory with the board.
+	 * To create an array from board, use the function board::numpy() instead.
+	 */
 	void view(ARRAY_1D_OUT_O(ULL)){
 		*o1 = 2;
 		*ptro = &brd_white;
 	}
+
+	/** @fn void numpy(ARRAY_1D_OUT_M(ULL))
+	 * @brief convert the board to a NumPy array
+	 * @return a 1D NumPy array of shape = (2) and dtype = uint64
+	 * This function create a NumPy array.
+	 * The return value does not share memory with the board.
+	 */
 	void numpy(ARRAY_1D_OUT_M(ULL))const{
 		*m1 = 2;
 		*ptrm = new ull[2];
 		(*ptrm)[0] = brd_white;
 		(*ptrm)[1] = brd_black;
 	}
+
+	/** @fn void expand(ARRAY_2D_OUT_M(bool))
+	 * @brief convert the board to a NumPy array
+	 * @return a 2D NumPy array of shape = (2, 64) and dtype = bool
+	 * This function convert the board to NumPy array using one-hot representation.
+	 */
 	void expand(ARRAY_2D_OUT_M(bool))const{
 		*m1 = 2;
 		*m2 = size2;
@@ -144,23 +188,27 @@ public:
 		}
 	}
 
-	/** @fn board& assign(cull _brd_black,cull _brd_white)
-	 *	@brief Assign the board to some specific value.
-	 *	@param _brd_black the value of the 64-bit board of black stones
-	 *	@param _brd_black the value of the 64-bit board of white stones
-	*/
+	/** @fn void board& assign(cull _brd_black,cull _brd_white)
+	 * @brief assign the board to some specific value
+	 * @param _brd_black the value of the 64-bit board of black stones
+	 * @param _brd_black the value of the 64-bit board of white stones
+	 */
 	void assign(cull _brd_black, cull _brd_white){
 		brd_black = _brd_black;
 		brd_white = _brd_white;
 	}
 
 	/** @fn board& initial()
-	 *	@brief initialize the board
-	*/
+	 * @brief initialize the board
+	 */
 	void initial(){
 		return this->assign(0x0000000810000000,0x0000001008000000);
 	}
 
+	/** @fn cull get_brd(cbool color)const
+	 * @brief get the member of the board
+	 * @param color whether the color is black
+	 */
 	cull get_brd(cbool color)const{
 		return *(&brd_white + color);
 	}
@@ -168,6 +216,10 @@ public:
 		return *(&brd_white + color);
 	}
 
+	/** @fn chessman get(cpos_type pos)const
+	 * @brief get a chessman on the board
+	 * @param pos the position of the chessman
+	 */
 	chessman get(cpos_type pos)const{
 		#ifdef USE_ASM
 			chessman result,temp;
@@ -203,6 +255,11 @@ public:
 		#endif
 	}
 
+	/** @fn set(cpos_type pos, cchessman chsm)
+	 * @brief set a position on board to a specified chessman
+	 * @param pos the position of the chessman
+	 * @param chsm a chessman
+	 */
 	void set(cpos_type pos, cchessman chsm){
 		#ifdef USE_ASM
 			ull temp;
@@ -241,7 +298,7 @@ public:
 
 	static ull extract(cull brd, cull mask){
 		ull result;
-		fun_pext(brd,mask,result);
+		fun_pext(brd, mask, result);
 		return result;
 	}
 
@@ -251,14 +308,17 @@ public:
 		return result;
 	}
 
+	/** @fn void reverse()
+	 * @brief reverse the color of the board
+	 */
 	void reverse(){
 		swap(brd_black, brd_white);
 	}
 
 	/** @fn static void mirror_h(ull& brd)
-	 *	@brief It's a function used to mirror a 64-bit board horizontally.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief mirror a 64-bit board horizontally
+	 * @param brd the 64-bit board
+	 */
 	static void mirror_h(ull& brd){
 		brd = (brd & 0xaaaaaaaaaaaaaaaa) >> 1  | (brd & 0x5555555555555555) << 1;
 		brd = (brd & 0xcccccccccccccccc) >> 2  | (brd & 0x3333333333333333) << 2;
@@ -266,9 +326,9 @@ public:
 	}
 
 	/** @fn static void mirror_v(ull& brd)
-	 *	@brief It's a function used to mirror a 64-bit board vertically.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief mirror a 64-bit board vertically
+	 * @param brd the 64-bit board
+	 */
 	static void mirror_v(ull& brd){
 		#ifdef USE_ASM
 			asm_bswap(brd);
@@ -280,18 +340,18 @@ public:
 	}
 
 	/** @fn static void reflect(ull& brd)
-	 *	@brief It's a function used to reflect a 64-bit board.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief reflect a 64-bit board
+	 * @param brd the 64-bit board
+	 */
 	static void reflect(ull& brd){
 		mirror_h(brd);
 		mirror_v(brd);
 	}
 
 	/** @fn static void rotate_r(ull& brd)
-	 *	@brief It's a function used to rotate a 64-bit board clockwise.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief rotate a 64-bit board clockwise
+	 * @param brd the 64-bit board
+	 */
 	static void rotate_r(ull& brd){
 		brd = (brd & 0xf0f0f0f000000000) >> 4  | (brd & 0x0f0f0f0f00000000) >> 32
 			| (brd & 0x00000000f0f0f0f0) << 32 | (brd & 0x000000000f0f0f0f) << 4;
@@ -302,9 +362,9 @@ public:
 	}
 
 	/** @fn static void rotate_l(ull& brd)
-	 *	@brief It's a function used to rotate a 64-bit board counter-clockwise.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief rotate a 64-bit board counterclockwise
+	 * @param brd the 64-bit board
+ 	 */
 	static void rotate_l(ull& brd){
 		brd = (brd & 0xf0f0f0f000000000) >> 32 | (brd & 0x0f0f0f0f00000000) << 4
 			| (brd & 0x00000000f0f0f0f0) >> 4  | (brd & 0x000000000f0f0f0f) << 32;
@@ -315,10 +375,9 @@ public:
 	}
 
 	/** @fn static void count(ull& brd)
-	 *	@brief It's a function used to count the number of bit
-	 *	which are set in a 64-bit board.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief count the number of bit which are set in a 64-bit board
+	 * @param brd the 64-bit board
+	 */
 	static pos_type count(cull brd){
 		ull result;
 
@@ -336,9 +395,9 @@ public:
 	}
 
 	/** @fn static ull get_front(cull brd)
-	 *	@brief It's a function used to calculate the frontier.
-	 *	@param brd the 64-bit board
-	*/
+	 * @brief calculate the frontier
+	 * @param brd the 64-bit board
+	 */
 	static ull get_front(cull brd){
 		ull brd_reverse, brd_front;
 
@@ -357,38 +416,57 @@ public:
 		return brd_front;
 	}
 
+	/** @fn void mirror_h()
+	 * @brief mirror the board horizontally
+	 */
 	void mirror_h(){
 		mirror_h(brd_black);
 		mirror_h(brd_white);
 	}
+
+	/** @fn void mirror_v()
+	 * @brief mirror the board vertically
+	 */
 	void mirror_v(){
 		mirror_v(brd_black);
 		mirror_v(brd_white);
 	}
+
+	/** @fn void rotate_l()
+	 * @brief rotate the board counterclockwise
+	 */
 	void rotate_l(){
 		rotate_l(brd_black);
 		rotate_l(brd_white);
 	}
+
+	/** @fn void rotate_r()
+	 * @brief rotate the board clockwise
+	 */
 	void rotate_r(){
 		rotate_r(brd_black);
 		rotate_r(brd_white);
 	}
+
+	/** @fn void reflect()
+	 * @brief reflect the board
+	 */
 	void reflect(){
 		reflect(brd_black);
 		reflect(brd_white);
 	}
 
 	/** @fn short count(cbool color)const
-	 *	@brief Count the number of black stones or white stones.
-	 *	@param color Whether the color is black.
-	*/
+	 * @brief count the number of black stones or white stones
+	 * @param color whether the color is black
+	 */
 	short count(cbool color)const{
 		return count(get_brd(color));
 	}
 
 	/** @fn pos_type sum()const
-	 *	@brief Count the number of stones.
-	*/
+	 * @brief count the number of stones
+	 */
 	pos_type sum()const{
 		return count(brd_black | brd_white);
 	}
@@ -405,12 +483,14 @@ public:
 	static void clear_hash();
 
 	/** @fn ull get_move(cbool color)const
-	 *	@brief Calculate possible moves.
-	 *	@param color Whether it is black's turn.
-	*/
+	 * @brief calculate possible moves
+	 * @param color whether it is black's turn
+	 * This part of code is brought from Zebra.
+	 * I rewrite it in 64-bit style.
+	 * If macro USE_ASM_AVX2 is defined, AVX2 instructions will be used.
+	 */
 	ull get_move(cbool color)const{
-		// This part of code is brought from Zebra.
-		// I rewrite it in 64-bit style.
+
 
 		const ull& brd_blue = get_brd(color);
 		const ull& brd_green = get_brd(!color);
@@ -562,9 +642,9 @@ public:
 	}
 
 	/** @fn pull get_move_flip(cbool color)const
-	 *	@brief Calculate possible moves and flippable stones.
-	 *	@param color Whether it is black's turn.
-	*/
+	 * @brief calculate possible moves and flippable stones
+	 * @param color whether it is black's turn
+	 */
 	pull get_move_flip(cbool color)const{
 		const ull& brd_blue = get_brd(color);
 		const ull& brd_green = get_brd(!color);
@@ -840,13 +920,19 @@ public:
 	}
 
 	/** @fn short count_move(cbool color)const
-	 *	@brief Count possible moves.
-	 *	@param color Whether it is black's turn.
-	*/
+	 * @brief count possible moves
+	 * @param color whether it is black's turn
+	 */
 	short count_move(cbool color)const{
 		return count(get_move(color));
 	}
 
+	/** @fn static void config(const string& file_param = "")
+	 * @brief do some configurations
+	 * @param file_param the path to find the file of parameters (optional)
+	 * This function conducts some preprocessions.
+	 * If this function is not invoked, the behavior of board::flip() and board::search() are undefined.
+	 */
 	static void config(const string& file_param = "");
 	static void postprocess();
 
@@ -896,14 +982,23 @@ public:
 			}
 		}
 		if(result.second >= size2 - total){
-				result.first = method(mthd | mthd_end);
+			result.first = method(mthd | mthd_end);
 			result.second = size2 - total;	
 		}
 		return result;
 	}
 
+	/** @fn void flip(cbool color, cpos_type pos)
+	 * @brief make a move and flip some stones
+	 * @param color whether it's black's turn
+	 * @param pos the position to put the stone
+	 */
 	void flip(cbool color, cpos_type pos);
 
+	/** @fn val_type score_end(cbool color)const
+	 * @brief evaluate the board at the end of the game
+	 * @param color whether it's black's turn
+	 */
 	val_type score_end(cbool color)const{
 		val_type num_diff = count(color) - count(!color);
 
@@ -916,6 +1011,10 @@ public:
 		}
 	}
 
+	/** @fn val_type score(cbool color)const
+	 * @brief evaluate the board during the game
+	 * @param color whether it's black's turn
+	 */
 	val_type score(cbool color)const{
 		ull brd_blue = get_brd(color);
 		ull brd_green = get_brd(!color);
@@ -956,6 +1055,29 @@ public:
 		cbool color, cshort depth,
 		val_type alpha = _inf, val_type beta = inf, cbool flag_pass = false
 	)const;
+
+	/** @fn val_type search(mthd, color, depth, alpha, beta)
+	 * @brief perform a search to evaluate the board
+	 * @param mthd the method
+	 * @param color whether it's black's turn
+	 * @param depth the depth of the search tree
+	 * @param alpha the lower bound (default: _inf)
+	 * @param beta the upper bound (default: inf)
+	 * 
+	 * parameter mthd should be mthd_rnd or
+	 * a combination of mthd_ab, mthd_kill, mthd_pvs, mthd_trans, mthd_mtdf,
+	 * mthd_ids, mthd_ptn, mthd_mpc, mthd_end
+	 * Not all kinds of combinations are available.
+	 * mthd_ab should be added if it's not mthd_rnd.
+	 * mthd_ids and mthd_mpc are still experimental.
+	 * mthd_end can only be added if depth is equal to the number of empty cells on the board.
+	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
+	 * 
+	 * Assume that the result of the search tree should be v.
+	 * If v is in the interval [alpha, beta], then this function will return v.
+	 * If v is below alpha, this function can return any value in the interval [v, alpha]. 
+	 * If v is above beta, this function can return any value in the interval [beta, v]. 
+	 */
 	val_type search(
 		cmethod mthd, cbool color, cshort depth,
 		cval_type alpha = _inf, cval_type beta = inf
@@ -977,13 +1099,71 @@ public:
 		cbool color, val_type alpha, val_type beta, cbool flag_pass
 	)const;
 
+	/** @fn val_type get_choice(mthd, color, depth, alpha, beta, gamma)
+	 * @brief perform a search to evaluate the board and return possible choices and corresponding evaluations.
+	 * @param mthd the method
+	 * @param color whether it's black's turn
+	 * @param depth the depth of the search tree
+	 * @param alpha the lower bound (default: _inf)
+	 * @param beta the upper bound (default: inf)
+	 * @param gamma estimation of the result (default: inf)
+	 * 
+	 * parameter mthd should be mthd_rnd or
+	 * a combination of mthd_ab, mthd_kill, mthd_pvs, mthd_trans, mthd_mtdf,
+	 * mthd_ids, mthd_ptn, mthd_mpc, mthd_end
+	 * Not all kinds of combinations are available.
+	 * mthd_ab should be added if it's not mthd_rnd.
+	 * mthd_ids and mthd_mpc are still experimetal.
+	 * mthd_end can only be added if depth is equal to the number of empty cells on the board.
+	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
+	 * 
+	 * Assume the return value is choices of type vector<choice>
+	 * The position of each choice is stored in choices[i].pos .
+	 * The evaluation of each choice is stored in choices[i].val .
+	 * The maximum value of choices[i].val is correct,
+	 * but it's not garranteed that the other value is correct.
+	 * If the difference between a value of the subtree and the maximum value is large than a specific threshold,
+	 * the value may not be returned correctly, as it's no point to know how bad a choice is. 
+	 */
 	vector<choice> get_choice(
 		cmethod mthd, cbool color, cshort depth,
 		val_type alpha = _inf, val_type beta = inf, val_type gamma = inf
 	)const;
+
+	/** @fn static choice select_choice(vector<choice> choices, const float& variation = 0.75)
+	 * @brief select a choice
+	 * @param choices vector of choices
+	 * @param variation a float value greater than zero
+	 * 
+	 * The large the variation, the greater the randomness,
+	 * and the more likely to select an inferior choice.
+	 */
 	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
+
+	/** @fn val_type coordinate play(cmethod mthd, cbool color, cshort depth = -1)
+	 * @brief perform a search and make a move.
+	 * @param mthd the method
+	 * @param color whether it's black's turn
+	 * @param depth the depth of the search tree
+	 * 
+	 * parameter mthd should be mthd_rnd or
+	 * a combination of mthd_ab, mthd_kill, mthd_pvs, mthd_trans, mthd_mtdf,
+	 * mthd_ids, mthd_ptn, mthd_mpc, mthd_end
+	 * Not all kinds of combinations are available.
+	 * mthd_ab should be added if it's not mthd_rnd.
+	 * mthd_ids and mthd_mpc are still experimetal.
+	 * mthd_end can only be added if depth is equal to the number of empty cells on the board.
+	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
+	 */
 	coordinate play(cmethod mthd, cbool color, cshort depth = -1);
 
+	/** @fn sts_type get_status(cbool color)
+	 * @brief get the status of the board
+	 * @param color whether it's black's turn
+	 * 
+	 * This function can be used to determine whether the game is end,
+	 * whether the next player should pass, and who is the winner.
+	 */
 	sts_type get_status(cbool color){
 		const sts_type table_status[32] = {
 			sts_wturn, sts_wturn, sts_wturn, sts_wturn,
@@ -1018,6 +1198,16 @@ public:
 		static void save_log(const string& filename);
 	#endif //DEBUG_SEARCH
 
+	/** @fn vector<int> get_pv(bool color)const
+	 * @brief get the principle variation
+	 * @param color whether it's black's turn
+	 * @return a series of positions stored in a vector
+	 * 
+	 * This function read data from hash and return a series of positions.
+	 * A search should be performed before invoking this function.
+	 * It's not garanteed that the result is correct.
+	 * The result can be corrupted by hash collision.
+	 */
 	vector<int> get_pv(bool color)const;
 
 protected:

@@ -5,9 +5,30 @@ import sys;
 import os;
 import time;
 import json;
+import numpy as np;
 
 sys.path.append("../python");
 import reversi as rv;
+
+if os.path.isdir("./data/"):
+	data_path = "./data/";
+else:
+	data_path = "../data/";
+
+if os.path.isdir("./image/"):
+	image_path = "./image/";
+else:
+	image_path = "../image/";
+
+if os.path.isdir("./bot/"):
+	bot_path = "./bot/";
+else:
+	bot_path = "../bot/";
+
+if sys.platform == "win32":
+	default_path = bot_path + "reversi.exe -c -t 900 -p " + data_path + "pattern.dat";
+else:
+	default_path = bot_path + "reversi -c -t 900 -p " + data_path + "pattern.dat";
 
 bias = 34;
 num = 8;
@@ -18,15 +39,48 @@ radius = cell / 2 - 4;
 thick = 3;
 margin = 20;
 
-def check(pos):
+mthd_default = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
+
+def check_pos(pos):
 	return pos[0] >= 0 and pos[0] < rv.board.size and pos[1] >= 0 and pos[1] < rv.board.size;
 
-def coord2str(self):
-	return "(%d,%d)" % (self.x,self.y);
-setattr(rv.coordinate, "__str__", coord2str);
+def format_pos(pos):
+	tp = type(pos);
+	if tp is tuple:
+		if check_pos(pos):
+			return pos[0] | pos[1] << 3;
+		else:
+			return -1;
+	if tp is int:
+		return pos;
+	if tp is str:
+		if len(pos) != 2:
+			return -1;
+		pos = [ord(pos[0]), ord(pos[1])];
+		if pos[0] < pos[1]:
+			pos = [pos[1], pos[0]];
+		if pos[0] >= ord("a"):
+			pos[0] -= ord("a");
+		else:
+			pos[0] -= ord("A");
+		pos[1] -= ord("1");
+		if check_pos(pos):
+			return pos[0] | pos[1] << 3;
+		else:
+			return -1;
+	return -1;
+
+def format_brd(brd):
+	tp = type(brd);
+	if tp is tuple:
+		return rv.board(brd[0], brd[1]);
+	if tp is rv.board:
+		return brd;
+	if tp is np.array:
+		return rv.board(brd);
 
 def choice2str(self):
-	return "(%d,%d,%f)" % (self.pos & 7,self.pos >> 3,self.val);
+	return "(\"%c%c\",%f)" % (chr((self.pos & 0x7) + ord("A")), chr((self.pos >> 3) + ord("1")), self.val);
 setattr(rv.choice, "__str__", choice2str);
 
 def vals2str(self):
@@ -35,20 +89,21 @@ setattr(rv.ints, "__str__", vals2str);
 setattr(rv.floats, "__str__", vals2str);
 setattr(rv.choices, "__str__", vals2str);
 
-if sys.platform == "win32":
-	default_path = "../bot/reversi.exe";
-else:
-	default_path = "../bot/reversi";
-
 class player:
 	pass;
 
 class game:
-	def __init__(self):
+	def __init__(self, app):
+		self.app = app;
+		self.frame = app.frame;
+		self.panel_board = app.panel_board;
+		self.dc = wx.ClientDC(app.panel_board);
+		self.text_log = app.text_log;
+
 		self.brd = rv.board(0, 0);
 		self.color = True;
 		self.pos = (-1, -1);
-		self.mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf | rv.mthd_ptn;
+		self.mthd = mthd_default;
 		self.depth = -1;
 		self.flag_auto_save = True;
 		self.flag_lock = True;
@@ -65,74 +120,47 @@ class game:
 		self.ply[True].path = default_path;
 		self.ply[True].proc = None;
 
-	def show(self):
-		self.do_show(self.dc);
-
-	def do_show(self, dc):
+	def show(self, dc = None):
+		if dc is None:
+			dc = self.dc;
 		dc.Clear();
+		
+		#draw a board
+		dc.DrawBitmap(self.app.img_board, 0, 0);
 
 		#draw valid moves
-		dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
-		dc.SetPen(wx.Pen(wx.Colour(30,100,0), thick));
 		brd_move = self.brd.get_move(self.color);
 		for i in range(rv.board.size2):
 			if brd_move & (1 << i):
-				dc.DrawRectangle(bias + cell * (i & 7), bias + cell * (i >> 3), cell, cell);
-		
-		#draw a board
-		dc.SetPen(wx.Pen(wx.BLACK, thick));
-		for i in range(num + 1):
-			dc.DrawLine(bias, bias + cell * i, bias + width, bias + cell * i);
-		for i in range(num + 1):
-			dc.DrawLine(bias + cell * i, bias, bias + cell * i, bias + width);
-
-		#draw the outline of the board
-		dc.SetBrush(wx.BLACK_BRUSH);
-		dc.SetPen(wx.Pen(wx.BLACK,thick));
-		dc.DrawRectangle(bias - margin, bias - margin, margin, width + margin * 2);
-		dc.DrawRectangle(bias - margin, bias - margin, width + margin * 2, margin);
-		dc.DrawRectangle(bias + width, bias - margin, margin, width + margin * 2);
-		dc.DrawRectangle(bias - margin, bias + width, width + margin * 2, margin);
-
-		#draw coordinate labels
-		dc.SetTextForeground(wx.Colour(190,190,190));
-		dc.SetFont(
-			wx.Font(
-				12, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL,
-				wx.FONTWEIGHT_BOLD,False, "Consolas"
-				,wx.FONTENCODING_DEFAULT
-			)
-		);
-		for i in range(num):
-			dc.DrawText(chr(ord('A') + i), bias + cell / 2 + cell * i - 4, bias - margin / 2 - 10);
-			dc.DrawText(chr(ord('A') + i), bias + cell / 2 + cell * i - 4, bias + width + margin / 2 - 12);
-			dc.DrawText(chr(ord('1') + i), bias - margin / 2 - 4,bias + cell / 2 + cell * i - 10);
-			dc.DrawText(chr(ord('1') + i), bias + width + margin / 2 - 5, bias + cell / 2 + cell * i - 10);
+				dc.DrawBitmap(self.app.img_move, bias + cell * (i & 7), bias + cell * (i >> 3));
 
 		#draw stones
-		for i in range(num):
-			for j in range(num):
-				chssmn = self.brd.get(i + (j << 3));
-				if chssmn == rv.black:
-					dc.SetBrush(wx.Brush(wx.Colour(40,40,40)));
-					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
-
-				elif chssmn == rv.white:
-					dc.SetBrush(wx.Brush(wx.Colour(210,210,210)));
-					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * i, cbias + cell * j),radius);
+		brd_white = self.brd.get_brd(False);
+		brd_black = self.brd.get_brd(True);
+		for i in range(rv.board.size2):
+			if brd_white & (1 << i):
+				dc.DrawBitmap(
+					self.app.img_stone[False][False],
+					bias + cell * (i & 7),
+					bias + cell * (i >> 3)
+				);
+			elif brd_black & (1 << i):
+				dc.DrawBitmap(
+					self.app.img_stone[True][False],
+					bias + cell * (i & 7),
+					bias + cell * (i >> 3)
+				);
 
 		#show where is the last move
-		if check(self.pos):
-			if self.get(self.pos[0], self.pos[1]) == rv.black:
-				dc.SetBrush(wx.Brush(wx.Colour(50,50,30)));
-				dc.SetPen(wx.Pen(wx.Colour(90,90,0), thick));
-			else:
-				dc.SetBrush(wx.Brush(wx.Colour(210,210,170)));
-				dc.SetPen(wx.Pen(wx.Colour(200,200,30), thick));
-			dc.DrawCircle(wx.Point(cbias + cell * self.pos[0], cbias + cell * self.pos[1]),radius);
+		if check_pos(self.pos):
+			color = (self.get((self.pos[0], self.pos[1])) == rv.black);
+			dc.DrawBitmap(
+				self.app.img_stone[color][True],
+				bias + cell * self.pos[0],
+				bias + cell * self.pos[1]
+			);
 
+		#show the evaluation
 		if not (self.choices is None):
 			dc.SetTextForeground(wx.Colour(255,30,30));
 			dc.SetFont(
@@ -152,40 +180,19 @@ class game:
 					bias + cell * y + cell / 2 - 8
 				);
 
+		#show the principle variation
 		if not (self.pv is None):
 			brd = rv.board(self.brd);
 			color = self.color;
 			for i in range(len(self.pv)):
 				x = self.pv[i] & 0x7;
 				y = self.pv[i] >> 3;
-				if color:
-					if brd_move & (1 << self.pv[i]):
-						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
-					else:
-						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
-					dc.SetPen(wx.Pen(wx.Colour(20,20,20), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
-					dc.SetTextForeground(wx.Colour(20,20,20));
-					s = "%d" % (i + 1);
-					dc.DrawText(
-						s,
-						bias + cell * x  + cell / 2 - 3.5 * len(s),
-						bias + cell * y + cell / 2 - 8
-					);
-				else:
-					if brd_move & (1 << self.pv[i]):
-						dc.SetBrush(wx.Brush(wx.Colour(30,100,0)));
-					else:
-						dc.SetBrush(wx.Brush(wx.Colour(43,155,0)));
-					dc.SetPen(wx.Pen(wx.Colour(230,230,230), thick));
-					dc.DrawCircle(wx.Point(cbias + cell * x, cbias + cell * y), radius);
-					dc.SetTextForeground(wx.Colour(230,230,230));
-					s = "%d" % (i + 1);
-					dc.DrawText(
-						s,
-						bias + cell * x  + cell / 2 - 3.5 * len(s),
-						bias + cell * y + cell / 2 - 8
-					);
+				flag_move = (brd_move & (1 << self.pv[i]) != 0);
+				dc.DrawBitmap(
+					self.app.img_pvs[flag_move][color][i],
+					bias + cell * x,
+					bias + cell * y
+				);
 				brd.flip(color, self.pv[i]);
 				status = brd.get_status(not color);
 				if status & rv.sts_black:
@@ -219,7 +226,7 @@ class game:
 		memdc = wx.MemoryDC();
 		memdc.SelectObject(img);
 		memdc.SetBackground(wx.Brush(wx.Colour(43,155,0)));
-		self.do_show(memdc);
+		self.show(dc = memdc);
 		img.SaveFile(path, img_type);
 
 	def push(self):
@@ -261,9 +268,10 @@ class game:
 		self.color = color;
 		self.paint();
 
-	def set_pos(self, x, y):
+	def set_pos(self, pos):
 		self.push();
-		self.pos = (x, y);
+		pos = format_pos(pos);
+		self.pos = (pos & 0x7, pos >> 3);
 		self.paint();
 
 	def start(self):
@@ -277,21 +285,24 @@ class game:
 		self.paint();
 		self.play_continue();
 
-	def get_brd(self, color):
-		return self.brd.get_brd(color);
+	def get_brd(self, color = None):
+		if color is None:
+			return (self.brd.get_brd(False), self.brd.get_brd(True));
+		else:
+			return self.brd.get_brd(color);
 
 	def assign(self, brd):
 		self.push();
-		self.brd = brd;
+		self.brd = format_brd(brd);
 		self.paint();
 		self.print_log("assign new value to the board\n");
 
-	def get(self, x, y):
-		return self.brd.get(x + (y << 3));
+	def get(self, pos):
+		return self.brd.get(format_pos(pos));
 
-	def set(self, x, y, chsman):
+	def set(self, pos, chsman):
 		self.push();
-		self.brd.set(x + (y << 3), chsman);
+		self.brd.set(format_pos(pos), chsman);
 		self.paint();
 
 	def mirror_h(self):
@@ -332,36 +343,37 @@ class game:
 	def reverse(self):
 		self.push();
 		self.brd.reverse();
-		self.color = not color;
+		self.color = not self.color;
 		self.print_log("reverse\n");
 		self.paint();
 
 	def config(self):
 		return brd.config();
 
-	def flip(self, color, x, y):
+	def flip(self, color, pos):
 
+		pos = format_pos(pos);
 		self.push();
 
 		result = False;
 
 		# if the BMI2 instruction set is used by the function board::flip()
 		# we do not need to compare self.brd.get(x + (y << 3)) with rv.blank
-		if not check((x,y)) or self.brd.get(x + (y << 3)) != rv.blank:
+		if pos < 0 or self.brd.get(pos) != rv.blank:
 			result = False;
 		else:
 			brd_save = rv.board(self.brd);
-			self.brd.flip(color, x + (y << 3));
+			self.brd.flip(color, pos);
 			result = (self.brd.get_brd(True) != brd_save.get_brd(True));
 
 		if result:
 			self.print_log(
 				"place a " + ("black" if color else "white")
-				+ " stone at " + chr(x + ord("A")) + chr(y + ord("1")) + "\n"
+				+ " stone at " + chr((pos & 7) + ord("A")) + chr((pos >> 3) + ord("1")) + "\n"
 			);
 			if not (self.brd.get_status(not color) & rv.sts_again):
 				self.color = not color;
-			self.pos = (x,y);
+			self.pos = (pos & 7, pos >> 3);
 			self.paint();
 		else:
 			if self.flag_auto_save:
@@ -430,11 +442,19 @@ class game:
 
 		return result;
 
-	def search(self, mthd, color, depth = -1, alpha = rv._inf, beta = rv.inf):
+	def search(self, mthd = None, color = None, depth = -1, alpha = rv._inf, beta = rv.inf):
+		if mthd is None:
+			mthd = self.mthd;
+		if color is None:
+			color = self.color;
 		(mthd, depth) = self.process_method(mthd, depth);
 		return self.brd.search(mthd, color, depth, alpha, beta);
 
-	def get_choice(self, mthd, color, depth = -1):
+	def get_choice(self, mthd = None, color = None, depth = -1):
+		if mthd is None:
+			mthd = self.mthd;
+		if color is None:
+			color = self.color;
 		(mthd, depth) = self.process_method(mthd, depth);
 		choices = self.brd.get_choice(mthd, color, depth);
 		self.choices = rv.choices(choices);
@@ -444,7 +464,9 @@ class game:
 	def select_choice(self, choices):
 		return self.brd.select_choice(choices);
 
-	def get_pv(self, color):
+	def get_pv(self, color = None):
+		if color is None:
+			color = self.color;
 		result = self.brd.get_pv(color);
 		self.pv = result;
 		self.paint(show_pv = True);
@@ -493,7 +515,7 @@ class game:
 
 		ply = self.ply[color];
 
-		def check_proc():
+		def check_pos_proc():
 			if not ply.proc.Exists(ply.pid):
 				self.text_log.AppendText(
 					"runtime error\n"
@@ -513,12 +535,11 @@ class game:
 			ply.proc.Redirect();
 			ply.path_exec = ply.path.strip();
 			ply.pid = wx.Execute(ply.path.strip(), wx.EXEC_ASYNC, ply.proc);
-			check_proc();
+			check_pos_proc();
 
 		proc_in = ply.proc.GetInputStream();
 		proc_out = ply.proc.GetOutputStream();
 
-		result = rv.coordinate();
 		request = {
 			"request":{
 				"color":color,
@@ -540,7 +561,7 @@ class game:
 
 		proc_out.write((s + "\n").encode());
 
-		check_proc();
+		check_pos_proc();
 
 		self.text_log.AppendText(
 			"receive a response from process \""
@@ -553,7 +574,7 @@ class game:
 				break;
 			time.sleep(0.01);
 
-		check_proc();
+		check_pos_proc();
 
 		if proc_in.CanRead():
 			s = proc_in.readline();
@@ -584,10 +605,10 @@ class game:
 			);
 			raise RuntimeError;
 
-		result.x = response["response"]["x"];
-		result.y = response["response"]["y"];
+		x = response["response"]["x"];
+		y = response["response"]["y"];
 
-		if(not self.flip(color, result.x, result.y)):
+		if(not self.flip(color, (x, y))):
 			self.text_log.AppendText(
 				"illegal move\n"
 			);
@@ -646,7 +667,8 @@ class game:
 			return;
 
 		if self.ply[self.color].type == rv.ply_human:
-			self.flip(self.color, pos[0], pos[1]);
+			self.flip(self.color, pos);
+			wx.Yield();
 
 		try:
 			self.play(self.mthd, self.color, self.depth);
