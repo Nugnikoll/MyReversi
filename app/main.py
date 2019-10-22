@@ -439,6 +439,17 @@ class reversi_app(wx.App):
 
 		self.Connect(-1, -1, evt_thrd_id, self.thrd_catch);
 
+		#redirect io stream
+		class redirect:
+			frame = self;
+			def write(self, buf):
+				self.frame.text_term.AppendText(buf);
+
+		stdout_save = sys.stdout;
+		stderr_save = sys.stderr;
+		sys.stdout = redirect();
+		sys.stderr = redirect();
+
 		#show the frame
 		self.frame.Show(True);
 		self.tree_list.Hide();
@@ -450,22 +461,11 @@ class reversi_app(wx.App):
 		if self.thrd_lock:
 			return;
 		self.text_term.AppendText(">>" + s + "\n");
+
 		time_start = time.time();
-
-		class redirect:
-			frame = self;
-			def write(self, buf):
-				self.frame.text_term.AppendText(buf);
-
-		stdout_save = sys.stdout;
-		stderr_save = sys.stderr;
-		sys.stdout = redirect();
-		sys.stderr = redirect();
 		exec(s);
-		sys.stdout = stdout_save;
-		sys.stderr = stderr_save;
-
 		time_end = time.time();
+
 		self.statusbar.SetStatusText("Wall time : %f seconds" % (time_end - time_start), 2);
 
 	#input command

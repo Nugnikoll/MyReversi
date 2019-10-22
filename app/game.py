@@ -6,6 +6,22 @@ import os;
 import time;
 import json;
 import numpy as np;
+import shutil;
+import subprocess;
+
+if sys.platform == "win32":
+	dll_suffix = ".pyd";
+	exe_suffix = ".exe"
+else:
+	dll_suffix = ".so";
+	exe_suffix = "";
+if os.path.isdir("./lib") and not os.path.isfile("../_reversi" + dll_suffix):
+	result = subprocess.run(["./cpuid" + exe_suffix], stdout = subprocess.PIPE);
+	result = result.stdout.decode("utf-8");
+	if result.find("bmi2") >= 0 and result.find("avx2") >= 0:
+		shutil.copy2("./lib/_reversi_avx2" + dll_suffix, "./_reversi" + dll_suffix);
+	else:
+		shutil.copy2("./lib/_reversi_asm" + dll_suffix, "./_reversi" + dll_suffix);
 
 sys.path.append("../python");
 import reversi as rv;

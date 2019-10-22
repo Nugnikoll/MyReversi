@@ -2,6 +2,7 @@
 
 import sys;
 import os;
+import shutil;
 
 if sys.platform == "win32":
 	dll_suffix = ".pyd";
@@ -9,6 +10,25 @@ if sys.platform == "win32":
 else:
 	dll_suffix = ".so";
 	exe_suffix = "";
+
+if sys.platform == "win32":
+	os.chdir("./cmake_build");
+	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ..\\..\\build");
+	os.system("make");
+	shutil.move("_reversi.pyd", "_reversi_asm.pyd");
+	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ..\\..\\build");
+	os.system("make");
+	shutil.move("_reversi.pyd", "_reversi_avx2.pyd");
+	os.chdir("../")
+else:
+	os.chdir("./cmake_build");
+	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ../../build");
+	os.system("make");
+	shutil.move("_reversi.so", "_reversi_asm.so");
+	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ../../build");
+	os.system("make");
+	shutil.move("_reversi.so", "_reversi_avx2.so");
+	os.chdir("../")
 
 block_cipher = None;
 
@@ -24,10 +44,11 @@ a = Analysis(
 	["../app/main.py"],
 	pathex = ["./"],
 	binaries = [
-		("../python/_reversi" + dll_suffix,"."),
 		("../python/reversi.py", ".")
 	] + bots,
 	datas = [
+		("./cmake_build/*.so", "./lib"),
+		("./cmake_build/cpuid*", "./"),
 		("../image/*.png", "./image"),
 		("../image/*.ico", "./image"),
 		("../image/board/*", "./image/board"),
