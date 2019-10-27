@@ -11,44 +11,46 @@ else:
 	dll_suffix = ".so";
 	exe_suffix = "";
 
+if not os.path.exists("./cmake_build"):
+	os.mkdir("./cmake_build");
+
 if sys.platform == "win32":
 	os.chdir("./cmake_build");
 	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ..\\..\\build");
 	os.system("make");
-	shutil.move("_reversi.pyd", "_reversi_asm.pyd");
+	shutil.move("_reversi.dll", "_reversi_asm.pyd");
+	shutil.move("bot.exe", "bot_asm.exe");
 	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ..\\..\\build");
 	os.system("make");
-	shutil.move("_reversi.pyd", "_reversi_avx2.pyd");
+	shutil.move("_reversi.dll", "_reversi_avx2.pyd");
+	shutil.move("bot.exe", "bot_avx2.exe");
 	os.chdir("../")
 else:
 	os.chdir("./cmake_build");
 	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ../../build");
 	os.system("make");
 	shutil.move("_reversi.so", "_reversi_asm.so");
+	shutil.move("bot", "bot_asm");
 	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ../../build");
 	os.system("make");
 	shutil.move("_reversi.so", "_reversi_avx2.so");
+	shutil.move("bot", "bot_avx2");
 	os.chdir("../")
 
 block_cipher = None;
 
 bots = [];
-if os.path.isfile("../bot/reversi" + exe_suffix):
-	bots.append(("../bot/reversi" + exe_suffix, "./bot"));
-if os.path.isfile("../bot/iris" + exe_suffix):
-	bots.append(("../bot/iris" + exe_suffix, "./bot"));
-if os.path.isfile("../bot/impbwcore" + exe_suffix):
-	bots.append(("../bot/impbwcore" + exe_suffix, "./bot"));
 
 a = Analysis(
 	["../app/main.py"],
 	pathex = ["./"],
 	binaries = [
-		("../python/reversi.py", ".")
+		("../python/reversi.py", "."),
+		("./cmake_build/*" + dll_suffix, "./lib"),
+		("./cmake_build/bot*", "./lib"),
+		("./cmake_build/cpuid*", "./")
 	] + bots,
 	datas = [
-		("./cmake_build/*.so", "./lib"),
-		("./cmake_build/cpuid*", "./"),
 		("../image/*.png", "./image"),
 		("../image/*.ico", "./image"),
 		("../image/board/*", "./image/board"),

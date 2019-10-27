@@ -28,6 +28,31 @@ endif ()
 set (cpp_dir "${PROJECT_SOURCE_DIR}/../cpp")
 set (python_dir "${PROJECT_SOURCE_DIR}/../python")
 set (cpuid_dir "${PROJECT_SOURCE_DIR}/../cpuid")
+set (bot_dir "${PROJECT_SOURCE_DIR}/../bot")
+
+set (
+	head_file
+	${cpp_dir}/type.h
+	${cpp_dir}/asm.h
+	${cpp_dir}/board.h
+	${cpp_dir}/hash.h
+	${cpp_dir}/log.h
+	${cpp_dir}/pattern.h
+	${cpp_dir}/tree.h
+)
+
+set (
+	source_file
+	${cpp_dir}/board.cc
+	${cpp_dir}/flip.cc
+	${cpp_dir}/pattern.cc
+	${cpp_dir}/search.cc
+)
+
+set (
+	wrap_file
+	${python_dir}/reversi_wrap.cc
+)
 
 if (WIN32)
 	if ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
@@ -42,7 +67,6 @@ set (CMAKE_CXX_FLAGS_DEBUG "-Og -g -DDEBUG")
 set (CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 if (NOT "${CMAKE_FORCE_ASM}" STREQUAL "")
-	add_executable (cpuid ${cpuid_dir}/cpuid.cc)
 	if ("${CMAKE_FORCE_ASM}" STREQUAL "asm")
 		message ("-- Define macro USE_ASM.")
 		set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_ASM")
@@ -54,6 +78,15 @@ if (NOT "${CMAKE_FORCE_ASM}" STREQUAL "")
 	else ()
 		message (FATAL_ERROR "-- Unexpected macro value.")
 	endif ()
+	add_executable (cpuid ${cpuid_dir}/cpuid.cc)
+	add_executable (bot ${bot_dir}/sample/main.cc ${source_file} ${head_file})
+	target_compile_options(bot PRIVATE "-DUSE_TERMINATE")
+	get_target_property(BOT_LINK_FLAGS bot LINK_FLAGS)
+	if("${BOT_LINK_FLAGS}" STREQUAL "BOT_LINK_FLAGS-NOTFOUND")
+	  SET(BOT_LINK_FLAGS "")
+	endif ()
+	set(BOT_LINK_FLAGS "${BOT_LINK_FLAGS} -static")
+	set_target_properties(bot PROPERTIES LINK_FLAGS ${BOT_LINK_FLAGS})
 else ()
 	try_run (
 		CPUID_RUN_RESULT CPUID_COMPILE_RESULT
@@ -89,26 +122,6 @@ set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
 include_directories ("${PYTHON_INCLUDE_DIRS}" "${NUMPY_INCLUDE_DIR}")
 
-set (
-	head_file
-	${cpp_dir}/type.h
-	${cpp_dir}/asm.h
-	${cpp_dir}/board.h
-	${cpp_dir}/hash.h
-	${cpp_dir}/log.h
-	${cpp_dir}/pattern.h
-	${cpp_dir}/tree.h
-)
-
-set (
-	source_file
-	${cpp_dir}/board.cc
-	${cpp_dir}/flip.cc
-	${cpp_dir}/pattern.cc
-	${cpp_dir}/search.cc
-	${python_dir}/reversi_wrap.cc
-)
-
 message ("${SWIG_VERSION}")
 
 if ("${SWIG_VERSION}" VERSION_GREATER_EQUAL "4.0.0")
@@ -123,7 +136,7 @@ add_custom_command (
 	DEPENDS ${python_dir}/reversi.i ${head_file}
 )
 
-add_library(_reversi SHARED ${source_file})
+add_library(_reversi SHARED ${source_file} ${wrap_file})
 set_property(TARGET _reversi PROPERTY CXX_STANDARD 11)
 set_property(TARGET _reversi PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET _reversi PROPERTY CXX_EXTENSIONS OFF)
