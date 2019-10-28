@@ -698,9 +698,8 @@ void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
 	uniform_int_distribution<int> dist(5, 63);
 	int rnd;
 	bool color;
-	ull brd_move;
 
-	while(brds.size() < n){
+	while((int)brds.size() < n){
 		rnd = dist(engine);
 		brd.initial();
 		color = true;
