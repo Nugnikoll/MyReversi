@@ -1,28 +1,23 @@
 import re;
 import os;
-import codecs
+import codecs;
 
 src_dir = "../cpp/";
 
-src = ["type.h","asm.h","board.h", "hash.h","pattern.h",
-	"board.cc","flip.cc","search.cc","pattern.cc"];
+src = ["type.h", "asm.h", "board.h", "hash.h", "pattern.h",
+	"board.cc", "flip.cc", "search.cc","pattern.cc"];
 src = [src_dir + x for x in src] + ["main.cc"];
 
-lines = [];
+text = "";
 for filename in src:
-	assert(os.path.isfile(filename))
-	fobj = codecs.open(filename,"r","utf-8");
-	lines += fobj.readlines();
-	lines[-1] += "\n";
-	fobj.close();
+	assert(os.path.isfile(filename));
+	with codecs.open(filename, "r", "utf-8") as fobj:
+		text += fobj.read() + "\n";
 
-lines = "".join(lines);
+# suppress redundant macros
+text = re.sub(r"\s*#include *\"(?![a-zA-Z/.]*json).*\".*\n", "\n", text);
 
-# suppress redundant include header macros
-lines = re.sub(r"\s*#include *\"(?![a-zA-Z/.]*json).*\".*\n","\n",lines);
+target = "main_merge.cc";
 
-target = "main_merge.cc"
-
-fobj = codecs.open(target,"w","utf-8");
-fobj.writelines(lines);
-fobj.close();
+with codecs.open(target, "w", "utf-8") as fobj:
+	fobj.write(text);
