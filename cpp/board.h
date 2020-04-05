@@ -140,11 +140,18 @@ public:
 		return out;
 	}
 
+	/** @fn string to_string()const
+	 * @brief convert the board to string
+	 */
+	string to_string()const;
+
 	/** @fn void const board& print(ostream& out = cout)const
 	 * @brief It's a function used to show the board on a terminal.
 	 * @param out the output stream
 	 */
-	void print(ostream& out = cout)const;
+	void print(ostream& out = cout)const{
+		out << to_string();
+	}
 
 	/** @fn void view(ARRAY_1D_OUT_O(ULL))
 	 * @brief get a view of the board

@@ -8,7 +8,7 @@ int main(){
 	int num;
 	char vendor[13];
 	char* ptr = vendor;
-	unsigned int a, b, c, d;
+	unsigned int b, c, d;
 	vendor[12] = '\0';
 	bitset<32> bits;
 

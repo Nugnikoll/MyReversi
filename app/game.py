@@ -6,14 +6,50 @@ import os;
 import time;
 import json;
 import numpy as np;
+import shutil;
+import subprocess;
+
+if sys.platform == "win32":
+	dll_suffix = ".pyd";
+	exe_suffix = ".exe"
+else:
+	dll_suffix = ".so";
+	exe_suffix = "";
+
+if os.path.isdir("./lib") and not os.path.isfile("../_reversi" + dll_suffix):
+	result = subprocess.run(["./cpuid" + exe_suffix], stdout = subprocess.PIPE);
+	result = result.stdout.decode("utf-8");
+	if not os.path.exists("./bot"):
+		os.mkdir("./bot");
+	if result.find("bmi2") >= 0 and result.find("avx2") >= 0:
+		shutil.copy2("./lib/_reversi_avx2" + dll_suffix, "./_reversi" + dll_suffix);
+		shutil.copy2("./lib/bot_avx2" + exe_suffix, "./bot/reversi" + exe_suffix);
+	else:
+		shutil.copy2("./lib/_reversi_asm" + dll_suffix, "./_reversi" + dll_suffix);
+		shutil.copy2("./lib/bot_asm" + exe_suffix, "./bot/reversi" + exe_suffix);
 
 sys.path.append("../python");
 import reversi as rv;
+
+if os.path.isdir("./data/"):
+	data_path = "./data/";
+else:
+	data_path = "../data/";
+
+if os.path.isdir("./image/"):
+	image_path = "./image/";
+else:
+	image_path = "../image/";
 
 if os.path.isdir("./bot/"):
 	bot_path = "./bot/";
 else:
 	bot_path = "../bot/";
+
+if sys.platform == "win32":
+	default_path = bot_path + "reversi.exe -c -t 900 -p " + data_path + "pattern.dat";
+else:
+	default_path = bot_path + "reversi -c -t 900 -p " + data_path + "pattern.dat";
 
 bias = 34;
 num = 8;
@@ -73,11 +109,6 @@ def vals2str(self):
 setattr(rv.ints, "__str__", vals2str);
 setattr(rv.floats, "__str__", vals2str);
 setattr(rv.choices, "__str__", vals2str);
-
-if sys.platform == "win32":
-	default_path = bot_path + "reversi.exe";
-else:
-	default_path = bot_path + "reversi";
 
 class player:
 	pass;

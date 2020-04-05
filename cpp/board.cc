@@ -95,7 +95,7 @@ void board::config(const string& file_param){
 	}
 }
 
-void board::print(ostream& out)const{
+string board::to_string()const{
 	string s =
 		"╔═╤═╤═╤═╤═╤═╤═╤═╗\n"
 		"║ │ │ │ │ │ │ │ ║\n"
@@ -117,30 +117,34 @@ void board::print(ostream& out)const{
 	;
 
 	pos_type pos = 0;
+	string result;
+
 	for(char& chr:s){
 		if(chr == ' '){
 			switch(get(pos)){
 			case blank:
-				out << " ";
+				result += " ";
 				break;
 			case black:
-				out << "●";
+				result += "●";
 				break;
 			case white:
-				out << "○";
+				result += "○";
 				break;
 			case null:
-				out << "╳";
+				result += "╳";
 				break;
 			default:
-				out << "╳";
+				result += "╳";
 				break;
 			}
 			++pos;
 		}else{
-			out << chr;
+			result += chr;
 		}
 	}
+
+	return result;
 }
 
 choice board::select_choice(vector<choice> choices,const float& variation){

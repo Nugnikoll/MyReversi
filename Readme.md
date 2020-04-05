@@ -9,8 +9,7 @@ Reversi (also called Othello) is a kind of strategy board game which involves pl
 This reversi project is my simple work. The kernel is written in C++11 whith a bit inline assembly. The GUI is witten in python. It's open source and cross platform. I've managed to build it on Ubuntu and on Windows with MinGW g++ compiler. It's tailored for programming learning. To ease debugging and trainning, many C++ functions are wrapped and can be called interactively in the Python GUI application. The sources of this project can be merged in to a single file and submitted to [Botzone](https://botzone.org) which is a online platform for competition of differnt bots made by other students. The Python GUI application can also act as a judge by communicating with other reversi program in json format.
 
 ### Download
-[prebuilt binaries for Windows 64-bit which supports BMI2 and AVX2 instruction sets](https://github.com/Nugnikoll/MyReversi/releases/download/v2.2/reversi_windows_bmi2_avx2.zip) (faster but requires instruction sets support)  
-[prebuilt binaries for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/v2.2/reversi_windows.zip) (slower but compatible with more CPUs)  
+[prebuilt binaries for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases/download/v2.3/reversi_windows_x86_64.zip) 
 
 ### Build
 

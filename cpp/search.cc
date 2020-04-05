@@ -849,11 +849,32 @@ val_type board::search_end_five(
 	ull brd_green = get_brd(false);
 	ull pos;
 
+//	const ull mask_ul = 0x000000000f0f0f0f;
+//	const ull mask_ur = 0x00000000f0f0f0f0;
+//	const ull mask_dl = 0x0f0f0f0f00000000;
+//	const ull mask_dr = 0xf0f0f0f000000000;
+//	const int table_region[size2] = {
+//		0,0,0,0,1,1,1,1,
+//		0,0,0,0,1,1,1,1,
+//		0,0,0,0,1,1,1,1,
+//		0,0,0,0,1,1,1,1,
+//		2,2,2,2,3,3,3,3,
+//		2,2,2,2,3,3,3,3,
+//		2,2,2,2,3,3,3,3,
+//		2,2,2,2,3,3,3,3
+//	};
+//	val_type table_adjust[4];
+//	table_adjust[0] = (count(mask_ul & brd_blank) & 1) ? 5 : -5;
+//	table_adjust[1] = (count(mask_ur & brd_blank) & 1) ? 5 : -5;
+//	table_adjust[2] = (count(mask_dl & brd_blank) & 1) ? 5 : -5;
+//	table_adjust[3] = (count(mask_dr & brd_blank) & 1) ? 5 : -5;
+
 	fun_tzcnt(brd_blank, pos);
 	while(brd_blank){
 		ptr->pos = pos;
 		if(mthd & mthd_kill){
 			ptr->val = ptr_val[pos];
+//			ptr->val += table_adjust[table_region[pos]];
 		}
 		++ptr;
 		brd_blank &= brd_blank - 1;
