@@ -210,7 +210,7 @@ class reversi_app(wx.App):
 
 		#create a input box on the bottom right
 		self.text_input = wx.TextCtrl(panel_base, size = wx.Size(266,30), style = wx.TE_PROCESS_ENTER | wx.TE_PROCESS_TAB);
-		sizer_tool.Add(self.text_input, 0, wx.ALL | wx.ALIGN_CENTER | wx.EXPAND, 5);
+		sizer_tool.Add(self.text_input, 0, wx.ALL | wx.EXPAND, 5);
 		self.text_input.SetForegroundColour(wx.Colour(200,200,200));
 		self.text_input.SetBackgroundColour(wx.Colour(32,32,32));
 		self.text_input.SetFont(font_text);

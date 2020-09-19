@@ -236,8 +236,7 @@ class game:
 			self.choices = None;
 		if not show_pv:
 			self.pv = None;
-		evt = wx.PaintEvent(self.panel_board.GetId());
-		self.panel_board.GetEventHandler().ProcessEvent(evt);
+		self.panel_board.Refresh();
 
 	def print_log(self, s):
 		self.text_log.AppendText(s);
@@ -369,7 +368,7 @@ class game:
 		self.paint();
 
 	def config(self):
-		return brd.config();
+		return self.brd.config();
 
 	def flip(self, color, pos):
 

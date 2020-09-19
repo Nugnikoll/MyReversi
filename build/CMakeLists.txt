@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.14)
 project (reversi)
 set (REVERSI_VERSION 2.3)
 
@@ -10,20 +10,8 @@ if (NOT COMPILER_SUPPORTS_CXX11)
     message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
 endif ()
 
-include (FindPythonLibs)
-include (FindPythonInterp)
-message ("-- Found python libraries: ${PYTHON_LIBRARIES}")
-execute_process(
-	COMMAND "${PYTHON_EXECUTABLE}" "-c"
-	"import numpy; print(numpy.get_include());"
-	OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
-)
-message ("-- Found NumPy include files: ${NUMPY_INCLUDE_DIR}")
-
-find_package(SWIG 3.0.6)
-if ("${SWIG_FOUND}" STREQUAL "FALSE")
-	message (FATAL_ERROR "Cannot find swig.")
-endif ()
+find_package (Python3 REQUIRED COMPONENTS NumPy Interpreter Development)
+find_package(SWIG 3.0.6 REQUIRED)
 
 set (cpp_dir "${PROJECT_SOURCE_DIR}/../cpp")
 set (python_dir "${PROJECT_SOURCE_DIR}/../python")
@@ -123,9 +111,7 @@ endif ()
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
-include_directories ("${PYTHON_INCLUDE_DIRS}" "${NUMPY_INCLUDE_DIR}")
-
-message ("${SWIG_VERSION}")
+include_directories ("${Python3_INCLUDE_DIRS}" "${Python3_NumPy_INCLUDE_DIRS}")
 
 if ("${SWIG_VERSION}" VERSION_GREATER_EQUAL "4.0.0")
 	set (CMAKE_SWIG_EXTRA_FLAGS "-doxygen")
@@ -143,16 +129,16 @@ add_library(_reversi SHARED ${source_file} ${wrap_file})
 set_property(TARGET _reversi PROPERTY CXX_STANDARD 11)
 set_property(TARGET _reversi PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET _reversi PROPERTY CXX_EXTENSIONS OFF)
-target_link_libraries (_reversi ${PYTHON_LIBRARIES})
+target_link_libraries (_reversi ${Python3_LIBRARIES})
 
-if ("${CMAKE_FORCE_ASM}" EQUAL "")
+if ("${CMAKE_FORCE_ASM}" STREQUAL "")
 	if (WIN32)
 		add_custom_command(TARGET _reversi POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/_reversi.pyd
 		)
 	else ()
 		add_custom_command(TARGET _reversi POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/_reversi.so
 		)
 	endif ()
 endif()
