@@ -96,12 +96,12 @@ class reversi_app(wx.App):
 		text_label.SetFont(font_text_label);
 
 		#create a notebook on the right
-		notebook = wx.Notebook(panel_base, size = wx.Size(448,296), style = wx.SUNKEN_BORDER | wx.TAB_TRAVERSAL);
+		notebook = wx.Notebook(panel_base, size = wx.Size(448,296), style = wx.TAB_TRAVERSAL);
 		sizer_tool.Add(notebook, 1, wx.ALL | wx.EXPAND, 5);
 		notebook.SetFont(font_index);
 
 		#add interaction page to the notebook
-		panel_note = wx.Panel(notebook, style = wx.SUNKEN_BORDER | wx.TAB_TRAVERSAL);
+		panel_note = wx.Panel(notebook, style =  wx.TAB_TRAVERSAL);
 		notebook.AddPage(panel_note, "Interaction");
 		panel_note.SetForegroundColour(wx.Colour(200,200,200));
 		panel_note.SetBackgroundColour(wx.Colour(32,32,32));
@@ -439,16 +439,10 @@ class reversi_app(wx.App):
 
 		self.Connect(-1, -1, evt_thrd_id, self.thrd_catch);
 
-		#redirect io stream
-		class redirect:
-			frame = self;
-			def write(self, buf):
-				self.frame.text_term.AppendText(buf);
-
-		stdout_save = sys.stdout;
-		stderr_save = sys.stderr;
-		sys.stdout = redirect();
-		sys.stderr = redirect();
+		self.stdout_save = sys.stdout;
+		self.stderr_save = sys.stderr;
+		sys.stdout = self.text_term;
+		sys.stderr = self.text_term;
 
 		#show the frame
 		self.frame.Show(True);
