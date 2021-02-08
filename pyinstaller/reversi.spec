@@ -1,45 +1,45 @@
-# -*- mode: python ; coding: utf-8 -*-
+# -*- mode: python  coding: utf-8 -*-
 
-import sys;
-import os;
-import shutil;
+import sys
+import os
+import shutil
 
 if sys.platform == "win32":
-	dll_suffix = ".pyd";
+	dll_suffix = ".pyd"
 	exe_suffix = ".exe"
 else:
-	dll_suffix = ".so";
-	exe_suffix = "";
+	dll_suffix = ".so"
+	exe_suffix = ""
 
 if not os.path.exists("./cmake_build"):
-	os.mkdir("./cmake_build");
+	os.mkdir("./cmake_build")
 
 if sys.platform == "win32":
-	os.chdir("./cmake_build");
-	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ..\\..\\build");
-	os.system("make");
-	shutil.move("_reversi.dll", "_reversi_asm.pyd");
-	shutil.move("bot.exe", "bot_asm.exe");
-	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ..\\..\\build");
-	os.system("make");
-	shutil.move("_reversi.dll", "_reversi_avx2.pyd");
-	shutil.move("bot.exe", "bot_avx2.exe");
+	os.chdir("./cmake_build")
+	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ..\\..\\build")
+	os.system("make")
+	shutil.move("_reversi.dll", "_reversi_asm.pyd")
+	shutil.move("bot.exe", "bot_asm.exe")
+	os.system("cmake -G\"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ..\\..\\build")
+	os.system("make")
+	shutil.move("_reversi.dll", "_reversi_avx2.pyd")
+	shutil.move("bot.exe", "bot_avx2.exe")
 	os.chdir("../")
 else:
-	os.chdir("./cmake_build");
-	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ../../build");
-	os.system("make");
-	shutil.move("_reversi.so", "_reversi_asm.so");
-	shutil.move("bot", "bot_asm");
-	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ../../build");
-	os.system("make");
-	shutil.move("_reversi.so", "_reversi_avx2.so");
-	shutil.move("bot", "bot_avx2");
+	os.chdir("./cmake_build")
+	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=asm ../../build")
+	os.system("make")
+	shutil.move("_reversi.so", "_reversi_asm.so")
+	shutil.move("bot", "bot_asm")
+	os.system("cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_FORCE_ASM=avx2 ../../build")
+	os.system("make")
+	shutil.move("_reversi.so", "_reversi_avx2.so")
+	shutil.move("bot", "bot_avx2")
 	os.chdir("../")
 
-block_cipher = None;
+block_cipher = None
 
-bots = [];
+bots = []
 
 a = Analysis(
 	["../app/main.py"],
@@ -64,12 +64,12 @@ a = Analysis(
 	win_private_assemblies = False,
 	cipher = block_cipher,
 	noarchive = False
-);
+)
 
 pyz = PYZ(
 	a.pure, a.zipped_data,
 	cipher = block_cipher
-);
+)
 
 exe = EXE(
 	pyz,
@@ -83,7 +83,7 @@ exe = EXE(
 	upx = True,
 	console = False,
 	icon = "../image/reversi.ico"
-);
+)
 
 coll = COLLECT(
 	exe,
@@ -94,4 +94,4 @@ coll = COLLECT(
 	upx = True,
 	upx_exclude = [],
 	name = "reversi"
-);
+)
