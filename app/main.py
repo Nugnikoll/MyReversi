@@ -19,29 +19,62 @@ class thrd_event(wx.PyEvent):
 		self.SetEventType(evt_thrd_id)
 		self.data = data
 
-class reversi_app(wx.App):
+class panel_board(wx.Panel):
+	def __init__(self, parent):
+		wx.Panel.__init__(self, parent, size = wx.Size(424,424), style = wx.SUNKEN_BORDER | wx.TAB_TRAVERSAL)
 
-	#overload the initializer
-	def OnInit(self):
-		# pdb.set_trace()
-		self.init_frame()
-		return True
+		self.frame = parent.frame
 
+		self.SetBackgroundColour(wx.Colour(43,155,0))
+
+		self.Bind(wx.EVT_PAINT, self.on_paint)
+		self.Bind(wx.EVT_LEFT_DOWN, self.on_leftdown)
+	
+	#paint on panel_board
+	def on_paint(self, event):
+		self.paint()
+
+	#paint on panel_board
+	def paint(self):
+		mygame.show(dc = wx.ClientDC(self))
+	
+	#click on the panel board
+	def on_leftdown(self, event):
+		# if mygame.is_lock:
+			# return
+		pos = event.GetPosition()
+		if pos.x < bias:
+			x = -1
+		else:
+			x = int((pos.x - bias) / cell)
+		if pos.y < bias:
+			y = -1
+		else:
+			y = int((pos.y - bias) / cell)
+		self.frame.process("mygame.click((%d,%d))" % (x,y))
+
+
+class frame_main(wx.Frame):
 	#initialize the frame
-	def init_frame(self):
+	def __init__(
+		self, parent = None, id = wx.ID_ANY, title = "Reversi",
+		pos = wx.DefaultPosition, size = wx.DefaultSize,
+		style = wx.DEFAULT_FRAME_STYLE | wx.SUNKEN_BORDER | wx.CLIP_CHILDREN,
+	):
 
 		#create a frame
-		self.frame = wx.Frame()
-		self.frame.Create(None, wx.ID_ANY, "Reversi")
+		wx.Frame.__init__(self, parent, id , title, pos, size, style)
+		self.frame = self
+
 		font_text = wx.Font(14, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
-		self.frame.SetFont(font_text)
+		self.SetFont(font_text)
 		font_index = wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
-		self.frame.SetFont(font_index)
+		self.SetFont(font_index)
 
 		#set the icon of the frame
 		frame_icon = wx.Icon()
 		frame_icon.CopyFromBitmap(wx.Bitmap(wx.Image(image_path + "reversi.png")))
-		self.frame.SetIcon(frame_icon)
+		self.SetIcon(frame_icon)
 
 		#load images
 		self.img_board = wx.Bitmap(wx.Image(image_path + "board/board.png"))
@@ -69,8 +102,9 @@ class reversi_app(wx.App):
 
 		#create background elements
 		sizer_base = wx.BoxSizer(wx.HORIZONTAL)
-		self.frame.SetSizer(sizer_base)
-		panel_base = wx.Panel(self.frame)
+		self.SetSizer(sizer_base)
+		panel_base = wx.Panel(self)
+		panel_base.frame = self
 		panel_base.SetBackgroundColour(wx.BLACK)
 		sizer_base.Add(panel_base, 1, wx.ALL | wx.EXPAND,5)
 		sizer_main = wx.BoxSizer(wx.HORIZONTAL)
@@ -79,8 +113,7 @@ class reversi_app(wx.App):
 		#create a panel for drawing chess board on the left
 		sizer_board = wx.BoxSizer(wx.VERTICAL)
 		sizer_main.Add(sizer_board, 0, wx.ALL | wx.ALIGN_CENTER, 5)
-		self.panel_board = wx.Panel(panel_base, size = wx.Size(424,424), style = wx.SUNKEN_BORDER | wx.TAB_TRAVERSAL)
-		self.panel_board.SetBackgroundColour(wx.Colour(43,155,0))
+		self.panel_board = panel_board(panel_base)
 		sizer_board.Add(self.panel_board, 1, wx.ALL | wx.ALIGN_CENTER, 5)
 
 		#create a sizer for adding elements on the right
@@ -216,7 +249,7 @@ class reversi_app(wx.App):
 
 		#create a menu bar
 		self.menubar = wx.MenuBar()
-		self.frame.SetMenuBar(self.menubar)
+		self.SetMenuBar(self.menubar)
 		menu_file = wx.Menu()
 		self.menubar.Append(menu_file, "&File")
 		menu_edit = wx.Menu()
@@ -394,17 +427,15 @@ class reversi_app(wx.App):
 		menu_help.Append(menu_about)
 
 		#create a status bar
-		self.statusbar = wx.StatusBar(self.frame)
+		self.statusbar = wx.StatusBar(self)
 		self.statusbar.SetFieldsCount(3, (-1, -1, -1))
 		self.statusbar.SetStatusStyles((wx.SB_NORMAL, wx.SB_NORMAL, wx.SB_NORMAL))
-		self.frame.SetStatusBar(self.statusbar)
+		self.SetStatusBar(self.statusbar)
 
 		#set the suitable size of the frame
-		sizer_base.SetSizeHints(self.frame)
+		sizer_base.SetSizeHints(self)
 
 		#bind interaction events
-		self.panel_board.Bind(wx.EVT_PAINT, self.on_panel_board_paint)
-		self.panel_board.Bind(wx.EVT_LEFT_DOWN, self.on_panel_board_leftdown)
 		self.text_input.Bind(wx.EVT_TEXT_ENTER, self.on_text_input_textenter)
 		self.choice_black.Bind(wx.EVT_CHOICE, self.on_choice_player)
 		self.text_path_black.Bind(wx.EVT_TEXT_ENTER, self.on_text_path_enter)
@@ -444,7 +475,7 @@ class reversi_app(wx.App):
 		sys.stderr = self.text_term
 
 		#show the frame
-		self.frame.Show(True)
+		self.Show(True)
 		self.tree_list.Hide()
 
 		self.thrd_lock = False
@@ -466,37 +497,14 @@ class reversi_app(wx.App):
 		self.process(self.text_input.GetValue())
 
 	def on_quit(self, event):
-		self.frame.Close()
+		self.Close()
 
 	def on_about(self, event):
 		wx.MessageBox("Reversi Game\nBy Rick", "About")
 
-	#paint on panel_board
-	def on_panel_board_paint(self, event):
-		self.paint()
-
-	#paint on panel_board
-	def paint(self):
-		mygame.show(dc = wx.ClientDC(self.panel_board))
-
-	#click on the panel board
-	def on_panel_board_leftdown(self, event):
-		# if mygame.is_lock:
-			# return
-		pos = event.GetPosition()
-		if pos.x < bias:
-			x = -1
-		else:
-			x = int((pos.x - bias) / cell)
-		if pos.y < bias:
-			y = -1
-		else:
-			y = int((pos.y - bias) / cell)
-		self.process("mygame.click((%d,%d))" % (x,y))
-
 	#export image
 	def on_export(self, event):
-		dialog_export = wx.FileDialog(self.frame, message = "Export image", wildcard = "*.png", style = wx.FD_SAVE)
+		dialog_export = wx.FileDialog(self, message = "Export image", wildcard = "*.png", style = wx.FD_SAVE)
 
 		if dialog_export.ShowModal() == wx.ID_OK:
 			path = dialog_export.GetPath()
@@ -514,7 +522,7 @@ class reversi_app(wx.App):
 
 	#load and execute a script
 	def on_load(self, event):
-		dialog_load = wx.FileDialog(self.frame, message = "Load a python script", wildcard = "*.py", style = wx.FD_OPEN)
+		dialog_load = wx.FileDialog(self, message = "Load a python script", wildcard = "*.py", style = wx.FD_OPEN)
 
 		if dialog_load.ShowModal() == wx.ID_OK:
 			path = dialog_load.GetPath()
@@ -576,7 +584,7 @@ class reversi_app(wx.App):
 
 		if event.GetId() == self.button_folder_black.GetId():
 			dialog_choice_player = wx.FileDialog(
-				self.frame, "Select file", wx.EmptyString, wx.EmptyString,
+				self, "Select file", wx.EmptyString, wx.EmptyString,
 				wildcard, wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
 				wx.DefaultSize, "wxFileDialog"
 			)
@@ -592,7 +600,7 @@ class reversi_app(wx.App):
 				)
 		elif event.GetId() == self.button_folder_white.GetId():
 			dialog_choice_player = wx.FileDialog(
-				self.frame, "Select file", wx.EmptyString, wx.EmptyString,
+				self, "Select file", wx.EmptyString, wx.EmptyString,
 				wildcard, wx.FD_DEFAULT_STYLE, wx.DefaultPosition,
 				wx.DefaultSize, "wxFileDialog"
 			)
@@ -741,8 +749,13 @@ class reversi_app(wx.App):
 		self.tree.load(name)
 		self.tree_list.AddRoot(self.tree.info(), data = (self.tree, False))
 
+class app_reversi(wx.App):
+	#overload the initializer
+	def OnInit(self):
+		self.frame = frame_main()
+		return True
+
 if __name__ == "__main__":
-	app = reversi_app(False)
+	app = app_reversi(False)
 	mygame = game(app)
 	app.MainLoop()
-	rv.board.postprocess()
