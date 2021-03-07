@@ -243,161 +243,43 @@ void board::config_flip(){
 
 #else
 
-#define lbound 0xfefefefefefefefe
-#define rbound 0x7f7f7f7f7f7f7f7f
-#define ubound 0xffffffffffffff00
-#define dbound 0x00ffffffffffffff
-#define ulbound 0xfefefefefefefe00
-#define urbound 0x7f7f7f7f7f7f7f00
-#define dlbound 0x00fefefefefefefe
-#define drbound 0x007f7f7f7f7f7f7f
-
-#define up(mask) mask >>= 8
-#define down(mask) mask <<= 8
-#define left(mask) mask >>= 1
-#define right(mask) mask <<= 1
-#define uleft(mask) mask >>= 9
-#define uright(mask) mask >>= 7
-#define dleft(mask) mask <<= 7
-#define dright(mask) mask <<= 9
-
-#define flip_part(bound,dir1,dir2) \
-	while(pos & bound){ \
-		dir1(pos); \
-		if(green & pos) \
-			continue; \
-		if(blue & pos){ \
-			while(dir2(pos), pos != mask){ \
-				blue |= pos; \
-				green &= ~pos; \
-			} \
-		} \
-		break; \
-	} \
-	pos = mask;
-
-#define flip_part_u flip_part(ubound,up,down)
-#define flip_part_d flip_part(dbound,down,up)
-#define flip_part_l flip_part(lbound,left,right)
-#define flip_part_r flip_part(rbound,right,left)
-#define flip_part_ul flip_part(ulbound,uleft,dright)
-#define flip_part_ur flip_part(urbound,uright,dleft)
-#define flip_part_dl flip_part(dlbound,dleft,uright)
-#define flip_part_dr flip_part(drbound,dright,uleft)
-
-#define flip_fun(name,kernel) \
- \
-	void name(board* const& ptr,cbool color,cpos_type _pos){ \
-		ull& blue = ptr->get_brd(color), blue_save = blue; \
-		ull& green = ptr->get_brd(!color); \
-		ull mask = ull(1) << _pos;\
- \
-		ull pos = mask; \
- \
-		kernel \
- \
-		if(blue != blue_save){ \
-			blue |= mask; \
-			green &= ~mask; \
-		} \
-	}
-
-flip_fun(flip,
-	flip_part_u
-	flip_part_d
-	flip_part_l
-	flip_part_r
-	flip_part_ul
-	flip_part_ur
-	flip_part_dl
-	flip_part_dr
-)
-
-flip_fun(flip_o,
-	flip_part_u
-	flip_part_d
-	flip_part_l
-	flip_part_r
-	flip_part_ul
-	flip_part_ur
-	flip_part_dl
-	flip_part_dr
-)
-
-flip_fun(flip_u,
-	flip_part_u
-	flip_part_ul
-	flip_part_ur
-	flip_part_l
-	flip_part_r
-)
-
-flip_fun(flip_d,
-	flip_part_d
-	flip_part_dl
-	flip_part_dr
-	flip_part_l
-	flip_part_r
-)
-
-flip_fun(flip_l,
-	flip_part_l
-	flip_part_ul
-	flip_part_dl
-	flip_part_u
-	flip_part_d
-)
-
-flip_fun(flip_r,
-	flip_part_r
-	flip_part_ur
-	flip_part_dr
-	flip_part_u
-	flip_part_d
-)
-
-flip_fun(flip_ul,
-	flip_part_u
-	flip_part_l
-	flip_part_ul
-)
-
-flip_fun(flip_ur,
-	flip_part_u
-	flip_part_r
-	flip_part_ur
-)
-
-flip_fun(flip_dl,
-	flip_part_d
-	flip_part_l
-	flip_part_dl
-)
-
-flip_fun(flip_dr,
-	flip_part_d
-	flip_part_r
-	flip_part_dr
-)
-
-void flip_n(board* const&,cbool color,cpos_type pos){
-}
-
-void (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =
-{
-	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
-	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
-	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
-	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul,
-	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul
-};
-
 void board::flip(cbool color,cpos_type pos){
-	return (table_flip[pos])(this,color,pos);
+	ull& brd_blue = this->get_brd(color);
+	ull& brd_green = this->get_brd(!color);
+	ull brd_flip;
+	ull brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+	ull brd_green_adj;
+	ull moves = 0;
+	ull brd_pos = 0;
+
+	fun_bts(brd_pos, ull(pos));
+
+	#define flip_part(shift, val, brd_mask) \
+		brd_flip = (brd_pos shift val) & brd_mask; \
+		brd_flip |= (brd_flip shift val) & brd_mask; \
+		\
+		brd_green_adj = brd_mask & (brd_mask shift val); \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		\
+		if((brd_flip shift val) & brd_blue){ \
+			moves |= brd_flip; \
+		}
+
+	flip_part(<<, 1, brd_green_inner);
+	flip_part(>>, 1, brd_green_inner);
+	flip_part(<<, 8, brd_green);
+	flip_part(>>, 8, brd_green);
+	flip_part(<<, 7, brd_green_inner);
+	flip_part(>>, 7, brd_green_inner);
+	flip_part(<<, 9, brd_green_inner);
+	flip_part(>>, 9, brd_green_inner);
+
+	brd_blue ^= moves;
+	brd_green ^= moves;
+	fun_bts(brd_blue, ull(pos));
 }
+
 void board::config_flip(){}
 
 #endif //USE_ASM
