@@ -7,11 +7,23 @@
 
 using namespace std;
 
-constexpr ull pow_n(ull n, ull val){
-	return val ? pow_n(n * n, val >> 1) * (val & 1 ? n : 1) : 1;
+constexpr ull cpow(ull n, ull val){
+	return val ? cpow(n * n, val >> 1) * (val & 1 ? n : 1) : 1;
+}
+
+constexpr ull cpopcnt(ull brd){
+	return brd ? cpopcnt(brd >> 1) + (brd & 1) : 0;
 }
 
 #define next_bias(id) (bias_##id + (1 << (shift_##id * 2)))
+#define create_first_ptn(id, mask) \
+	const ull ptn_##id = mask; \
+	const ull shift_##id = cpopcnt(mask); \
+	const ull bias_##id = 0;
+#define create_ptn(id, mask, id_prev) \
+	const ull ptn_##id = mask; \
+	const ull shift_##id = cpopcnt(mask); \
+	const ull bias_##id = next_bias(id_prev);
 
 /*
 # # # # # # # #
@@ -30,12 +42,8 @@ constexpr ull pow_n(ull n, ull val){
 
 . . . . . . . .
 */
-const ull ptn_a1 = 0x00000000000042ff;
-const ull shift_a1 = 10;
-const ull bias_a1 = 0;
-const ull ptn_a1_v = 0x0103010101010301;
-const ull shift_a1_v = 10;
-const ull bias_a1_v = 0;
+create_first_ptn(a1, 0x00000000000042ff);
+create_first_ptn(a1_v, 0x0103010101010301);
 
 /*
 . . . . . . . .
@@ -54,12 +62,8 @@ const ull bias_a1_v = 0;
 
 . . . . . . . .
 */
-const ull ptn_a2 = 0x000000000000ff00;
-const ull shift_a2 = 8;
-const ull bias_a2 = next_bias(a1);
-const ull ptn_a2_v = 0x0202020202020202;
-const ull shift_a2_v = 8;
-const ull bias_a2_v = bias_a2;
+create_ptn(a2, 0x000000000000ff00, a1);
+create_ptn(a2_v, 0x0202020202020202, a1);
 
 /*
 . . . . . . . .
@@ -78,12 +82,8 @@ const ull bias_a2_v = bias_a2;
 
 . . . . . . . .
 */
-const ull ptn_a3 = 0x0000000000ff0000;
-const ull shift_a3 = 8;
-const ull bias_a3 = next_bias(a2);
-const ull ptn_a3_v = 0x0404040404040404;
-const ull shift_a3_v = 8;
-const ull bias_a3_v = bias_a3;
+create_ptn(a3, 0x0000000000ff0000, a2);
+create_ptn(a3_v, 0x0404040404040404, a2);
 
 /*
 . . . . . . . .
@@ -102,12 +102,8 @@ const ull bias_a3_v = bias_a3;
 
 . . . . . . . .
 */
-const ull ptn_a4 = 0x00000000ff000000;
-const ull shift_a4 = 8;
-const ull bias_a4 = next_bias(a3);
-const ull ptn_a4_v = 0x0808080808080808;
-const ull shift_a4_v = 8;
-const ull bias_a4_v = bias_a4;
+create_ptn(a4, 0x00000000ff000000, a3);
+create_ptn(a4_v, 0x0808080808080808, a3);
 
 /*
 . . . # . . . .
@@ -126,9 +122,7 @@ const ull bias_a4_v = bias_a4;
 
 . . . . . . . .
 */
-const ull ptn_b1 = 0x0000000001020408;
-const ull shift_b1 = 4;
-const ull bias_b1 = next_bias(a4);
+create_ptn(b1, 0x0000000001020408, a4);
 
 /*
 . . . . # . . .
@@ -147,9 +141,7 @@ const ull bias_b1 = next_bias(a4);
 
 . . . . . . . .
 */
-const ull ptn_b2 = 0x0000000102040810;
-const ull shift_b2 = 5;
-const ull bias_b2 = next_bias(b1);
+create_ptn(b2, 0x0000000102040810, b1);
 
 /*
 . . . . . # . .
@@ -168,9 +160,7 @@ const ull bias_b2 = next_bias(b1);
 
 . . . . . . . .
 */
-const ull ptn_b3 = 0x0000010204081020;
-const ull shift_b3 = 6;
-const ull bias_b3 = next_bias(b2);
+create_ptn(b3, 0x0000010204081020, b2);
 
 /*
 . . . . . . # .
@@ -189,9 +179,7 @@ const ull bias_b3 = next_bias(b2);
 
 . . . . . . . .
 */
-const ull ptn_b4 = 0x0001020408102040;
-const ull shift_b4 = 7;
-const ull bias_b4 = next_bias(b3);
+create_ptn(b4, 0x0001020408102040, b3);
 
 /*
 . . . . . . . #
@@ -210,9 +198,7 @@ const ull bias_b4 = next_bias(b3);
 
 # . . . . . . .
 */
-const ull ptn_b5 = 0x0102040810204080;
-const ull shift_b5 = 8;
-const ull bias_b5 = next_bias(b4);
+create_ptn(b5, 0x0102040810204080, b4);
 
 /*
 # # # . . . . .
@@ -231,9 +217,7 @@ const ull bias_b5 = next_bias(b4);
 
 . . . . . . . .
 */
-const ull ptn_c1 = 0x0000000000070707;
-const ull shift_c1 = 9;
-const ull bias_c1 = next_bias(b5);
+create_ptn(c1, 0x0000000000070707, b5);
 
 /*
 # # # # # . . .
@@ -252,9 +236,7 @@ const ull bias_c1 = next_bias(b5);
 
 . . . . . . . .
 */
-const ull ptn_c2 = 0x000000010101031f;
-const ull shift_c2 = 10;
-const ull bias_c2 = next_bias(c1);
+create_ptn(c2, 0x000000010101031f, c1);
 
 pattern ptn;
 
