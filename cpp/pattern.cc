@@ -7,6 +7,12 @@
 
 using namespace std;
 
+constexpr ull pow_n(ull n, ull val){
+	return val ? pow_n(n * n, val >> 1) * (val & 1 ? n : 1) : 1;
+}
+
+#define next_bias(id) (bias_##id + (1 << (shift_##id * 2)))
+
 /*
 # # # # # # # #
 
@@ -50,10 +56,10 @@ const ull bias_a1_v = 0;
 */
 const ull ptn_a2 = 0x000000000000ff00;
 const ull shift_a2 = 8;
-const ull bias_a2 = 1048576;
+const ull bias_a2 = next_bias(a1);
 const ull ptn_a2_v = 0x0202020202020202;
 const ull shift_a2_v = 8;
-const ull bias_a2_v = 1048576;
+const ull bias_a2_v = bias_a2;
 
 /*
 . . . . . . . .
@@ -74,10 +80,10 @@ const ull bias_a2_v = 1048576;
 */
 const ull ptn_a3 = 0x0000000000ff0000;
 const ull shift_a3 = 8;
-const ull bias_a3 = 1114112;
+const ull bias_a3 = next_bias(a2);
 const ull ptn_a3_v = 0x0404040404040404;
 const ull shift_a3_v = 8;
-const ull bias_a3_v = 1114112;
+const ull bias_a3_v = bias_a3;
 
 /*
 . . . . . . . .
@@ -98,10 +104,10 @@ const ull bias_a3_v = 1114112;
 */
 const ull ptn_a4 = 0x00000000ff000000;
 const ull shift_a4 = 8;
-const ull bias_a4 = 1179684;
+const ull bias_a4 = next_bias(a3);
 const ull ptn_a4_v = 0x0808080808080808;
 const ull shift_a4_v = 8;
-const ull bias_a4_v = 1179684;
+const ull bias_a4_v = bias_a4;
 
 /*
 . . . # . . . .
@@ -122,7 +128,7 @@ const ull bias_a4_v = 1179684;
 */
 const ull ptn_b1 = 0x0000000001020408;
 const ull shift_b1 = 4;
-const ull bias_b1 = 1245184;
+const ull bias_b1 = next_bias(a4);
 
 /*
 . . . . # . . .
@@ -143,7 +149,7 @@ const ull bias_b1 = 1245184;
 */
 const ull ptn_b2 = 0x0000000102040810;
 const ull shift_b2 = 5;
-const ull bias_b2 = 1245440;
+const ull bias_b2 = next_bias(b1);
 
 /*
 . . . . . # . .
@@ -164,7 +170,7 @@ const ull bias_b2 = 1245440;
 */
 const ull ptn_b3 = 0x0000010204081020;
 const ull shift_b3 = 6;
-const ull bias_b3 = 1246464;
+const ull bias_b3 = next_bias(b2);
 
 /*
 . . . . . . # .
@@ -185,7 +191,7 @@ const ull bias_b3 = 1246464;
 */
 const ull ptn_b4 = 0x0001020408102040;
 const ull shift_b4 = 7;
-const ull bias_b4 = 1250560;
+const ull bias_b4 = next_bias(b3);
 
 /*
 . . . . . . . #
@@ -206,7 +212,7 @@ const ull bias_b4 = 1250560;
 */
 const ull ptn_b5 = 0x0102040810204080;
 const ull shift_b5 = 8;
-const ull bias_b5 = 1266944;
+const ull bias_b5 = next_bias(b4);
 
 /*
 # # # . . . . .
@@ -227,7 +233,7 @@ const ull bias_b5 = 1266944;
 */
 const ull ptn_c1 = 0x0000000000070707;
 const ull shift_c1 = 9;
-const ull bias_c1 = 1332480;
+const ull bias_c1 = next_bias(b5);
 
 /*
 # # # # # . . .
@@ -248,7 +254,7 @@ const ull bias_c1 = 1332480;
 */
 const ull ptn_c2 = 0x000000010101031f;
 const ull shift_c2 = 10;
-const ull bias_c2 = 1594624;
+const ull bias_c2 = next_bias(c1);
 
 pattern ptn;
 
