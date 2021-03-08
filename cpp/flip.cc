@@ -1,6 +1,89 @@
 #include "board.h"
 
-#ifdef USE_ASM_BMI2
+#if 0 // defined(USE_ASM_AVX2)
+
+void board::flip(cbool color, cpos_type pos){
+	ull& brd_blue = get_brd(color);
+	ull& brd_green = get_brd(!color);
+	ull brd_green_inner;
+	ull moves;
+
+	const ull zero = 0;
+	ull brd_pos = 0;
+	fun_bts(brd_pos, ull(pos));
+	ull table_brd_green[4] __attribute__((aligned(32)));
+	static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+	ull table_move[4] __attribute__((aligned(32)));
+
+	brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+	table_brd_green[0] = brd_green_inner;
+	table_brd_green[1] = brd_green_inner;
+	table_brd_green[2] = brd_green;
+	table_brd_green[3] = brd_green_inner;
+	
+	asm volatile(
+		"vpbroadcastq %1, %%ymm0;"
+		"vmovapd %2, %%ymm1;"
+		"vmovapd %3, %%ymm2;"
+		"vpbroadcastq %4, %%ymm8;"
+		"vpbroadcastq %5, %%ymm9;"
+		"vpsllq $1, %%ymm2, %%ymm3;"
+
+		"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"
+		"vpand %%ymm1, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpor %%ymm5, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm5, %%ymm9, %%ymm5;"
+		"vpcmpeqq %%ymm5, %%ymm8, %%ymm5;"
+		"vpandn %%ymm4, %%ymm5, %%ymm7;"
+
+		"vpsllvq %%ymm2, %%ymm0, %%ymm4;"
+		"vpand %%ymm1, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpor %%ymm5, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm2, %%ymm1, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm5, %%ymm9, %%ymm5;"
+		"vpcmpeqq %%ymm5, %%ymm8, %%ymm5;"
+		"vpandn %%ymm4, %%ymm5, %%ymm4;"
+		"vpor %%ymm4, %%ymm7, %%ymm7;"
+
+		"vmovdqa %%ymm7, %0;"
+		:"=m"(table_move)
+		:"m"(brd_pos), "m"(table_brd_green), "m"(table_shift), "m"(zero), "m"(brd_blue)
+		:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "ymm9"
+	);
+
+	moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
+
+	brd_blue |= moves;
+	brd_green &= ~moves;
+	if(moves){
+		fun_bts(brd_blue, ull(pos));
+	}
+}
+
+void board::config_flip(){}
+
+#elif defined(USE_ASM_BMI2)
 
 const pos_type pos_diag1[board::size2] = {
 	0,0,0,0,0,0,0,0,
@@ -243,7 +326,7 @@ void board::config_flip(){
 
 #else
 
-void board::flip(cbool color,cpos_type pos){
+void board::flip(cbool color, cpos_type pos){
 	ull& brd_blue = this->get_brd(color);
 	ull& brd_green = this->get_brd(!color);
 	ull brd_flip;
@@ -275,9 +358,11 @@ void board::flip(cbool color,cpos_type pos){
 	flip_part(<<, 9, brd_green_inner);
 	flip_part(>>, 9, brd_green_inner);
 
-	brd_blue ^= moves;
-	brd_green ^= moves;
-	fun_bts(brd_blue, ull(pos));
+	brd_blue |= moves;
+	brd_green &= ~moves;
+	if(moves){
+		fun_bts(brd_blue, ull(pos));
+	}
 }
 
 void board::config_flip(){}

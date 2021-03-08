@@ -498,7 +498,6 @@ public:
 	 */
 	ull get_move(cbool color)const{
 
-
 		const ull& brd_blue = get_brd(color);
 		const ull& brd_green = get_brd(!color);
 		ull brd_green_inner;
@@ -507,7 +506,7 @@ public:
 		#ifdef USE_ASM_AVX2
 
 			ull table_brd_green[4] __attribute__((aligned(32)));
-			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+			static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 			ull table_move[4] __attribute__((aligned(32)));
 
 			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
