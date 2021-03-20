@@ -27,6 +27,7 @@ set (
 	${cpp_dir}/log.h
 	${cpp_dir}/pattern.h
 	${cpp_dir}/tree.h
+	${cpp_dir}/sample.h
 )
 
 set (
@@ -35,6 +36,7 @@ set (
 	${cpp_dir}/flip.cc
 	${cpp_dir}/pattern.cc
 	${cpp_dir}/search.cc
+	${cpp_dir}/sample.cc
 )
 
 set (
