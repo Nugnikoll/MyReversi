@@ -20,6 +20,7 @@
 	#include "../cpp/pattern.h"
 	#include "../cpp/log.h"
 	#include "../cpp/tree.h"
+	#include "../cpp/sample.h"
 %}
 
 %include "numpy.i"
@@ -74,6 +75,7 @@ ARRAY_ND(double);
 %include "../cpp/pattern.h"
 %include "../cpp/log.h"
 %include "../cpp/tree.h"
+%include "../cpp/sample.h"
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;

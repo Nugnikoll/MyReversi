@@ -503,7 +503,7 @@ public:
 		ull brd_green_inner;
 		ull moves;
 
-		#ifdef USE_ASM_AVX2
+		#if 0 // defined(USE_ASM_AVX2)
 
 			ull table_brd_green[4] __attribute__((aligned(32)));
 			static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
@@ -659,7 +659,7 @@ public:
 		ull moves;
 		ull flips;
 
-		#ifdef USE_ASM_AVX2
+		#if 0 // defined(USE_ASM_AVX2)
 
 			ull table_brd_green[4] __attribute__((aligned(32)));
 			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};

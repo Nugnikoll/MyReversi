@@ -29,19 +29,4 @@ else:
 	np.save(sample_path, sample)
 
 with time_span():
-	result = rv.sample_flip_benchmark(sample)
-
-diff = (sample[:,3:5] != result)
-print("diff: %d" % np.sum(diff))
-
-if diff.any():
-	for i in range(diff.shape[0]):
-		if diff[i,0] or diff[i,1]:
-			brd = rv.board(int(sample[i,1]), int(sample[i,0]))
-			print(hex(brd.get_brd(False)), hex(brd.get_brd(True)), int(sample[i, 2]))
-			brd._print()
-			brd = rv.board(int(sample[i,4]), int(sample[i,3]))
-			brd._print()
-			brd = rv.board(int(result[i,1]), int(result[i,0]))
-			brd._print()
-			break;
+	result = rv.benchmark_get_move(sample)

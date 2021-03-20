@@ -101,29 +101,6 @@ void sample_pos_gen(ARRAY_2D_OUT_M(ULL), cint n){
 	}
 };
 
-void sample_flip_benchmark(ARRAY_2D_OUT_M(ULL), ARRAY_2D_IN_I(ULL)){
-	assert(i2 == 5);
-	*m1 = i1;
-	*m2 = 2;
-	*ptrm = new ull[*m1 * 2];
-
-	for(int i = 0; i != i1; ++i){
-		board brd(ptri[i * 5 + 1], ptri[i * 5]);
-		short pos = ptri[i * 5 + 2];
-		brd.flip(true, pos);
-		(*ptrm)[i * 2] = brd.get_brd(false);
-		(*ptrm)[i * 2 + 1] = brd.get_brd(true);
-	}
-	
-	for(int j = 0; j != 100; ++j){
-		for(int i = 0; i != i1; ++i){
-			board brd(ptri[i * 5], ptri[i * 5 + 1]);
-			short pos = ptri[i * 5 + 2];
-			brd.flip(true, pos);
-		}
-	}
-};
-
 void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
 	unordered_set<board> brds;
 	board brd;
@@ -165,4 +142,52 @@ void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
 		(*ptrm)[i * 2 + 1] = brd.get_brd(true);
 		++i;
 	}
+};
+
+void benchmark_flip(ARRAY_2D_OUT_M(ULL), ARRAY_2D_IN_I(ULL)){
+	assert(i2 == 5);
+	*m1 = i1;
+	*m2 = 2;
+	*ptrm = new ull[*m1 * *m2];
+
+	for(int i = 0; i != i1; ++i){
+		board brd(ptri[i * 5 + 1], ptri[i * 5]);
+		short pos = ptri[i * 5 + 2];
+		brd.flip(true, pos);
+		(*ptrm)[i * 2] = brd.get_brd(false);
+		(*ptrm)[i * 2 + 1] = brd.get_brd(true);
+	}
+	
+	for(int j = 0; j != 100; ++j){
+		for(int i = 0; i != i1; ++i){
+			board brd(ptri[i * 5], ptri[i * 5 + 1]);
+			short pos = ptri[i * 5 + 2];
+			brd.flip(true, pos);
+		}
+	}
+};
+
+void benchmark_get_move(ARRAY_2D_OUT_M(ULL), ARRAY_2D_IN_I(ULL)){
+	assert(i2 == 5);
+	
+	*m1 = i1;
+	*m2 = 1;
+	*ptrm = new ull[*m1 * *m2];
+
+	for(int i = 0; i != i1; ++i){
+		board brd(ptri[i * 5], ptri[i * 5 + 1]);
+		ull brd_move = brd.get_move(true);
+		(*ptrm)[i] = brd_move;
+	}
+
+	ull junk = 0;
+	for(int j = 0; j != 100; ++j){
+		for(int i = 0; i != i1; ++i){
+			board brd(ptri[i * 5], ptri[i * 5 + 1]);
+			ull brd_move = brd.get_move(true);
+			junk ^= brd_move;
+		}
+	}
+
+	(*ptrm)[0] = junk;
 };
