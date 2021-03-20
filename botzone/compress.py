@@ -19,7 +19,7 @@ lines = re.sub(r"\\\s*\n","",lines)
 
 # suppress blank
 lines = re.sub(r"\s*\n\s*","\n",lines)
-lines = re.sub(r"(?<=\n)(?!\s*#)([^\n]*)\n(?!\s*#)","\g<1>",lines)
+lines = re.sub(r"(?<=\n)(?!\s*#)([^\n]*)\n(?!\s*#)","\g<1> ",lines)
 
 lines_buff = []
 while True:
@@ -34,32 +34,33 @@ lines = lines_buff + [lines]
 for i in range(len(lines)):
 	if (i & 1) == 0:
 		lines[i] = re.sub(r"(?:\B(?:(?!\n)\s)+\B|\b(?:(?!\n)\s)+\B|\B(?:(?!\n)\s)+\b)","",lines[i])
-lines = "".join(lines)
+		# replace variable names
+		lines[i] = re.sub(r"\bboard\b","b",lines[i])
+		lines[i] = re.sub(r"\bcolor\b","cl",lines[i])
+		lines[i] = re.sub(r"\bchoice\b","ch",lines[i])
+		lines[i] = re.sub(r"\bcoordinate\b","co",lines[i])
+		lines[i] = re.sub(r"\bchessman\b","cm",lines[i])
+		lines[i] = re.sub(r"\bgame\b","g",lines[i])
+		lines[i] = re.sub(r"\bpattern\b","pn",lines[i])
+		#lines[i] = re.sub(r"\bbrd_blue\b","b_b",lines[i])
+		#lines[i] = re.sub(r"\bbrd_green\b","b_g",lines[i])
+		lines[i] = re.sub(r"\bbrd_white\b","b_w",lines[i])
+		lines[i] = re.sub(r"\bbrd_black\b","b_bl",lines[i])
+		lines[i] = re.sub(r"\bbrd_type\b","b_t",lines[i])
+		lines[i] = re.sub(r"\bcbrd_type\b","cb_t",lines[i])
+		lines[i] = re.sub(r"\bpos_type\b","p_t",lines[i])
+		lines[i] = re.sub(r"\bcpos_type\b","cp_t",lines[i])
+		lines[i] = re.sub(r"\bcalc_type\b","c_t",lines[i])
+		lines[i] = re.sub(r"\bccalc_type\b","cc_t",lines[i])
+		lines[i] = re.sub(r"\bdepth\b","d",lines[i])
+		lines[i] = re.sub(r"\bheight\b","h",lines[i])
+		lines[i] = re.sub(r"\balpha\b","A",lines[i])
+		lines[i] = re.sub(r"\bbeta\b","B",lines[i])
+		lines[i] = re.sub(r"\bgamma\b","G",lines[i])
+		lines[i] = re.sub(r"\bmask\b","m",lines[i])
+		lines[i] = re.sub(r"\temp\b","t",lines[i])
 
-# replace variable names
-lines = re.sub(r"\bboard\b","b",lines)
-lines = re.sub(r"\bcolor\b","cl",lines)
-lines = re.sub(r"\bchoice\b","ch",lines)
-lines = re.sub(r"\bcoordinate\b","co",lines)
-lines = re.sub(r"\bchessman\b","cm",lines)
-lines = re.sub(r"\bgame\b","g",lines)
-lines = re.sub(r"\bpattern\b","pn",lines)
-lines = re.sub(r"\bbrd_blue\b","b_b",lines)
-lines = re.sub(r"\bbrd_green\b","b_g",lines)
-lines = re.sub(r"\bbrd_white\b","b_w",lines)
-lines = re.sub(r"\bbrd_black\b","b_bl",lines)
-lines = re.sub(r"\bbrd_type\b","b_t",lines)
-lines = re.sub(r"\bcbrd_type\b","cb_t",lines)
-lines = re.sub(r"\bpos_type\b","p_t",lines)
-lines = re.sub(r"\bcpos_type\b","cp_t",lines)
-lines = re.sub(r"\bcalc_type\b","c_t",lines)
-lines = re.sub(r"\bccalc_type\b","cc_t",lines)
-lines = re.sub(r"\bheight\b","h",lines)
-lines = re.sub(r"\balpha\b","A",lines)
-lines = re.sub(r"\bbeta\b","B",lines)
-lines = re.sub(r"\bgamma\b","G",lines)
-lines = re.sub(r"\bmask\b","m",lines)
-lines = re.sub(r"\temp\b","t",lines)
+lines = "".join(lines)
 
 filename = "main_compress.cc"
 

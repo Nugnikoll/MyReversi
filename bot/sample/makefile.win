@@ -27,7 +27,7 @@ OUT = $(OUTDIR)reversi
 
 .PHONY: all clean before
 
-all: $(OUT)
+all: before $(OUT)
 
 clean:
 	-$(RM) $(subst /,\,$(OBJDIR))*.o
@@ -37,8 +37,8 @@ before:
 	if not exist $(subst /,\,$(OBJDIR)) mkdir $(subst /,\,$(OBJDIR))
 	if not exist $(subst /,\,$(OUTDIR)) mkdir $(subst /,\,$(OUTDIR))
 
-$(OUT): before $(OBJ)
-	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
+$(OUT): $(OBJ)
+	$(LD) $(LDFLAGS) $(OBJ) -o $@
 
 $(OBJDIR)board.o: $(SRCDIR)board.cc $(wildcard $(SRCDIR)*.h)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -47,6 +47,9 @@ $(OBJDIR)flip.o: $(SRCDIR)flip.cc $(wildcard $(SRCDIR)*.h)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)search.o: $(SRCDIR)search.cc $(wildcard $(SRCDIR)*.h)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)sample.o: $(SRCDIR)sample.cc $(wildcard $(SRCDIR)*.h)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)pattern.o: $(SRCDIR)pattern.cc $(wildcard $(SRCDIR)*.h)
