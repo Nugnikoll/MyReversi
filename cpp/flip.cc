@@ -8,7 +8,6 @@ void board::flip(cbool color, cpos_type pos){
 	ull brd_green_inner;
 	ull moves;
 
-	const ull zero = 0;
 	ull brd_pos = 0;
 	fun_bts(brd_pos, ull(pos));
 	ull table_brd_green[4] __attribute__((aligned(32)));
@@ -25,8 +24,8 @@ void board::flip(cbool color, cpos_type pos){
 		"vpbroadcastq %1, %%ymm0;"
 		"vmovapd %2, %%ymm1;"
 		"vmovapd %3, %%ymm2;"
-		"vpbroadcastq %4, %%ymm8;"
-		"vpbroadcastq %5, %%ymm9;"
+		"vpxor %%ymm8, %%ymm8, %%ymm8;"
+		"vpbroadcastq %4, %%ymm9;"
 		"vpsllq $1, %%ymm2, %%ymm3;"
 
 		"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"
@@ -68,7 +67,7 @@ void board::flip(cbool color, cpos_type pos){
 
 		"vmovdqa %%ymm7, %0;"
 		:"=m"(table_move)
-		:"m"(brd_pos), "m"(table_brd_green), "m"(table_shift), "m"(zero), "m"(brd_blue)
+		:"m"(brd_pos), "m"(table_brd_green), "m"(table_shift), "m"(brd_blue)
 		:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "ymm9"
 	);
 
