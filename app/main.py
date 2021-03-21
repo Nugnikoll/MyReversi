@@ -469,10 +469,12 @@ class frame_main(wx.Frame):
 
 		self.Connect(-1, -1, evt_thrd_id, self.thrd_catch)
 
+		#redirect iostream
 		self.stdout_save = sys.stdout
 		self.stderr_save = sys.stderr
 		sys.stdout = self.text_term
 		sys.stderr = self.text_term
+		self.term_data = {}
 
 		#show the frame
 		self.Show(True)
@@ -487,7 +489,7 @@ class frame_main(wx.Frame):
 		self.text_term.AppendText(">>" + s + "\n")
 
 		time_start = time.time()
-		exec(s)
+		exec(s, globals(), self.term_data)
 		time_end = time.time()
 
 		self.statusbar.SetStatusText("Wall time : %f seconds" % (time_end - time_start), 2)
@@ -517,7 +519,7 @@ class frame_main(wx.Frame):
 		lines = fobj.readlines()
 		fobj.close()
 		lines = "\n".join(lines)
-		exec(lines)
+		exec(lines, globals(), self.term_data)
 		return True
 
 	#load and execute a script
@@ -527,7 +529,7 @@ class frame_main(wx.Frame):
 		if dialog_load.ShowModal() == wx.ID_OK:
 			path = dialog_load.GetPath()
 			path = path.replace("\\","\\\\")
-			self.process("self.load_script(\"" + path + "\")\n")
+			self.process("frame.load_script(\"" + path + "\")\n")
 
 	def on_choice_player(self, event):
 		if event.GetId() == self.choice_black.GetId():
@@ -641,23 +643,26 @@ class frame_main(wx.Frame):
 			self.process("mygame.reverse()")
 
 	def on_search(self, event):
-		self.process("print(mygame.search(mygame.mthd, mygame.color, mygame.depth))")
+		self.process("pos = mygame.search(mygame.mthd, mygame.color, mygame.depth)")
+		self.process("print(pos)")
 
 	def on_choice(self, event):
-		self.process("print(mygame.get_choice(mygame.mthd, mygame.color, mygame.depth))")
+		self.process("choices = mygame.get_choice(mygame.mthd, mygame.color, mygame.depth)")
+		self.process("print(choices)")
 
 	def on_pv(self, event):
-		self.process("print(mygame.get_pv(mygame.color))")
+		self.process("pv = mygame.get_pv(mygame.color)")
+		self.process("print(pv)")
 
 	def on_clear_log(self, event):
-		self.process("self.text_log.Clear()")
+		self.process("frame.text_log.Clear()")
 
 	def on_clear_term(self, event):
-		self.process("self.text_term.Clear()")
+		self.process("frame.text_term.Clear()")
 
 	def on_clear_all(self, event):
-		self.process("self.text_log.Clear()")
-		self.process("self.text_term.Clear()")
+		self.process("frame.text_log.Clear()")
+		self.process("frame.text_term.Clear()")
 
 	def on_menu_alg(self, event):
 		id = event.GetId()
@@ -757,5 +762,6 @@ class app_reversi(wx.App):
 
 if __name__ == "__main__":
 	app = app_reversi(False)
+	frame = app.frame
 	mygame = game(app)
 	app.MainLoop()
