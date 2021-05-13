@@ -37,6 +37,7 @@ using namespace std;
 	#define USE_ASM
 	#define USE_ASM_BMI2
 	#define USE_ASM_AVX2
+	#define USE_TERMINATE
 #endif //_BOTZONE_ONLINE
 
 typedef const bool& cbool;
