@@ -247,52 +247,37 @@ void board::flip(cbool color,cpos_type pos){
 }
 
 unsigned short flip_line(cull data){
-
 	unsigned short brd_blue = (data >> 8) & 0xff;
-	unsigned short brd_blue_save = brd_blue;
 	unsigned short brd_green = data & 0xff;
-	unsigned short mask = 1 << (data >> 16);
-	unsigned short result = 0;
-	ull pos = mask;
+	unsigned short brd_pos = 1 << (data >> 16);
+	unsigned short result;
+	unsigned short brd_flip;
+	unsigned short brd_green_inner = brd_green & 0x7eu;
+	unsigned short brd_green_adj;
+	unsigned short moves = 0;
 
-	if((brd_blue | brd_green) & mask){
-		goto label_end;
-	}
-
-	while(pos & 0xfe){
-		pos >>= 1;
-		if(brd_green & pos)
-			continue;
-		if(brd_blue & pos){
-			while(pos <<= 1, pos != mask){
-				brd_blue |= pos;
-				brd_green &= ~pos;
-			}
+	#define flip_part(shift, val, brd_mask) \
+		brd_flip = (brd_pos shift val) & brd_mask; \
+		brd_flip |= (brd_flip shift val) & brd_mask; \
+		\
+		brd_green_adj = brd_mask & (brd_mask shift val); \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		\
+		if((brd_flip shift val) & brd_blue){ \
+			moves |= brd_flip; \
 		}
-		break;
-	}
-	pos = mask;
 
-	while(pos & 0x7f){
-		pos <<= 1;
-		if(brd_green & pos)
-			continue;
-		if(brd_blue & pos){
-			while(pos >>= 1, pos != mask){
-				brd_blue |= pos;
-				brd_green &= ~pos;
-			}
-		}
-		break;
-	}
-	pos = mask;
+	flip_part(<<, 1, brd_green_inner);
+	flip_part(>>, 1, brd_green_inner);
 
-	if(brd_blue != brd_blue_save){
-		brd_blue |= mask;
-		brd_green &= ~mask;
-	}
+	#undef flip_part
 
-	label_end:
+	brd_blue |= moves;
+	brd_green &= ~moves;
+	if(moves){
+		brd_blue |= brd_pos;
+	}
 
 	result = (brd_blue << 8) | brd_green;
 	return result;
@@ -317,7 +302,7 @@ void board::config_flip(){
 	}
 
 	for(ull i = 0;i != (1 << 19);++i){
-		if((i >> 8) & i & 0xff){}else{
+		if(!((i >> 8) & i & 0xff)){
 			table_flip[i] = flip_line(i);
 		}
 	}
@@ -329,7 +314,7 @@ void board::flip(cbool color, cpos_type pos){
 	ull& brd_blue = this->get_brd(color);
 	ull& brd_green = this->get_brd(!color);
 	ull brd_flip;
-	ull brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+	ull brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 	ull brd_green_adj;
 	ull moves = 0;
 	ull brd_pos = 0;
@@ -356,6 +341,8 @@ void board::flip(cbool color, cpos_type pos){
 	flip_part(>>, 7, brd_green_inner);
 	flip_part(<<, 9, brd_green_inner);
 	flip_part(>>, 9, brd_green_inner);
+
+	#undef flip_part
 
 	brd_blue |= moves;
 	brd_green &= ~moves;

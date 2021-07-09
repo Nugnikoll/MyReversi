@@ -509,7 +509,7 @@ public:
 			static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 			ull table_move[4] __attribute__((aligned(32)));
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 			table_brd_green[0] = brd_green_inner;
 			table_brd_green[1] = brd_green_inner;
 			table_brd_green[2] = brd_green;
@@ -566,7 +566,7 @@ public:
 			ull brd_flip;
 			ull brd_green_adj;
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 
 			brd_flip = (brd_blue >> 1) & brd_green_inner;
 			brd_flip |= (brd_flip >> 1) & brd_green_inner;
@@ -666,7 +666,7 @@ public:
 			ull table_move[4] __attribute__((aligned(32)));
 			ull table_flip[4] __attribute__((aligned(32)));
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 			table_brd_green[0] = brd_green_inner;
 			table_brd_green[1] = brd_green_inner;
 			table_brd_green[2] = brd_green;
@@ -758,7 +758,7 @@ public:
 			ull brd_green_adj;
 			ull move_part;
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 
 			brd_flip = (brd_blue >> 1) & brd_green_inner;
 			brd_flip |= (brd_flip >> 1) & brd_green_inner;
