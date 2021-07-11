@@ -236,7 +236,10 @@ class game:
 			self.choices = None
 		if not show_pv:
 			self.pv = None
-		self.panel_board.Refresh()
+		#self.panel_board.Refresh()
+		wx.PostEvent(self.panel_board, wx.PaintEvent())
+		#evt = wx.PaintEvent(self.panel_board.GetId());
+		#self.panel_board.GetEventHandler().ProcessEvent(evt);
 
 	def print_log(self, s):
 		self.text_log.AppendText(s)

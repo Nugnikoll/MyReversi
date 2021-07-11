@@ -57,11 +57,11 @@ namespace std{
  *
  * @brief It's the board of reversi.
  *
- * It has two data member which are brd_black and brd_white.
+ * It has two members which are brd_black and brd_white.
  * They represent the board of black stones and board of white stones respectively.
  * Both brd_black and brd_white are 64-bit integer.
  * Where the bit is set to 1, there is a stone.
- * We can assume that brd_black | brd_white is always zero
+ * We can assume that brd_black & brd_white is always zero
  * because we can never place a black stone and a white stone at the same cell.
  * This kind of data structure saves a lot of memory and is easy to calculate.
  *

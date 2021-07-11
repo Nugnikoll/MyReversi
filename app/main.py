@@ -5,13 +5,27 @@ import sys
 import os
 import _thread
 import time
-from game import *
-from load_log import *
+import re
+from IPython.terminal.embed import InteractiveShellEmbed as interactive_shell_embed
+import IPython.core.page
+from game import rv, game, bias, cell, data_path, image_path, default_path, mthd_default
+from load_log import load_log
+
+def page_printer(data, start = 0, screen_lines = 0, pager_cmd = None):
+	if isinstance(data, dict):
+		data = data['text/plain']
+	print(data)
+IPython.core.page.page = page_printer
+ipshell = interactive_shell_embed(
+	user_ns = globals(), colors = "Linux",
+)
 
 rv.board.config()
 rv.pattern.config(data_path + "pattern.dat")
 
-evt_thrd_id = wx.NewId()
+evt_thrd_id = wx.ID_ANY
+
+os
 
 class thrd_event(wx.PyEvent):
 	def __init__(self,data):
@@ -53,6 +67,60 @@ class panel_board(wx.Panel):
 			y = int((pos.y - bias) / cell)
 		self.frame.process("mygame.click((%d,%d))" % (x,y))
 
+class text_input(wx.TextCtrl):
+	def __init__(self, parent):
+		self.frame = parent.frame
+		wx.TextCtrl.__init__(
+			self, parent, size = wx.Size(266,30),
+			style = wx.TE_PROCESS_ENTER | wx.TE_PROCESS_TAB | wx.TE_MULTILINE
+		)
+		self.SetForegroundColour(wx.Colour(200,200,200))
+		self.SetBackgroundColour(wx.Colour(32,32,32))
+		self.SetFont(self.frame.font_text)
+		self.Bind(wx.EVT_TEXT_ENTER, self.on_textenter)
+		self.Bind(wx.EVT_CHAR, self.on_char)
+
+	#input command
+	def on_textenter(self, event):
+		self.frame.process(self.GetValue())
+
+	#capture tab and enter
+	def on_char(self, event):
+		code = event.GetKeyCode()
+
+		if code == 9:  # Tab
+			value = self.GetValue()
+			pos = self.GetInsertionPoint()
+			coord = self.PositionToCoords(pos)
+			hint = re.search(r"[_0-9a-zA-Z.%]*$", value[:pos]).group()
+			pos_hint = pos - len(hint)
+			hint += re.search(r"^[_0-9a-zA-Z.%]*", value[pos:]).group()
+			if not len(hint):
+				return
+			complete_list = ipshell.complete(hint, cursor_pos = pos - pos_hint)
+			if not len(complete_list[1]):
+				return
+
+			menu = wx.Menu()
+			for item in complete_list[1]:
+				menu_item = wx.MenuItem(menu, wx.ID_ANY, item)
+				menu_item.data = item
+				menu.Append(menu_item)
+				def on_menu_item(event):
+					child = menu.FindChildItem(event.GetId())
+					v = value[:pos_hint]
+					v += child[0].data
+					v += value[pos_hint + len(hint):]
+					self.SetValue(v)
+					self.SetInsertionPoint(pos_hint + len(child[0].data))
+				menu.Bind(wx.EVT_MENU, on_menu_item, menu_item)
+			self.PopupMenu(menu, coord)
+
+		elif code == 13: # Enter
+			self.frame.process(self.GetValue())
+
+		else:
+			event.Skip()
 
 class frame_main(wx.Frame):
 	#initialize the frame
@@ -66,10 +134,10 @@ class frame_main(wx.Frame):
 		wx.Frame.__init__(self, parent, id , title, pos, size, style)
 		self.frame = self
 
-		font_text = wx.Font(14, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
-		self.SetFont(font_text)
-		font_index = wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
-		self.SetFont(font_index)
+		self.font_text = wx.Font(14, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
+		self.font_index = wx.Font(11, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
+		self.SetFont(self.font_text)
+		self.SetFont(self.font_index)
 
 		#set the icon of the frame
 		frame_icon = wx.Icon()
@@ -130,7 +198,7 @@ class frame_main(wx.Frame):
 		#create a notebook on the right
 		notebook = wx.Notebook(panel_base, size = wx.Size(448,296), style = wx.TAB_TRAVERSAL)
 		sizer_tool.Add(notebook, 1, wx.ALL | wx.EXPAND, 5)
-		notebook.SetFont(font_index)
+		notebook.SetFont(self.font_index)
 
 		#add interaction page to the notebook
 		panel_note = wx.Panel(notebook, style =  wx.TAB_TRAVERSAL)
@@ -139,7 +207,7 @@ class frame_main(wx.Frame):
 		panel_note.SetBackgroundColour(wx.Colour(32,32,32))
 		self.sizer_note = wx.BoxSizer(wx.VERTICAL)
 		panel_note.SetSizer(self.sizer_note)
-		panel_note.SetFont(font_text)
+		panel_note.SetFont(self.font_text)
 
 		#specify black player in the interaction page
 		self.sizer_note_black = wx.BoxSizer(wx.HORIZONTAL)
@@ -219,33 +287,32 @@ class frame_main(wx.Frame):
 		self.sizer_note_start.Add(self.button_start, 1, wx.ALL | wx.ALIGN_CENTER, 5)
 
 		#add terminal page to the notebook
-		self.text_term = wx.TextCtrl(notebook, style = wx.TE_MULTILINE | wx.TE_READONLY)
+		self.text_term = wx.TextCtrl(
+			notebook, style = wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH2
+		)
 		notebook.AddPage(self.text_term, "Terminal")
 		self.text_term.SetForegroundColour(wx.Colour(200,200,200))
 		self.text_term.SetBackgroundColour(wx.Colour(32,32,32))
-		self.text_term.SetFont(font_text)
+		self.text_term.SetFont(self.font_text)
+		self.frame.text_term.SetDefaultStyle(wx.TextAttr(wx.Colour(200,200,200)))
 
 		#add log page to the notebook
 		self.text_log = wx.TextCtrl(notebook, style = wx.TE_MULTILINE | wx.TE_READONLY)
 		notebook.AddPage(self.text_log, "Log")
 		self.text_log.SetForegroundColour(wx.Colour(200,200,200))
 		self.text_log.SetBackgroundColour(wx.Colour(32,32,32))
-		self.text_log.SetFont(font_text)
+		self.text_log.SetFont(self.font_text)
 
 		self.tree_list = wx.TreeCtrl(notebook)
 		notebook.AddPage(self.tree_list, "Tree")
 		self.tree_list.SetForegroundColour(wx.Colour(200,200,200))
 		self.tree_list.SetBackgroundColour(wx.Colour(32,32,32))
-		font_text = wx.Font(14, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, faceName = "consolas")
-		self.tree_list.SetFont(font_text)
+		self.tree_list.SetFont(self.font_text)
 		self.tree_list.Hide()
 
 		#create a input box on the bottom right
-		self.text_input = wx.TextCtrl(panel_base, size = wx.Size(266,30), style = wx.TE_PROCESS_ENTER | wx.TE_PROCESS_TAB)
+		self.text_input = text_input(panel_base)
 		sizer_tool.Add(self.text_input, 0, wx.ALL | wx.EXPAND, 5)
-		self.text_input.SetForegroundColour(wx.Colour(200,200,200))
-		self.text_input.SetBackgroundColour(wx.Colour(32,32,32))
-		self.text_input.SetFont(font_text)
 
 		#create a menu bar
 		self.menubar = wx.MenuBar()
@@ -263,25 +330,25 @@ class frame_main(wx.Frame):
 
 		#add items to menu_file
 		menu_new = wx.MenuItem(
-			menu_file, id = wx.NewId(),
+			menu_file, id = wx.ID_ANY,
 			text = "&New Game\tCtrl-N",
 			helpString = "Start a new game"
 		)
 		menu_file.Append(menu_new)
 		menu_load = wx.MenuItem(
-			menu_file, id = wx.NewId(),
+			menu_file, id = wx.ID_ANY,
 			text = "&Load Script\tCtrl-L",
 			helpString = "Load and execute a Python script"
 		)
 		menu_file.Append(menu_load)
 		menu_export = wx.MenuItem(
-			menu_file, id = wx.NewId(),
+			menu_file, id = wx.ID_ANY,
 			text = "&Export Image\tCtrl-S",
 			helpString = "Export the board as an image"
 		)
 		menu_file.Append(menu_export)
 		menu_quit = wx.MenuItem(
-			menu_file, id = wx.NewId(),
+			menu_file, id = wx.ID_ANY,
 			text = "&Quit\tAlt-F4",
 			helpString = "Quit the application"
 		)
@@ -289,55 +356,55 @@ class frame_main(wx.Frame):
 
 		#add items to menu_edit
 		menu_undo = wx.MenuItem(
-			menu_edit, id = wx.NewId(),
+			menu_edit, id = wx.ID_ANY,
 			text = "&Undo\tCtrl+Z",
 			helpString = "Undo the latest change"
 		)
 		menu_edit.Append(menu_undo)
 		menu_redo = wx.MenuItem(
-			menu_edit, id = wx.NewId(),
+			menu_edit, id = wx.ID_ANY,
 			text = "&Redo\tCtrl+Y",
 			helpString = "Redo the latest change"
 		)
 		menu_edit.Append(menu_redo)
 		menu_transform = wx.Menu()
-		menu_edit.Append(wx.NewId(), "&Transform", menu_transform)
+		menu_edit.AppendSubMenu(menu_transform, "&Transform")
 		menu_clear = wx.Menu()
-		menu_edit.Append(wx.NewId(), "&Clear", menu_clear)
+		menu_edit.AppendSubMenu(menu_clear, "&Clear")
 
 		#add items to menu_transform
 		menu_mirror_h = wx.MenuItem(
-			menu_transform, id = wx.NewId(),
+			menu_transform, id = wx.ID_ANY,
 			text = "Mirror &Horrizontally\tAlt+H"
 		)
 		menu_mirror_h.num = 0
 		menu_transform.Append(menu_mirror_h)
 		menu_mirror_v = wx.MenuItem(
-			menu_transform, id = wx.NewId(),
+			menu_transform, id = wx.ID_ANY,
 			text = "Mirror &Vertically\tAlt+V"
 		)
 		menu_mirror_v.num = 1
 		menu_transform.Append(menu_mirror_v)
 		menu_reflect = wx.MenuItem(
-			menu_transform, id = wx.NewId(),
+			menu_transform, id = wx.ID_ANY,
 			text = "&Reflect\tAlt+R"
 		)
 		menu_reflect.num = 2
 		menu_transform.Append(menu_reflect)
 		menu_rotate_r = wx.MenuItem(
-			menu_transform, id = wx.NewId(),
+			menu_transform, id = wx.ID_ANY,
 			text = "Rotate &Clockwise\tAlt+C"
 		)
 		menu_rotate_r.num = 3
 		menu_transform.Append(menu_rotate_r)
 		menu_rotate_l = wx.MenuItem(
-			menu_transform, id = wx.NewId(),
+			menu_transform, id = wx.ID_ANY,
 			text = "Rotate Coun&terclockwise\tAlt+T"
 		)
 		menu_rotate_l.num = 4
 		menu_transform.Append(menu_rotate_l)
 		menu_reverse = wx.MenuItem(
-			menu_transform, id = wx.NewId(),
+			menu_transform, id = wx.ID_ANY,
 			text = "Rever&se\tAlt+S"
 		)
 		menu_reverse.num = 5
@@ -345,38 +412,38 @@ class frame_main(wx.Frame):
 
 		#add items to menu_clear
 		menu_clear_term = wx.MenuItem(
-			menu_clear, id = wx.NewId(),
+			menu_clear, id = wx.ID_ANY,
 			text = "Clear Terminal"
 		)
 		menu_clear.Append(menu_clear_term)
 		menu_clear_log = wx.MenuItem(
-			menu_clear, id = wx.NewId(),
+			menu_clear, id = wx.ID_ANY,
 			text = "Clear Log"
 		)
 		menu_clear.Append(menu_clear_log)
 
 		#add items to menu_analyze
 		menu_search = wx.MenuItem(
-			menu_analyze, id = wx.NewId(),
+			menu_analyze, id = wx.ID_ANY,
 			text = "Search\tCtrl+A",
 		)
 		menu_analyze.Append(menu_search)
 		menu_choice = wx.MenuItem(
-			menu_analyze, id = wx.NewId(),
+			menu_analyze, id = wx.ID_ANY,
 			text = "Show Choices\tCtrl+E",
 		)
 		menu_analyze.Append(menu_choice)
 		menu_pv = wx.MenuItem(
-			menu_analyze, id = wx.NewId(),
+			menu_analyze, id = wx.ID_ANY,
 			text = "Show &Principle Variation\tCtrl+P",
 		)
 		menu_analyze.Append(menu_pv)
 
 		#add items to menu_setting
 		self.menu_algorithm = wx.Menu()
-		menu_setting.Append(wx.NewId(), "&Algorithm", self.menu_algorithm)
+		menu_setting.AppendSubMenu(self.menu_algorithm, "&Algorithm")
 		self.menu_level = wx.Menu()
-		menu_setting.Append(wx.NewId(), "&Level", self.menu_level)
+		menu_setting.AppendSubMenu(self.menu_level, "&Level")
 
 		#add items to menu_algorithm
 		alg_table = [
@@ -396,7 +463,7 @@ class frame_main(wx.Frame):
 		]
 		for i in range(len(alg_table)):
 			menu_alg = wx.MenuItem(
-				self.menu_algorithm, id = wx.NewId(),
+				self.menu_algorithm, id = wx.ID_ANY,
 				text = alg_text_table[i],
 				kind = wx.ITEM_CHECK
 			)
@@ -405,13 +472,13 @@ class frame_main(wx.Frame):
 			self.menu_algorithm.Append(menu_alg)
 			if alg_table[i] & mthd_default:
 				menu_alg.Check(True)
-		self.menu_algorithm.Insert(1, wx.NewId(), kind = wx.ITEM_SEPARATOR)
+		self.menu_algorithm.Insert(1, wx.ID_ANY, kind = wx.ITEM_SEPARATOR)
 
 		#add items to menu_level
 		for i in range(10):
 			self.menu_level.Append(
 				wx.MenuItem(
-					self.menu_level, id = wx.NewId(),
+					self.menu_level, id = wx.ID_ANY,
 					text = "Level %d" % (i + 1),
 					kind = wx.ITEM_CHECK
 				)
@@ -420,7 +487,7 @@ class frame_main(wx.Frame):
 
 		#add items to menu_help
 		menu_about = wx.MenuItem(
-			menu_help, id = wx.NewId(),
+			menu_help, id = wx.ID_ANY,
 			text = "&About\tF1",
 			helpString = "Show info about this application"
 		)
@@ -436,7 +503,6 @@ class frame_main(wx.Frame):
 		sizer_base.SetSizeHints(self)
 
 		#bind interaction events
-		self.text_input.Bind(wx.EVT_TEXT_ENTER, self.on_text_input_textenter)
 		self.choice_black.Bind(wx.EVT_CHOICE, self.on_choice_player)
 		self.text_path_black.Bind(wx.EVT_TEXT_ENTER, self.on_text_path_enter)
 		self.button_folder_black.Bind(wx.EVT_BUTTON, self.on_button_folder_click)
@@ -472,9 +538,49 @@ class frame_main(wx.Frame):
 		#redirect iostream
 		self.stdout_save = sys.stdout
 		self.stderr_save = sys.stderr
-		sys.stdout = self.text_term
-		sys.stderr = self.text_term
-		self.term_data = {}
+		
+		class redirect:
+			frame = self
+			color_map = {
+				"\033[0;30m": wx.Colour(46,52,54),
+				"\033[1;30m": wx.Colour(85,87,83),
+				"\033[0;31m": wx.Colour(204,0,0),
+				"\033[1;31m": wx.Colour(239,41,41),
+				"\033[0;32m": wx.Colour(78,154,6),
+				"\033[1;32m": wx.Colour(138,226,52),
+				"\033[0;33m": wx.Colour(196,160,0),
+				"\033[1;33m": wx.Colour(252,233,79),
+				"\033[0;34m": wx.Colour(52,101,164),
+				"\033[1;34m": wx.Colour(114,159,207),
+				"\033[0;35m": wx.Colour(117,80,123),
+				"\033[1;35m": wx.Colour(173,127,168),
+				"\033[0;36m": wx.Colour(6,152,154),
+				"\033[1;36m": wx.Colour(52,226,226),
+				"\033[0;37m": wx.Colour(211,215,207),
+				"\033[1;37m": wx.Colour(238,238,236),
+			}
+
+			def write(self, s):
+				ptn_color = r"\x1b\[[01](?:;[0-9]+)?m"
+				g = re.finditer(ptn_color, s)
+				pos1 = 0
+				for i in g:
+					self.frame.text_term.AppendText(s[pos1:i.span()[0]])
+					color = i.group()
+					if color in self.color_map:
+						color = self.color_map[color]
+						self.frame.text_term.SetDefaultStyle(wx.TextAttr(color))
+					else:
+						self.frame.text_term.SetDefaultStyle(wx.TextAttr(wx.Colour(200,200,200)))
+					pos1 = i.span()[1]
+				self.frame.text_term.AppendText(s[pos1:])
+			def flush(self):
+				pass
+
+		self.obj_redirect = redirect()
+
+		sys.stdout = self.obj_redirect
+		sys.stderr = self.obj_redirect
 
 		#show the frame
 		self.Show(True)
@@ -482,21 +588,38 @@ class frame_main(wx.Frame):
 
 		self.thrd_lock = False
 
+	def print_console(self, s):
+		self.stdout_save.write(s)
+
 	#process command
 	def process(self, s):
 		if self.thrd_lock:
 			return
-		self.text_term.AppendText(">>" + s + "\n")
+		print("\033[1;32m>>\033[0m" + s)
 
-		time_start = time.time()
-		exec(s, globals(), self.term_data)
-		time_end = time.time()
+		if s[0] == "%":
+			time_start = time.time()
+			result = ipshell.magic(s)
+			if result:
+				print(result)
+			time_end = time.time()
+		else:
+			query = re.search(r"[_0-9a-zA-Z.]+\?", s)
+			if query:
+				time_start = time.time()
+				result = ipshell.magic("pinfo " + query.group()[:-1])
+				time_end = time.time()
+			else:
+				query = re.search(r"[_0-9a-zA-Z.]+\?\?", s)
+				if query:
+					time_start = time.time()
+					result = ipshell.magic("pinfo2 " + query.group()[:-1])
+					time_end = time.time()
+				time_start = time.time()
+				ipshell.ex(s)
+				time_end = time.time()
 
 		self.statusbar.SetStatusText("Wall time : %f seconds" % (time_end - time_start), 2)
-
-	#input command
-	def on_text_input_textenter(self, event):
-		self.process(self.text_input.GetValue())
 
 	def on_quit(self, event):
 		self.Close()
@@ -519,7 +642,7 @@ class frame_main(wx.Frame):
 		lines = fobj.readlines()
 		fobj.close()
 		lines = "\n".join(lines)
-		exec(lines, globals(), self.term_data)
+		ipshell.ex(s)
 		return True
 
 	#load and execute a script
@@ -643,8 +766,8 @@ class frame_main(wx.Frame):
 			self.process("mygame.reverse()")
 
 	def on_search(self, event):
-		self.process("pos = mygame.search(mygame.mthd, mygame.color, mygame.depth)")
-		self.process("print(pos)")
+		self.process("value = mygame.search(mygame.mthd, mygame.color, mygame.depth)")
+		self.process("print(value)")
 
 	def on_choice(self, event):
 		self.process("choices = mygame.get_choice(mygame.mthd, mygame.color, mygame.depth)")
@@ -715,7 +838,7 @@ class frame_main(wx.Frame):
 
 	def thrd_wrap(self,fun,param):
 		try:
-			result = fun(*param)
+			fun(*param)
 		except:
 			print("fail to launch the thread!")
 			self.thrd_lock = False
