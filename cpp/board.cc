@@ -156,18 +156,18 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 	}
 
 	return *max_element(
-		choices.begin(),choices.end(),
-		[](const choice& c1,const choice& c2) -> bool{
+		choices.begin(), choices.end(),
+		[](const choice& c1, const choice& c2) -> bool{
 			return c1.rnd_val < c2.rnd_val;
 		}
 	);
 }
 
-coordinate board::play(cmethod mthd, cbool color, cshort depth){
+choice board::play(cmethod mthd, cbool color, cshort depth){
 
 	vector<choice> choices = get_choice(mthd,color,depth);
 	if(choices.empty()){
-		return coordinate(-1,-1);
+		return choice{board(), 0, 0, -1};
 	}else{
 		choice best;
 		if(mthd == mthd_rnd){
@@ -180,9 +180,9 @@ coordinate board::play(cmethod mthd, cbool color, cshort depth){
 			}else{
 				variation = 0.3;
 			}
-			best = select_choice(choices,variation);
+			best = select_choice(choices, variation);
 		}
 		flip(color,best.pos);
-		return coordinate(best.pos);
+		return best;
 	}
 }

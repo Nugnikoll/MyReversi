@@ -118,7 +118,6 @@ class game:
 		self.app = app
 		self.frame = app.frame
 		self.panel_board = self.frame.panel_board
-		self.dc = wx.ClientDC(self.frame.panel_board)
 		self.text_log = self.frame.text_log
 
 		self.brd = rv.board(0, 0)
@@ -143,7 +142,7 @@ class game:
 
 	def show(self, dc = None):
 		if dc is None:
-			dc = self.dc
+			dc = wx.ClientDC(self.frame.panel_board)
 		dc.Clear()
 		
 		#draw a board
@@ -222,7 +221,7 @@ class game:
 					color = False
 
 	def mark(self, brd):
-		dc = self.dc
+		dc = wx.ClientDC(self.frame.panel_board)
 		dc.SetPen(wx.Pen(wx.Colour(0,0,230), thick))
 		for i in range(rv.board.size2):
 			if brd & (1 << i):
@@ -506,8 +505,11 @@ class game:
 
 		self.push()
 		(mthd, depth) = self.process_method(mthd, depth)
-		pos = self.brd.play(mthd, color, depth)
-		pos = (pos.x, pos.y)
+		pos = self.brd.play(mthd, color, depth).pos
+		if pos >= 0:
+			pos = (pos & 7, pos >> 3)
+		else:
+			pos = (-1, -1)
 		if pos[0] >= 0:
 			self.print_log(
 				"place a " + ("black" if color else "white")

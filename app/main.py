@@ -836,15 +836,15 @@ class frame_main(wx.Frame):
 	def thrd_catch(self, event):
 		self.thrd_lock = False
 
-	def thrd_wrap(self,fun,param):
+	def thrd_wrap(self, fun, param):
 		try:
 			fun(*param)
 		except:
 			print("fail to launch the thread!")
 			self.thrd_lock = False
-		wx.PostEvent(self,thrd_event(None))
+		wx.PostEvent(self, thrd_event(None))
 
-	def sleep(self,count):
+	def sleep(self, count):
 		time.sleep(count)
 		print("sleep for %d seconds" % count)
 

@@ -31,23 +31,6 @@ using namespace std;
 #include "type.h"
 #include "asm.h"
 
-struct coordinate{
-	coordinate(): x(-1), y(-1){}
-	coordinate(cpos_type _x, cpos_type _y): x(_x),y(_y){}
-	coordinate(cpos_type pos): x(pos & 7), y(pos >> 3){}
-
-	pos_type x;
-	pos_type y;
-
-	pos_type to_pos()const{
-		return (y << 3) | x;
-	}
-	bool check()const{
-		return x >= 0 && x < 8 && y >= 0 && y < 8;
-	}
-};
-typedef const coordinate& ccoordinate;
-
 namespace std{
 	template <>
 	struct hash<board>;
@@ -1146,7 +1129,7 @@ public:
 	 */
 	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
 
-	/** @fn val_type coordinate play(cmethod mthd, cbool color, cshort depth = -1)
+	/** @fn pos_type play(cmethod mthd, cbool color, cshort depth = -1)
 	 * @brief perform a search and make a move.
 	 * @param mthd the method
 	 * @param color whether it's black's turn
@@ -1161,7 +1144,7 @@ public:
 	 * mthd_end can only be added if depth is equal to the number of empty cells on the board.
 	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
 	 */
-	coordinate play(cmethod mthd, cbool color, cshort depth = -1);
+	choice play(cmethod mthd, cbool color, cshort depth = -1);
 
 	/** @fn sts_type get_status(cbool color)
 	 * @brief get the status of the board

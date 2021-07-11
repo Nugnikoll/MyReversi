@@ -29,24 +29,24 @@ board random_transform(board brd){
 void sample_gen(ARRAY_2D_OUT_M(ULL), cint n){
 	unordered_set<board> brds;
 	board brd, brd_save;
-	coordinate pos1, pos2;
+	pos_type pos1, pos2;
 
 	for(int i = 0;i != n;++i){
 		brd.initial();
 		do{
 			brd_save = brd;
-			pos1 = brd.play(mthd_rnd, true, 0);
-			if(pos1.x >= 0){
+			pos1 = brd.play(mthd_rnd, true, 0).pos;
+			if(pos1 >= 0){
 				brds.insert(brd_save);
 			}
 
 			brd_save = brd;
-			pos2 = brd.play(mthd_rnd, false, 0);
-			if(pos2.x >= 0){
+			pos2 = brd.play(mthd_rnd, false, 0).pos;
+			if(pos2 >= 0){
 				brd_save.reverse();
 				brds.insert(brd_save);
 			}
-		}while(pos1.x >= 0 || pos2.x >= 0);
+		}while(pos1 >= 0 || pos2 >= 0);
 	}
 
 	*m1 = brds.size();
@@ -65,26 +65,26 @@ void sample_pos_gen(ARRAY_2D_OUT_M(ULL), cint n){
 	using map_pair = pair<board, brd_pair>;
 	unordered_map<board, brd_pair> brds;
 	board brd, brd_save;
-	coordinate pos1, pos2;
+	pos_type pos1, pos2;
 
 	for(int i = 0;i != n;++i){
 		brd.initial();
 		do{
 			brd_save = brd;
-			pos1 = brd.play(mthd_rnd, true, 0);
-			if(pos1.x >= 0){
-				brds.insert(map_pair(brd_save, brd_pair(brd, pos1.x | (pos1.y << 3))));
+			pos1 = brd.play(mthd_rnd, true, 0).pos;
+			if(pos1 >= 0){
+				brds.insert(map_pair(brd_save, brd_pair(brd, pos1 | (pos1 << 3))));
 			}
 
 			brd_save = brd;
-			pos2 = brd.play(mthd_rnd, false, 0);
-			if(pos2.x >= 0){
+			pos2 = brd.play(mthd_rnd, false, 0).pos;
+			if(pos2 >= 0){
 				brd_save.reverse();
 				board temp = brd;
 				temp.reverse();
-				brds.insert(map_pair(brd_save, brd_pair(temp, pos2.x | (pos2.y << 3))));
+				brds.insert(map_pair(brd_save, brd_pair(temp, pos2 | (pos2 << 3))));
 			}
-		}while(pos1.x >= 0 || pos2.x >= 0);
+		}while(pos1 >= 0 || pos2 >= 0);
 	}
 
 	*m1 = brds.size();

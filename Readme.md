@@ -21,6 +21,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 	- [NumPy](http://www.numpy.org/)
 	- [CMake](https://cmake.org/) >= 3.14
 	- [wxPython](https://www.wxpython.org/)  
+	- [IPython](https://ipython.org/)
 	Please make sure that the directory of python3, swig and cmake has been appended to the environment variable PATH.
 
 - Build the library for reversi  
