@@ -151,7 +151,7 @@ void benchmark_flip(ARRAY_2D_OUT_M(ULL), ARRAY_2D_IN_I(ULL)){
 	*ptrm = new ull[*m1 * *m2];
 
 	for(int i = 0; i != i1; ++i){
-		board brd(ptri[i * 5 + 1], ptri[i * 5]);
+		board brd(ptri[i * 5], ptri[i * 5 + 1]);
 		short pos = ptri[i * 5 + 2];
 		brd.flip(true, pos);
 		(*ptrm)[i * 2] = brd.get_brd(false);

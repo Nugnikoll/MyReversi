@@ -72,12 +72,12 @@ public:
 	 */
 	board(const board& brd) = default;
 
-	/** @fn board(cull _brd_black, cull _brd_white)
+	/** @fn board(cull _brd_white, cull _brd_black)
 	 * @brief A constructor of class board
-	 * @param _brd_black the value of the 64-bit board of black stones
 	 * @param _brd_white the value of the 64-bit board of white stones
+	 * @param _brd_black the value of the 64-bit board of black stones
 	 */
-	board(cull _brd_black, cull _brd_white)
+	board(cull _brd_white, cull _brd_black)
 		: brd_white(_brd_white), brd_black(_brd_black){}
 
 	/** @fn board(ARRAY_1D_IN_I(unsigned long long))
@@ -178,21 +178,21 @@ public:
 		}
 	}
 
-	/** @fn void board& assign(cull _brd_black,cull _brd_white)
+	/** @fn void board& assign(cull _brd_white, cull _brd_black)
 	 * @brief assign the board to some specific value
+	 * @param _brd_white the value of the 64-bit board of white stones
 	 * @param _brd_black the value of the 64-bit board of black stones
-	 * @param _brd_black the value of the 64-bit board of white stones
 	 */
-	void assign(cull _brd_black, cull _brd_white){
-		brd_black = _brd_black;
+	void assign(cull _brd_white, cull _brd_black){
 		brd_white = _brd_white;
+		brd_black = _brd_black;
 	}
 
 	/** @fn board& initial()
 	 * @brief initialize the board
 	 */
 	void initial(){
-		return this->assign(0x0000000810000000,0x0000001008000000);
+		this->assign(0x0000001008000000, 0x0000000810000000);
 	}
 
 	/** @fn cull get_brd(cbool color)const

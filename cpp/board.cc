@@ -165,7 +165,7 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 
 choice board::play(cmethod mthd, cbool color, cshort depth){
 
-	vector<choice> choices = get_choice(mthd,color,depth);
+	vector<choice> choices = get_choice(mthd, color, depth);
 	if(choices.empty()){
 		return choice{board(), 0, 0, -1};
 	}else{

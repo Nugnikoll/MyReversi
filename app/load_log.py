@@ -25,7 +25,7 @@ def load_node(fobj):
 	ptr = node_log()
 	brd_white = int.from_bytes(fobj.read(8), "little")
 	brd_black = int.from_bytes(fobj.read(8), "little")
-	ptr.brd = rv.board(brd_black, brd_white)
+	ptr.brd = rv.board(brd_white, brd_black)
 	ptr.color = int.from_bytes(fobj.read(1), "little")
 	fobj.read(1)
 	ptr.height = int.from_bytes(fobj.read(2), "little")

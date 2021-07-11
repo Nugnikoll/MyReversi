@@ -96,7 +96,7 @@ def format_brd(brd):
 	if tp is tuple:
 		return rv.board(brd[0], brd[1])
 	if tp is rv.board:
-		return brd
+		return rv.board(brd)
 	if tp is np.array:
 		return rv.board(brd)
 
@@ -235,10 +235,7 @@ class game:
 			self.choices = None
 		if not show_pv:
 			self.pv = None
-		#self.panel_board.Refresh()
 		wx.PostEvent(self.panel_board, wx.PaintEvent())
-		#evt = wx.PaintEvent(self.panel_board.GetId());
-		#self.panel_board.GetEventHandler().ProcessEvent(evt);
 
 	def print_log(self, s):
 		self.text_log.AppendText(s)
