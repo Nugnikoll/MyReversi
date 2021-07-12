@@ -20,15 +20,12 @@ struct node{
 		count(0), win_white(0), win_black(0), value(_value), bound(0){}
 
 	void destroy(){
-		if(this){
+		if(sibling){
 			sibling->destroy();
-			child->destroy();
-			delete this;
 		}
-	}
-
-	void destroy_child(){
-		child->destroy();
+		if(child){
+			child->destroy();
+		}
 	}
 
 	void load(const string& str){

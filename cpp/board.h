@@ -72,6 +72,12 @@ public:
 	 */
 	board(const board& brd) = default;
 
+	/** @fn board(board&& brd)
+	 * @brief The default move constructor of class board
+	 * @param brd
+	 */
+	board(board&& brd) = default;
+
 	/** @fn board(cull _brd_white, cull _brd_black)
 	 * @brief A constructor of class board
 	 * @param _brd_white the value of the 64-bit board of white stones
@@ -107,6 +113,17 @@ public:
 			brd_black |= ull(ptri[i + size2]) << i;
 		}
 	}
+
+	/** @fn board& operator=(const board& brd) = default;
+	 * @brief The default copy assignment operator of class board
+	 * @param brd
+	 */
+	board& operator=(const board& brd) = default;
+	/** @fn board& operator=(board&& brd) = default;
+	 * @brief The default move assignment operator of class board
+	 * @param brd
+	 */
+	board& operator=(board&& brd) = default;
 
 	friend bool operator==(const board& b1, const board& b2){
 		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
@@ -364,11 +381,11 @@ public:
 			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
 	}
 
-	/** @fn static void count(ull& brd)
+	/** @fn static pos_type count(ull& brd)
 	 * @brief count the number of bit which are set in a 64-bit board
 	 * @param brd the 64-bit board
 	 */
-	static pos_type count(cull brd){
+	static short count(cull brd){
 		ull result;
 
 		#ifdef USE_ASM
@@ -457,7 +474,7 @@ public:
 	/** @fn pos_type sum()const
 	 * @brief count the number of stones
 	 */
-	pos_type sum()const{
+	short sum()const{
 		return count(brd_black | brd_white);
 	}
 
@@ -989,7 +1006,7 @@ public:
 	 * @param color whether it's black's turn
 	 */
 	val_type score_end(cbool color)const{
-		val_type num_diff = count(color) - count(!color);
+		short num_diff = count(color) - count(!color);
 
 		if(num_diff > 0){
 			return num_diff + 2;
@@ -1129,7 +1146,7 @@ public:
 	 */
 	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
 
-	/** @fn pos_type play(cmethod mthd, cbool color, cshort depth = -1)
+	/** @fn choice play(cmethod mthd, cbool color, cshort depth = -1)
 	 * @brief perform a search and make a move.
 	 * @param mthd the method
 	 * @param color whether it's black's turn
@@ -1145,6 +1162,14 @@ public:
 	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
 	 */
 	choice play(cmethod mthd, cbool color, cshort depth = -1);
+
+	/** @fn board play_out(cmethod mthd, cbool color, cshort depth = -1)
+	 * @brief play to the end.
+	 * @param mthd the method
+	 * @param color whether it's black's turn
+	 * @param depth the depth of the search tree
+	 */
+	void play_out(cmethod mthd, bool color, cshort depth = -1);
 
 	/** @fn sts_type get_status(cbool color)
 	 * @brief get the status of the board

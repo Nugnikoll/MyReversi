@@ -182,7 +182,21 @@ choice board::play(cmethod mthd, cbool color, cshort depth){
 			}
 			best = select_choice(choices, variation);
 		}
-		flip(color,best.pos);
+		flip(color, best.pos);
 		return best;
+	}
+}
+
+void board::play_out(cmethod mthd, bool color, cshort depth){
+	board brd = *this;
+	bool flag = true, flag_next = true;
+	pos_type pos;
+
+	while(flag || flag_next){
+		pos = play(mthd, color, depth).pos;
+		color = !color;
+		flag = flag_next;
+		flag_next = (pos >= 0);
+		brd = *this;
 	}
 }
