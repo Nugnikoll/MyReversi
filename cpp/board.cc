@@ -193,7 +193,8 @@ void board::play_out(cmethod mthd, bool color, cshort depth){
 	pos_type pos;
 
 	while(flag || flag_next){
-		pos = play(mthd, color, depth).pos;
+		auto p_mthd = process_method(mthd, depth);
+		pos = play(p_mthd.first, color, p_mthd.second).pos;
 		color = !color;
 		flag = flag_next;
 		flag_next = (pos >= 0);

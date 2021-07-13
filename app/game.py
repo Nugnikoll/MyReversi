@@ -235,7 +235,9 @@ class game:
 			self.choices = None
 		if not show_pv:
 			self.pv = None
-		wx.PostEvent(self.panel_board, wx.PaintEvent())
+		# wx.PostEvent(self.panel_board, wx.PaintEvent())
+		evt = wx.PaintEvent(self.panel_board.GetId())
+		self.panel_board.GetEventHandler().ProcessEvent(evt)
 
 	def print_log(self, s):
 		self.text_log.AppendText(s)
@@ -416,50 +418,8 @@ class game:
 		return self.brd.score(color)
 
 	def process_method(self, mthd, depth):
-		result = [mthd, depth]
-		total = self.brd.sum()
-
-		if result[0] == rv.mthd_rnd:
-			return result
-
-		if result[1] == -1:
-			if total <= 7:
-				result[1] = 10
-			elif total <= 10:
-				result[1] = 9
-			elif total <= rv.board.size2 - 22:
-				result[1] = 8
-			elif total <= rv.board.size2 - 15:
-				result[1] = 9
-			else:
-				result[1] = 20
-		elif result[1] == -2:
-			if total <= 7:
-				result[1] = 10
-			elif total <= 10:
-				result[1] = 10
-			elif total <= rv.board.size2 - 24:
-				result[1] = 9
-			elif total <= rv.board.size2 - 16:
-				result[1] = 10
-			else:
-				result[1] = 20
-		elif result[1] <= -3:
-			if total <= 7:
-				result[1] = 11
-			elif total <= 10:
-				result[1] = 11
-			elif total <= rv.board.size2 - 24:
-				result[1] = 10
-			elif total <= rv.board.size2 - 16:
-				result[1] = 11
-			else:
-				result[1] = 20
-		if result[1] >= rv.board.size2 - total:
-			result[0] |= rv.mthd_end
-			result[1] = rv.board.size2 - total
-
-		return result
+		p_method = self.brd.process_method(mthd, depth)
+		return p_method.first, p_method.second
 
 	def search(self, mthd = None, color = None, depth = -1, alpha = rv._inf, beta = rv.inf):
 		if mthd is None:
