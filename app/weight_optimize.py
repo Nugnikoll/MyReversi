@@ -16,7 +16,7 @@ parser.add_argument("--path-save", type = str, default = "./weight.dat", help = 
 parser.add_argument("--epoch", type = int, default = 400, help = "the number of epochs to run (default: 400)")
 args = parser.parse_args()
 
-mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_mtdf
+mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf
 
 rv.board.config()
 rv.pattern.config()

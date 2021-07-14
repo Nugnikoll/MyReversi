@@ -16,7 +16,7 @@ parser.add_argument("--path-save", type = str, default = "./pattern.dat", help =
 parser.add_argument("--epoch", type = int, default = 400, help = "the number of epochs to run (default: 400)")
 args = parser.parse_args()
 
-mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_mtdf
+mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf
 
 rv.board.config()
 rv.pattern.config()
@@ -36,8 +36,8 @@ if sample is None:
 	print("sample not found")
 	exit()
 print("sample shape", sample.shape)
-if not play_score is None:
-	target = play_score
+# if not play_score is None:
+	# target = play_score
 if target is None:
 	print("target not found")
 	exit()

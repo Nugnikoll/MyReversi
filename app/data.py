@@ -52,9 +52,10 @@ def load_npy_list(fobj, name_list):
 		if not "name" in item or not "type" in item or item["type"] != "npy":
 			break
 		name = item["name"]
+		data = np.load(fobj)
 		if not name in name_map:
 			continue
-		name_map[name] = np.load(fobj)
+		name_map[name] = data
 
 	return get_result()
 

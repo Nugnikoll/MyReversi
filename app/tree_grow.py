@@ -31,7 +31,6 @@ log_interval = args.log_interval
 save_interval = args.save_interval
 
 rv.board.config()
-rv.pattern.config()
 rv.pattern.config("../data/pattern.dat")
 
 brd = rv.board()

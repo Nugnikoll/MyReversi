@@ -104,12 +104,10 @@ void sample_pos_gen(ARRAY_2D_OUT_M(ULL), cint n){
 void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
 	unordered_set<board> brds;
 	board brd;
-	uniform_int_distribution<int> dist(5, 63);
-	int rnd;
+	int m = 5;
 	bool color;
 
 	while((int)brds.size() < n){
-		rnd = dist(engine);
 		brd.initial();
 		color = true;
 		while(true){
@@ -117,16 +115,23 @@ void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
 			if(brd.get_move(!color)){
 				color = !color;
 			}
-			if(brd.sum() >= rnd || not brd.get_move(color)){
-				if(color){
+			if(brd.sum() >= m){
+				if(!color){
 					brd.reverse();
 				}
 				brds.insert(brd);
 				break;
 			}
+			if(!brd.get_move(color)){
+				break;
+			}
 		}
 		if(flag_verbose && brds.size() % 1000 == 0){
 			cout << "\rfinish " << brds.size() << "/" << n;
+		}
+		++m;
+		if(m >= 64){
+			m = 5;
 		}
 	}
 	if(flag_verbose){

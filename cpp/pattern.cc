@@ -620,11 +620,15 @@ void pattern::balance(){
 	#pragma GCC diagnostic pop
 #endif
 
-void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height, cbool flag_verbose){
+void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort depth, cbool flag_verbose){
 	*m1 = i1;
 	*ptrm = new val_type[i1];
 	for(int i = 0; i != i1; ++i){
-		(*ptrm)[i] = ((board*)(ptri + i * 2))->search(mthd, true, height);
+		board* ptr_brd = (board*)(ptri + i * 2);
+		auto p_mthd = ptr_brd->process_method(mthd, depth);
+		//ptr_brd->print();
+		//cout << ptr_brd->sum() << " " << int(p_mthd.first) << " " << int(p_mthd.second) << endl;
+		(*ptrm)[i] = ptr_brd->search(p_mthd.first, true, p_mthd.second);
 		if(flag_verbose && i % 100 == 0){
 			cout << "\rfinish " << i << "/" << i1;
 		}
