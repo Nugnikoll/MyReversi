@@ -25,6 +25,13 @@ constexpr ull cpopcnt(ull brd){
 	const ull shift_##id = cpopcnt(mask); \
 	const ull bias_##id = next_bias(id_prev);
 
+constexpr const int ptn_cnt = 13;
+constexpr const char ptn_name[ptn_cnt][3] = {
+	"a1", "a2", "a3", "a4",
+	"b1", "b2", "b3", "b4", "b5",
+	"c1", "c2",
+};
+
 /*
 # # # # # # # #
 

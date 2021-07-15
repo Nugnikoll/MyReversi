@@ -9,7 +9,7 @@ RM = rm -f
 
 INC = 
 CFLAGS = 
-CXXFLAGS = -Wall -std=c++11 -O2 -DUSE_ASM -DUSE_ASM_BMI2 -DUSE_ASM_AVX2 -DUSE_TERMINATE
+CXXFLAGS = -Wall -std=c++17 -O2 -DUSE_ASM -DUSE_ASM_BMI2 -DUSE_ASM_AVX2 -DUSE_TERMINATE
 RESINC = 
 LIBDIR = 
 LIB = 
@@ -24,7 +24,7 @@ SRC = $(wildcard $(SRCDIR)*.cc) main.cc
 OBJ = $(patsubst %.cc, %.o, $(patsubst $(SRCDIR)%, $(OBJDIR)%, $(SRC)))
 OUT = $(OUTDIR)$(name)
 
-get_depend = $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(1) | awk -f parse.awk))
+get_depend = $(wordlist 2,100,$(shell g++ -std=c++17 -MM $(1) | awk -f parse.awk))
 
 .PHONY: all online offline clean before
 

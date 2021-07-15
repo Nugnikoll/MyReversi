@@ -157,4 +157,12 @@ enum player_type{
 #define ARRAY_3D_OUT_O(TYPE) TYPE** ptro, int* o1, int* o2, int* o3
 #define ARRAY_3D_OUT_M(TYPE) TYPE** ptrm, int* m1, int* m2, int* m3
 
+#if defined(__GNUC__)
+	#define likely(x) (__builtin_expect(!!(x), 1))
+	#define unlikely(x) (__builtin_expect(!!(x), 0))
+#else
+	#define likely(x) (x)
+	#define unlikely(x) (x)
+#endif
+
 #endif //TYPE_H

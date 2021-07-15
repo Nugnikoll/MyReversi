@@ -16,7 +16,7 @@
 #ifdef USE_TERMINATE
 	bool flag_timeout = false;
 	#define CHECK_TIME \
-		if(flag_timeout){ \
+		if(unlikely(flag_timeout)) { \
 			throw(timeout_exception()); \
 		}
 #else
@@ -358,11 +358,11 @@ val_type board::search(cbool color, cshort depth, val_type alpha, val_type beta,
 	auto fun = [&]()->val_type{
 	#endif
 
-	if(mthd == mthd_rnd){
+	if constexpr(mthd == mthd_rnd){
 
 		return 0;
 
-	}else if(mthd & mthd_end && (depth == 5)){
+	}else if unlikely(mthd & mthd_end && (depth == 5)){
 		return this->template search_end_five<mthd>(color, alpha, beta, flag_pass);
 	}else{
 
@@ -392,7 +392,7 @@ val_type board::search(cbool color, cshort depth, val_type alpha, val_type beta,
 
 		if(flag_hash){
 			slt = &bkt.probe(key);
-			if(*this == slt->brd){
+			if unlikely(*this == slt->brd){
 				if(depth == slt->depth){
 					if(alpha >= slt->beta){
 						return slt->beta;
@@ -481,7 +481,7 @@ val_type board::search(cbool color, cshort depth, val_type alpha, val_type beta,
 			fun_tzcnt(brd_move, pos);
 		}
 
-		if(ptr != vec){
+		if likely(ptr != vec){
 
 			if(flag_kill){
 				make_heap(vec,ptr,
@@ -496,26 +496,26 @@ val_type board::search(cbool color, cshort depth, val_type alpha, val_type beta,
 				brd.flip(color,p->pos);
 
 				if(flag_pvs){
-					if(p != vec){
-						temp = - brd.template search<mthd_de_pvs>(!color,depth - 1,-alpha - epsilon,-alpha);
-						if(temp > alpha && temp < beta)
-							temp = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
+					if likely(p != vec){
+						temp = - brd.template search<mthd_de_pvs>(!color, depth - 1, - (alpha + epsilon), -alpha);
+						if(temp > alpha + epsilon && temp < beta)
+							temp = - brd.template search<mthd>(!color, depth - 1, -beta, -alpha);
 					}else{
-						temp = - brd.template search<mthd>(!color,depth - 1,-beta,-alpha);
+						temp = - brd.template search<mthd>(!color, depth - 1, -beta, -alpha);
 					}
 				}else{
-					temp = - brd.template search<mthd_de_pvs>(!color,depth - 1,-beta,-alpha);
+					temp = - brd.template search<mthd_de_pvs>(!color, depth - 1, -beta, -alpha);
 				}
 				if(flag_kill){
 					ptr_val[p->pos] = temp;
 				}
-				if(temp >= beta){
+				if unlikely(temp >= beta){
 					if(flag_hash){
 						slt->save(slot{*this, temp, inf, depth, (short)p->pos});
 					}
 					return temp;
 				}
-				if(temp > result){
+				if unlikely(temp > result){
 					result = temp;
 					if(flag_hash){
 						best_pos = p->pos;
