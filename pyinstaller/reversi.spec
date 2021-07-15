@@ -1,5 +1,8 @@
 # -*- mode: python  coding: utf-8 -*-
 
+# freeze the python application into a stand-alone executable
+# https://www.pyinstaller.org/
+
 import sys
 import os
 import shutil

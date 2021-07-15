@@ -494,7 +494,6 @@ public:
 	 * @param color whether it is black's turn
 	 * This part of code is brought from Zebra.
 	 * I rewrite it in 64-bit style.
-	 * If macro USE_ASM_AVX2 is defined, AVX2 instructions will be used.
 	 */
 	ull get_move(cbool color)const{
 
@@ -503,6 +502,8 @@ public:
 		ull brd_green_inner;
 		ull moves;
 
+	// don't know why my AVX2 assembly is slower
+	// I expect it to be as four times fast as ordinary version
 		#if 0 // defined(USE_ASM_AVX2)
 
 			ull table_brd_green[4] __attribute__((aligned(32)));
@@ -659,6 +660,8 @@ public:
 		ull moves;
 		ull flips;
 
+	// don't know why my AVX2 assembly is slower
+	// I expect it to be as four times fast as ordinary version
 		#if 0 // defined(USE_ASM_AVX2)
 
 			ull table_brd_green[4] __attribute__((aligned(32)));

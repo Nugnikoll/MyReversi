@@ -1,5 +1,7 @@
 #include "board.h"
 
+// don't know why my AVX2 assembly is slower
+// I expect it to be as four times fast as ordinary version
 #if 0 // defined(USE_ASM_AVX2)
 
 void board::flip(cbool color, cpos_type pos){
@@ -14,7 +16,7 @@ void board::flip(cbool color, cpos_type pos){
 	static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 	ull table_move[4] __attribute__((aligned(32)));
 
-	brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+	brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 	table_brd_green[0] = brd_green_inner;
 	table_brd_green[1] = brd_green_inner;
 	table_brd_green[2] = brd_green;

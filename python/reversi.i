@@ -1,5 +1,12 @@
 // -*- c++ -*-
 
+// communication between c++ and python
+// https://www.zhihu.com/question/23003213
+// swig 4.0 document
+// http://www.swig.org/Doc4.0/SWIGDocumentation.html
+// swig and numpy
+// https://numpy.org/doc/stable/reference/swig.html
+
 %module(directors="1") reversi
 
 //%feature("autodoc", "3");
