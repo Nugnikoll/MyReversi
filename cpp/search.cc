@@ -588,19 +588,18 @@ val_type board::search_end_two(
 	++node_count;
 
 	board brd;
-	ull brd_blue = get_brd(color);
 	ull brd_green = get_brd(!color);
 	ull brd_save;
 	val_type result = _inf,temp;
 
-	if(brd_green | mask_adj[pos1]){
+	if likely(brd_green & mask_adj[pos1]){
 		brd = *this;
 		brd.flip(color,pos1);
 		if(brd.brd_black != brd_black){
-			if(brd_blue | mask_adj[pos2]){
+			if likely(brd.get_brd(color) & mask_adj[pos2]){
 				brd_save = brd.brd_black;
 				brd.flip(!color,pos2);
-				if(brd_save == brd.brd_black && (brd_green | mask_adj[pos2])){
+				if unlikely(brd_save == brd.brd_black && (brd.get_brd(!color) & mask_adj[pos2])){
 					brd.flip(color,pos2);
 				}
 			}
@@ -613,14 +612,14 @@ val_type board::search_end_two(
 		}
 	}
 
-	if(brd_green | mask_adj[pos2]){
+	if likely(brd_green & mask_adj[pos2]){
 		brd = *this;
 		brd.flip(color,pos2);
 		if(brd.brd_black != brd_black){
-			if(brd_blue | mask_adj[pos1]){
+			if likely(brd.get_brd(color) & mask_adj[pos1]){
 				brd_save = brd.brd_black;
 				brd.flip(!color,pos1);
-				if(brd_save == brd.brd_black && (brd_green | mask_adj[pos1])){
+				if unlikely(brd_save == brd.brd_black && (brd.get_brd(!color) & mask_adj[pos1])){
 					brd.flip(color,pos1);
 				}
 			}
@@ -671,7 +670,7 @@ val_type board::search_end_three(
 	ull brd_green = get_brd(!color);
 	val_type result = _inf,temp;
 
-	if(brd_green | mask_adj[pos1]){
+	if likely(brd_green & mask_adj[pos1]){
 		brd = *this;
 		brd.flip(color,pos1);
 		if(brd.brd_black != brd_black){
@@ -684,7 +683,7 @@ val_type board::search_end_three(
 		}
 	}
 
-	if(brd_green | mask_adj[pos2]){
+	if likely(brd_green & mask_adj[pos2]){
 		brd = *this;
 		brd.flip(color,pos2);
 		if(brd.brd_black != brd_black){
@@ -697,7 +696,7 @@ val_type board::search_end_three(
 		}
 	}
 
-	if(brd_green | mask_adj[pos3]){
+	if likely(brd_green & mask_adj[pos3]){
 		brd = *this;
 		brd.flip(color,pos3);
 		if(brd.brd_black != brd_black){
@@ -748,7 +747,7 @@ val_type board::search_end_four(
 	ull brd_green = get_brd(!color);
 	val_type result = _inf,temp;
 
-	if(brd_green | mask_adj[pos1]){
+	if likely(brd_green & mask_adj[pos1]){
 		brd = *this;
 		brd.flip(color,pos1);
 		if(brd.brd_black != brd_black){
@@ -761,7 +760,7 @@ val_type board::search_end_four(
 		}
 	}
 
-	if(brd_green | mask_adj[pos2]){
+	if likely(brd_green & mask_adj[pos2]){
 		brd = *this;
 		brd.flip(color,pos2);
 		if(brd.brd_black != brd_black){
@@ -774,7 +773,7 @@ val_type board::search_end_four(
 		}
 	}
 
-	if(brd_green | mask_adj[pos3]){
+	if likely(brd_green & mask_adj[pos3]){
 		brd = *this;
 		brd.flip(color,pos3);
 		if(brd.brd_black != brd_black){
@@ -787,7 +786,7 @@ val_type board::search_end_four(
 		}
 	}
 
-	if(brd_green | mask_adj[pos4]){
+	if likely(brd_green & mask_adj[pos4]){
 		brd = *this;
 		brd.flip(color,pos4);
 		if(brd.brd_black != brd_black){
@@ -846,7 +845,7 @@ val_type board::search_end_five(
 	board brd;
 	val_type result = _inf,temp;
 	val_type* ptr_val = table_val[this->sum()];
-	ull brd_green = get_brd(false);
+	ull brd_green = get_brd(!color);
 	ull pos;
 
 //	const ull mask_ul = 0x000000000f0f0f0f;
@@ -888,7 +887,7 @@ val_type board::search_end_five(
 	);
 
 	#define repeat_search_end_five(a,b,c,d,e) \
-		if(brd_green | mask_adj[vec[a].pos]){ \
+		if likely(brd_green & mask_adj[vec[a].pos]){ \
 			brd = *this; \
 			brd.flip(color,vec[a].pos); \
 			if(brd.brd_black != brd_black){ \

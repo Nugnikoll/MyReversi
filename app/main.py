@@ -861,7 +861,10 @@ class frame_main(wx.Frame):
 		if hasattr(ptr, "brd") and not (ptr.brd is None):
 			mygame.assign(rv.board(ptr.brd))
 			if mygame.pos[0] >= 0:
-				mygame.set_pos(-1, -1)
+				mygame.pos = (-1, -1)
+			if hasattr(ptr, "color"):
+				mygame.color = bool(ptr.color)
+			mygame.show()
 
 	def log_display(self, name):
 		self.tree_list.DeleteAllItems()
