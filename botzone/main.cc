@@ -4,7 +4,6 @@
 #include <string>
 #include <chrono>
 #include <thread>
-#include <mutex>
 #include <algorithm>
 
 #ifdef _BOTZONE_ONLINE
@@ -63,7 +62,6 @@ int main(int argc, char *argv[], char *envp[]){
 	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans | mthd_mtdf);
 	short depth;
 	vector<choice> choices;
-	mutex mtx;
 	int depth_limit = 64 - brd.sum();
 	val_type principle_value[64];
 
@@ -82,7 +80,6 @@ int main(int argc, char *argv[], char *envp[]){
 					break;
 				}
 
-				mtx.lock();
 				depth = i;
 				choices = temp;
 				principle_value[i] = max_element(
@@ -91,7 +88,6 @@ int main(int argc, char *argv[], char *envp[]){
 						return c1.rnd_val < c2.rnd_val;
 					}
 				)->val;
-				mtx.unlock();
 			}
 		}catch(timeout_exception){}
 	};

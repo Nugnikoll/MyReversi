@@ -1,9 +1,10 @@
 import os
 import sys
 import time
-import signal as sig
 import json
+import shlex
 import argparse
+import subprocess
 
 sys.path.append("../python")
 import reversi as rv
@@ -23,33 +24,18 @@ if args.path2 is None:
 class process:
 	def __init__(self, path):
 		self.path = path
-		self.pipe1 = os.pipe()
-		self.pipe2 = os.pipe()
-		self.pid = os.fork()
-		if self.pid < 0:
-			print("Failed to fork a child", file = sys.stderr)
-			exit()
-		elif self.pid:
-			self.fobj1 = os.fdopen(self.pipe1[1], "w")
-			self.fobj2 = os.fdopen(self.pipe2[0], "r")
-			os.close(self.pipe1[0])
-			os.close(self.pipe2[1])
-		else:
-			os.dup2(self.pipe1[0], sys.stdin.fileno())
-			os.dup2(self.pipe2[1], sys.stdout.fileno())
-			os.close(self.pipe1[0])
-			os.close(self.pipe2[1])
-			os.close(self.pipe1[1])
-			os.close(self.pipe2[0])
-			path_list = self.path.split(" ")
-			os.execl(path_list[0], *path_list)
-			print("Failed to execl a program", file = sys.stderr)
-			exit()
+		self.proc = subprocess.Popen(
+			shlex.split(path), stdin = subprocess.PIPE,
+			stdout = subprocess.PIPE, stderr = subprocess.PIPE
+		)
 
 	def communicate(self, msg):
-		self.fobj1.write(msg)
-		self.fobj1.flush()
-		return self.fobj2.readline()
+		if type(msg) is str:
+			self.proc.stdin.write(msg.encode("utf-8"))
+		else:
+			self.proc.stdin.write(msg)
+		self.proc.stdin.flush()
+		return self.proc.stdout.readline()
 
 proc = []
 proc.append(process(args.path1))
@@ -58,7 +44,6 @@ proc.append(process(args.path2))
 score = [[0, 0, 0], [0, 0, 0]]
 
 half = args.num // 2
-flag_switch = False
 
 for i in range(args.num):
 	brd = rv.board()
@@ -74,6 +59,8 @@ for i in range(args.num):
 				}
 			}
 		}
+		flag_switch = (i >= half)
+
 		msg = json.dumps(request)
 		#print(msg)
 		msg = proc[color ^ flag_switch].communicate(msg + "\n")
@@ -99,10 +86,7 @@ for i in range(args.num):
 	else:
 		score[flag_switch][1] += 1
 
-	if i == half:
-		flag_switch = not flag_switch
-
 print("proc1=" + proc[0].path)
 print("proc2=" + proc[1].path)
-print("white=proc1\tblack=proc2\t%d:%d:%d" % (score[0][0], score[0][1], score[0][2]))
-print("white=proc2\tblack=proc1\t%d:%d:%d" % (score[1][0], score[1][1], score[1][2]))
+print("white=proc1\tblack=proc2\t%d:%d:%d" % (*score[0],))
+print("white=proc2\tblack=proc1\t%d:%d:%d" % (*score[1],))

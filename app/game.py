@@ -5,6 +5,7 @@ import sys
 import os
 import time
 import json
+import shlex
 import numpy as np
 import shutil
 import subprocess
@@ -111,7 +112,58 @@ setattr(rv.floats, "__str__", vals2str)
 setattr(rv.choices, "__str__", vals2str)
 
 class player:
-	pass
+	def __init__(self, ply_type):
+		self.type = ply_type
+		self.path = default_path
+		self.path_exec = ""
+		self.proc = None
+
+	def create_process(self):
+		self.proc = subprocess.Popen(
+			shlex.split(self.path_exec), stdin = subprocess.PIPE,
+			stdout = subprocess.PIPE, stderr = subprocess.PIPE
+		)
+
+	def send(self, msg):
+		if self.proc and self.path_exec != self.path:
+			self.proc.kill()
+
+		if self.proc is None or self.path_exec != self.path:
+			self.path_exec = self.path
+			self.create_process();
+		else:
+			poll = self.proc.poll()
+			if not poll is None:
+				self.create_process();
+
+		if type(msg) is dict:
+			msg = json.dumps(msg)
+		if type(msg) is str:
+			msg = msg.encode("utf-8")
+		if len(msg) >= 0 and msg[-1] != b"\n":
+			msg += b"\n"
+
+		self.proc.stdin.write(msg)
+		self.proc.stdin.flush()
+
+	def recv(self):
+		poll = self.proc.poll()
+		if not poll is None:
+			errinfo = self.proc.stderr.read()
+			if errinfo:
+				raise RuntimeError("subprocess error: " + errinfo)
+		msg = self.proc.stdout.readline()
+		if type(msg) is bytes:
+			msg = msg.decode("utf-8")
+		msg = json.loads(msg)
+		if not (
+			"control" in msg and "continue" in msg["control"]
+			and msg["control"]["continue"]
+		):
+			self.proc.kill()
+			self.proc.wait()
+			self.proc = None
+		return msg
 
 class game:
 	def __init__(self, app):
@@ -127,18 +179,13 @@ class game:
 		self.depth = -1
 		self.flag_auto_save = True
 		self.flag_lock = True
-		self.ply = (player(), player())
+		self.ply = (
+			player(rv.ply_ai), player(rv.ply_human)
+		)
 		self.record = []
 		self.storage = []
 		self.choices = None
 		self.pv = None
-
-		self.ply[False].type = rv.ply_ai
-		self.ply[False].path = default_path
-		self.ply[False].proc = None
-		self.ply[True].type = rv.ply_human
-		self.ply[True].path = default_path
-		self.ply[True].proc = None
 
 	def show(self, dc = None):
 		if dc is None:
@@ -497,104 +544,41 @@ class game:
 
 		ply = self.ply[color]
 
-		def check_pos_proc():
-			if not ply.proc.Exists(ply.pid):
-				self.text_log.AppendText(
-					"runtime error\n"
-					 + "the process exits unexpectedly"
-				)
-				raise RuntimeError
-
-		if not (ply.proc is None) and wx.Process.Exists(ply.pid) and ply.path_exec != ply.path:
-			wx.Process.Kill(ply.pid)
-			wx.Yield()
-			time.sleep(0.01)
-			wx.Yield()
-			ply.proc = None
-
-		if ply.proc is None or not wx.Process.Exists(ply.pid):
-			ply.proc = wx.Process()
-			ply.proc.Redirect()
-			ply.path_exec = ply.path.strip()
-			ply.pid = wx.Execute(ply.path.strip(), wx.EXEC_ASYNC, ply.proc)
-			check_pos_proc()
-
-		proc_in = ply.proc.GetInputStream()
-		proc_out = ply.proc.GetOutputStream()
-
 		request = {
-			"request":{
-				"color":color,
-				"board":{
-					"black":self.brd.get_brd(True),
-					"white":self.brd.get_brd(False)
+			"request": {
+				"color": color,
+				"board": {
+					"black": self.brd.get_brd(True),
+					"white": self.brd.get_brd(False)
 				}
 			}
 		}
 
-		s = json.dumps(request)
-
-		self.text_log.AppendText(
+		self.print_log(
 			"send a request to process \""
 			+ self.ply[color].path
 			+ "\"\n"
 		)
-		self.text_log.AppendText(s + "\n")
 
-		proc_out.write((s + "\n").encode())
+		print(request, file = self.frame.text_log)
 
-		check_pos_proc()
+		ply.send(request);
 
-		self.text_log.AppendText(
+		self.print_log(
 			"receive a response from process \""
 			+ self.ply[color].path
 			+ "\"\n"
 		)
 
-		for i in range(1000):
-			if proc_in.CanRead():
-				break
-			time.sleep(0.01)
+		response = ply.recv()
 
-		check_pos_proc()
-
-		if proc_in.CanRead():
-			s = proc_in.readline()
-		else:
-			self.text_log.AppendText(
-				"time limit exceeding\n"
-			)
-			wx.Process.Kill(ply.pid)
-			wx.Yield()
-			time.sleep(0.01)
-			wx.Yield()
-			ply.proc = None
-			raise RuntimeError
-
-		response = None
-		self.text_log.AppendText(s.decode())
-		try:
-			response = json.loads(s.decode())
-		except json.decoder.JSONDecodeError:
-			self.text_log.AppendText(
-				"invalid output format\n"
-			)
-			raise RuntimeError
-
-		if not "response" in response or not "x" in response["response"] or not "y" in response["response"]:
-			self.text_log.AppendText(
-				"invalid output format\n"
-			)
-			raise RuntimeError
+		print(response, file = self.frame.text_log)
 
 		x = response["response"]["x"]
 		y = response["response"]["y"]
 
-		if(not self.flip(color, (x, y))):
-			self.text_log.AppendText(
-				"illegal move\n"
-			)
-			raise RuntimeError
+		if not self.flip(color, (x, y)):
+			raise RuntimeError("illegal move (%d,%d)" % (x, y))
 
 	def play(self, mthd = None, color = None, depth = None):
 
@@ -652,8 +636,5 @@ class game:
 			self.flip(self.color, pos)
 			wx.Yield()
 
-		try:
-			self.play(self.mthd, self.color, self.depth)
-			self.play_continue()
-		except RuntimeError:
-			pass
+		self.play(self.mthd, self.color, self.depth)
+		self.play_continue()

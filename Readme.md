@@ -15,7 +15,7 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 - Prerequisites
 	- A decent C++ compiler  
-		C++11 must be supported by this compiler. g++, mingw32-g++ and clang++ are suggested. Inline assembly will not be used when compiled by Visual Studio as MS compiler supports neither 64-bit inline assembly nor AT&T flavor syntax.
+		C++11 must be supported by this compiler. g++, mingw32-g++ and clang++ are suggested.
 	- [Python3](https://www.python.org/)
 	- [Swig](http://swig.org/) >= 3.0.6
 	- [NumPy](http://www.numpy.org/)
