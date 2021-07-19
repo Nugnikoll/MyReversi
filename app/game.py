@@ -8,6 +8,7 @@ import json
 import shlex
 import numpy as np
 import shutil
+import threading
 import subprocess
 
 if sys.platform == "win32":
@@ -146,13 +147,27 @@ class player:
 		self.proc.stdin.write(msg)
 		self.proc.stdin.flush()
 
-	def recv(self):
+	def recv(self, timeout = 4):
 		poll = self.proc.poll()
 		if not poll is None:
 			errinfo = self.proc.stderr.read()
 			if errinfo:
 				raise RuntimeError("subprocess error: " + errinfo)
+
+		proc = self.proc
+		proc.flag_timeout = False
+		def on_timeout():
+			proc.flag_timeout = True
+			proc.kill()
+			proc.wait()
+		tmr = threading.Timer(timeout, on_timeout)
+		tmr.start()
 		msg = self.proc.stdout.readline()
+		tmr.cancel()
+		if proc.flag_timeout:
+			self.proc = None
+			raise RuntimeError("subprocess timeout")
+
 		if type(msg) is bytes:
 			msg = msg.decode("utf-8")
 		msg = json.loads(msg)
