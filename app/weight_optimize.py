@@ -10,10 +10,29 @@ import data
 sys.path.append("../python")
 import reversi as rv
 
-parser = argparse.ArgumentParser(description = "training parameters for reversi program")
-parser.add_argument("--path-train", type = str, default = "./train.dat", help = "path to load training data (default: ./train.dat)")
-parser.add_argument("--path-save", type = str, default = "./weight.dat", help = "path to save training result (default: ./weight.dat)")
-parser.add_argument("--epoch", type = int, default = 400, help = "the number of epochs to run (default: 400)")
+parser = argparse.ArgumentParser(
+	description = "training parameters for reversi program"
+)
+parser.add_argument(
+	"--path-train", type = str, default = "./train.dat",
+	help = "path to load training data (default: ./train.dat)"
+)
+parser.add_argument(
+	"--path-save", type = str, default = "./weight.dat",
+	help = "path to save training result (default: ./weight.dat)"
+)
+parser.add_argument(
+	"--epoch", type = int, default = 400,
+	help = "the number of epochs to run (default: 400)"
+)
+parser.add_argument(
+	"--sample-alias", type = str, default = "sample",
+	help = "alias of sample"
+)
+parser.add_argument(
+	"--target-alias", type = str, default = "target",
+	help = "alias of target"
+)
 args = parser.parse_args()
 
 mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_trans | rv.mthd_mtdf
@@ -28,16 +47,14 @@ if not os.path.exists(name):
 	exit()
 
 with open(name, "rb") as fobj:
-	sample, target, play_score = data.load_npy_list(
-		fobj, ("sample", "target", "play_score")
-	)
+	sample, target = data.load_npy_list(fobj, (
+		"sample", "target"
+	))
 
 if sample is None:
 	print("sample not found")
 	exit()
 print("sample shape", sample.shape)
-if not play_score is None:
-	target = play_score
 if target is None:
 	print("target not found")
 	exit()

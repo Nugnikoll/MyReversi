@@ -11,14 +11,14 @@ sys.path.append("../python")
 import reversi as rv
 
 parser = argparse.ArgumentParser(
-	description = "training parameters for reversi program"
+	description = "training parameters to estimate the upper bound and the lower bound"
 )
 parser.add_argument(
 	"--path-train", type = str, default = "./train.dat",
 	help = "path to load training data (default: ./train.dat)"
 )
 parser.add_argument(
-	"--path-save", type = str, default = "./pattern.dat",
+	"--path-save", type = str, default = "./pattern_bound.dat",
 	help = "path to save training result (default: ./pattern.dat)"
 )
 parser.add_argument(
@@ -64,16 +64,55 @@ size = sample.shape[0]
 ptn_shape = rv.pattern().view().shape
 weight = np.zeros(ptn_shape, dtype = np.float64).ravel()
 
+# parameters
+k = 100
+m = 0.00001
+x0 = 0
+def f(x):
+	y = np.exp(k * (x - x0))
+	return y / (1 + y) - m
+x0 = -optimize.fsolve(f, [0])[0]
+print(x0, f(0))
+
+def f(x):
+	flag = x < x0
+	y = np.where(flag, np.exp(k * (x - x0)), np.exp(- k * (x - x0)))
+	y1 = np.where(flag, y, 1)
+	return x * (y1 / (1 + y) - m)
+
+def df(x):
+	flag = x < x0
+	y = np.where(flag, np.exp(k * (x - x0)), np.exp(- k * (x - x0)))
+	y1 = np.where(flag, y, 1)
+	return (y1 / (1 + y) - m) + k * x * y / (1 + y) ** 2
+
+def check_grad(f, df):
+	x = (np.array(range(21)) - 10) / 5
+	epsilon = 0.00001
+	return ((f(x + epsilon) - f(x)) / epsilon) - df(x)
+
+print("check_grad", check_grad(f, df))
+
+# def f(x):
+	# ones = np.ones(x.shape)
+	# return (ones * a + (x > 0) * (b - a)) * x
+
+# def df(x):
+	# ones = np.ones(x.shape)
+	# return (ones * a + (x > 0) * (b - a)).astype(np.float32)
+
+# loss function
 def fun(weight):
 	global size
 	value = rv.evaluate(rv.pattern(weight.astype(np.float32)), sample)
 	delta = value - target
-	loss = (delta ** 2).mean()
+	loss = f(delta).mean()
+	delta = df(delta)
 	ptn_grad = rv.pattern()
 	ptn_grad.initial()
 	rv.adjust(ptn_grad, sample, delta)
 	grad = ptn_grad.numpy()
-	return (loss.astype(np.float64), (grad * 2 / size).astype(np.float64))
+	return (loss.astype(np.float64), (grad / size).astype(np.float64))
 
 time_begin = time.time()
 result = optimize.minimize(
@@ -90,3 +129,8 @@ print("time: ", time_end - time_begin)
 ptn = rv.pattern(result.x.astype(np.float32))
 ptn.balance()
 ptn.save(args.path_save)
+
+# check
+value = rv.evaluate(ptn, sample)
+value = (value > target).sum()
+print(size, value, value / size)

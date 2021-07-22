@@ -35,37 +35,38 @@ def dump(fobj, data, mode = "bson"):
 		fobj.write(l.to_bytes(4, "little"))
 		fobj.write(s)
 
-def load_npy_list(fobj, name_list):
-	name_map = dict(zip(name_list, (None,) * len(name_list)))
+def load_npy_list(fobj, name_list = None, need_full = False):
+	if name_list is None:
+		name_list = {}
+	npy_list = []
+	npy_map = {}
 
 	def get_result():
-		result = []
-		for name in name_list:
-			result.append(name_map[name])
-		return result
+		select_list = list(map(npy_map.get, name_list))
+		if need_full:
+			return head, select_list, npy_list
+		else:
+			return select_list
 
 	head = load(fobj)
 	if head is None or not "append" in head:
 		return get_result()
+
+	npy_map = dict(zip(name_list, (None,) * len(name_list)))
 
 	for item in head["append"]:
 		if not "name" in item or not "type" in item or item["type"] != "npy":
 			break
 		name = item["name"]
 		data = np.load(fobj)
-		if not name in name_map:
+		npy_list.append(data)
+		if not name in npy_map:
 			continue
-		name_map[name] = data
+		npy_map[name] = data
 
 	return get_result()
 
-def dump_npy_list(fobj, name_list, *np_list, modify_head = None):
-	head = []
-	for name in name_list:
-		head.append({"name": name, "type": "npy"})
-	head = {"append": head}
-	if modify_head:
-		modify_head(head)
+def dump_npy_list(fobj, head, npy_list,):
 	dump(fobj, head)
-	for i in np_list:
+	for i in npy_list:
 		np.save(fobj, i)
