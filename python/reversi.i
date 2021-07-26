@@ -87,6 +87,8 @@ ARRAY_ND(double);
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;
 %template(floats) std::vector<float>;
+%template(ulls) std::vector<ull>;
+%template(strings) std::vector<std::string>;
 %template(boards) std::vector<board>;
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;

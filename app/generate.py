@@ -66,7 +66,7 @@ else:
 	with open(name, "rb") as fobj:
 		head, (
 			sample, target, play_cnt, play_score
-		), npy_list = data.load_npy_list(fobj, (
+		), npy_list = data.load_list(fobj, (
 			args.sample_alias,
 			args.target_alias,
 			args.play_cnt_alias,
@@ -91,7 +91,7 @@ else:
 	})
 	npy_list.append(sample)
 	with open(name, "wb") as fobj:
-		data.dump_npy_list(fobj, head, npy_list)
+		data.dump_list(fobj, head, npy_list)
 
 print("sample shape", sample.shape)
 
@@ -120,7 +120,7 @@ if args.search_depth:
 		})
 		npy_list.append(target)
 		with open(name, "wb") as fobj:
-			data.dump_npy_list(fobj, head, npy_list)
+			data.dump_list(fobj, head, npy_list)
 
 	print("target shape", target.shape)
 
@@ -186,10 +186,10 @@ if args.play_depth:
 				print("score:", score)
 				print()
 				play_score[i] = (play_score[i] * cnt + score) / (cnt + 1)
-				cnt = cnt + 1
+				cnt += 1
 			play_cnt[i] = cnt
 
 	with open(name, "wb") as fobj:
-		data.dump_npy_list(fobj, head, npy_list)
+		data.dump_list(fobj, head, npy_list)
 
 	signal.signal(signal.SIGINT, handler_save)

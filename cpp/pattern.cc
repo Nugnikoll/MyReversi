@@ -5,7 +5,48 @@
 #include "board.h"
 #include "pattern.h"
 
+#ifdef _BOTZONE_ONLINE
+	#include "jsoncpp/json.h"
+#else
+	#include "../cpp/jsoncpp/json.h"
+#endif
+
 using namespace std;
+
+constexpr const int ptn_cnt = 11;
+constexpr const char ptn_name[ptn_cnt][3] = {
+	"a1", "a2", "a3", "a4",
+	"b1", "b2", "b3", "b4", "b5",
+	"c1", "c2",
+};
+constexpr const ull ptn_list[ptn_cnt] = {
+	0x00000000000042ff,
+	0x000000000000ff00,
+	0x0000000000ff0000,
+	0x00000000ff000000,
+	0x0000000001020408,
+	0x0000000102040810,
+	0x0000010204081020,
+	0x0001020408102040,
+	0x0102040810204080,
+	0x0000000000070707,
+	0x000000010101031f,
+};
+
+vector<string> pattern::get_name_list(){
+	vector<string> result;
+	for(auto i: ptn_name){
+		result.emplace_back(string(i));
+	}
+	return result;
+}
+vector<ull> pattern::get_ptn_list(){
+	vector<ull> result;
+	for(auto i: ptn_list){
+		result.emplace_back(i);
+	}
+	return result;
+}
 
 constexpr ull cpow(ull n, ull val){
 	return val ? cpow(n * n, val >> 1) * (val & 1 ? n : 1) : 1;
@@ -15,22 +56,46 @@ constexpr ull cpopcnt(ull brd){
 	return brd ? cpopcnt(brd >> 1) + (brd & 1) : 0;
 }
 
-#define next_bias(id) (bias_##id + (1 << (shift_##id * 2)))
+constexpr ull cmirror_h(ull brd){
+	brd = (brd & 0xaaaaaaaaaaaaaaaa) >> 1  | (brd & 0x5555555555555555) << 1;
+	brd = (brd & 0xcccccccccccccccc) >> 2  | (brd & 0x3333333333333333) << 2;
+	brd = (brd & 0xf0f0f0f0f0f0f0f0) >> 4  | (brd & 0x0f0f0f0f0f0f0f0f) << 4;
+	return brd;
+}
+
+constexpr ull cmirror_v(ull brd){
+	brd = (brd & 0xff00ff00ff00ff00) >> 8  | (brd & 0x00ff00ff00ff00ff) << 8;
+	brd = (brd & 0xffff0000ffff0000) >> 16 | (brd & 0x0000ffff0000ffff) << 16;
+	brd = (brd & 0xffffffff00000000) >> 32 | (brd & 0x00000000ffffffff) << 32;
+	return brd;
+}
+
+constexpr ull creflect(ull brd){
+	brd = cmirror_h(brd);
+	brd = cmirror_v(brd);
+	return brd;
+}
+
+constexpr ull crotate_r(ull brd){
+	brd = (brd & 0xf0f0f0f000000000) >> 4  | (brd & 0x0f0f0f0f00000000) >> 32
+		| (brd & 0x00000000f0f0f0f0) << 32 | (brd & 0x000000000f0f0f0f) << 4;
+	brd = (brd & 0xcccc0000cccc0000) >> 2  | (brd & 0x3333000033330000) >> 16
+		| (brd & 0x0000cccc0000cccc) << 16 | (brd & 0x0000333300003333) << 2;
+	brd = (brd & 0xaa00aa00aa00aa00) >> 1  | (brd & 0x5500550055005500) >> 8
+		| (brd & 0x00aa00aa00aa00aa) << 8  | (brd & 0x0055005500550055) << 1;
+	return brd;
+}
+
 #define create_first_ptn(id, mask) \
 	const ull ptn_##id = mask; \
 	const ull shift_##id = cpopcnt(mask); \
-	const ull bias_##id = 0;
+	const ull bias_##id = 0; \
+	const ull cbias_##id = 0;
 #define create_ptn(id, mask, id_prev) \
 	const ull ptn_##id = mask; \
 	const ull shift_##id = cpopcnt(mask); \
-	const ull bias_##id = next_bias(id_prev);
-
-constexpr const int ptn_cnt = 13;
-constexpr const char ptn_name[ptn_cnt][3] = {
-	"a1", "a2", "a3", "a4",
-	"b1", "b2", "b3", "b4", "b5",
-	"c1", "c2",
-};
+	const ull bias_##id = bias_##id_prev + (1 << (shift_##id_prev * 2)); \
+	const ull cbias_##id = cbias_##id_prev + cpow(3, shift_##id_prev);
 
 /*
 # # # # # # # #
@@ -245,6 +310,9 @@ create_ptn(c1, 0x0000000000070707, b5);
 */
 create_ptn(c2, 0x000000010101031f, c1);
 
+//const int pattern::size = bias_c2 + (1 << (shift_c2 * 2));
+const int pattern::csize = cbias_c2 + cpow(3, shift_c2);
+
 pattern ptn;
 
 int table_map[1 << 16];
@@ -325,6 +393,16 @@ void pattern::config(const string& file_ptn){
 
 	if(file_ptn.size()){
 		ptn.load(file_ptn);
+		//string str;
+		//ifstream fin(file_ptn, ios::in | ios::binary);
+		//if(!fin){
+			//return;
+		//}
+		//getline(cin, str);
+		//Json::Reader reader;
+		//Json::Value input,result;
+		//Json::FastWriter writer;
+		//reader.parse(str, input);
 	}
 }
 
@@ -505,29 +583,76 @@ void board::adjust_ptn(cbool color, pattern& ptn, cval_type value)const{
 	#undef extract_pattern
 }
 
-void pattern::load(const string& path){
+void pattern::from_compact(ARRAY_1D_IN_I(VAL_TYPE)){
+	assert(i1 == csize);
+	
+	#define extract_pattern(id) \
+		for(int i = 0; i != 1 << (shift_##id << 1); ++i){ \
+			if(!(i >> shift_##id & i)){ \
+				 table[i + bias_##id] = ptri[j]; \
+				++j; \
+			} \
+		}
+	#define debug_print(id) cout << #id << " " << j << endl;
+	
+	int j = 0;
+	extract_pattern(a1);
+	extract_pattern(a2);
+	extract_pattern(a3);
+	extract_pattern(a4);
+	extract_pattern(b1);
+	extract_pattern(b2);
+	extract_pattern(b3);
+	extract_pattern(b4);
+	extract_pattern(b5);
+	extract_pattern(c1);
+	extract_pattern(c2);
+
+	#undef extract_pattern
+}
+
+void pattern::compact(ARRAY_1D_OUT_M(VAL_TYPE))const{
+	*m1 = csize;
+	*ptrm = new val_type[csize];
+	
+	#define extract_pattern(id) \
+		for(int i = 0; i != 1 << (shift_##id << 1); ++i){ \
+			if(!(i >> shift_##id & i)){ \
+				(*ptrm)[j] = table[i + bias_##id]; \
+				++j; \
+			} \
+		}
+	
+	int j = 0;
+	extract_pattern(a1);
+	extract_pattern(a2);
+	extract_pattern(a3);
+	extract_pattern(a4);
+	extract_pattern(b1);
+	extract_pattern(b2);
+	extract_pattern(b3);
+	extract_pattern(b4);
+	extract_pattern(b5);
+	extract_pattern(c1);
+	extract_pattern(c2);
+
+	#undef extract_pattern
+}
+
+void pattern::load(istream& fin){
 	#define _READ(var) fin.read((char *)(&var), sizeof(var))
 
-	ifstream fin(path,ios::in | ios::binary);
 	ull calc_size, ptn_size, group_size;
-
-	if(!fin){
-		fin.close();
-		cout << "Error: Cannot open the file: " << path << " ." << endl;
-		return;
-	}
 
 	_READ(calc_size);
 	_READ(ptn_size);
 	_READ(group_size);
 
 	if(calc_size != sizeof(val_type)){
-		fin.close();
 		cout << "Error: The size of element does not match." << endl;
 		return;
 	}
 	if(ptn_size != sizeof(pattern)){
-		fin.close();
 		cout << "Error: The size of pattern does not match." << endl;
 		return;
 	}
@@ -551,9 +676,21 @@ void pattern::load(const string& path){
 	read_pattern(c1);
 	read_pattern(c2);
 
-	fin.close();
-
 	#undef _READ
+}
+
+void pattern::load(const string& path){
+	ifstream fin(path,ios::in | ios::binary);
+
+	if(!fin){
+		fin.close();
+		cout << "Error: Cannot open the file: " << path << " ." << endl;
+		return;
+	}
+
+	this->load(fin);
+
+	fin.close();
 }
 
 void pattern::save(const string& path)const{

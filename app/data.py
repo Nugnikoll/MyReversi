@@ -1,6 +1,10 @@
+import sys
 import json
 import bson
 import numpy as np
+
+sys.path.append("../python")
+import reversi as rv
 
 def load(fobj):
 	data = fobj.read(4)
@@ -18,7 +22,9 @@ def load(fobj):
 		data = fobj.read(l)
 		data = bson.loads(data)
 	elif mode == b"json":
-		data = json.loads(fobj)
+		data = fobj.read(l)
+		data = data.decode("utf-8")
+		data = json.loads(data)
 	return data
 
 def dump(fobj, data, mode = "bson"):
@@ -30,21 +36,21 @@ def dump(fobj, data, mode = "bson"):
 		fobj.write(bson.dumps(data))
 	elif mode == "json":
 		fobj.write(b"json")
-		s = json.dumps(data)
+		s = json.dumps(data, separators=(",", ":"))
 		l = len(s)
 		fobj.write(l.to_bytes(4, "little"))
-		fobj.write(s)
+		fobj.write(s.encode("utf-8"))
 
-def load_npy_list(fobj, name_list = None, need_full = False):
+def load_list(fobj, name_list = None, need_full = False):
 	if name_list is None:
 		name_list = {}
-	npy_list = []
-	npy_map = {}
+	data_list = []
+	data_map = {}
 
 	def get_result():
-		select_list = list(map(npy_map.get, name_list))
+		select_list = list(map(data_map.get, name_list))
 		if need_full:
-			return head, select_list, npy_list
+			return head, select_list, data_list
 		else:
 			return select_list
 
@@ -52,21 +58,35 @@ def load_npy_list(fobj, name_list = None, need_full = False):
 	if head is None or not "append" in head:
 		return get_result()
 
-	npy_map = dict(zip(name_list, (None,) * len(name_list)))
+	data_map = dict(zip(name_list, (None,) * len(name_list)))
 
 	for item in head["append"]:
-		if not "name" in item or not "type" in item or item["type"] != "npy":
-			break
+		if not "name" in item or not "type" in item:
+			raise RuntimeError("corrupted file information")
 		name = item["name"]
-		data = np.load(fobj)
-		npy_list.append(data)
-		if not name in npy_map:
+		item_type = item["type"]
+		if item_type == "npy":
+			data = np.load(fobj)
+		elif item_type == "pattern":
+			buf = fobj.read(rv.pattern.csize * 4)
+			arr = np.frombuffer(buf, dtype = np.float32)
+			data = rv.pattern()
+			data.from_compact(arr)
+		else:
+			raise RuntimeError("unrecognized data type")
+		data_list.append(data)
+		if not name in data_map:
 			continue
-		npy_map[name] = data
+		data_map[name] = data
 
 	return get_result()
 
-def dump_npy_list(fobj, head, npy_list,):
-	dump(fobj, head)
-	for i in npy_list:
-		np.save(fobj, i)
+def dump_list(fobj, head, data_list, mode = "bson"):
+	dump(fobj, head, mode = mode)
+	for i in data_list:
+		if type(i) is np.array:
+			np.save(fobj, i)
+		elif type(i) is rv.pattern:
+			fobj.write(i.compact().tobytes())
+		else:
+			raise RuntimeError("unrecognized data type")

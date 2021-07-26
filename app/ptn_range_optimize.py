@@ -1,10 +1,10 @@
-import time
 import os
 import sys
 import numpy as np
 from scipy import optimize
 import argparse
 
+import util
 import data
 
 sys.path.append("../python")
@@ -47,8 +47,9 @@ if not os.path.exists(name):
 	exit()
 
 with open(name, "rb") as fobj:
-	sample, target = data.load_npy_list(fobj, (
-		"sample", "target"
+	sample, target = data.load_list(fobj, (
+		args.sample_alias,
+		args.target_alias,
 	))
 
 if sample is None:
@@ -114,17 +115,15 @@ def fun(weight):
 	grad = ptn_grad.numpy()
 	return (loss.astype(np.float64), (grad / size).astype(np.float64))
 
-time_begin = time.time()
-result = optimize.minimize(
-	fun, weight, method = "L-BFGS-B", jac = True,
-	options = {
-		"disp": True,
-		"maxcor": 25,
-		"maxiter": args.epoch
-	}
-)
-time_end = time.time()
-print("time: ", time_end - time_begin)
+with util.timespan():
+	result = optimize.minimize(
+		fun, weight, method = "L-BFGS-B", jac = True,
+		options = {
+			"disp": True,
+			"maxcor": 25,
+			"maxiter": args.epoch
+		}
+	)
 
 ptn = rv.pattern(result.x.astype(np.float32))
 ptn.balance()
