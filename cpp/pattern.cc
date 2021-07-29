@@ -391,19 +391,65 @@ void pattern::config(const string& file_ptn){
 		table_rotate_a1[i] = board::extract(j, ptn_a1);
 	}
 
-	if(file_ptn.size()){
-		ptn.load(file_ptn);
-		//string str;
-		//ifstream fin(file_ptn, ios::in | ios::binary);
-		//if(!fin){
-			//return;
-		//}
-		//getline(cin, str);
-		//Json::Reader reader;
-		//Json::Value input,result;
-		//Json::FastWriter writer;
-		//reader.parse(str, input);
+	if(!file_ptn.size()){
+		return;
 	}
+
+	ifstream fin(file_ptn, ios::in | ios::binary);
+	if(!fin){
+		cout << "Error: Cannot open the file: " << file_ptn << " ." << endl;
+		return;
+	}
+	char *buffer;
+	buffer = new char[5];
+	fin.read(buffer, 4);
+	if(strncmp(buffer, "data", 4)){
+		cout << "Error: unrecognized file format" << endl;
+		fin.close();
+		return;
+	}
+	fin.read(buffer, 4);
+	if(!strncmp(buffer, "json", 4)){
+	}
+	//else if(!strncmp(buffer, "bson", 4)){} // BSON is not supported by Botzone
+	else{
+		cout << "Error: unrecognized file format" << endl;
+		fin.close();
+		return;
+	}
+	delete buffer;
+
+	int length;
+	fin.read((char *)&length, sizeof(length));
+	buffer = new char[length + 1];
+	fin.read(buffer, length);
+	buffer[length] = 0;
+
+	Json::Reader reader;
+	Json::Value input, result;
+	Json::FastWriter writer;
+	reader.parse(buffer, input);
+
+	auto append_list = input["append"];
+	for(const auto append_item: append_list){
+		string name = append_item["name"].asString();
+		string type = append_item["type"].asString();
+
+		if(type == "pattern"){
+			if(name == "pattern"){
+				ptn.load(fin);
+			}else{
+				fin.ignore(size);
+			}
+		}else{
+			cout << "Error: unrecognized data type" << endl;
+			delete buffer;
+			fin.close();
+			return;
+		}
+	}
+	delete buffer;
+	fin.close();
 }
 
 val_type board::score_ptn(cbool color, const pattern& ptn)const{
@@ -641,22 +687,6 @@ void pattern::compact(ARRAY_1D_OUT_M(VAL_TYPE))const{
 
 void pattern::load(istream& fin){
 	#define _READ(var) fin.read((char *)(&var), sizeof(var))
-
-	ull calc_size, ptn_size, group_size;
-
-	_READ(calc_size);
-	_READ(ptn_size);
-	_READ(group_size);
-
-	if(calc_size != sizeof(val_type)){
-		cout << "Error: The size of element does not match." << endl;
-		return;
-	}
-	if(ptn_size != sizeof(pattern)){
-		cout << "Error: The size of pattern does not match." << endl;
-		return;
-	}
-	
 	#define read_pattern(id) \
 		for(int i = 0; i != 1 << (shift_##id << 1); ++i){ \
 			if(!(i >> shift_##id & i)){ \
@@ -680,8 +710,26 @@ void pattern::load(istream& fin){
 }
 
 void pattern::load(const string& path){
+	
+	ull calc_size, ptn_size, group_size;
+
 	ifstream fin(path,ios::in | ios::binary);
 
+	#define _READ(var) fin.read((char *)(&var), sizeof(var))
+	_READ(calc_size);
+	_READ(ptn_size);
+	_READ(group_size);
+	#undef _READ
+
+	if(calc_size != sizeof(val_type)){
+		cout << "Error: The size of element does not match." << endl;
+		return;
+	}
+	if(ptn_size != sizeof(pattern)){
+		cout << "Error: The size of pattern does not match." << endl;
+		return;
+	}
+	
 	if(!fin){
 		fin.close();
 		cout << "Error: Cannot open the file: " << path << " ." << endl;

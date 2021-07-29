@@ -2004,13 +2004,4 @@ JSON_API std::ostream& operator<<(std::ostream&, const Value& root);
 // End of content of file: include/json/assertions.h
 // //////////////////////////////////////////////////////////////////////
 
-
-
-
-
 #endif //ifndef JSON_AMALGATED_H_INCLUDED
-
-#ifndef INCLUDE_CPP
-#define INCLUDE_CPP
-#include "../jsoncpp.cpp"
-#endif

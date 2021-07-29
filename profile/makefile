@@ -55,6 +55,9 @@ gmon.out: before $(OUT) in.txt
 $(OUT): $(OBJ)
 	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
 
+$(OBJDIR)jsoncpp.o: $(call get_depend, $(SRCDIR)jsoncpp.cc)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 $(OBJDIR)board.o: $(call get_depend, $(SRCDIR)board.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 

@@ -24,7 +24,6 @@ out*
 *temp*
 
 data/data.cc
-!data/pattern.dat
 
 *.dot
 profile/*.png

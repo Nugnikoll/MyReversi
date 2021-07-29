@@ -40,6 +40,9 @@ before:
 $(OUT): $(OBJ)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@
 
+$(OBJDIR)jsoncpp.o: $(SRCDIR)jsoncpp.cc $(wildcard $(SRCDIR)*.h)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 $(OBJDIR)board.o: $(SRCDIR)board.cc $(wildcard $(SRCDIR)*.h)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 

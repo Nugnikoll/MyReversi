@@ -44,8 +44,8 @@ before:
 
 ifeq ($(filter online, $(MAKECMDGOALS)), online)
 
-$(OUT): $(OBJDIR)main_merge.o
-	$(LD) $(LDFLAGS) $< -o $@
+$(OUT): $(OBJDIR)jsoncpp.o $(OBJDIR)main_merge.o
+	$(LD) $(LDFLAGS) $^ -o $@
 
 else
 
@@ -53,6 +53,9 @@ $(OUT): $(OBJ)
 	$(LD) $(LDFLAGS) $(OBJ) -o $@
 
 endif
+
+$(OBJDIR)jsoncpp.o: $(call get_depend, $(SRCDIR)jsoncpp.cc)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)board.o: $(call get_depend, $(SRCDIR)board.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

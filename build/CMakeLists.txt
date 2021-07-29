@@ -32,6 +32,7 @@ set (
 
 set (
 	source_file
+	${cpp_dir}/jsoncpp.cc
 	${cpp_dir}/board.cc
 	${cpp_dir}/flip.cc
 	${cpp_dir}/pattern.cc
