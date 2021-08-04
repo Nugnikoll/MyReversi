@@ -16,8 +16,7 @@ int main(int argc, char *argv[], char *envp[]){
 
 	board brd;
 	board::config();
-	pattern::config();
-	ptn.load("../data/pattern.dat");
+	pattern::config("../data/pattern.dat");
 	brd.initial();
  
  	// input JSON
@@ -58,12 +57,12 @@ int main(int argc, char *argv[], char *envp[]){
 	auto p_mthd = brd.process_method(mthd, depth);
 	mthd = p_mthd.first;
 	depth = p_mthd.second;
-	auto coord = brd.play(mthd, mycolor, depth);
+	auto best = brd.play(mthd, mycolor, depth);
 
 	// 决策结束，输出结果（你只需修改以上部分）
 
-	result["response"]["x"] = coord.x;
-	result["response"]["y"] = coord.y;
+	result["response"]["x"] = best.pos & 7;
+	result["response"]["y"] = best.pos >> 3;
 	cout << writer.write(result) << endl;
 
 	return 0;

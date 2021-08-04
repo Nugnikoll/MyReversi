@@ -11,6 +11,7 @@
 *.pyc
 *.pyd
 *.dat
+*.npy
 
 *.depend
 *.layout
@@ -23,12 +24,12 @@ out*
 *temp*
 
 data/data.cc
-!data/pattern.dat
 
 *.dot
 profile/*.png
 
-*merge.cc
+botzone/*_merge.cc
+botzone/*_compress.cc
 
 python/reversi.py
 python/*wrap.*

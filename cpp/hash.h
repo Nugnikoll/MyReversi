@@ -25,7 +25,7 @@ struct slot{
 	#endif
 
 	void save(cslot slt){
-		if(slt.brd != brd || slt.depth > depth){
+		if likely(slt.brd != brd || slt.depth > depth){
 			*this = slt;
 		}else if(slt.depth == depth){
 			alpha = max(alpha, slt.alpha);

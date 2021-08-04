@@ -31,23 +31,6 @@ using namespace std;
 #include "type.h"
 #include "asm.h"
 
-struct coordinate{
-	coordinate(): x(-1), y(-1){}
-	coordinate(cpos_type _x, cpos_type _y): x(_x),y(_y){}
-	coordinate(cpos_type pos): x(pos & 7), y(pos >> 3){}
-
-	pos_type x;
-	pos_type y;
-
-	pos_type to_pos()const{
-		return (y << 3) | x;
-	}
-	bool check()const{
-		return x >= 0 && x < 8 && y >= 0 && y < 8;
-	}
-};
-typedef const coordinate& ccoordinate;
-
 namespace std{
 	template <>
 	struct hash<board>;
@@ -57,11 +40,11 @@ namespace std{
  *
  * @brief It's the board of reversi.
  *
- * It has two data member which are brd_black and brd_white.
+ * It has two members which are brd_black and brd_white.
  * They represent the board of black stones and board of white stones respectively.
  * Both brd_black and brd_white are 64-bit integer.
  * Where the bit is set to 1, there is a stone.
- * We can assume that brd_black | brd_white is always zero
+ * We can assume that brd_black & brd_white is always zero
  * because we can never place a black stone and a white stone at the same cell.
  * This kind of data structure saves a lot of memory and is easy to calculate.
  *
@@ -89,12 +72,18 @@ public:
 	 */
 	board(const board& brd) = default;
 
-	/** @fn board(cull _brd_black, cull _brd_white)
-	 * @brief A constructor of class board
-	 * @param _brd_black the value of the 64-bit board of black stones
-	 * @param _brd_white the value of the 64-bit board of white stones
+	/** @fn board(board&& brd)
+	 * @brief The default move constructor of class board
+	 * @param brd
 	 */
-	board(cull _brd_black, cull _brd_white)
+	board(board&& brd) = default;
+
+	/** @fn board(cull _brd_white, cull _brd_black)
+	 * @brief A constructor of class board
+	 * @param _brd_white the value of the 64-bit board of white stones
+	 * @param _brd_black the value of the 64-bit board of black stones
+	 */
+	board(cull _brd_white, cull _brd_black)
 		: brd_white(_brd_white), brd_black(_brd_black){}
 
 	/** @fn board(ARRAY_1D_IN_I(unsigned long long))
@@ -124,6 +113,17 @@ public:
 			brd_black |= ull(ptri[i + size2]) << i;
 		}
 	}
+
+	/** @fn board& operator=(const board& brd) = default;
+	 * @brief The default copy assignment operator of class board
+	 * @param brd
+	 */
+	board& operator=(const board& brd) = default;
+	/** @fn board& operator=(board&& brd) = default;
+	 * @brief The default move assignment operator of class board
+	 * @param brd
+	 */
+	board& operator=(board&& brd) = default;
 
 	friend bool operator==(const board& b1, const board& b2){
 		return b1.brd_black == b2.brd_black && b1.brd_white == b2.brd_white;
@@ -195,21 +195,21 @@ public:
 		}
 	}
 
-	/** @fn void board& assign(cull _brd_black,cull _brd_white)
+	/** @fn void board& assign(cull _brd_white, cull _brd_black)
 	 * @brief assign the board to some specific value
+	 * @param _brd_white the value of the 64-bit board of white stones
 	 * @param _brd_black the value of the 64-bit board of black stones
-	 * @param _brd_black the value of the 64-bit board of white stones
 	 */
-	void assign(cull _brd_black, cull _brd_white){
-		brd_black = _brd_black;
+	void assign(cull _brd_white, cull _brd_black){
 		brd_white = _brd_white;
+		brd_black = _brd_black;
 	}
 
 	/** @fn board& initial()
 	 * @brief initialize the board
 	 */
 	void initial(){
-		return this->assign(0x0000000810000000,0x0000001008000000);
+		this->assign(0x0000001008000000, 0x0000000810000000);
 	}
 
 	/** @fn cull get_brd(cbool color)const
@@ -381,11 +381,11 @@ public:
 			| (brd & 0x00aa00aa00aa00aa) >> 1  | (brd & 0x0055005500550055) << 8;
 	}
 
-	/** @fn static void count(ull& brd)
+	/** @fn static pos_type count(ull& brd)
 	 * @brief count the number of bit which are set in a 64-bit board
 	 * @param brd the 64-bit board
 	 */
-	static pos_type count(cull brd){
+	static short count(cull brd){
 		ull result;
 
 		#ifdef USE_ASM
@@ -474,7 +474,7 @@ public:
 	/** @fn pos_type sum()const
 	 * @brief count the number of stones
 	 */
-	pos_type sum()const{
+	short sum()const{
 		return count(brd_black | brd_white);
 	}
 
@@ -494,23 +494,23 @@ public:
 	 * @param color whether it is black's turn
 	 * This part of code is brought from Zebra.
 	 * I rewrite it in 64-bit style.
-	 * If macro USE_ASM_AVX2 is defined, AVX2 instructions will be used.
 	 */
 	ull get_move(cbool color)const{
-
 
 		const ull& brd_blue = get_brd(color);
 		const ull& brd_green = get_brd(!color);
 		ull brd_green_inner;
 		ull moves;
 
-		#ifdef USE_ASM_AVX2
+	// don't know why my AVX2 assembly is slower
+	// I expect it to be as four times fast as ordinary version
+		#if 0 // defined(USE_ASM_AVX2)
 
 			ull table_brd_green[4] __attribute__((aligned(32)));
-			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+			static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 			ull table_move[4] __attribute__((aligned(32)));
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 			table_brd_green[0] = brd_green_inner;
 			table_brd_green[1] = brd_green_inner;
 			table_brd_green[2] = brd_green;
@@ -567,7 +567,7 @@ public:
 			ull brd_flip;
 			ull brd_green_adj;
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 
 			brd_flip = (brd_blue >> 1) & brd_green_inner;
 			brd_flip |= (brd_flip >> 1) & brd_green_inner;
@@ -660,14 +660,16 @@ public:
 		ull moves;
 		ull flips;
 
-		#ifdef USE_ASM_AVX2
+	// don't know why my AVX2 assembly is slower
+	// I expect it to be as four times fast as ordinary version
+		#if 0 // defined(USE_ASM_AVX2)
 
 			ull table_brd_green[4] __attribute__((aligned(32)));
 			static ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
 			ull table_move[4] __attribute__((aligned(32)));
 			ull table_flip[4] __attribute__((aligned(32)));
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 			table_brd_green[0] = brd_green_inner;
 			table_brd_green[1] = brd_green_inner;
 			table_brd_green[2] = brd_green;
@@ -759,7 +761,7 @@ public:
 			ull brd_green_adj;
 			ull move_part;
 
-			brd_green_inner = brd_green & 0x7E7E7E7E7E7E7E7Eu;
+			brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
 
 			brd_flip = (brd_blue >> 1) & brd_green_inner;
 			brd_flip |= (brd_flip >> 1) & brd_green_inner;
@@ -1007,7 +1009,7 @@ public:
 	 * @param color whether it's black's turn
 	 */
 	val_type score_end(cbool color)const{
-		val_type num_diff = count(color) - count(!color);
+		short num_diff = count(color) - count(!color);
 
 		if(num_diff > 0){
 			return num_diff + 2;
@@ -1147,7 +1149,7 @@ public:
 	 */
 	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
 
-	/** @fn val_type coordinate play(cmethod mthd, cbool color, cshort depth = -1)
+	/** @fn choice play(cmethod mthd, cbool color, cshort depth = -1)
 	 * @brief perform a search and make a move.
 	 * @param mthd the method
 	 * @param color whether it's black's turn
@@ -1162,7 +1164,15 @@ public:
 	 * mthd_end can only be added if depth is equal to the number of empty cells on the board.
 	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
 	 */
-	coordinate play(cmethod mthd, cbool color, cshort depth = -1);
+	choice play(cmethod mthd, cbool color, cshort depth = -1);
+
+	/** @fn board play_out(cmethod mthd, cbool color, cshort depth = -1)
+	 * @brief play to the end.
+	 * @param mthd the method
+	 * @param color whether it's black's turn
+	 * @param depth the depth of the search tree
+	 */
+	void play_out(cmethod mthd, bool color, cshort depth = -1);
 
 	/** @fn sts_type get_status(cbool color)
 	 * @brief get the status of the board

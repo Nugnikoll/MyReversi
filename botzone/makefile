@@ -9,7 +9,7 @@ RM = rm -f
 
 INC = 
 CFLAGS = 
-CXXFLAGS = -Wall -std=c++11 -O2
+CXXFLAGS = -Wall -std=c++17 -O2 -DUSE_ASM -DUSE_ASM_BMI2 -DUSE_ASM_AVX2 -DUSE_TERMINATE
 RESINC = 
 LIBDIR = 
 LIB = 
@@ -19,37 +19,64 @@ SRCDIR = ../cpp/
 OBJDIR = obj/
 OUTDIR = ./
 
+name = reversi
 SRC = $(wildcard $(SRCDIR)*.cc) main.cc
 OBJ = $(patsubst %.cc, %.o, $(patsubst $(SRCDIR)%, $(OBJDIR)%, $(SRC)))
-OUT = $(OUTDIR)reversi
+OUT = $(OUTDIR)$(name)
 
-.PHONY: all clean before
+get_depend = $(wordlist 2,100,$(shell g++ -std=c++17 -MM $(1) | awk -f parse.awk))
 
-all: $(OUT)
+.PHONY: all online offline clean before
+
+all: before $(OUT)
+
+online: all
+
+offline: all
 
 clean:
-	-$(RM) $(OBJDIR)*.o
+	-$(RM) $(OBJDIR)*.o *_merge.cc
 	-$(RM) $(addprefix $(OUTDIR), *.o *.exe *.dll *.so *.pyd *.log *.out) $(OUT)
 
 before:
 	test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	test -d $(OUTDIR) || mkdir -p $(OUTDIR)
 
-$(OUT): before $(OBJ)
-	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
+ifeq ($(filter online, $(MAKECMDGOALS)), online)
 
-$(OBJDIR)board.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)board.cc | awk -f parse.awk))
+$(OUT): $(OBJDIR)jsoncpp.o $(OBJDIR)main_merge.o
+	$(LD) $(LDFLAGS) $^ -o $@
+
+else
+
+$(OUT): $(OBJ)
+	$(LD) $(LDFLAGS) $(OBJ) -o $@
+
+endif
+
+$(OBJDIR)jsoncpp.o: $(call get_depend, $(SRCDIR)jsoncpp.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)flip.cc | awk -f parse.awk))
+$(OBJDIR)board.o: $(call get_depend, $(SRCDIR)board.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)search.cc | awk -f parse.awk))
+$(OBJDIR)flip.o: $(call get_depend, $(SRCDIR)flip.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)pattern.cc | awk -f parse.awk))
+$(OBJDIR)search.o: $(call get_depend, $(SRCDIR)search.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-main.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM main.cc | awk -f parse.awk))
+$(OBJDIR)sample.o: $(call get_depend, $(SRCDIR)sample.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(OBJDIR)pattern.o: $(call get_depend, $(SRCDIR)pattern.cc)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+main.o: $(call get_depend, main.cc)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)main_merge.o: main_merge.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+main_merge.cc: $(SRC) merge.py
+	python3 merge.py

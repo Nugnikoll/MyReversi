@@ -5,7 +5,6 @@
 #include <cstring>
 #include <chrono>
 #include <thread>
-#include <mutex>
 
 #include "../../cpp/jsoncpp/json.h"
 
@@ -93,18 +92,15 @@ int main(int argc, char *argv[], char *envp[]){
 		}
 		short depth;
 		vector<choice> choices;
-		mutex mtx;
 
 		if(flag_time){
 			auto fun = [&](){
 				try{
-					for(short i = 2; i != 100; ++i){
+					for(short i = 1; i <= board::size2 - brd.sum(); ++i){
 						auto p_mthd = brd.process_method(mthd, i);
 						auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second);
-						mtx.lock();
 						depth = i;
 						choices = temp;
-						mtx.unlock();
 					}
 				}catch(timeout_exception){}
 			};
@@ -133,6 +129,9 @@ int main(int argc, char *argv[], char *envp[]){
 		result["debug"]["rnd_val"] = best.rnd_val;
 		result["debug"]["board"]["black"] = brd.get_brd(true);
 		result["debug"]["board"]["white"] = brd.get_brd(false);
+		if(flag_continue){
+			result["control"]["continue"] = true;
+		}
 
 		cout << writer.write(result) << flush;
 

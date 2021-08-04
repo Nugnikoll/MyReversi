@@ -156,18 +156,18 @@ choice board::select_choice(vector<choice> choices,const float& variation){
 	}
 
 	return *max_element(
-		choices.begin(),choices.end(),
-		[](const choice& c1,const choice& c2) -> bool{
+		choices.begin(), choices.end(),
+		[](const choice& c1, const choice& c2) -> bool{
 			return c1.rnd_val < c2.rnd_val;
 		}
 	);
 }
 
-coordinate board::play(cmethod mthd, cbool color, cshort depth){
+choice board::play(cmethod mthd, cbool color, cshort depth){
 
-	vector<choice> choices = get_choice(mthd,color,depth);
+	vector<choice> choices = get_choice(mthd, color, depth);
 	if(choices.empty()){
-		return coordinate(-1,-1);
+		return choice{board(), 0, 0, -1};
 	}else{
 		choice best;
 		if(mthd == mthd_rnd){
@@ -180,9 +180,24 @@ coordinate board::play(cmethod mthd, cbool color, cshort depth){
 			}else{
 				variation = 0.3;
 			}
-			best = select_choice(choices,variation);
+			best = select_choice(choices, variation);
 		}
-		flip(color,best.pos);
-		return coordinate(best.pos);
+		flip(color, best.pos);
+		return best;
+	}
+}
+
+void board::play_out(cmethod mthd, bool color, cshort depth){
+	board brd = *this;
+	bool flag = true, flag_next = true;
+	pos_type pos;
+
+	while(flag || flag_next){
+		auto p_mthd = process_method(mthd, depth);
+		pos = play(p_mthd.first, color, p_mthd.second).pos;
+		color = !color;
+		flag = flag_next;
+		flag_next = (pos >= 0);
+		brd = *this;
 	}
 }

@@ -9,7 +9,7 @@ RM = rm -f
 
 INC = 
 CFLAGS = 
-CXXFLAGS = -Wall -pg -std=c++11 -fno-omit-frame-pointer -O2 -DUSE_ASM -DUSE_ASM_BMI2 -DUSE_ASM_AVX2
+CXXFLAGS = -Wall -pg -std=c++17 -fno-omit-frame-pointer -O2 -DUSE_ASM -DUSE_ASM_BMI2 -DUSE_ASM_AVX2
 RESINC = 
 LIBDIR = 
 LIB = 
@@ -22,6 +22,8 @@ OUTDIR = ./
 SRC = $(wildcard $(SRCDIR)*.cc) main.cc
 OBJ = $(patsubst %.cc, %.o, $(patsubst $(SRCDIR)%, $(OBJDIR)%, $(SRC)))
 OUT = $(OUTDIR)reversi
+
+get_depend = $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(1) | awk -f parse.awk))
 
 .PHONY: all clean before
 
@@ -43,28 +45,34 @@ test.dot: prof.log
 prof.log: $(OUT) gmon.out
 	gprof $(OUT) gmon.out > $@
 
-gmon.out: $(OUT) in.txt
-	cat in.txt | $(OUT)
-
 before:
 	test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	test -d $(OUTDIR) || mkdir -p $(OUTDIR)
 
-$(OUT): before $(OBJ)
+gmon.out: before $(OUT) in.txt
+	cat in.txt | $(OUT)
+
+$(OUT): $(OBJ)
 	$(LD) $(LDFLAGS) $(LIBDIR) $(OBJ) -o $@
 
-$(OBJDIR)board.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)board.cc | awk -f parse.awk))
+$(OBJDIR)jsoncpp.o: $(call get_depend, $(SRCDIR)jsoncpp.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)flip.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)flip.cc | awk -f parse.awk))
+$(OBJDIR)board.o: $(call get_depend, $(SRCDIR)board.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)search.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)search.cc | awk -f parse.awk))
+$(OBJDIR)flip.o: $(call get_depend, $(SRCDIR)flip.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)pattern.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM $(SRCDIR)pattern.cc | awk -f parse.awk))
+$(OBJDIR)search.o: $(call get_depend, $(SRCDIR)search.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-main.o: $(wordlist 2,100,$(shell g++ -std=c++11 -MM main.cc | awk -f parse.awk))
+$(OBJDIR)sample.o: $(call get_depend, $(SRCDIR)sample.cc)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)pattern.o: $(call get_depend, $(SRCDIR)pattern.cc)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+main.o: $(call get_depend, main.cc)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 

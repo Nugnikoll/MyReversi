@@ -1,5 +1,18 @@
 /** @file asm.h
  * @brief This file includes some macros for inline assembly.
+ *
+ * assembly instruction documents
+ * http://linasm.sourceforge.net/docs/instructions/index.php
+ * https://hjlebbink.github.io/x86doc/
+ * gcc inline assembly
+ * https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html
+ * gcc x86 builtin functions
+ * https://gcc.gnu.org/onlinedocs/gcc/x86-Built-in-Functions.html
+ * gcc other builtin functions
+ * https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
+ * how about openmp smid extensions?
+ * https://www.openmp.org/spec-html/5.0/openmpsu42.html
+ * https://devblogs.microsoft.com/cppblog/simd-extension-to-c-openmp-in-visual-studio/
  */
 
 #ifndef ASM_H

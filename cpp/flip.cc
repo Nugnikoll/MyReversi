@@ -1,6 +1,90 @@
 #include "board.h"
 
-#ifdef USE_ASM_BMI2
+// don't know why my AVX2 assembly is slower
+// I expect it to be as four times fast as ordinary version
+#if 0 // defined(USE_ASM_AVX2)
+
+void board::flip(cbool color, cpos_type pos){
+	ull& brd_blue = get_brd(color);
+	ull& brd_green = get_brd(!color);
+	ull brd_green_inner;
+	ull moves;
+
+	ull brd_pos = 0;
+	fun_bts(brd_pos, ull(pos));
+	ull table_brd_green[4] __attribute__((aligned(32)));
+	static const ull table_shift[4] __attribute__((aligned(32))) = {1, 7, 8, 9};
+	ull table_move[4] __attribute__((aligned(32)));
+
+	brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
+	table_brd_green[0] = brd_green_inner;
+	table_brd_green[1] = brd_green_inner;
+	table_brd_green[2] = brd_green;
+	table_brd_green[3] = brd_green_inner;
+	
+	asm volatile(
+		"vpbroadcastq %1, %%ymm0;"
+		"vmovapd %2, %%ymm1;"
+		"vmovapd %3, %%ymm2;"
+		"vpxor %%ymm8, %%ymm8, %%ymm8;"
+		"vpbroadcastq %4, %%ymm9;"
+		"vpsllq $1, %%ymm2, %%ymm3;"
+
+		"vpsrlvq %%ymm2, %%ymm0, %%ymm4;"
+		"vpand %%ymm1, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpor %%ymm5, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm2, %%ymm1, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsrlvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm5, %%ymm9, %%ymm5;"
+		"vpcmpeqq %%ymm5, %%ymm8, %%ymm5;"
+		"vpandn %%ymm4, %%ymm5, %%ymm7;"
+
+		"vpsllvq %%ymm2, %%ymm0, %%ymm4;"
+		"vpand %%ymm1, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpor %%ymm5, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm2, %%ymm1, %%ymm5;"
+		"vpand %%ymm1, %%ymm5, %%ymm5;"
+		"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm3, %%ymm4, %%ymm6;"
+		"vpand %%ymm5, %%ymm6, %%ymm6;"
+		"vpor %%ymm6, %%ymm4, %%ymm4;"
+		"vpsllvq %%ymm2, %%ymm4, %%ymm5;"
+		"vpand %%ymm5, %%ymm9, %%ymm5;"
+		"vpcmpeqq %%ymm5, %%ymm8, %%ymm5;"
+		"vpandn %%ymm4, %%ymm5, %%ymm4;"
+		"vpor %%ymm4, %%ymm7, %%ymm7;"
+
+		"vmovdqa %%ymm7, %0;"
+		:"=m"(table_move)
+		:"m"(brd_pos), "m"(table_brd_green), "m"(table_shift), "m"(brd_blue)
+		:"ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "ymm9"
+	);
+
+	moves = table_move[0] | table_move[1] | table_move[2] | table_move[3];
+
+	brd_blue |= moves;
+	brd_green &= ~moves;
+	if(moves){
+		fun_bts(brd_blue, ull(pos));
+	}
+}
+
+void board::config_flip(){}
+
+#elif defined(USE_ASM_BMI2)
 
 const pos_type pos_diag1[board::size2] = {
 	0,0,0,0,0,0,0,0,
@@ -165,52 +249,37 @@ void board::flip(cbool color,cpos_type pos){
 }
 
 unsigned short flip_line(cull data){
-
 	unsigned short brd_blue = (data >> 8) & 0xff;
-	unsigned short brd_blue_save = brd_blue;
 	unsigned short brd_green = data & 0xff;
-	unsigned short mask = 1 << (data >> 16);
-	unsigned short result = 0;
-	ull pos = mask;
+	unsigned short brd_pos = 1 << (data >> 16);
+	unsigned short result;
+	unsigned short brd_flip;
+	unsigned short brd_green_inner = brd_green & 0x7eu;
+	unsigned short brd_green_adj;
+	unsigned short moves = 0;
 
-	if((brd_blue | brd_green) & mask){
-		goto label_end;
-	}
-
-	while(pos & 0xfe){
-		pos >>= 1;
-		if(brd_green & pos)
-			continue;
-		if(brd_blue & pos){
-			while(pos <<= 1, pos != mask){
-				brd_blue |= pos;
-				brd_green &= ~pos;
-			}
+	#define flip_part(shift, val, brd_mask) \
+		brd_flip = (brd_pos shift val) & brd_mask; \
+		brd_flip |= (brd_flip shift val) & brd_mask; \
+		\
+		brd_green_adj = brd_mask & (brd_mask shift val); \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		\
+		if((brd_flip shift val) & brd_blue){ \
+			moves |= brd_flip; \
 		}
-		break;
-	}
-	pos = mask;
 
-	while(pos & 0x7f){
-		pos <<= 1;
-		if(brd_green & pos)
-			continue;
-		if(brd_blue & pos){
-			while(pos >>= 1, pos != mask){
-				brd_blue |= pos;
-				brd_green &= ~pos;
-			}
-		}
-		break;
-	}
-	pos = mask;
+	flip_part(<<, 1, brd_green_inner);
+	flip_part(>>, 1, brd_green_inner);
 
-	if(brd_blue != brd_blue_save){
-		brd_blue |= mask;
-		brd_green &= ~mask;
-	}
+	#undef flip_part
 
-	label_end:
+	brd_blue |= moves;
+	brd_green &= ~moves;
+	if(moves){
+		brd_blue |= brd_pos;
+	}
 
 	result = (brd_blue << 8) | brd_green;
 	return result;
@@ -235,7 +304,7 @@ void board::config_flip(){
 	}
 
 	for(ull i = 0;i != (1 << 19);++i){
-		if((i >> 8) & i & 0xff){}else{
+		if(!((i >> 8) & i & 0xff)){
 			table_flip[i] = flip_line(i);
 		}
 	}
@@ -243,161 +312,47 @@ void board::config_flip(){
 
 #else
 
-#define lbound 0xfefefefefefefefe
-#define rbound 0x7f7f7f7f7f7f7f7f
-#define ubound 0xffffffffffffff00
-#define dbound 0x00ffffffffffffff
-#define ulbound 0xfefefefefefefe00
-#define urbound 0x7f7f7f7f7f7f7f00
-#define dlbound 0x00fefefefefefefe
-#define drbound 0x007f7f7f7f7f7f7f
+void board::flip(cbool color, cpos_type pos){
+	ull& brd_blue = this->get_brd(color);
+	ull& brd_green = this->get_brd(!color);
+	ull brd_flip;
+	ull brd_green_inner = brd_green & 0x7e7e7e7e7e7e7e7eu;
+	ull brd_green_adj;
+	ull moves = 0;
+	ull brd_pos = 0;
 
-#define up(mask) mask >>= 8
-#define down(mask) mask <<= 8
-#define left(mask) mask >>= 1
-#define right(mask) mask <<= 1
-#define uleft(mask) mask >>= 9
-#define uright(mask) mask >>= 7
-#define dleft(mask) mask <<= 7
-#define dright(mask) mask <<= 9
+	fun_bts(brd_pos, ull(pos));
 
-#define flip_part(bound,dir1,dir2) \
-	while(pos & bound){ \
-		dir1(pos); \
-		if(green & pos) \
-			continue; \
-		if(blue & pos){ \
-			while(dir2(pos), pos != mask){ \
-				blue |= pos; \
-				green &= ~pos; \
-			} \
-		} \
-		break; \
-	} \
-	pos = mask;
+	#define flip_part(shift, val, brd_mask) \
+		brd_flip = (brd_pos shift val) & brd_mask; \
+		brd_flip |= (brd_flip shift val) & brd_mask; \
+		\
+		brd_green_adj = brd_mask & (brd_mask shift val); \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		brd_flip |= (brd_flip shift (val << 1)) & brd_green_adj; \
+		\
+		if((brd_flip shift val) & brd_blue){ \
+			moves |= brd_flip; \
+		}
 
-#define flip_part_u flip_part(ubound,up,down)
-#define flip_part_d flip_part(dbound,down,up)
-#define flip_part_l flip_part(lbound,left,right)
-#define flip_part_r flip_part(rbound,right,left)
-#define flip_part_ul flip_part(ulbound,uleft,dright)
-#define flip_part_ur flip_part(urbound,uright,dleft)
-#define flip_part_dl flip_part(dlbound,dleft,uright)
-#define flip_part_dr flip_part(drbound,dright,uleft)
+	flip_part(<<, 1, brd_green_inner);
+	flip_part(>>, 1, brd_green_inner);
+	flip_part(<<, 8, brd_green);
+	flip_part(>>, 8, brd_green);
+	flip_part(<<, 7, brd_green_inner);
+	flip_part(>>, 7, brd_green_inner);
+	flip_part(<<, 9, brd_green_inner);
+	flip_part(>>, 9, brd_green_inner);
 
-#define flip_fun(name,kernel) \
- \
-	void name(board* const& ptr,cbool color,cpos_type _pos){ \
-		ull& blue = ptr->get_brd(color), blue_save = blue; \
-		ull& green = ptr->get_brd(!color); \
-		ull mask = ull(1) << _pos;\
- \
-		ull pos = mask; \
- \
-		kernel \
- \
-		if(blue != blue_save){ \
-			blue |= mask; \
-			green &= ~mask; \
-		} \
+	#undef flip_part
+
+	brd_blue |= moves;
+	brd_green &= ~moves;
+	if(moves){
+		fun_bts(brd_blue, ull(pos));
 	}
-
-flip_fun(flip,
-	flip_part_u
-	flip_part_d
-	flip_part_l
-	flip_part_r
-	flip_part_ul
-	flip_part_ur
-	flip_part_dl
-	flip_part_dr
-)
-
-flip_fun(flip_o,
-	flip_part_u
-	flip_part_d
-	flip_part_l
-	flip_part_r
-	flip_part_ul
-	flip_part_ur
-	flip_part_dl
-	flip_part_dr
-)
-
-flip_fun(flip_u,
-	flip_part_u
-	flip_part_ul
-	flip_part_ur
-	flip_part_l
-	flip_part_r
-)
-
-flip_fun(flip_d,
-	flip_part_d
-	flip_part_dl
-	flip_part_dr
-	flip_part_l
-	flip_part_r
-)
-
-flip_fun(flip_l,
-	flip_part_l
-	flip_part_ul
-	flip_part_dl
-	flip_part_u
-	flip_part_d
-)
-
-flip_fun(flip_r,
-	flip_part_r
-	flip_part_ur
-	flip_part_dr
-	flip_part_u
-	flip_part_d
-)
-
-flip_fun(flip_ul,
-	flip_part_u
-	flip_part_l
-	flip_part_ul
-)
-
-flip_fun(flip_ur,
-	flip_part_u
-	flip_part_r
-	flip_part_ur
-)
-
-flip_fun(flip_dl,
-	flip_part_d
-	flip_part_l
-	flip_part_dl
-)
-
-flip_fun(flip_dr,
-	flip_part_d
-	flip_part_r
-	flip_part_dr
-)
-
-void flip_n(board* const&,cbool color,cpos_type pos){
 }
 
-void (* const table_flip[board::size2]) (board* const&,cbool,cpos_type) =
-{
-	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
-	flip_dr,flip_dr,flip_d,flip_d,flip_d,flip_d,flip_dl,flip_dl,
-	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_n,flip_n,flip_o,flip_l,flip_l,
-	flip_r,flip_r,flip_o,flip_o,flip_o,flip_o,flip_l,flip_l,
-	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul,
-	flip_ur,flip_ur,flip_u,flip_u,flip_u,flip_u,flip_ul,flip_ul
-};
-
-void board::flip(cbool color,cpos_type pos){
-	return (table_flip[pos])(this,color,pos);
-}
 void board::config_flip(){}
 
 #endif //USE_ASM

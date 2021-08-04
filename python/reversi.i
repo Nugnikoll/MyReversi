@@ -1,5 +1,12 @@
 // -*- c++ -*-
 
+// communication between c++ and python
+// https://www.zhihu.com/question/23003213
+// swig 4.0 document
+// http://www.swig.org/Doc4.0/SWIGDocumentation.html
+// swig and numpy
+// https://numpy.org/doc/stable/reference/swig.html
+
 %module(directors="1") reversi
 
 //%feature("autodoc", "3");
@@ -20,6 +27,7 @@
 	#include "../cpp/pattern.h"
 	#include "../cpp/log.h"
 	#include "../cpp/tree.h"
+	#include "../cpp/sample.h"
 %}
 
 %include "numpy.i"
@@ -74,10 +82,13 @@ ARRAY_ND(double);
 %include "../cpp/pattern.h"
 %include "../cpp/log.h"
 %include "../cpp/tree.h"
+%include "../cpp/sample.h"
 
 %template(shorts) std::vector<short>;
 %template(ints) std::vector<int>;
 %template(floats) std::vector<float>;
+%template(ulls) std::vector<ull>;
+%template(strings) std::vector<std::string>;
 %template(boards) std::vector<board>;
 %template(choices) std::vector<choice>;
 %template(patterns) std::vector<pattern>;

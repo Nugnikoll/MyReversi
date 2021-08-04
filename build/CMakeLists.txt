@@ -1,29 +1,17 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.14)
 project (reversi)
 set (REVERSI_VERSION 2.3)
 
 set (CMAKE_VERBOSE_MAKEFILE ON)
 
 include (CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG ("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if (NOT COMPILER_SUPPORTS_CXX11)
-    message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
+CHECK_CXX_COMPILER_FLAG ("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if (NOT COMPILER_SUPPORTS_CXX17)
+    message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++17 support.")
 endif ()
 
-include (FindPythonLibs)
-include (FindPythonInterp)
-message ("-- Found python libraries: ${PYTHON_LIBRARIES}")
-execute_process(
-	COMMAND "${PYTHON_EXECUTABLE}" "-c"
-	"import numpy; print(numpy.get_include());"
-	OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
-)
-message ("-- Found NumPy include files: ${NUMPY_INCLUDE_DIR}")
-
-find_package(SWIG 3.0.6)
-if ("${SWIG_FOUND}" STREQUAL "FALSE")
-	message (FATAL_ERROR "Cannot find swig.")
-endif ()
+find_package (Python3 REQUIRED COMPONENTS NumPy Interpreter Development)
+find_package (SWIG 3.0.6 REQUIRED)
 
 set (cpp_dir "${PROJECT_SOURCE_DIR}/../cpp")
 set (python_dir "${PROJECT_SOURCE_DIR}/../python")
@@ -39,14 +27,17 @@ set (
 	${cpp_dir}/log.h
 	${cpp_dir}/pattern.h
 	${cpp_dir}/tree.h
+	${cpp_dir}/sample.h
 )
 
 set (
 	source_file
+	${cpp_dir}/jsoncpp.cc
 	${cpp_dir}/board.cc
 	${cpp_dir}/flip.cc
 	${cpp_dir}/pattern.cc
 	${cpp_dir}/search.cc
+	${cpp_dir}/sample.cc
 )
 
 set (
@@ -80,12 +71,14 @@ if (NOT "${CMAKE_FORCE_ASM}" STREQUAL "")
 	endif ()
 	add_executable (cpuid ${cpuid_dir}/cpuid.cc)
 	add_executable (bot ${bot_dir}/sample/main.cc ${source_file} ${head_file})
+	set_property(TARGET bot PROPERTY CXX_STANDARD 17)
+	set_property(TARGET bot PROPERTY CXX_STANDARD_REQUIRED ON)
 	target_compile_options(bot PRIVATE "-DUSE_TERMINATE")
 	get_target_property(BOT_LINK_FLAGS bot LINK_FLAGS)
 	if("${BOT_LINK_FLAGS}" STREQUAL "BOT_LINK_FLAGS-NOTFOUND")
-	  SET(BOT_LINK_FLAGS "")
+		set (BOT_LINK_FLAGS "")
 	endif ()
-	set(BOT_LINK_FLAGS "${BOT_LINK_FLAGS} -static")
+	set (BOT_LINK_FLAGS "${BOT_LINK_FLAGS} -static")
 	if (NOT WIN32)
 		set(BOT_LINK_FLAGS "${BOT_LINK_FLAGS} -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
 	endif ()
@@ -123,9 +116,7 @@ endif ()
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
-include_directories ("${PYTHON_INCLUDE_DIRS}" "${NUMPY_INCLUDE_DIR}")
-
-message ("${SWIG_VERSION}")
+include_directories ("${Python3_INCLUDE_DIRS}" "${Python3_NumPy_INCLUDE_DIRS}")
 
 if ("${SWIG_VERSION}" VERSION_GREATER_EQUAL "4.0.0")
 	set (CMAKE_SWIG_EXTRA_FLAGS "-doxygen")
@@ -140,19 +131,19 @@ add_custom_command (
 )
 
 add_library(_reversi SHARED ${source_file} ${wrap_file})
-set_property(TARGET _reversi PROPERTY CXX_STANDARD 11)
+set_property(TARGET _reversi PROPERTY CXX_STANDARD 17)
 set_property(TARGET _reversi PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET _reversi PROPERTY CXX_EXTENSIONS OFF)
-target_link_libraries (_reversi ${PYTHON_LIBRARIES})
+target_link_libraries (_reversi ${Python3_LIBRARIES})
 
-if ("${CMAKE_FORCE_ASM}" EQUAL "")
+if ("${CMAKE_FORCE_ASM}" STREQUAL "")
 	if (WIN32)
 		add_custom_command(TARGET _reversi POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/_reversi.pyd
 		)
 	else ()
 		add_custom_command(TARGET _reversi POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_reversi> ${python_dir}/_reversi.so
 		)
 	endif ()
 endif()

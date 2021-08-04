@@ -5,8 +5,6 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include <unordered_set>
-#include <unordered_map>
 
 #include "type.h"
 
@@ -33,6 +31,7 @@ public:
 	pattern& operator=(pattern&&) = default;
 
 	static const int size = 2643200;
+	static const int csize;
 
 	val_type table[size];
 
@@ -49,6 +48,8 @@ public:
 		*ptrm = new val_type[size];
 		memcpy(*ptrm, table, sizeof(val_type) * size);
 	}
+	void from_compact(ARRAY_1D_IN_I(VAL_TYPE));
+	void compact(ARRAY_1D_OUT_M(VAL_TYPE))const;
 
 	static void config(const string& file_ptn = "");
 
@@ -67,13 +68,15 @@ public:
 	}
 
 	void load(const string& path);
+	void load(istream& fin);
 	void save(const string& path)const;
 
 	void balance();
+
+	static vector<string> get_name_list();
+	static vector<ull> get_ptn_list();
 };
 
-void sample_gen(ARRAY_2D_OUT_M(ULL), cint n);
-void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose = true);
 void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), ARRAY_2D_IN_I(ULL), cmethod mthd, cshort height, cbool flag_verbose = true);
 void evaluate(ARRAY_1D_OUT_M(VAL_TYPE), const pattern& ptn, ARRAY_2D_IN_I(ULL));
 void adjust(pattern& ptn, ARRAY_2D_IN_I(ULL), ARRAY_1D_IN_J(VAL_TYPE));

@@ -4,7 +4,6 @@
 #include <string>
 #include <chrono>
 #include <thread>
-#include <mutex>
 #include <algorithm>
 
 #ifdef _BOTZONE_ONLINE
@@ -17,99 +16,94 @@
 #include "../cpp/pattern.h"
 
 using namespace std;
- 
+
 int main(int argc, char *argv[], char *envp[]){
 	int x,y;
 	bool color;
 
 	board brd;
 	board::config();
-	pattern::config();
-	ptn.load("../data/pattern.dat");
+	#ifdef _BOTZONE_ONLINE
+		pattern::config("../data/pattern_test.dat");
+	#else
+		pattern::config("../data/pattern.dat");
+	#endif
 	brd.initial();
- 
- 	// input JSON
- 	string str;
- 	getline(cin, str);
- 	Json::Reader reader;
- 	Json::Value input,result;
+
+	string str;
+	getline(cin, str);
+	Json::Reader reader;
+	Json::Value input,result;
 	Json::FastWriter writer;
- 	reader.parse(str, input);
+	reader.parse(str, input);
 
- 	// 分析自己收到的输入和自己过往的输出，并恢复状态
- 	int turns = input["responses"].size();
- 	color = (input["requests"][(Json::Value::UInt) 0]["x"].asInt() < 0);
+	int turns = input["responses"].size();
+	color = (input["requests"][(Json::Value::UInt) 0]["x"].asInt() < 0);
 
- 	for (int i = 0; i < turns; i++)
- 	{
- 		// 根据这些输入输出逐渐恢复状态到当前回合
- 		x = input["requests"][i]["x"].asInt();
- 		y = input["requests"][i]["y"].asInt();
- 		if (x >= 0)
- 			brd.flip(!color,x + (y << 3)); // 模拟对方落子
+	for (int i = 0; i < turns; i++)
+	{
+		x = input["requests"][i]["x"].asInt();
+		y = input["requests"][i]["y"].asInt();
+		if (x >= 0)
+			brd.flip(!color,x + (y << 3));
 
- 		x = input["responses"][i]["x"].asInt();
- 		y = input["responses"][i]["y"].asInt();
- 		if (x >= 0)
- 		 	brd.flip(color,x + (y << 3)); // 模拟己方落子
- 	}
+		x = input["responses"][i]["x"].asInt();
+		y = input["responses"][i]["y"].asInt();
+		if (x >= 0)
+			brd.flip(color,x + (y << 3));
+	}
 
- 	// 看看自己本回合输入
- 	x = input["requests"][turns]["x"].asInt();
- 	y = input["requests"][turns]["y"].asInt();
+	x = input["requests"][turns]["x"].asInt();
+	y = input["requests"][turns]["y"].asInt();
 	if (x >= 0)
-		brd.flip(!color,x + (y << 3)); // 模拟对方落子
+		brd.flip(!color,x + (y << 3));
 
 	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans | mthd_mtdf);
 	short depth;
 	vector<choice> choices;
-	mutex mtx;
 	int depth_limit = 64 - brd.sum();
 	val_type principle_value[64];
 
 	auto fun = [&](){
-		for(short i = 1; i <= depth_limit; ++i){
-			auto p_mthd = brd.process_method(mthd, i);
-			val_type gamma;
-			if(p_mthd.second >= 4){
-				gamma = principle_value[i - 2];
-			}else{
-				gamma = inf;
-			}
-			auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second, _inf, inf, gamma);
-			if(temp.empty()){
-				break;
-			}
-
-			mtx.lock();
-			depth = i;
-			choices = temp;
-			principle_value[i] = max_element(
-				choices.begin(), choices.end(),
-				[](const choice& c1, const choice& c2) -> bool{
-					return c1.rnd_val < c2.rnd_val;
+		try{
+			for(short i = 1; i <= depth_limit; ++i){
+				auto p_mthd = brd.process_method(mthd, i);
+				val_type gamma;
+				if(p_mthd.second >= 4){
+					gamma = principle_value[i - 2];
+				}else{
+					gamma = inf;
 				}
-			)->val;
-			mtx.unlock();
+				auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second, _inf, inf, gamma);
+				if(temp.empty()){
+					break;
+				}
 
-//			mtx.lock();
-//			board::postprocess();
-//			mtx.unlock();
-		}
+				depth = i;
+				choices = temp;
+				principle_value[i] = max_element(
+					choices.begin(), choices.end(),
+					[](const choice& c1, const choice& c2) -> bool{
+						return c1.rnd_val < c2.rnd_val;
+					}
+				)->val;
+			}
+		}catch(timeout_exception){}
 	};
 
+	flag_timeout = false;
 	thread thrd(fun);
-	thrd.detach();
 
 	this_thread::sleep_for(chrono::milliseconds(900));
-	mtx.lock();
+	
+	flag_timeout = true;
+	thrd.join();
+	flag_timeout = false;
 
 	choice best{brd, 0, 0, -1};
 	if(!choices.empty()){
 		best = board::select_choice(choices, 0.2);
 	}
-
-	// 决策结束，输出结果（你只需修改以上部分）
 
 	if(best.pos >= 0){
 		result["response"]["x"] = best.pos & 7;
