@@ -45,4 +45,4 @@ cpuid/*
 
 pyinstaller/build/*
 pyinstaller/dist/*
-pyinstaller/cmake_build/*
+pyinstaller/cmake_build*
