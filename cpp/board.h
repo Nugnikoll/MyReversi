@@ -1128,15 +1128,11 @@ public:
 	 * 
 	 * Assume the return value is choices of type vector<choice>
 	 * The position of each choice is stored in choices[i].pos .
-	 * The evaluation of each choice is stored in choices[i].val .
-	 * The maximum value of choices[i].val is correct,
-	 * but it's not garranteed that the other value is correct.
-	 * If the difference between a value of the subtree and the maximum value is large than a specific threshold,
-	 * the value may not be returned correctly, as it's no point to know how bad a choice is. 
+	 * The evaluation of each choice is stored in choices[i].alpha and choices[i].beta .
 	 */
 	vector<choice> get_choice(
 		cmethod mthd, cbool color, cshort depth,
-		val_type alpha = _inf, val_type beta = inf, val_type gamma = inf
+		val_type alpha = _inf, val_type beta = inf, val_type guess = _inf, val_type threshold = 3
 	)const;
 
 	/** @fn static choice select_choice(vector<choice> choices, const float& variation = 0.75)
@@ -1147,7 +1143,7 @@ public:
 	 * The large the variation, the greater the randomness,
 	 * and the more likely to select an inferior choice.
 	 */
-	static choice select_choice(vector<choice> choices, const float& variation = 0.75);
+	static choice select_choice(vector<choice> choices, const float& factor = 20);
 
 	/** @fn choice play(cmethod mthd, cbool color, cshort depth = -1)
 	 * @brief perform a search and make a move.
@@ -1244,8 +1240,8 @@ namespace std{
 
 struct choice{
 	board brd;
-	float val;
-	float rnd_val;
+	float alpha;
+	float beta;
 	pos_type pos;
 };
 

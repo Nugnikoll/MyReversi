@@ -84,7 +84,7 @@ def load_list(fobj, name_list = None, need_full = False):
 def dump_list(fobj, head, data_list, mode = "bson"):
 	dump(fobj, head, mode = mode)
 	for i in data_list:
-		if type(i) is np.array:
+		if type(i) is np.ndarray:
 			np.save(fobj, i)
 		elif type(i) is rv.pattern:
 			fobj.write(i.compact().tobytes())

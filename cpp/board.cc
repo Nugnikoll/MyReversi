@@ -147,40 +147,37 @@ string board::to_string()const{
 	return result;
 }
 
-choice board::select_choice(vector<choice> choices,const float& variation){
+choice board::select_choice(vector<choice> choices, const float& factor){
+	int length = choices.size();
+	float *arr = new float[length];
 
-	normal_distribution<float> scatter(0,variation);
-
-	for(choice& c:choices){
-		c.rnd_val = c.val + scatter(engine);
+	float m = _inf;
+	for(const choice& c: choices){
+		m = max(m, c.beta);
+	}
+	for(int i = 0; i != length; ++i){
+		arr[i] = pow(factor, choices[i].beta - m);
 	}
 
-	return *max_element(
-		choices.begin(), choices.end(),
-		[](const choice& c1, const choice& c2) -> bool{
-			return c1.rnd_val < c2.rnd_val;
-		}
-	);
+	discrete_distribution<short> dist(arr, arr + length);
+	choice best = choices[dist(engine)];
+	delete arr;
+
+	return best;
 }
 
 choice board::play(cmethod mthd, cbool color, cshort depth){
 
 	vector<choice> choices = get_choice(mthd, color, depth);
 	if(choices.empty()){
-		return choice{board(), 0, 0, -1};
+		return choice{board(), _inf, inf, -1};
 	}else{
 		choice best;
 		if(mthd == mthd_rnd){
 			uniform_int_distribution<int> scatter(0, choices.size() - 1);
 			best = choices[scatter(engine)];
 		}else{
-			float variation;
-			if(mthd & mthd_ptn){
-				variation = 0.2;
-			}else{
-				variation = 0.3;
-			}
-			best = select_choice(choices, variation);
+			best = select_choice(choices);
 		}
 		flip(color, best.pos);
 		return best;

@@ -3,7 +3,6 @@
 import wx
 import sys
 import os
-import time
 import json
 import shlex
 import numpy as np
@@ -103,7 +102,11 @@ def format_brd(brd):
 		return rv.board(brd)
 
 def choice2str(self):
-	return "(\"%c%c\",%f)" % (chr((self.pos & 0x7) + ord("A")), chr((self.pos >> 3) + ord("1")), self.val)
+	return "(\"%c%c\",%f,%f)" % (
+		chr((self.pos & 0x7) + ord("A")),
+		chr((self.pos >> 3) + ord("1")),
+		self.alpha, self.beta
+	)
 setattr(rv.choice, "__str__", choice2str)
 
 def vals2str(self):
@@ -255,7 +258,7 @@ class game:
 			for c in self.choices:
 				x = c.pos & 7
 				y = c.pos >> 3
-				s = "%.3f" % c.val
+				s = "%.3f" % c.beta
 				dc.DrawText(
 					s,
 					bias + cell * x  + cell / 2 - 3.5 * len(s),

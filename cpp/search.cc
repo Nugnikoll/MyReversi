@@ -269,13 +269,13 @@ val_type board::search(
 			method mthd_presearch = method(mthd_de_mtdf & ~mthd_end & ~mthd_trans);
 			short depth_presearch = table_mtdf_depth[depth];
 
-			val_type gamma = this->search(mthd_presearch,color,depth_presearch);
+			val_type guess = this->search(mthd_presearch,color,depth_presearch);
 
 			mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
 
 			val_type window_width = sqrt(info.sigma) * 2;
-			val_type window_alpha = gamma + info.bias - window_width / 2;
-			val_type window_beta = gamma + info.bias + window_width / 2;
+			val_type window_alpha = guess + info.bias - window_width / 2;
+			val_type window_beta = guess + info.bias + window_width / 2;
 
 			val_type result = this->search(mthd_de_mtdf,color,depth, window_alpha, window_beta);
 
@@ -294,7 +294,7 @@ val_type board::search(
 			}
 
 			if(result > alpha && result < beta){
-				info.adjust(result - gamma);
+				info.adjust(result - guess);
 			}
 
 			return result;
@@ -931,7 +931,7 @@ val_type board::search_end_five(
 }
 
 vector<choice> board::get_choice(
-	cmethod mthd, cbool color, cshort depth, val_type alpha, val_type beta, val_type gamma
+	cmethod mthd, cbool color, cshort depth, val_type alpha, val_type beta, val_type guess, val_type threshold
 )const{
 
 	#ifdef DEBUG_SEARCH
@@ -941,7 +941,6 @@ vector<choice> board::get_choice(
     vector<choice> choices;
 	val_type result,best;
     choice temp;
-	val_type threshold = (mthd & mthd_ptn) ? 3 : 5;
 	val_type* ptr_val = table_val[this->sum()];
 
 	choices.reserve(30);
@@ -955,7 +954,7 @@ vector<choice> board::get_choice(
 		temp.pos = pos;
 		temp.brd.flip(color, pos);
 		if(mthd & mthd_kill){
-			temp.rnd_val = ptr_val[pos];
+			temp.alpha = ptr_val[pos];
 		}
 		choices.push_back(temp);
 		brd_move &= brd_move - 1;
@@ -969,9 +968,14 @@ vector<choice> board::get_choice(
 	if(mthd & mthd_kill){
 		sort(choices.begin(), choices.end(),
 			[](const choice& c1, const choice& c2) -> bool{
-				return c1.rnd_val > c2.rnd_val;
+				return c1.alpha > c2.alpha;
 			}
 		);
+	}
+
+	for(auto& c: choices){
+		c.alpha = _inf;
+		c.beta = inf;
 	}
 
 	if((mthd & mthd_mtdf) && depth >= depth_mtdf){
@@ -980,101 +984,86 @@ vector<choice> board::get_choice(
 		method mthd_presearch = method(mthd_de_mtdf & ~mthd_end);
 		short depth_presearch = table_mtdf_depth[depth];
 
-		if(gamma == inf){
-			gamma = this->search(mthd_presearch, color, depth_presearch);
+		if(guess == _inf){
+			guess = this->search(mthd_presearch, color, depth_presearch);
 		}
 		
 		mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
 		//cout << "num: " << info.num << " bias: " << info.bias << " sigma: " << info.sigma << endl;
 
 		val_type window_width = sqrt(info.sigma) * 2;
-		val_type window_alpha = gamma + info.bias - window_width / 2;
-		val_type window_beta = gamma + info.bias + window_width / 2;
-		val_type range_alpha = window_alpha;
+		val_type window_alpha = guess + info.bias - window_width / 2;
+		val_type window_beta = guess + info.bias + window_width / 2;
+		//val_type range_alpha = window_alpha;
 
-		best = _inf;
-		for(choice& c: choices){
-			result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-			c.val = result;
-			if(result <= window_alpha){
-				c.rnd_val = -1;
-			}else if(result >= window_beta){
-				c.rnd_val = 1;
+		while(true){
+			best = _inf;
+			for(choice& c: choices){
+				if(c.alpha == c.beta || c.alpha >= window_beta || c.beta <= window_alpha){
+					continue;
+				}
+				result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
+				if(result <= window_alpha){
+					c.beta = min(c.beta, result);
+				}else if(result >= window_beta){
+					c.alpha = max(c.alpha, result);
+				}else{
+					c.alpha = result;
+					c.beta = result;
+				}
+				if(mthd & mthd_kill){
+					ptr_val[c.pos] = result;
+				}
+				best = max(best, result);
+			}
+			if(best <= window_alpha && best > alpha){
+				//window_width *= 2;
+				window_beta = best;
+				window_alpha = window_beta - window_width;
+				//window_alpha = max(window_beta - window_width, alpha);
+			}else if(best >= window_beta && best < beta){
+				//window_width *= 2;
+				window_alpha = best;
+				window_beta = window_alpha + window_width;
+				//window_beta = min(window_alpha + window_width, beta);
 			}else{
-				c.rnd_val = 0;
+				break;
+			}
+		}
+
+		window_alpha = best - threshold;
+		window_beta = window_alpha + window_width;
+		for(choice& c: choices){
+			if(c.alpha == c.beta || c.alpha >= window_beta || c.beta <= window_alpha){
+				continue;
+			}
+			result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
+			if(result <= window_alpha){
+				c.beta = min(c.beta, result);
+			}else if(result >= window_beta){
+				c.alpha = max(c.alpha, result);
+			}else{
+				c.alpha = result;
+				c.beta = result;
 			}
 			if(mthd & mthd_kill){
 				ptr_val[c.pos] = result;
 			}
 			best = max(best, result);
 		}
-
-		if(best <= window_alpha && best > alpha){
-			do{
-				//window_width *= 2;
-				window_beta = best;
-				window_alpha = window_beta - window_width;
-				range_alpha = window_alpha;
-				//window_alpha = max(window_beta - window_width, alpha);
-				best = _inf;
-				for(choice& c: choices){
-					if(c.rnd_val == -1){
-						result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-						c.val = result;
-						if(result <= window_alpha){
-							c.rnd_val = -1;
-						}else if(result >= window_beta){
-							c.rnd_val = 1;
-						}else{
-							c.rnd_val = 0;
-						}
-						if(mthd & mthd_kill){
-							ptr_val[c.pos] = result;
-						}
-						best = max(best, result);
-					}
-				}
-			}while(best <= window_alpha && best > alpha);
-		}else if(best >= window_beta && best < beta){
-			do{
-				//window_width *= 2;
-				window_alpha = best;
-				window_beta = window_alpha + window_width;
-				//window_beta = min(window_alpha + window_width, beta);
-				best = _inf;
-				for(choice& c: choices){
-					if(c.rnd_val == 1){
-						result = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-						c.val = result;
-						if(result <= window_alpha){
-							c.rnd_val = -1;
-						}else if(result >= window_beta){
-							c.rnd_val = 1;
-						}else{
-							c.rnd_val = 0;
-						}
-						if(mthd & mthd_kill){
-							ptr_val[c.pos] = result;
-						}
-						best = max(best, result);
-					}
-				}
-			}while(best >= window_beta && best < beta);
-		}
-
-		while(range_alpha > best - threshold){
-			window_beta = range_alpha;
-			window_alpha = range_alpha - window_width;
-			range_alpha = window_alpha;
-			for(choice& c: choices){
-				if(c.val < window_beta && c.val > best - threshold){
-					c.val = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-				}
-			}
-		}
+		//while(range_alpha > best - threshold){
+			//window_beta = range_alpha;
+			//window_alpha = range_alpha - window_width;
+			//range_alpha = window_alpha;
+			//for(choice& c: choices){
+				//if(c.val < window_beta && c.val > best - threshold){
+					//c.val = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
+				//}
+			//}
+		//}
 
 		if(best > alpha && best < beta){
-			info.adjust(best - gamma);
+			info.adjust(best - guess);
 		}
 
 		return choices;
@@ -1088,7 +1077,14 @@ vector<choice> board::get_choice(
 		}
 		best = max(best, result);
 		alpha = best - threshold;
-		c.val = result;
+		if(result <= alpha){
+			c.beta = min(c.beta, result);
+		}else if(result >= beta){
+			c.alpha = max(c.alpha, result);
+		}else{
+			c.alpha = result;
+			c.beta = result;
+		}
 	}
 
     return choices;
@@ -1101,7 +1097,7 @@ vector<choice> board::get_choice(
 	val_type best = max_element(
 		result.begin(), result.end(),
 		[](const choice& c1, const choice& c2) -> bool{
-			return c1.rnd_val < c2.rnd_val;
+			return c1.val < c2.val;
 		}
 	)->val;
 	search_log.insert(log_record::node{*this, color, height, depth, _inf, inf, best});

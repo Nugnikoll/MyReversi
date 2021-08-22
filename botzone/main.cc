@@ -12,6 +12,9 @@
 	#include "../cpp/jsoncpp/json.h"
 #endif
 
+#ifndef USE_TERMINATE
+	#define USE_TERMINATE
+#endif
 #include "../cpp/board.h"
 #include "../cpp/pattern.h"
 
@@ -60,7 +63,7 @@ int main(int argc, char *argv[], char *envp[]){
 
 	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans | mthd_mtdf);
 	short depth;
-	vector<choice> choices;
+	choice best{brd, _inf, inf, -1};
 	int depth_limit = 64 - brd.sum();
 	val_type principle_value[64];
 
@@ -74,19 +77,18 @@ int main(int argc, char *argv[], char *envp[]){
 				}else{
 					gamma = inf;
 				}
-				auto temp = brd.get_choice(p_mthd.first, color, p_mthd.second, _inf, inf, gamma);
-				if(temp.empty()){
+				auto choices = brd.get_choice(p_mthd.first, color, p_mthd.second, _inf, inf, gamma);
+				if(choices.empty()){
 					break;
 				}
-
 				depth = i;
-				choices = temp;
 				principle_value[i] = max_element(
 					choices.begin(), choices.end(),
 					[](const choice& c1, const choice& c2) -> bool{
-						return c1.rnd_val < c2.rnd_val;
+						return c1.beta < c2.beta;
 					}
-				)->val;
+				)->beta;
+				best = board::select_choice(choices);
 			}
 		}catch(timeout_exception){}
 	};
@@ -94,16 +96,11 @@ int main(int argc, char *argv[], char *envp[]){
 	flag_timeout = false;
 	thread thrd(fun);
 
-	this_thread::sleep_for(chrono::milliseconds(900));
+	this_thread::sleep_for(900ms);
 	
 	flag_timeout = true;
 	thrd.join();
 	flag_timeout = false;
-
-	choice best{brd, 0, 0, -1};
-	if(!choices.empty()){
-		best = board::select_choice(choices, 0.2);
-	}
 
 	if(best.pos >= 0){
 		result["response"]["x"] = best.pos & 7;
@@ -114,8 +111,8 @@ int main(int argc, char *argv[], char *envp[]){
 	}
 	result["debug"]["depth"] = depth;
 	result["debug"]["color"] = color;
-	result["debug"]["val"] = best.val;
-	result["debug"]["rnd_val"] = best.rnd_val;
+	result["debug"]["alpha"] = best.alpha;
+	result["debug"]["beta"] = best.beta;
 	#ifdef _BOTZONE_ONLINE
 		result["debug"]["board"]["black"] = to_string(brd.get_brd(true));
 		result["debug"]["board"]["white"] = to_string(brd.get_brd(false));
@@ -123,10 +120,6 @@ int main(int argc, char *argv[], char *envp[]){
 		result["debug"]["board"]["black"] = brd.get_brd(true);
 		result["debug"]["board"]["white"] = brd.get_brd(false);
 	#endif
-	for(unsigned int i = 0; i != choices.size(); ++i){
-		result["debug"]["choice"][i]["pos"] = choices[i].pos;
-		result["debug"]["choice"][i]["val"] = choices[i].val;
-	}
 
 	cout << writer.write(result) << endl;
 

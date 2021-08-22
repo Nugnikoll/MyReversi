@@ -6,7 +6,7 @@
 ### Overview
 Reversi (also called Othello) is a kind of strategy board game which involves play by two parties on an eight-by-eight square grid. For details of reversi please go to [https://en.wikipedia.org/wiki/Reversi](https://en.wikipedia.org/wiki/Reversi).
 
-This reversi project is my simple work. The kernel is written in C++11 whith a bit inline assembly. The GUI is witten in python. It's open source and cross platform. I've managed to build it on Ubuntu and on Windows with MinGW g++ compiler. It's tailored for programming learning. To ease debugging and trainning, many C++ functions are wrapped and can be called interactively in the Python GUI application. The sources of this project can be merged in to a single file and submitted to [Botzone](https://botzone.org) which is a online platform for competition of differnt bots made by other students. The Python GUI application can also act as a judge by communicating with other reversi program in json format.
+This reversi project is my simple work. The kernel is written in C++ whith a bit inline assembly. The GUI is witten in python. It's open source and cross platform. I've managed to build it on Ubuntu and on Windows with MinGW g++ compiler. It's tailored for programming learning. To ease debugging and trainning, many C++ functions are wrapped and can be called interactively in the Python GUI application. The sources of this project can be merged in to a single file and submitted to [Botzone](https://botzone.org) which is a online platform for competition of differnt bots made by other students. The Python GUI application can also act as a judge by communicating with other reversi program in json format.
 
 ### Download
 [prebuilt binaries for Windows 64-bit](https://github.com/Nugnikoll/MyReversi/releases) 
@@ -15,13 +15,14 @@ This reversi project is my simple work. The kernel is written in C++11 whith a b
 
 - Prerequisites
 	- A decent C++ compiler  
-		C++11 must be supported by this compiler. g++, mingw32-g++ and clang++ are suggested.
+		C++17 must be supported by this compiler. g++, mingw32-g++ and clang++ are suggested.
 	- [Python3](https://www.python.org/)
 	- [Swig](http://swig.org/) >= 3.0.6
 	- [NumPy](http://www.numpy.org/)
 	- [CMake](https://cmake.org/) >= 3.14
-	- [wxPython](https://www.wxpython.org/)  
+	- [wxPython](https://www.wxpython.org/)
 	- [IPython](https://ipython.org/)
+
 	Please make sure that the directory of python3, swig and cmake has been appended to the environment variable PATH.
 
 - Build the library for reversi  

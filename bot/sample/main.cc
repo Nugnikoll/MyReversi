@@ -8,6 +8,9 @@
 
 #include "../../cpp/jsoncpp/json.h"
 
+#ifndef USE_TERMINATE
+	#define USE_TERMINATE
+#endif
 #include "../../cpp/board.h"
 #include "../../cpp/pattern.h"
 
@@ -125,8 +128,8 @@ int main(int argc, char *argv[], char *envp[]){
 		result["response"]["y"] = best.pos >> 3;
 		result["debug"]["depth"] = depth;
 		result["debug"]["color"] = color;
-		result["debug"]["val"] = best.val;
-		result["debug"]["rnd_val"] = best.rnd_val;
+		result["debug"]["alpha"] = best.alpha;
+		result["debug"]["beta"] = best.beta;
 		result["debug"]["board"]["black"] = brd.get_brd(true);
 		result["debug"]["board"]["white"] = brd.get_brd(false);
 		if(flag_continue){

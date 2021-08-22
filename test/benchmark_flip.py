@@ -4,21 +4,10 @@ import time
 import numpy as np
 
 sys.path.append("../python")
+sys.path.append("../app")
 
 import reversi as rv
-
-class time_span:
-	def __init__(self):
-		pass
-
-	def __enter__(self):
-		self.t = time.time()
-		pass
-
-	def __exit__(self, type, val, traceback):
-		t = time.time() - self.t
-		print("time: %f" % t)
-		pass
+import util
 
 rv.board.config()
 sample_path = "./sample_pos.npy"
@@ -28,7 +17,7 @@ else:
 	sample = rv.sample_pos_gen(10000)
 	np.save(sample_path, sample)
 
-with time_span():
+with util.timespan():
 	result = rv.benchmark_flip(sample)
 
 diff = (sample[:,3:5] != result)
