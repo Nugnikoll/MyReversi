@@ -989,12 +989,10 @@ vector<choice> board::get_choice(
 		}
 		
 		mtdf_info& info = table_mtdf_info[this->sum()][depth][depth_presearch];
-		//cout << "num: " << info.num << " bias: " << info.bias << " sigma: " << info.sigma << endl;
 
 		val_type window_width = sqrt(info.sigma) * 2;
 		val_type window_alpha = guess + info.bias - window_width / 2;
 		val_type window_beta = guess + info.bias + window_width / 2;
-		//val_type range_alpha = window_alpha;
 
 		while(true){
 			best = _inf;
@@ -1017,15 +1015,11 @@ vector<choice> board::get_choice(
 				best = max(best, result);
 			}
 			if(best <= window_alpha && best > alpha){
-				//window_width *= 2;
 				window_beta = best;
 				window_alpha = window_beta - window_width;
-				//window_alpha = max(window_beta - window_width, alpha);
 			}else if(best >= window_beta && best < beta){
-				//window_width *= 2;
 				window_alpha = best;
 				window_beta = window_alpha + window_width;
-				//window_beta = min(window_alpha + window_width, beta);
 			}else{
 				break;
 			}
@@ -1033,6 +1027,7 @@ vector<choice> board::get_choice(
 
 		window_alpha = best - threshold;
 		window_beta = window_alpha + window_width;
+		best = _inf;
 		for(choice& c: choices){
 			if(c.alpha == c.beta || c.alpha >= window_beta || c.beta <= window_alpha){
 				continue;
@@ -1051,16 +1046,6 @@ vector<choice> board::get_choice(
 			}
 			best = max(best, result);
 		}
-		//while(range_alpha > best - threshold){
-			//window_beta = range_alpha;
-			//window_alpha = range_alpha - window_width;
-			//range_alpha = window_alpha;
-			//for(choice& c: choices){
-				//if(c.val < window_beta && c.val > best - threshold){
-					//c.val = - c.brd.search(mthd_de_mtdf, !color, depth - 1, -window_beta, -window_alpha);
-				//}
-			//}
-		//}
 
 		if(best > alpha && best < beta){
 			info.adjust(best - guess);

@@ -101,17 +101,19 @@ void sample_pos_gen(ARRAY_2D_OUT_M(ULL), cint n){
 	}
 };
 
-void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
+void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cshort depth, cfloat noise, cbool flag_verbose){
 	unordered_set<board> brds;
 	board brd;
 	int m = 5;
 	bool color;
+	method mthd = method(mthd_ab | mthd_pvs | mthd_kill | mthd_ptn | mthd_trans);
 
 	while((int)brds.size() < n){
 		brd.initial();
 		color = true;
 		while(true){
-			brd.play(mthd_rnd, color, 0);
+			auto p_mthd = brd.process_method(mthd, depth);
+			brd.play(p_mthd.first, color, p_mthd.second, noise);
 			if(brd.get_move(!color)){
 				color = !color;
 			}
@@ -127,7 +129,7 @@ void sample_gen_select(ARRAY_2D_OUT_M(ULL), cint n, cbool flag_verbose){
 			}
 		}
 		if(flag_verbose && brds.size() % 1000 == 0){
-			cout << "\rfinish " << brds.size() << "/" << n;
+			cout << "\rfinish " << brds.size() << "/" << n << flush;
 		}
 		++m;
 		if(m >= 64){

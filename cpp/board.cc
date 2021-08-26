@@ -147,7 +147,7 @@ string board::to_string()const{
 	return result;
 }
 
-choice board::select_choice(vector<choice> choices, const float& factor){
+choice board::select_choice(vector<choice> choices, const float& noise){
 	int length = choices.size();
 	float *arr = new float[length];
 
@@ -156,7 +156,7 @@ choice board::select_choice(vector<choice> choices, const float& factor){
 		m = max(m, c.beta);
 	}
 	for(int i = 0; i != length; ++i){
-		arr[i] = pow(factor, choices[i].beta - m);
+		arr[i] = exp(noise * (choices[i].alpha - m));
 	}
 
 	discrete_distribution<short> dist(arr, arr + length);
@@ -166,7 +166,7 @@ choice board::select_choice(vector<choice> choices, const float& factor){
 	return best;
 }
 
-choice board::play(cmethod mthd, cbool color, cshort depth){
+choice board::play(cmethod mthd, cbool color, cshort depth, const float& noise){
 
 	vector<choice> choices = get_choice(mthd, color, depth);
 	if(choices.empty()){
@@ -177,7 +177,7 @@ choice board::play(cmethod mthd, cbool color, cshort depth){
 			uniform_int_distribution<int> scatter(0, choices.size() - 1);
 			best = choices[scatter(engine)];
 		}else{
-			best = select_choice(choices);
+			best = select_choice(choices, noise);
 		}
 		flip(color, best.pos);
 		return best;

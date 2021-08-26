@@ -952,6 +952,10 @@ public:
 		if(result.first == mthd_rnd){
 			return result;
 		}
+		if(result.second == 0){
+			result.first = mthd_rnd;
+			return result;
+		}
 
 		if(result.second == -1){
 			if(total <= 7){
@@ -1140,10 +1144,10 @@ public:
 	 * @param choices vector of choices
 	 * @param variation a float value greater than zero
 	 * 
-	 * The large the variation, the greater the randomness,
+	 * The large the noise, the greater the randomness,
 	 * and the more likely to select an inferior choice.
 	 */
-	static choice select_choice(vector<choice> choices, const float& factor = 20);
+	static choice select_choice(vector<choice> choices, const float& noise = 5);
 
 	/** @fn choice play(cmethod mthd, cbool color, cshort depth = -1)
 	 * @brief perform a search and make a move.
@@ -1160,7 +1164,7 @@ public:
 	 * mthd_end can only be added if depth is equal to the number of empty cells on the board.
 	 * Thus, the most commonly used mthd should be mthd_ab | mthd_kill | mthd_pvs | mthd_trans | mthd_mtdf | mthd_ptn .
 	 */
-	choice play(cmethod mthd, cbool color, cshort depth = -1);
+	choice play(cmethod mthd, cbool color, cshort depth = -1, const float& noise = 5);
 
 	/** @fn board play_out(cmethod mthd, cbool color, cshort depth = -1)
 	 * @brief play to the end.

@@ -26,6 +26,14 @@ parser.add_argument(
 	help = "generate target with old pattern and specify the path to find it"
 )
 parser.add_argument(
+	"--generate-depth", type = int, default = 0,
+	help = "the depth to search to generate samples (default: 0)"
+)
+parser.add_argument(
+	"--generate-noise", type = float, default = 0.5,
+	help = "the randomness to generate samples (default: 0.5)"
+)
+parser.add_argument(
 	"--search-depth", type = int, default = 4,
 	help = "the depth to search to evaluate each sample (default: 4)"
 )
@@ -54,7 +62,11 @@ args = parser.parse_args()
 mthd = rv.mthd_ab | rv.mthd_kill | rv.mthd_pvs | rv.mthd_mtdf
 
 rv.board.config()
-rv.pattern.config()
+if os.path.exists(args.path_pattern):
+	rv.pattern.config(args.path_pattern)
+	mthd = mthd | rv.mthd_ptn
+else:
+	rv.pattern.config()
 
 name = args.path_train
 
@@ -80,12 +92,18 @@ if not sample is None:
 else:
 	print("generate sample")
 	with util.timespan():
-		sample = rv.sample_gen_select(args.num_simulate)
+		sample = rv.sample_gen_select(
+			args.num_simulate,
+			args.generate_depth,
+			args.generate_noise,
+		)
 	head["append"].append({
 		"name": args.sample_alias,
 		"type": "npy",
 		"info": {
 			"type": "sample",
+			"depth": args.generate_depth,
+			"noise": args.generate_noise,
 			"mthd": rv.mthd_rnd,
 		},
 	})
@@ -94,10 +112,6 @@ else:
 		data.dump_list(fobj, head, npy_list)
 
 print("sample shape", sample.shape)
-
-if os.path.exists(args.path_pattern):
-	rv.pattern.config(args.path_pattern)
-	mthd = mthd | rv.mthd_ptn
 
 if args.search_depth:
 	if not target is None:
